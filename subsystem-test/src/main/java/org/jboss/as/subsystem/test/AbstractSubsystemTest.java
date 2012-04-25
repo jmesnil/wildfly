@@ -1,5 +1,6 @@
 package org.jboss.as.subsystem.test;
 
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ATTRIBUTES;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DEPLOYMENT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DESCRIPTION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.FAILURE_DESCRIPTION;
@@ -34,6 +35,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -358,6 +360,8 @@ public abstract class AbstractSubsystemTest {
         }
 
         validateDescriptionProviders(additionalInit, kernelServices);
+        ManagementResourceRegistration subsystemReg =  svc.rootRegistration.getSubModel(PathAddress.pathAddress(PathElement.pathElement(SUBSYSTEM,mainSubsystemName)));
+        validateModelDescriptions(PathAddress.EMPTY_ADDRESS, subsystemReg);
 
         return kernelServices;
     }
@@ -590,6 +594,30 @@ public abstract class AbstractSubsystemTest {
         }
 
         return clone;
+    }
+
+    public static void validateModelDescriptions(PathAddress address, ManagementResourceRegistration reg) {
+        ModelNode attributes = reg.getModelDescription(PathAddress.EMPTY_ADDRESS).getModelDescription(Locale.getDefault()).get(ATTRIBUTES);
+        Set<String> regAttributeNames = reg.getAttributeNames(PathAddress.EMPTY_ADDRESS);
+        Set<String> attributeNames = new HashSet<String>();
+        if (attributes.isDefined()) {
+            if (attributes.asList().size() != regAttributeNames.size()) {
+                for (Property p : attributes.asPropertyList()) {
+                    attributeNames.add(p.getName());
+                }
+                if (regAttributeNames.size() > attributeNames.size()) {
+                    regAttributeNames.removeAll(attributeNames);
+                    Assert.fail("More attributes defined on resource registration than in description, missing: " + regAttributeNames + " for " + address);
+                } else if (regAttributeNames.size() < attributeNames.size()) {
+                    attributeNames.removeAll(regAttributeNames);
+                    Assert.fail("More attributes defined in description than on resource registration, missing: " + attributeNames + " for " + address);
+                }
+            }
+        }
+        for (PathElement pe : reg.getChildAddresses(PathAddress.EMPTY_ADDRESS)) {
+            ManagementResourceRegistration sub = reg.getSubModel(PathAddress.pathAddress(pe));
+            validateModelDescriptions(address.append(pe), sub);
+        }
     }
 
     private void validateDescriptionProviders(AdditionalInitialization additionalInit, KernelServices kernelServices) {
