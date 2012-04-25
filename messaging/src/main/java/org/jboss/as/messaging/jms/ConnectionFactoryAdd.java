@@ -40,6 +40,7 @@ import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.messaging.CommonAttributes;
+import org.jboss.as.messaging.MessagingMessages;
 import org.jboss.as.messaging.MessagingServices;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
@@ -97,6 +98,15 @@ public class ConnectionFactoryAdd extends AbstractAddStepHandler {
     public static final ConnectionFactoryAdd INSTANCE = new ConnectionFactoryAdd();
 
     protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
+
+        boolean hasConnector = operation.hasDefined(CONNECTOR);
+        boolean hasDiscoveryGroup = operation.hasDefined(DISCOVERY_GROUP_NAME.getName());
+        if (!hasConnector && !hasDiscoveryGroup) {
+            throw new OperationFailedException(MessagingMessages.MESSAGES.invalidOperationParameters(CONNECTOR, DISCOVERY_GROUP_NAME.getName()));
+        } else if (hasConnector && hasDiscoveryGroup) {
+            throw new OperationFailedException(MessagingMessages.MESSAGES.cannotIncludeOperationParameters(CONNECTOR, DISCOVERY_GROUP_NAME.getName()));
+        }
+
         for (final AttributeDefinition attribute : JMSServices.CONNECTION_FACTORY_ATTRS) {
             attribute.validateAndSet(operation, model);
         }
