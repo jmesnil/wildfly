@@ -286,7 +286,6 @@ class LoggingSubsystemProviders {
 
             addCommonLoggerAttributes(node, bundle);
             USE_PARENT_HANDLERS.addResourceAttributeDescription(bundle, "logger", node);
-            CATEGORY.addResourceAttributeDescription(bundle, "logger", node);
 
             return node;
         }
@@ -393,7 +392,6 @@ class LoggingSubsystemProviders {
     }
 
     private static void addCommonHandlerAttributes(final ModelNode modelNode, final ResourceBundle bundle) {
-        NAME.addResourceAttributeDescription(bundle, "handler", modelNode);
         ENCODING.addResourceAttributeDescription(bundle, "handler", modelNode);
         LEVEL.addResourceAttributeDescription(bundle, "handler", modelNode);
         FILTER.addResourceAttributeDescription(bundle, "handler", modelNode);

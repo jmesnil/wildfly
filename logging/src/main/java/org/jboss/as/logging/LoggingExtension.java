@@ -43,6 +43,7 @@ import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.SubsystemRegistration;
 import org.jboss.as.controller.parsing.ExtensionParsingContext;
 import org.jboss.as.controller.registry.AttributeAccess;
+import org.jboss.as.controller.registry.AttributeAccess.Storage;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.registry.OperationEntry;
 import org.jboss.as.logging.handlers.AbstractLogHandlerWriteAttributeHandler;
@@ -201,6 +202,8 @@ public class LoggingExtension implements Extension {
         addWriteAttributes(customHandler, CustomHandlerWriteAttributeHandler.INSTANCE);
         // The properties attribute must be defined manually as it's not an AttributeDefinition
         customHandler.registerReadWriteAttribute(PROPERTIES, null, CustomHandlerWriteAttributeHandler.INSTANCE, EnumSet.of(AttributeAccess.Flag.RESTART_NONE));
+        customHandler.registerReadOnlyAttribute(CommonAttributes.CLASS, null);
+        customHandler.registerReadOnlyAttribute(CommonAttributes.MODULE, null);
     }
 
     /**
