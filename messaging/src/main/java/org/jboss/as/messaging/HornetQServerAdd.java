@@ -30,6 +30,7 @@ import static org.jboss.as.messaging.CommonAttributes.ALLOW_FAILBACK;
 import static org.jboss.as.messaging.CommonAttributes.ASYNC_CONNECTION_EXECUTION_ENABLED;
 import static org.jboss.as.messaging.CommonAttributes.BACKUP;
 import static org.jboss.as.messaging.CommonAttributes.BINDINGS_DIRECTORY;
+import static org.jboss.as.messaging.CommonAttributes.CF_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTERED;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTER_PASSWORD;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTER_USER;
@@ -37,6 +38,7 @@ import static org.jboss.as.messaging.CommonAttributes.CONNECTION_FACTORY;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTION_TTL_OVERRIDE;
 import static org.jboss.as.messaging.CommonAttributes.CREATE_BINDINGS_DIR;
 import static org.jboss.as.messaging.CommonAttributes.CREATE_JOURNAL_DIR;
+import static org.jboss.as.messaging.CommonAttributes.DISCOVERY_GROUP_NAME;
 import static org.jboss.as.messaging.CommonAttributes.FAILBACK_DELAY;
 import static org.jboss.as.messaging.CommonAttributes.FAILOVER_ON_SHUTDOWN;
 import static org.jboss.as.messaging.CommonAttributes.ID_CACHE_SIZE;
@@ -319,7 +321,12 @@ class HornetQServerAdd implements OperationStepHandler {
             configuration.setLiveConnectorName(LIVE_CONNECTOR_REF.resolveModelAttribute(context, model).asString());
         }
         configuration.setClustered(CLUSTERED.resolveModelAttribute(context, model).asBoolean());
-        configuration.setClusterPassword(CLUSTER_PASSWORD.resolveModelAttribute(context, model).asString());
+        try {
+            configuration.setClusterPassword(CLUSTER_PASSWORD.resolveModelAttribute(context, model).asString());
+        } catch (Exception e) {
+            // TODO remove this exception handler when the method will be updated and the exception declaration removed
+            throw new OperationFailedException(MessagingMessages.MESSAGES.invalid(CLUSTER_PASSWORD.getName()));
+        }
         configuration.setClusterUser(CLUSTER_USER.resolveModelAttribute(context, model).asString());
         configuration.setConnectionTTLOverride(CONNECTION_TTL_OVERRIDE.resolveModelAttribute(context, model).asInt());
         configuration.setCreateBindingsDir(CREATE_BINDINGS_DIR.resolveModelAttribute(context, model).asBoolean());
