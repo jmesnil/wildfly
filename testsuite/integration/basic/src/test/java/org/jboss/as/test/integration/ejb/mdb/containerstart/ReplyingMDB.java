@@ -32,6 +32,7 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
+import javax.ejb.MessageDrivenContext;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -58,8 +59,11 @@ import org.jboss.logging.Logger;
 public class ReplyingMDB implements MessageListener {
     private static final Logger log = Logger.getLogger(ReplyingMDB.class);
     
-    @Resource(mappedName = "java:/ConnectionFactory")
+    @Resource(lookup = "java:/ConnectionFactory")
     private ConnectionFactory factory;
+
+    @Resource
+    private MessageDrivenContext ctx;
 
     private Connection connection;
     private Session session;
@@ -67,12 +71,15 @@ public class ReplyingMDB implements MessageListener {
     
     private static final int WAIT_S = TimeoutUtil.adjust(10);
 
-    public void onMessage(Message message) {
+    public void onMessage(Message m) {
         try {
+            TextMessage message = (TextMessage) m;
+            String text = message.getText();
+            System.out.println("================== " + text + " redelivered=" + message.getJMSRedelivered());
+
             TextMessage replyMessage;
             if (message instanceof TextMessage) {
-                String text = ((TextMessage) message).getText();
-                if (text.equals("await")) {
+                if (text.equals("await") && !message.getJMSRedelivered()) {
                     // we have received the first message
                     HelperSingletonImpl.barrier.await(WAIT_S, SECONDS);
                     HelperSingletonImpl.barrier.reset();
@@ -87,13 +94,8 @@ public class ReplyingMDB implements MessageListener {
             Destination destination = message.getJMSReplyTo();
             sender.send(destination, replyMessage, NON_PERSISTENT, 1, SECONDS.toMillis(WAIT_S));
             log.info("onMessage method [OK], msg: " + message.toString());
-        } catch (JMSException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (BrokenBarrierException e) {
-            throw new RuntimeException(e);
-        } catch (TimeoutException e) {
+        } catch (Exception e) {
+            // ctx.setRollbackOnly();
             throw new RuntimeException(e);
         }
     }

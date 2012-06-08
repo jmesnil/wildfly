@@ -28,9 +28,11 @@ import static org.jboss.as.test.integration.common.jms.JMSOperationsProvider.get
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -175,6 +177,8 @@ public class SendMessagesTestCase {
     public void testShutdown(@ArquillianResource @OperateOnDeployment("singleton") ManagementClient client) throws Exception {
         Connection connection = null;
 
+        boolean redeploy = false;
+
         try {
             deployer.deploy("mdb");
             
@@ -196,24 +200,38 @@ public class SendMessagesTestCase {
 
             int awaitInt = awaitSingleton("first test"); // receive of first
             log.debug("testsuite: awaitSingleton() returned: " + awaitInt);
-            Future<?> undeployed = executor.submit(undeployTask());
-            // We want to wait for MDB.stop going into the semaphore
-            Thread.sleep(THREAD_WAIT_MS);
+
+            Future<?> undeployed = null;
+            if (redeploy) {
+                undeployed = executor.submit(undeployTask());
+                // We want to wait for MDB.stop going into the semaphore
+                Thread.sleep(THREAD_WAIT_MS);
+            }
+
             for (int i = 0; i < 50; i++) {
                 String msg = "Do not lose! (" + i + ")";
                 sendMessage(session, sender, replyQueue, msg); // should be bounced by BlockContainerShutdownInterceptor
                 expected.add("Reply: " + msg);
             }
-            awaitInt = awaitSingleton("second test"); // finalizing first
+            try {
+                awaitInt = awaitSingleton("second test"); // finalizing first
+                if (redeploy) {
+                    fail("MDB was not interrupted");
+                }
+            } catch (BrokenBarrierException e) {
+
+            }
             log.debug("testsuite: awaitSingleton()2 returned:: " + awaitInt);
 
-            undeployed.get(WAIT_S, SECONDS);
+            if (redeploy) {
+                undeployed.get(WAIT_S, SECONDS);
 
-            // deploying via management client, arquillian deployer does not work for some reason
-            final ModelNode deployAddr = new ModelNode();
-            deployAddr.get(ClientConstants.OP_ADDR).add("deployment", MBEAN + ".jar");
-            deployAddr.get(ClientConstants.OP).set("deploy");
-            applyUpdate(deployAddr, managementClient.getControllerClient());
+                // deploying via management client, arquillian deployer does not work for some reason
+                final ModelNode deployAddr = new ModelNode();
+                deployAddr.get(ClientConstants.OP_ADDR).add("deployment", MBEAN + ".jar");
+                deployAddr.get(ClientConstants.OP).set("deploy");
+                applyUpdate(deployAddr, managementClient.getControllerClient());
+            }
 
             for (int i = 0; i < 10; i++) {
                 String msg = "Some more (" + i + ")";
@@ -222,15 +240,21 @@ public class SendMessagesTestCase {
             }
             log.debug("Some more messages sent");
 
+            List<String> received = new ArrayList<String>();
             for (int i = 0; i < (1 + 50 + 10); i++) {
                 Message msg = receiver.receive(SECONDS.toMillis(WAIT_S));
-                assertNotNull(msg);
+                assertNotNull("did not receive message " + i, msg);
                 String text = ((TextMessage) msg).getText();
+                received.add(text);
                 log.info(i + ": " + text);
-                assertEquals("did not received expected message at " + i, expected.get(i), text);
+            }
+            assertNull(receiver.receiveNoWait());
+
+            for (int i = 0; i < expected.size(); i++) {
+                assertEquals("did not received expected message at " + i, expected.get(i), received.get(i));
             }
 
-            assertNull(receiver.receiveNoWait());
+
         } finally {
             if(connection != null) {
                 connection.close();
