@@ -25,9 +25,12 @@ package org.jboss.as.test.integration.ejb.mdb.containerstart;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static javax.jms.DeliveryMode.NON_PERSISTENT;
 import static org.jboss.as.test.integration.common.jms.JMSOperationsProvider.getInstance;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,7 +39,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -45,6 +47,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
+import javax.xml.soap.Text;
 
 import org.jboss.arquillian.container.test.api.Deployer;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -179,14 +182,15 @@ public class SendMessagesTestCase {
             Queue queue = (Queue) ctx.lookup(QUEUE_SEND);
 
             connection = cf.createConnection("guest", "guest");
-            connection.start();
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Queue replyQueue = session.createTemporaryQueue();
 
             MessageProducer sender = session.createProducer(queue);
             MessageConsumer receiver = session.createConsumer(replyQueue);
 
-            SortedSet<String> expected = new TreeSet<String>();
+            connection.start();
+
+            List<String> expected = new ArrayList<String>();
             sendMessage(session, sender, replyQueue, "await");
             expected.add("Reply: await");
 
@@ -218,18 +222,15 @@ public class SendMessagesTestCase {
             }
             log.debug("Some more messages sent");
 
-            SortedSet<String> received = new TreeSet<String>();
             for (int i = 0; i < (1 + 50 + 10); i++) {
                 Message msg = receiver.receive(SECONDS.toMillis(WAIT_S));
-                Assert.assertNotNull(msg);
+                assertNotNull(msg);
                 String text = ((TextMessage) msg).getText();
-                received.add(text);
                 log.info(i + ": " + text);
+                assertEquals("did not received expected message at " + i, expected.get(i), text);
             }
 
-            Assert.assertEquals(expected, received);
-
-            connection.stop();
+            assertNull(receiver.receiveNoWait());
         } finally {
             if(connection != null) {
                 connection.close();
