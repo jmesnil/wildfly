@@ -22,6 +22,10 @@
 
 package org.jboss.as.test.integration.ejb.mdb.containerstart;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static javax.jms.DeliveryMode.NON_PERSISTENT;
+import static org.jboss.as.test.integration.common.jms.JMSOperationsProvider.getInstance;
+
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
@@ -30,15 +34,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
@@ -71,10 +74,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static javax.jms.DeliveryMode.NON_PERSISTENT;
-import static org.jboss.as.test.integration.common.jms.JMSOperationsProvider.getInstance;
-
 /**
  * Part of migration EJB testsuite (JBAS-7922) to AS7 [JIRA JBQA-5483]. This test covers jira AS7-687 which aims to migrate this
  * test to new testsuite.
@@ -94,7 +93,6 @@ public class SendMessagesTestCase {
     private static ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private static String QUEUE_SEND = "queue/sendMessage";
-    private static String QUEUE_REPLY = "queue/replyMessage";
 
     private static final int WAIT_S = TimeoutUtil.adjust(10);
     private static final int THREAD_WAIT_MS = TimeoutUtil.adjust(1000);
@@ -108,14 +106,12 @@ public class SendMessagesTestCase {
         public void setup(final ManagementClient managementClient, final String containerId) throws Exception {
             final JMSOperations operations = getInstance(managementClient);
             operations.createJmsQueue(QUEUE_SEND, "java:jboss/exported/" + QUEUE_SEND);
-            operations.createJmsQueue(QUEUE_REPLY, "java:jboss/exported/" + QUEUE_REPLY);
         }
 
         @Override
         public void tearDown(final ManagementClient managementClient, final String containerId) throws Exception {
             final JMSOperations operations = getInstance(managementClient);
             operations.removeJmsQueue(QUEUE_SEND);
-            operations.removeJmsQueue(QUEUE_REPLY);
         }
     }
 
@@ -168,31 +164,27 @@ public class SendMessagesTestCase {
 
     private static void sendMessage(Session session, MessageProducer sender, Queue replyQueue, String txt) throws JMSException {
         TextMessage msg = session.createTextMessage(txt);
-        msg.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
         msg.setJMSReplyTo(replyQueue);
         sender.send(msg, NON_PERSISTENT, SEND_TIMEOUT_S, SECONDS.toMillis(WAIT_S));
     }
 
     @Test
     public void testShutdown(@ArquillianResource @OperateOnDeployment("singleton") ManagementClient client) throws Exception {
-        Session session = null;
-        MessageProducer sender = null;
-        MessageConsumer receiver = null;
-        QueueConnection connection = null;
+        Connection connection = null;
 
         try {
             deployer.deploy("mdb");
             
-            QueueConnectionFactory qcf = (QueueConnectionFactory) ctx.lookup("jms/RemoteConnectionFactory");
+            ConnectionFactory cf = (ConnectionFactory) ctx.lookup("jms/RemoteConnectionFactory");
             Queue queue = (Queue) ctx.lookup(QUEUE_SEND);
-            Queue replyQueue = (Queue) ctx.lookup(QUEUE_REPLY);
 
-            connection = qcf.createQueueConnection("guest", "guest");
+            connection = cf.createConnection("guest", "guest");
             connection.start();
-            session = connection.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Queue replyQueue = session.createTemporaryQueue();
 
-            sender = session.createProducer(queue);
-            receiver = session.createConsumer(replyQueue);
+            MessageProducer sender = session.createProducer(queue);
+            MessageConsumer receiver = session.createConsumer(replyQueue);
 
             SortedSet<String> expected = new TreeSet<String>();
             sendMessage(session, sender, replyQueue, "await");
@@ -241,18 +233,6 @@ public class SendMessagesTestCase {
         } finally {
             if(connection != null) {
                 connection.close();
-            }
-            if(session != null) {
-                session.close();
-            }
-            if(sender != null) {
-                sender.close();
-            }
-            if(receiver != null) {
-                receiver.close();
-            }
-            if(executor != null) {
-                executor.shutdown();
             }
             deployer.undeploy("mdb");
         }

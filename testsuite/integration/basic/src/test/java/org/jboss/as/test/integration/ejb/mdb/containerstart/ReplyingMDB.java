@@ -21,22 +21,30 @@
  */
 package org.jboss.as.test.integration.ejb.mdb.containerstart;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static javax.jms.DeliveryMode.NON_PERSISTENT;
+
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.TimeoutException;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
-import javax.jms.*;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 
 import org.jboss.as.test.shared.TimeoutUtil;
 import org.jboss.ejb3.annotation.ResourceAdapter;
 import org.jboss.logging.Logger;
-
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.TimeoutException;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static javax.jms.DeliveryMode.NON_PERSISTENT;
 
 /**
  * @author <a href="cdewolf@redhat.com">Carlo de Wolf</a>
@@ -51,11 +59,11 @@ public class ReplyingMDB implements MessageListener {
     private static final Logger log = Logger.getLogger(ReplyingMDB.class);
     
     @Resource(mappedName = "java:/ConnectionFactory")
-    private QueueConnectionFactory factory;
+    private ConnectionFactory factory;
 
-    private QueueConnection connection;
-    private QueueSession session;
-    private QueueSender sender;
+    private Connection connection;
+    private Session session;
+    private MessageProducer sender;
     
     private static final int WAIT_S = TimeoutUtil.adjust(10);
 
@@ -94,9 +102,9 @@ public class ReplyingMDB implements MessageListener {
     public void postConstruct() {
         log.info(ReplyingMDB.class.getSimpleName() + " was created");
         try {
-            connection = factory.createQueueConnection();
-            session = connection.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
-            sender = session.createSender(null);
+            connection = factory.createConnection();
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            sender = session.createProducer(null);
         } catch (JMSException e) {
             throw new RuntimeException(e);
         }
@@ -106,10 +114,6 @@ public class ReplyingMDB implements MessageListener {
     public void preDestroy() {
         log.info("Destroying MDB " + ReplyingMDB.class.getSimpleName());
         try {
-            if (sender != null)
-                sender.close();
-            if (session != null)
-                session.close();
             if (connection != null)
                 connection.close();
         } catch (JMSException e) {
