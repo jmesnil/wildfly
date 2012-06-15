@@ -170,6 +170,7 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             CONNECTION_TTL,
             CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
             CommonAttributes.CALL_TIMEOUT,
+            CommonAttributes.CALL_FAILOVER_TIMEOUT,
             RETRY_INTERVAL, RETRY_INTERVAL_MULTIPLIER, MAX_RETRY_INTERVAL,
             RECONNECT_ATTEMPTS, USE_DUPLICATE_DETECTION,
             FORWARD_WHEN_NO_CONSUMERS, MAX_HOPS,
