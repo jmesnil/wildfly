@@ -29,7 +29,6 @@ import static org.jboss.as.messaging.CommonAttributes.ALLOW_FAILBACK;
 import static org.jboss.as.messaging.CommonAttributes.ASYNC_CONNECTION_EXECUTION_ENABLED;
 import static org.jboss.as.messaging.CommonAttributes.BACKUP;
 import static org.jboss.as.messaging.CommonAttributes.BINDINGS_DIRECTORY;
-import static org.jboss.as.messaging.CommonAttributes.CLUSTERED;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTER_PASSWORD;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTER_USER;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTION_TTL_OVERRIDE;
@@ -52,7 +51,6 @@ import static org.jboss.as.messaging.CommonAttributes.JOURNAL_SYNC_NON_TRANSACTI
 import static org.jboss.as.messaging.CommonAttributes.JOURNAL_SYNC_TRANSACTIONAL;
 import static org.jboss.as.messaging.CommonAttributes.JOURNAL_TYPE;
 import static org.jboss.as.messaging.CommonAttributes.LARGE_MESSAGES_DIRECTORY;
-import static org.jboss.as.messaging.CommonAttributes.LIVE_CONNECTOR_REF;
 import static org.jboss.as.messaging.CommonAttributes.LOG_JOURNAL_WRITE_RATE;
 import static org.jboss.as.messaging.CommonAttributes.MANAGEMENT_ADDRESS;
 import static org.jboss.as.messaging.CommonAttributes.MANAGEMENT_NOTIFICATION_ADDRESS;
@@ -305,10 +303,7 @@ class HornetQServerAdd implements OperationStepHandler {
         configuration.setEnabledAsyncConnectionExecution(ASYNC_CONNECTION_EXECUTION_ENABLED.resolveModelAttribute(context, model).asBoolean());
 
         configuration.setBackup(BACKUP.resolveModelAttribute(context, model).asBoolean());
-        if(model.hasDefined(LIVE_CONNECTOR_REF.getName())) {
-            configuration.setLiveConnectorName(LIVE_CONNECTOR_REF.resolveModelAttribute(context, model).asString());
-        }
-        configuration.setClustered(CLUSTERED.resolveModelAttribute(context, model).asBoolean());
+
         configuration.setClusterPassword(CLUSTER_PASSWORD.resolveModelAttribute(context, model).asString());
         configuration.setClusterUser(CLUSTER_USER.resolveModelAttribute(context, model).asString());
         configuration.setConnectionTTLOverride(CONNECTION_TTL_OVERRIDE.resolveModelAttribute(context, model).asInt());
