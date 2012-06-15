@@ -103,8 +103,6 @@ class HornetQService implements Service<HornetQServer> {
 
         // Disable file deployment
         configuration.setFileDeploymentEnabled(false);
-        // Setup Logging
-        configuration.setLogDelegateFactoryClassName(LOGGING_FACTORY);
         // Setup paths
         PathManager pathManager = this.pathManager.getValue();
         configuration.setBindingsDirectory(pathConfig.resolveBindingsPath(pathManager));
