@@ -12,7 +12,6 @@
                 <class-name>foo.bar</class-name>
                 <class-name>bar.foo</class-name>
             </remoting-interceptors>
-            <live-connector-ref connector-name="in-vm"/>
             <journal-type>NIO</journal-type>
             <!-- Default journal file size is 10Mb, reduced here to 100k for faster first boot -->
             <journal-file-size>102400</journal-file-size>
@@ -144,6 +143,7 @@
                     <use-duplicate-detection>true</use-duplicate-detection>
                     <check-period>2345</check-period>
                     <call-timeout>3456</call-timeout>
+                    <call-failover-timeout>7890</call-failover-timeout>
                     <min-large-message-size>10245</min-large-message-size>
                     <confirmation-window-size>459</confirmation-window-size>
                     <static-connectors>
@@ -272,6 +272,7 @@
 				 <scheduled-thread-pool-max-size>24</scheduled-thread-pool-max-size>
 				 <thread-pool-max-size>48</thread-pool-max-size>
 				 <group-id>myGroup</group-id>
+                 <call-failover-timeout>7890</call-failover-timeout>
               </connection-factory>
               <pooled-connection-factory name="hornetq-ra">
                  <user>alice</user>
@@ -316,6 +317,7 @@
 				 <scheduled-thread-pool-max-size>24</scheduled-thread-pool-max-size>
 				 <thread-pool-max-size>48</thread-pool-max-size>
 				 <group-id>myGroup</group-id>
+             <call-failover-timeout>123</call-failover-timeout>
               </pooled-connection-factory>
               <pooled-connection-factory name="hornetq-ra-local">
                  <user>alice</user>

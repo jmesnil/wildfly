@@ -153,6 +153,7 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             CHECK_PERIOD,
             ALLOW_DIRECT_CONNECTIONS_ONLY,
             CommonAttributes.CALL_TIMEOUT,
+            CommonAttributes.CALL_FAILOVER_TIMEOUT,
             CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
             CommonAttributes.BRIDGE_CONFIRMATION_WINDOW_SIZE,
             CommonAttributes.DISCOVERY_GROUP_NAME,

@@ -29,19 +29,14 @@ import static org.jboss.as.controller.parsing.ParseUtils.readStringAttributeElem
 import static org.jboss.as.controller.parsing.ParseUtils.requireSingleAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
-import static org.jboss.as.messaging.CommonAttributes.CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.DEFAULT;
-import static org.jboss.as.messaging.CommonAttributes.DISCOVERY_GROUP_NAME;
 import static org.jboss.as.messaging.CommonAttributes.HORNETQ_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.JMS_BRIDGE;
 import static org.jboss.as.messaging.CommonAttributes.SELECTOR;
-import static org.jboss.as.messaging.CommonAttributes.TRANSACTION;
 import static org.jboss.as.messaging.Element.SOURCE;
 import static org.jboss.as.messaging.Element.TARGET;
 
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -50,8 +45,7 @@ import org.jboss.as.controller.ListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.parsing.ParseUtils;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
-import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Pooled;
-import org.jboss.as.messaging.jms.JndiEntriesAttribute;
+import org.jboss.as.messaging.jms.ConnectionFactoryAttributes;
 import org.jboss.as.messaging.jms.bridge.JMSBridgeDefinition;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
@@ -81,161 +75,56 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
         return Namespace.MESSAGING_1_3;
     }
 
-    @Override
-    protected void writePooledConnectionFactoryAttributes(XMLExtendedStreamWriter writer, String name, ModelNode factory)
-            throws XMLStreamException {
-        super.writePooledConnectionFactoryAttributes(writer, name, factory);
+   @Override
+   protected void writeCommonConnectionFactoryAttributes(XMLExtendedStreamWriter writer, String name, ModelNode factory)
+         throws XMLStreamException {
+      super.writeCommonConnectionFactoryAttributes(writer, name, factory);
 
-        Pooled.USE_AUTO_RECOVERY.marshallAsElement(factory, writer);
-    }
+      CommonAttributes.CALL_FAILOVER_TIMEOUT.marshallAsElement(factory, writer);
+   }
 
-    protected ModelNode createConnectionFactory(XMLExtendedStreamReader reader, ModelNode connectionFactory, boolean pooled) throws XMLStreamException
-    {
-        Set<Element> seen = EnumSet.noneOf(Element.class);
-        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-            final Element element = Element.forName(reader.getLocalName());
-            if (!seen.add(element)) {
-                throw ParseUtils.duplicateNamedElement(reader, element.getLocalName());
+   @Override
+   protected void writePooledConnectionFactoryAttributes(XMLExtendedStreamWriter writer, String name, ModelNode factory)
+         throws XMLStreamException {
+      super.writePooledConnectionFactoryAttributes(writer, name, factory);
+
+      ConnectionFactoryAttributes.Pooled.USE_AUTO_RECOVERY.marshallAsElement(factory, writer);
+   }
+
+   @Override
+   protected void handleUnknownConnectionFactoryAttribute(XMLExtendedStreamReader reader, Element element, ModelNode connectionFactory, boolean pooled)
+         throws XMLStreamException {
+      switch (element) {
+         case CALL_FAILOVER_TIMEOUT:
+            handleElementText(reader, element, connectionFactory);
+            break;
+         case COMPRESS_LARGE_MESSAGES:
+             handleElementText(reader, element, connectionFactory);
+             break;
+         case USE_AUTO_RECOVERY:
+            if (!pooled) {
+               throw unexpectedElement(reader);
             }
-            switch(element) {
-                // =========================================================
-                // elements common to regular & pooled connection factories
-                case DISCOVERY_GROUP_REF: {
-                    checkOtherElementIsNotAlreadyDefined(reader, seen, Element.DISCOVERY_GROUP_REF, Element.CONNECTORS);
-                    final String groupRef = readStringAttributeElement(reader, DISCOVERY_GROUP_NAME.getXmlName());
-                    DISCOVERY_GROUP_NAME.parseAndSetParameter(groupRef, connectionFactory, reader);
-                    break;
-                } case CONNECTORS: {
-                    checkOtherElementIsNotAlreadyDefined(reader, seen, Element.CONNECTORS, Element.DISCOVERY_GROUP_REF);
-                    connectionFactory.get(CONNECTOR).set(processJmsConnectors(reader));
-                    break;
-                } case ENTRIES: {
-                    while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-                        final Element local = Element.forName(reader.getLocalName());
-                        if(local != Element.ENTRY ) {
-                            throw ParseUtils.unexpectedElement(reader);
-                        }
-                        final String entry = readStringAttributeElement(reader, CommonAttributes.NAME);
-                        JndiEntriesAttribute.CONNECTION_FACTORY.parseAndAddParameterElement(entry, connectionFactory, reader);
-                    }
-                    break;
-                }
-                case HA:
-                case CLIENT_FAILURE_CHECK_PERIOD:
-                case CALL_TIMEOUT:
-                case COMPRESS_LARGE_MESSAGES:
-                case CONSUMER_WINDOW_SIZE:
-                case CONSUMER_MAX_RATE:
-                case CONFIRMATION_WINDOW_SIZE:
-                case PRODUCER_WINDOW_SIZE:
-                case PRODUCER_MAX_RATE:
-                case CACHE_LARGE_MESSAGE_CLIENT:
-                case CLIENT_ID:
-                case DUPS_OK_BATCH_SIZE:
-                case TRANSACTION_BATH_SIZE:
-                case BLOCK_ON_ACK:
-                case BLOCK_ON_NON_DURABLE_SEND:
-                case BLOCK_ON_DURABLE_SEND:
-                case AUTO_GROUP:
-                case PRE_ACK:
-                case FAILOVER_ON_INITIAL_CONNECTION:
-                case FAILOVER_ON_SERVER_SHUTDOWN:
-                case LOAD_BALANCING_CLASS_NAME:
-                case USE_GLOBAL_POOLS:
-                case GROUP_ID:
-                    handleElementText(reader, element, connectionFactory);
-                    break;
-                case CONNECTION_TTL:
-                case MAX_RETRY_INTERVAL:
-                case MIN_LARGE_MESSAGE_SIZE:
-                case RECONNECT_ATTEMPTS:
-                case RETRY_INTERVAL:
-                case RETRY_INTERVAL_MULTIPLIER:
-                case SCHEDULED_THREAD_POOL_MAX_SIZE:
-                case THREAD_POOL_MAX_SIZE:
-                    // Use the "connection" variant
-                    handleElementText(reader, element, "connection", connectionFactory);
-                    break;
-                // end of common elements
-                // =========================================================
+            handleElementText(reader, element, connectionFactory);
+            break;
+         default: {
+            super.handleUnknownConnectionFactoryAttribute(reader, element, connectionFactory, pooled);
+         }
+      }
+   }
 
-                // =========================================================
-                // elements specific to regular (non-pooled) connection factories
-                case CONNECTION_FACTORY_TYPE:
-                    if(pooled) {
-                        throw unexpectedElement(reader);
-                    }
-                    handleElementText(reader, element, connectionFactory);
-                    break;
-                // end of regular CF elements
-                // =========================================================
-
-                // =========================================================
-                // elements specific to pooled connection factories
-                case INBOUND_CONFIG: {
-                    if(!pooled) {
-                        throw unexpectedElement(reader);
-                    }
-                    while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-                        final Element local = Element.forName(reader.getLocalName());
-                        switch (local) {
-                            case USE_JNDI:
-                            case JNDI_PARAMS:
-                            case USE_LOCAL_TX:
-                            case SETUP_ATTEMPTS:
-                            case SETUP_INTERVAL:
-                                handleElementText(reader, local, connectionFactory);
-                                break;
-                            default:
-                                throw unexpectedElement(reader);
-                        }
-                    }
-                    break;
-                } case TRANSACTION: {
-                    if(!pooled) {
-                        throw ParseUtils.unexpectedElement(reader);
-                    }
-                    final String txType = reader.getAttributeValue(0);
-                    if( txType != null) {
-                        connectionFactory.get(TRANSACTION).set(txType);
-                    }
-                    ParseUtils.requireNoContent(reader);
-                    break;
-                }
-                case USER:
-                    if(!pooled) {
-                        throw unexpectedElement(reader);
-                    }
-                    // Element name is overloaded, handleElementText can not be used, we must use the correct attribute
-                    Pooled.USER.parseAndSetParameter(reader.getElementText(), connectionFactory, reader);
-                    break;
-                case PASSWORD:
-                    if(!pooled) {
-                        throw unexpectedElement(reader);
-                    }
-                    // Element name is overloaded, handleElementText can not be used, we must use the correct attribute
-                    Pooled.PASSWORD.parseAndSetParameter(reader.getElementText(), connectionFactory, reader);
-                    break;
-                case MAX_POOL_SIZE:
-                case MIN_POOL_SIZE:
-                case USE_AUTO_RECOVERY:
-                    if(!pooled) {
-                        throw unexpectedElement(reader);
-                    }
-                    handleElementText(reader, element, connectionFactory);
-                    break;
-                // end of pooled CF elements
-                // =========================================================
-                default: {
-                    throw ParseUtils.unexpectedElement(reader);
-                }
-            }
-        }
-
-        checkOnlyOneOfElements(reader, seen, Element.CONNECTORS, Element.DISCOVERY_GROUP_REF);
-
-        return connectionFactory;
-    }
+   @Override
+   protected void handleUnknownClusterConnectionAttribute(XMLExtendedStreamReader reader, Element element, ModelNode clusterConnectionAdd)
+         throws XMLStreamException {
+      switch (element) {
+         case CALL_FAILOVER_TIMEOUT:
+            handleElementText(reader, element, clusterConnectionAdd);
+            break;
+         default: {
+            super.handleUnknownClusterConnectionAttribute(reader, element, clusterConnectionAdd);
+         }
+      }
+   }
 
     protected void processHornetQServers(final XMLExtendedStreamReader reader, final ModelNode subsystemAddress, final List<ModelNode> list) throws XMLStreamException {
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
@@ -261,7 +150,7 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
         }
     }
 
-    private void processJmsBridge(XMLExtendedStreamReader reader, ModelNode subsystemAddress, List<ModelNode> list) throws XMLStreamException {
+   private void processJmsBridge(XMLExtendedStreamReader reader, ModelNode subsystemAddress, List<ModelNode> list) throws XMLStreamException {
         String bridgeName = null;
         String moduleName = null;
 

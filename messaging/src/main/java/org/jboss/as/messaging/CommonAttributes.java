@@ -82,6 +82,19 @@ public interface CommonAttributes {
             .setDefaultValue(new ModelNode().set(HornetQClient.DEFAULT_CALL_TIMEOUT)).setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true).build();
 
+    SimpleAttributeDefinition CALL_FAILOVER_TIMEOUT = create("call-failover-timeout",LONG)
+            .setDefaultValue(new ModelNode().set(HornetQClient.DEFAULT_CALL_FAILOVER_TIMEOUT))
+            .setAllowNull(true)
+            .setMeasurementUnit(MILLISECONDS)
+            .build();
+
+    // a <connector> used to defined (pooled/non-pooled) JMS CF.
+    // It is a map defined by connector name and undefined value.
+    // (legacy code, previously the value could be a backup-connector name but HornetQ no longer supports it)
+    SimpleAttributeDefinition CF_CONNECTOR = new SimpleAttributeDefinitionBuilder("connector", ModelType.OBJECT)
+            .setAllowNull(true)
+            .build();
+
     SimpleAttributeDefinition CHECK_PERIOD = create("check-period", LONG)
             .setDefaultValue(new ModelNode()
             .set(DEFAULT_CLIENT_FAILURE_CHECK_PERIOD))
@@ -93,10 +106,6 @@ public interface CommonAttributes {
     AttributeDefinition CLIENT_ID = create("client-id", ModelType.STRING)
             .setAllowNull(true)
             .build();
-
-    SimpleAttributeDefinition CLUSTERED = new SimpleAttributeDefinition("clustered",
-            new ModelNode().set(ConfigurationImpl.DEFAULT_CLUSTERED), ModelType.BOOLEAN, true,
-            AttributeAccess.Flag.RESTART_ALL_SERVICES);
 
     SimpleAttributeDefinition CLUSTER_PASSWORD = new SimpleAttributeDefinition("cluster-password", "cluster-password",
             new ModelNode().set(ConfigurationImpl.DEFAULT_CLUSTER_PASSWORD), ModelType.STRING, true, true, null,
@@ -250,6 +259,7 @@ public interface CommonAttributes {
             new ModelNode().set(ConfigurationImpl.DEFAULT_JOURNAL_TYPE.toString()), ModelType.STRING, true, false,
             MeasurementUnit.NONE, JournalTypeValidator.INSTANCE, null, null, AttributeAccess.Flag.RESTART_ALL_SERVICES);
 
+    // FIXME attribute is deprecated
     LiveConnectorRefAttribute LIVE_CONNECTOR_REF = LiveConnectorRefAttribute.INSTANCE;
 
     SimpleAttributeDefinition LOCAL_BIND_ADDRESS = create("local-bind-address", ModelType.STRING)
@@ -594,7 +604,7 @@ public interface CommonAttributes {
     String XA = "xa";
     String XA_TX = "XATransaction";
 
-    AttributeDefinition[] SIMPLE_ROOT_RESOURCE_ATTRIBUTES = { CLUSTERED, PERSISTENCE_ENABLED, SCHEDULED_THREAD_POOL_MAX_SIZE,
+    AttributeDefinition[] SIMPLE_ROOT_RESOURCE_ATTRIBUTES = { PERSISTENCE_ENABLED, SCHEDULED_THREAD_POOL_MAX_SIZE,
             THREAD_POOL_MAX_SIZE, SECURITY_DOMAIN, SECURITY_ENABLED, SECURITY_INVALIDATION_INTERVAL, WILD_CARD_ROUTING_ENABLED,
             MANAGEMENT_ADDRESS, MANAGEMENT_NOTIFICATION_ADDRESS, CLUSTER_USER, CLUSTER_PASSWORD, JMX_MANAGEMENT_ENABLED,
             JMX_DOMAIN, MESSAGE_COUNTER_ENABLED, MESSAGE_COUNTER_SAMPLE_PERIOD, MESSAGE_COUNTER_MAX_DAY_HISTORY,

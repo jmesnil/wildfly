@@ -209,6 +209,7 @@ public interface ConnectionFactoryAttributes {
                 create(BLOCK_ON_NON_DURABLE_SEND, "blockOnNonDurableSend", true),
                 create(CACHE_LARGE_MESSAGE_CLIENT, "cacheLargeMessagesClient", true),
                 create(CommonAttributes.CALL_TIMEOUT, "callTimeout", true),
+                create(CommonAttributes.CALL_FAILOVER_TIMEOUT, "callFailoverTimeout", true),
                 create(CLIENT_FAILURE_CHECK_PERIOD, "clientFailureCheckPeriod", true),
                 create(CommonAttributes.CLIENT_ID, "clientID", true),
                 create(COMPRESS_LARGE_MESSAGES, "compressLargeMessage", false), // FIXME HORNETQ-948

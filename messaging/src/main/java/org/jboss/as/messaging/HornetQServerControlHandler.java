@@ -22,12 +22,14 @@
 
 package org.jboss.as.messaging;
 
+import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_ATTRIBUTE_OPERATION;
 import static org.jboss.as.messaging.ManagementUtil.reportListOfString;
 import static org.jboss.as.messaging.ManagementUtil.reportRoles;
 import static org.jboss.as.messaging.ManagementUtil.reportRolesAsJSON;
 import static org.jboss.as.messaging.MessagingMessages.MESSAGES;
+import static org.jboss.dmr.ModelType.BOOLEAN;
 
 import java.util.EnumSet;
 import java.util.Locale;
@@ -67,7 +69,12 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
     public static final AttributeDefinition VERSION = new SimpleAttributeDefinition(CommonAttributes.VERSION, ModelType.STRING,
             false, AttributeAccess.Flag.STORAGE_RUNTIME);
 
-    private static final AttributeDefinition[] ATTRIBUTES = { STARTED, VERSION };
+    public static final SimpleAttributeDefinition CLUSTERED = create("clustered", BOOLEAN)
+            .setStorageRuntime()
+            .build();
+
+    private static final AttributeDefinition[] ATTRIBUTES = { STARTED, VERSION, CLUSTERED};
+
     public static final String GET_CONNECTORS_AS_JSON = "get-connectors-as-json";
 //    public static final String ENABLE_MESSAGE_COUNTERS = "enable-message-counters";
 //    public static final String DISABLE_MESSAGE_COUNTERS = "disable-message-counters";
@@ -111,6 +118,7 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
     private final ParametersValidator ipAddressValidator = new ParametersValidator();
     private final ParametersValidator optionalIpAddressValidator = new ParametersValidator();
     private final ParametersValidator connectionIdValidator = new ParametersValidator();
+
 
     private HornetQServerControlHandler() {
         final StringLengthValidator stringLengthValidator = new StringLengthValidator(1);
@@ -372,6 +380,8 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
         } else if (VERSION.getName().equals(name)) {
             String version = serverControl.getVersion();
             context.getResult().set(version);
+        } else if (CLUSTERED.getName().equals(name)) {
+            context.getResult().set(serverControl.isClustered());
         } else {
             // Bug
             throw MESSAGES.unsupportedAttribute(name);
