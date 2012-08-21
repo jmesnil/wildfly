@@ -303,7 +303,6 @@ class HornetQServerAdd implements OperationStepHandler {
         configuration.setEnabledAsyncConnectionExecution(ASYNC_CONNECTION_EXECUTION_ENABLED.resolveModelAttribute(context, model).asBoolean());
 
         configuration.setBackup(BACKUP.resolveModelAttribute(context, model).asBoolean());
-
         configuration.setClusterPassword(CLUSTER_PASSWORD.resolveModelAttribute(context, model).asString());
         configuration.setClusterUser(CLUSTER_USER.resolveModelAttribute(context, model).asString());
         configuration.setConnectionTTLOverride(CONNECTION_TTL_OVERRIDE.resolveModelAttribute(context, model).asInt());

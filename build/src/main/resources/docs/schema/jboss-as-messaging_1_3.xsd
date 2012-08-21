@@ -104,7 +104,6 @@
           <xs:element maxOccurs="1" minOccurs="0" name="failover-on-shutdown" type="xs:boolean" />
           <xs:element maxOccurs="1" minOccurs="0" name="shared-store" type="xs:boolean" />
           <xs:element maxOccurs="1" minOccurs="0" name="persist-delivery-count-before-delivery" type="xs:boolean" />
-          <xs:element maxOccurs="1" minOccurs="0" name="live-connector-ref" type="live-connectorType" />
           <xs:element maxOccurs="1" minOccurs="0" name="page-max-concurrent-io" type="xs:int" />
           <xs:element maxOccurs="1" minOccurs="0" name="create-bindings-dir" type="xs:boolean" />
           <xs:element maxOccurs="1" minOccurs="0" name="create-journal-dir" type="xs:boolean" />
@@ -612,10 +611,6 @@
           <xs:element maxOccurs="1" minOccurs="0" name="durable" type="xs:boolean" />
         </xs:all>
         <xs:attribute name="name" type="xs:string" use="required"/>
-    </xs:complexType>
-
-    <xs:complexType name="live-connectorType">
-       <xs:attribute name="connector-name" type="xs:string" use="required" />
     </xs:complexType>
 
     <xs:simpleType name="addressFullMessagePolicyType">
