@@ -1918,6 +1918,8 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
 
                    writeRegularConnectionFactoryAttributes(writer, name, factory);
                    writeCommonConnectionFactoryAttributes(writer, name, factory);
+
+                   writed.writeEndElement();
                 }
             }
         }
@@ -1936,6 +1938,8 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
 
                    writePooledConnectionFactoryAttributes(writer, name, factory);
                    writeCommonConnectionFactoryAttributes(writer, name, factory);
+
+                   writed.writeEndElement();
                 }
             }
         }
@@ -2025,8 +2029,6 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
         CommonAttributes.CONNECTION_SCHEDULED_THREAD_POOL_MAX_SIZE.marshallAsElement(factory, writer);
         CommonAttributes.CONNECTION_THREAD_POOL_MAX_SIZE.marshallAsElement(factory, writer);
         CommonAttributes.GROUP_ID.marshallAsElement(factory, writer);
-
-        writer.writeEndElement();
     }
 
     private void writeJmsQueues(final XMLExtendedStreamWriter writer, final ModelNode node) throws XMLStreamException {
