@@ -39,6 +39,8 @@ public class PooledConnectionFactoryAttributesTestCase {
         // these 2 props will *not* be supported since AS7 relies on vaulted passwords + expressions instead
         UNSUPPORTED_HORNETQ_RA_PROPERTIES.add("passwordCodec");
         UNSUPPORTED_HORNETQ_RA_PROPERTIES.add("useMaskedPassword");
+        UNSUPPORTED_HORNETQ_RA_PROPERTIES.add("jgroupsChannelName");
+        UNSUPPORTED_HORNETQ_RA_PROPERTIES.add("jgroupsFile");
 
         KNOWN_ATTRIBUTES = new TreeSet<String>();
         // these are supported but it is not found by JavaBeans introspector because of the type
