@@ -3392,6 +3392,18 @@
 
             <dependency>
                 <groupId>org.hornetq</groupId>
+                <artifactId>hornetq-commons</artifactId>
+                <version>${version.org.hornetq}</version>
+            </dependency>
+
+            <dependency>
+               <groupId>org.hornetq</groupId>
+               <artifactId>hornetq-journal</artifactId>
+               <version>${version.org.hornetq}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hornetq</groupId>
                 <artifactId>hornetq-core-client</artifactId>
                 <version>${version.org.hornetq}</version>
             </dependency>
