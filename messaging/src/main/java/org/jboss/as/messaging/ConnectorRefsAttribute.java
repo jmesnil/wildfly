@@ -62,7 +62,7 @@ public class ConnectorRefsAttribute extends PrimitiveListAttributeDefinition {
             if (list.size() > 0) {
 
                 if (wrap) {
-                    writer.writeStartElement(Element.STATIC_CONNECTORS.getLocalName());
+                    writer.writeStartElement(CommonAttributes.STATIC_CONNECTORS);
                 }
 
                 for (ModelNode child : list) {
