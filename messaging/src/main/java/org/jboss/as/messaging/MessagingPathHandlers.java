@@ -50,7 +50,7 @@ import org.jboss.msc.service.ServiceName;
 /**
  * @author Emanuel Muckenhuber
  */
-class MessagingPathHandlers {
+public class MessagingPathHandlers {
 
     public static final String[] PATHS = { BINDINGS_DIRECTORY,
         JOURNAL_DIRECTORY,
