@@ -257,12 +257,6 @@ public interface CommonAttributes {
             new ModelNode().set(ConfigurationImpl.DEFAULT_JOURNAL_TYPE.toString()), ModelType.STRING, true, false,
             MeasurementUnit.NONE, JournalTypeValidator.INSTANCE, null, null, AttributeAccess.Flag.RESTART_ALL_SERVICES);
 
-    SimpleAttributeDefinition LIVE_CONNECTOR_REF = create("live-connector-ref", ModelType.STRING)
-            .setAllowNull(true)
-            .setAttributeMarshaller(AttributeMarshallers.LIVE_CONNECTOR_REF_MARSHALLER)
-            .setRestartAllServices()
-            .build();
-
     SimpleAttributeDefinition LOCAL_BIND_ADDRESS = create("local-bind-address", ModelType.STRING)
             .setDefaultValue(null)
             .setAllowNull(true)
@@ -562,7 +556,7 @@ public interface CommonAttributes {
     String INBOUND_CONFIG = "inbound-config";
     String LARGE_MESSAGES_DIRECTORY = "large-messages-directory";
     String LAST_VALUE_QUEUE = "last-value=queue";
-    String LIVE_CONNECTOR_REF_STRING = "live-connector-ref";
+    String LIVE_CONNECTOR_REF = "live-connector-ref";
     String LOCAL = "local";
     String LOCAL_TX = "LocalTransaction";
     String MANAGE_XML_NAME = "manage";
@@ -615,7 +609,7 @@ public interface CommonAttributes {
             CONNECTION_TTL_OVERRIDE, ASYNC_CONNECTION_EXECUTION_ENABLED, TRANSACTION_TIMEOUT, TRANSACTION_TIMEOUT_SCAN_PERIOD,
             MESSAGE_EXPIRY_SCAN_PERIOD, MESSAGE_EXPIRY_THREAD_PRIORITY, ID_CACHE_SIZE, PERSIST_ID_CACHE, REMOTING_INTERCEPTORS,
             BACKUP, ALLOW_FAILBACK, FAILBACK_DELAY, FAILOVER_ON_SHUTDOWN, SHARED_STORE, PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY,
-            LIVE_CONNECTOR_REF, PAGE_MAX_CONCURRENT_IO, CREATE_BINDINGS_DIR, CREATE_JOURNAL_DIR, JOURNAL_TYPE, JOURNAL_BUFFER_TIMEOUT,
+            PAGE_MAX_CONCURRENT_IO, CREATE_BINDINGS_DIR, CREATE_JOURNAL_DIR, JOURNAL_TYPE, JOURNAL_BUFFER_TIMEOUT,
             JOURNAL_BUFFER_SIZE, JOURNAL_SYNC_TRANSACTIONAL, JOURNAL_SYNC_NON_TRANSACTIONAL, LOG_JOURNAL_WRITE_RATE,
             JOURNAL_FILE_SIZE, JOURNAL_MIN_FILES, JOURNAL_COMPACT_PERCENTAGE, JOURNAL_COMPACT_MIN_FILES, JOURNAL_MAX_IO,
             PERF_BLAST_PAGES, RUN_SYNC_SPEED_TEST, SERVER_DUMP_INTERVAL, MEMORY_WARNING_THRESHOLD, MEMORY_MEASURE_INTERVAL,
