@@ -520,6 +520,7 @@ public interface CommonAttributes {
     String CLASS_NAME = "class-name";
     String CLUSTER_CONNECTION = "cluster-connection";
     String CLUSTER_CONNECTIONS = "cluster-connections";
+    String CLUSTERED = "clustered";
     String CONNECTION_FACTORY = "connection-factory";
     String CONNECTOR = "connector";
     String CONNECTORS = "connectors";

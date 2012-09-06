@@ -60,7 +60,7 @@ public enum Element {
    BROADCAST_GROUPS(CommonAttributes.BROADCAST_GROUPS),
    BROADCAST_PERIOD(BroadcastGroupDefinition.BROADCAST_PERIOD),
    CLASS_NAME(CommonAttributes.CLASS_NAME),
-   CLUSTERED((String) null),
+   CLUSTERED(CommonAttributes.CLUSTERED),
    CLUSTER_CONNECTION(CommonAttributes.CLUSTER_CONNECTION),
    CLUSTER_CONNECTIONS(CommonAttributes.CLUSTER_CONNECTIONS),
    CLUSTER_PASSWORD(CommonAttributes.CLUSTER_PASSWORD),
