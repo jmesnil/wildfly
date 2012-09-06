@@ -33,6 +33,8 @@ public class PooledConnectionFactoryAttributesTestCase extends AttributesTestBas
         // these 2 props will *not* be supported since AS7 relies on vaulted passwords + expressions instead
         UNSUPPORTED_HORNETQ_RA_PROPERTIES.add("passwordCodec");
         UNSUPPORTED_HORNETQ_RA_PROPERTIES.add("useMaskedPassword");
+
+        // FIXME we need to bind these properties to AS7 clustering subsystem
         UNSUPPORTED_HORNETQ_RA_PROPERTIES.add("jgroupsChannelName");
         UNSUPPORTED_HORNETQ_RA_PROPERTIES.add("jgroupsFile");
 
