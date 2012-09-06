@@ -56,7 +56,7 @@
 		  <xs:element maxOccurs="1" minOccurs="0" name="clustered" type="xs:boolean">
 		      <xs:annotation>
                   <xs:documentation>
-                      Deprecated.
+                      Deprecated. A HornetQ server is clustered if it has at least one cluster-connection.
                   </xs:documentation>
               </xs:annotation>
 		  </xs:element>
