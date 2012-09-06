@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.hornetq.core.config.impl.ConfigurationImpl;
+import org.hornetq.core.config.Configuration;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.messaging.CommonAttributes;
 import org.jboss.as.messaging.MessagingPathHandlers;
@@ -29,6 +29,7 @@ public class ConfigurationAttributesTestCase extends AttributesTestBase
       UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("discoveryGroupConfigurations");
       UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("divertConfigurations");
       UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("queueConfigurations");
+      UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("groupingHandlerConfiguration");
 
       //stuff we dont want supported
       UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("fileDeployerScanPeriod");
@@ -45,6 +46,7 @@ public class ConfigurationAttributesTestCase extends AttributesTestBase
       UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("securityInvalidationInterval");
       UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("name");
       UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("maskPassword");
+      // FIXME: not sure if we shouldn't keep this one and flag it as deprecated
       UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("clustered");
 
 
@@ -82,7 +84,7 @@ public class ConfigurationAttributesTestCase extends AttributesTestBase
        convert(attributes);
         attributes.removeAll(KNOWN_ATTRIBUTES);
 
-        SortedSet<String> configurationProperties = findAllPropertyNames(ConfigurationImpl.class);
+        SortedSet<String> configurationProperties = findAllPropertyNames(Configuration.class);
         configurationProperties.removeAll(UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES);
 
         compare("AS7 Configuration Attributes", attributes,
