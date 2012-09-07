@@ -81,8 +81,6 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
         switch (element) {
             case CALL_FAILOVER_TIMEOUT:
             case COMPRESS_LARGE_MESSAGES:
-            case INITIAL_CONNECT_ATTEMPTS:
-            case INITIAL_MESSAGE_PACKET_SIZE:
                 handleElementText(reader, element, connectionFactory);
                 break;
             case USE_AUTO_RECOVERY:

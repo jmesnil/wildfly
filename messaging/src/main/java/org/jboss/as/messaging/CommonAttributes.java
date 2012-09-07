@@ -106,6 +106,7 @@ public interface CommonAttributes {
             .build();
 
     SimpleAttributeDefinition CLUSTERED = create("clustered", BOOLEAN)
+            .setDefaultValue(new ModelNode(false))
             .setDeprecated(VERSION_1_1_0)
             .setStorageRuntime()
             .setAttributeMarshaller(new AttributeMarshaller() {
