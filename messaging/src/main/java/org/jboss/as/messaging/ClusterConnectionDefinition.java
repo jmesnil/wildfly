@@ -64,6 +64,8 @@ import org.jboss.dmr.ModelNode;
  */
 public class ClusterConnectionDefinition extends SimpleResourceDefinition {
 
+    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.CLUSTER_CONNECTION);
+
     public static final String GET_NODES = "get-nodes";
 
     // we keep the operation for backwards compatibility but it duplicates the "static-connectors" writable attribute
@@ -194,7 +196,7 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
     };
 
     public ClusterConnectionDefinition(final boolean registerRuntimeOnly) {
-        super(PathElement.pathElement(CommonAttributes.CLUSTER_CONNECTION),
+        super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.CLUSTER_CONNECTION),
                 ClusterConnectionAdd.INSTANCE,
                 ClusterConnectionRemove.INSTANCE);

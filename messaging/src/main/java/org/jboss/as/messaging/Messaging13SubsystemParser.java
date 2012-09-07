@@ -99,18 +99,18 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
         }
     }
 
-    @Override
-    protected void handleUnknownClusterConnectionAttribute(XMLExtendedStreamReader reader, Element element, ModelNode clusterConnectionAdd)
-            throws XMLStreamException {
-        switch (element) {
-            case CALL_FAILOVER_TIMEOUT:
-                handleElementText(reader, element, clusterConnectionAdd);
-                break;
-            default: {
-                super.handleUnknownClusterConnectionAttribute(reader, element, clusterConnectionAdd);
-            }
-        }
-    }
+   @Override
+   protected void handleUnknownClusterConnectionAttribute(XMLExtendedStreamReader reader, Element element, ModelNode clusterConnectionAdd)
+         throws XMLStreamException {
+      switch (element) {
+         case CALL_FAILOVER_TIMEOUT:
+            handleElementText(reader, element, clusterConnectionAdd);
+            break;
+         default: {
+            super.handleUnknownClusterConnectionAttribute(reader, element, clusterConnectionAdd);
+         }
+      }
+   }
 
     protected void processHornetQServers(final XMLExtendedStreamReader reader, final ModelNode subsystemAddress, final List<ModelNode> list) throws XMLStreamException {
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
