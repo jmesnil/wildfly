@@ -24,18 +24,12 @@ package org.jboss.as.messaging;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DESCRIBE;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.FAILED;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.FAILURE_DESCRIPTION;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.IGNORED;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OUTCOME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PATH;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRITE_ATTRIBUTE_OPERATION;
-import static org.jboss.as.controller.transform.OperationResultTransformer.ORIGINAL_RESULT;
+import static org.jboss.as.messaging.CommonAttributes.CALL_FAILOVER_TIMEOUT;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTERED;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTER_CONNECTION;
-import static org.jboss.as.messaging.CommonAttributes.CLUSTER_CONNECTIONS;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTION_FACTORY;
 import static org.jboss.as.messaging.CommonAttributes.HA;
 import static org.jboss.as.messaging.CommonAttributes.HORNETQ_SERVER;
@@ -45,16 +39,14 @@ import static org.jboss.as.messaging.Namespace.MESSAGING_1_0;
 import static org.jboss.as.messaging.Namespace.MESSAGING_1_1;
 import static org.jboss.as.messaging.Namespace.MESSAGING_1_2;
 import static org.jboss.as.messaging.Namespace.MESSAGING_1_3;
+import static org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Common.COMPRESS_LARGE_MESSAGES;
+import static org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Pooled.USE_AUTO_RECOVERY;
 import static org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Regular.FACTORY_TYPE;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.Extension;
 import org.jboss.as.controller.ExtensionContext;
 import org.jboss.as.controller.ModelVersion;
-import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.ResourceDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
@@ -66,12 +58,11 @@ import org.jboss.as.controller.parsing.ExtensionParsingContext;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.registry.OperationEntry;
 import org.jboss.as.controller.transform.AbstractSubsystemTransformer;
-import org.jboss.as.controller.transform.OperationResultTransformer;
-import org.jboss.as.controller.transform.OperationTransformer;
 import org.jboss.as.controller.transform.RejectExpressionValuesTransformer;
 import org.jboss.as.controller.transform.TransformationContext;
 import org.jboss.as.controller.transform.TransformersSubRegistration;
-import org.jboss.as.messaging.jms.ConnectionFactoryAttributes;
+import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Common;
+import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Pooled;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
 import org.jboss.as.messaging.jms.JMSTopicDefinition;
@@ -252,26 +243,26 @@ public class MessagingExtension implements Extension {
                 ModelNode oldModel = model.clone();
                 if (oldModel.hasDefined(HORNETQ_SERVER)) {
                     for (Property server : oldModel.get(HORNETQ_SERVER).asPropertyList()) {
-                        boolean hasClusterConnections = server.getValue().hasDefined(CLUSTER_CONNECTION);
+
                         if (!oldModel.get(HORNETQ_SERVER, server.getName()).hasDefined(CLUSTERED.getName())) {
                             oldModel.get(HORNETQ_SERVER, server.getName()).get(CLUSTERED.getName()).set(false);
                         }
 
-                        if (hasClusterConnections) {
+                        if (server.getValue().hasDefined(CLUSTER_CONNECTION)) {
                             for (Property clusterConnection : server.getValue().get(CLUSTER_CONNECTION).asPropertyList()) {
-                                oldModel.get(HORNETQ_SERVER, server.getName(), CLUSTER_CONNECTION, clusterConnection.getName()).remove(CommonAttributes.CALL_FAILOVER_TIMEOUT.getName());
+                                oldModel.get(HORNETQ_SERVER, server.getName(), CLUSTER_CONNECTION, clusterConnection.getName()).remove(CALL_FAILOVER_TIMEOUT.getName());
                             }
                         }
                         if (server.getValue().hasDefined(POOLED_CONNECTION_FACTORY)) {
                             for (Property pooledConnectionFactory : server.getValue().get(POOLED_CONNECTION_FACTORY).asPropertyList()) {
-                                oldModel.get(HORNETQ_SERVER, server.getName(), POOLED_CONNECTION_FACTORY, pooledConnectionFactory.getName()).remove(ConnectionFactoryAttributes.Pooled.USE_AUTO_RECOVERY.getName());
-                                oldModel.get(HORNETQ_SERVER, server.getName(), POOLED_CONNECTION_FACTORY, pooledConnectionFactory.getName()).remove(ConnectionFactoryAttributes.Common.COMPRESS_LARGE_MESSAGES.getName());
-                                oldModel.get(HORNETQ_SERVER, server.getName(), POOLED_CONNECTION_FACTORY, pooledConnectionFactory.getName()).remove(CommonAttributes.CALL_FAILOVER_TIMEOUT.getName());
+                                oldModel.get(HORNETQ_SERVER, server.getName(), POOLED_CONNECTION_FACTORY, pooledConnectionFactory.getName()).remove(USE_AUTO_RECOVERY.getName());
+                                oldModel.get(HORNETQ_SERVER, server.getName(), POOLED_CONNECTION_FACTORY, pooledConnectionFactory.getName()).remove(COMPRESS_LARGE_MESSAGES.getName());
+                                oldModel.get(HORNETQ_SERVER, server.getName(), POOLED_CONNECTION_FACTORY, pooledConnectionFactory.getName()).remove(CALL_FAILOVER_TIMEOUT.getName());
                             }
                         }
                         if (server.getValue().hasDefined(CONNECTION_FACTORY)) {
                             for (Property connectionFactory : server.getValue().get(CONNECTION_FACTORY).asPropertyList()) {
-                                oldModel.get(HORNETQ_SERVER, server.getName(), CONNECTION_FACTORY, connectionFactory.getName()).remove(CommonAttributes.CALL_FAILOVER_TIMEOUT.getName());
+                                oldModel.get(HORNETQ_SERVER, server.getName(), CONNECTION_FACTORY, connectionFactory.getName()).remove(CALL_FAILOVER_TIMEOUT.getName());
                                 if (!connectionFactory.getValue().hasDefined(HA.getName())) {
                                     oldModel.get(HORNETQ_SERVER, server.getName(), CONNECTION_FACTORY, connectionFactory.getName()).get(HA.getName()).set(HA.getDefaultValue());
                                 }
@@ -286,20 +277,8 @@ public class MessagingExtension implements Extension {
             }
         });
 
-        TransformersSubRegistration server = transformers.registerSubResource(PathElement.pathElement(CommonAttributes.HORNETQ_SERVER));
-        server.registerOperationTransformer(ADD, new OperationTransformer() {
-            @Override
-            public TransformedOperation transformOperation(TransformationContext context, PathAddress address, ModelNode operation)
-                    throws OperationFailedException {
-                if (!operation.hasDefined(ID_CACHE_SIZE.getName())) {
-                    operation.get(ID_CACHE_SIZE.getName()).set(ID_CACHE_SIZE.getDefaultValue());
-                }
-                if (!operation.hasDefined(CLUSTERED.getName())) {
-                    operation.get(CLUSTERED.getName()).set(false);
-                }
-                return new TransformedOperation(operation, ORIGINAL_RESULT);
-            }
-        });
+        TransformersSubRegistration server = transformers.registerSubResource(PathElement.pathElement(HORNETQ_SERVER));
+        server.registerOperationTransformer(ADD, new OperationTransformers.InsertDefaultValuesOperationTransformer(ID_CACHE_SIZE, CLUSTERED));
 
         RejectExpressionValuesTransformer rejectExpressionTransformer = new RejectExpressionValuesTransformer(PATH);
         for (final String path : MessagingPathHandlers.PATHS) {
@@ -309,138 +288,16 @@ public class MessagingExtension implements Extension {
         }
 
         TransformersSubRegistration clusterConnection = server.registerSubResource(ClusterConnectionDefinition.PATH);
-        clusterConnection.registerOperationTransformer(ADD, new OperationTransformer() {
-            @Override
-            public TransformedOperation transformOperation(TransformationContext context, PathAddress address, ModelNode operation)
-                    throws OperationFailedException {
-                final ModelNode transformedOperation = operation.clone();
-                transformedOperation.remove(CommonAttributes.CALL_FAILOVER_TIMEOUT.getName());
-                return new TransformedOperation(transformedOperation, ORIGINAL_RESULT);
-            }
-        });
-        clusterConnection.registerOperationTransformer(WRITE_ATTRIBUTE_OPERATION, new OperationTransformer() {
-            @Override
-            public TransformedOperation transformOperation(final TransformationContext context, final PathAddress address, final ModelNode operation)
-                    throws OperationFailedException {
+        clusterConnection.registerOperationTransformer(ADD, new OperationTransformers.RemoveAttributesOperationTransformer(CALL_FAILOVER_TIMEOUT));
+        clusterConnection.registerOperationTransformer(WRITE_ATTRIBUTE_OPERATION, new OperationTransformers.FailUnignoredAttributesOperationTransformer(CALL_FAILOVER_TIMEOUT));
 
-                OperationResultTransformer resultTransformer = ORIGINAL_RESULT;
-                final List<String> found = new ArrayList<String>();
-
-                String[] unsupportedAttributes = { CommonAttributes.CALL_FAILOVER_TIMEOUT.getName() };
-                for (String attrName : unsupportedAttributes) {
-                    if (operation.require(NAME).asString().equals(attrName)) {
-                        if (found.size() == 0) {
-                            // Transform the result into a failure if the op wasn't ignored
-                            resultTransformer = new OperationResultTransformer() {
-                                @Override
-                                public ModelNode transformResult(ModelNode result) {
-                                    ModelNode transformed = result;
-                                    if (!IGNORED.equals(result.get(OUTCOME).asString())) {
-                                        transformed = new ModelNode();
-                                        transformed.get(OUTCOME).set(FAILED);
-                                        transformed.get(FAILURE_DESCRIPTION).set(MessagingMessages.MESSAGES.unsupportedAttributeInVersion(found.toString(), VERSION_1_1_0));
-                                    }
-                                    return transformed;
-                                }
-                            };
-                        }
-                        found.add(attrName);
-                    }
-                }
-
-                return new TransformedOperation(operation, resultTransformer);
-            }
-        });
         TransformersSubRegistration connectionFactory = server.registerSubResource(ConnectionFactoryDefinition.PATH);
-        connectionFactory.registerOperationTransformer(ADD, new OperationTransformer() {
-            @Override
-            public TransformedOperation transformOperation(final TransformationContext context, final PathAddress address, final ModelNode operation)
-                    throws OperationFailedException {
-                final ModelNode transformedOperation = operation.clone();
-                transformedOperation.remove(CommonAttributes.CALL_FAILOVER_TIMEOUT.getName());
-                return new TransformedOperation(transformedOperation, ORIGINAL_RESULT);
-            }
-        });
-        connectionFactory.registerOperationTransformer(WRITE_ATTRIBUTE_OPERATION, new OperationTransformer() {
-            @Override
-            public TransformedOperation transformOperation(final TransformationContext context, final PathAddress address, final ModelNode operation)
-                    throws OperationFailedException {
+        connectionFactory.registerOperationTransformer(ADD, new OperationTransformers.RemoveAttributesOperationTransformer(CALL_FAILOVER_TIMEOUT));
+        connectionFactory.registerOperationTransformer(WRITE_ATTRIBUTE_OPERATION, new OperationTransformers.FailUnignoredAttributesOperationTransformer(CALL_FAILOVER_TIMEOUT));
 
-                OperationResultTransformer resultTransformer = ORIGINAL_RESULT;
-                final List<String> found = new ArrayList<String>();
-
-                String[] unsupportedAttributes = { CommonAttributes.CALL_FAILOVER_TIMEOUT.getName() };
-                for (String attrName : unsupportedAttributes) {
-                    if (operation.require(NAME).asString().equals(attrName)) {
-                        if (found.size() == 0) {
-                            // Transform the result into a failure if the op wasn't ignored
-                            resultTransformer = new OperationResultTransformer() {
-                                @Override
-                                public ModelNode transformResult(ModelNode result) {
-                                    ModelNode transformed = result;
-                                    if (!IGNORED.equals(result.get(OUTCOME).asString())) {
-                                        transformed = new ModelNode();
-                                        transformed.get(OUTCOME).set(FAILED);
-                                        transformed.get(FAILURE_DESCRIPTION).set(MessagingMessages.MESSAGES.unsupportedAttributeInVersion(found.toString(), VERSION_1_1_0));
-                                    }
-                                    return transformed;
-                                }
-                            };
-                        }
-                        found.add(attrName);
-                    }
-                }
-
-                return new TransformedOperation(operation, resultTransformer);
-            }
-        });
-
+        final AttributeDefinition[] transformerdPooledCFAttributes = { COMPRESS_LARGE_MESSAGES, USE_AUTO_RECOVERY, CALL_FAILOVER_TIMEOUT };
         TransformersSubRegistration pooledConnectionFactory = server.registerSubResource(PooledConnectionFactoryDefinition.PATH);
-        pooledConnectionFactory.registerOperationTransformer(ADD, new OperationTransformer() {
-            @Override
-            public TransformedOperation transformOperation(final TransformationContext context, final PathAddress address, final ModelNode operation)
-                    throws OperationFailedException {
-                final ModelNode transformedOperation = operation.clone();
-                transformedOperation.remove(ConnectionFactoryAttributes.Pooled.USE_AUTO_RECOVERY.getName());
-                transformedOperation.remove(ConnectionFactoryAttributes.Common.COMPRESS_LARGE_MESSAGES.getName());
-                transformedOperation.remove(CommonAttributes.CALL_FAILOVER_TIMEOUT.getName());
-                return new TransformedOperation(transformedOperation, ORIGINAL_RESULT);
-            }
-        });
-        pooledConnectionFactory.registerOperationTransformer(WRITE_ATTRIBUTE_OPERATION, new OperationTransformer() {
-            @Override
-            public TransformedOperation transformOperation(final TransformationContext context, final PathAddress address, final ModelNode operation)
-                    throws OperationFailedException {
-
-                OperationResultTransformer resultTransformer = ORIGINAL_RESULT;
-                final List<String> found = new ArrayList<String>();
-
-                String[] unsupportedAttributes = {ConnectionFactoryAttributes.Pooled.USE_AUTO_RECOVERY.getName(),
-                        ConnectionFactoryAttributes.Common.COMPRESS_LARGE_MESSAGES.getName(),
-                        CommonAttributes.CALL_FAILOVER_TIMEOUT.getName() };
-                for (String attrName : unsupportedAttributes) {
-                    if (operation.require(NAME).asString().equals(attrName)) {
-                        if (found.size() == 0) {
-                            // Transform the result into a failure if the op wasn't ignored
-                            resultTransformer = new OperationResultTransformer() {
-                                @Override
-                                public ModelNode transformResult(ModelNode result) {
-                                    ModelNode transformed = result;
-                                    if (!IGNORED.equals(result.get(OUTCOME).asString())) {
-                                        transformed = new ModelNode();
-                                        transformed.get(OUTCOME).set(FAILED);
-                                        transformed.get(FAILURE_DESCRIPTION).set(MessagingMessages.MESSAGES.unsupportedAttributeInVersion(found.toString(), VERSION_1_1_0));
-                                    }
-                                    return transformed;
-                                }
-                            };
-                        }
-                        found.add(attrName);
-                    }
-                }
-
-                return new TransformedOperation(operation, resultTransformer);
-            }
-        });
+        pooledConnectionFactory.registerOperationTransformer(ADD, new OperationTransformers.RemoveAttributesOperationTransformer(transformerdPooledCFAttributes));
+        pooledConnectionFactory.registerOperationTransformer(WRITE_ATTRIBUTE_OPERATION, new OperationTransformers.FailUnignoredAttributesOperationTransformer(transformerdPooledCFAttributes));
     }
 }
