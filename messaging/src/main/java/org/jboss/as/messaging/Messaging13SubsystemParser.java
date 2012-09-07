@@ -75,7 +75,7 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
         return Namespace.MESSAGING_1_3;
     }
 
-   @Override
+    @Override
    protected void writeCommonConnectionFactoryAttributes(XMLExtendedStreamWriter writer, String name, ModelNode factory)
          throws XMLStreamException {
       super.writeCommonConnectionFactoryAttributes(writer, name, factory);
@@ -150,7 +150,7 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
         }
     }
 
-   private void processJmsBridge(XMLExtendedStreamReader reader, ModelNode subsystemAddress, List<ModelNode> list) throws XMLStreamException {
+    private void processJmsBridge(XMLExtendedStreamReader reader, ModelNode subsystemAddress, List<ModelNode> list) throws XMLStreamException {
         String bridgeName = null;
         String moduleName = null;
 

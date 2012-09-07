@@ -34,6 +34,7 @@ import static org.jboss.as.controller.client.helpers.MeasurementUnit.BYTES;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.PERCENTAGE;
 import static org.jboss.as.controller.registry.AttributeAccess.Flag.RESTART_ALL_SERVICES;
+import static org.jboss.as.messaging.MessagingExtension.VERSION_1_1_0;
 import static org.jboss.dmr.ModelType.BIG_DECIMAL;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
@@ -49,6 +50,7 @@ import org.hornetq.core.config.impl.ConfigurationImpl;
 import org.hornetq.core.config.impl.FileConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.AttributeMarshaller;
+import org.jboss.as.controller.ControllerMessages;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
@@ -106,6 +108,16 @@ public interface CommonAttributes {
 
     AttributeDefinition CLIENT_ID = create("client-id", ModelType.STRING)
             .setAllowNull(true)
+            .build();
+
+    SimpleAttributeDefinition CLUSTERED = create("clustered", BOOLEAN)
+            .setDeprecated(VERSION_1_1_0)
+            .setStorageRuntime()
+            .setAttributeMarshaller(new AttributeMarshaller() {
+                public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
+                    throw ControllerMessages.MESSAGES.couldNotMarshalAttributeAsElement(attribute.getName());
+                };
+            })
             .build();
 
     SimpleAttributeDefinition CLUSTER_PASSWORD = new SimpleAttributeDefinition("cluster-password", "cluster-password",
@@ -259,6 +271,9 @@ public interface CommonAttributes {
     SimpleAttributeDefinition JOURNAL_TYPE = new SimpleAttributeDefinition("journal-type", "journal-type",
             new ModelNode().set(ConfigurationImpl.DEFAULT_JOURNAL_TYPE.toString()), ModelType.STRING, true, false,
             MeasurementUnit.NONE, JournalTypeValidator.INSTANCE, null, null, AttributeAccess.Flag.RESTART_ALL_SERVICES);
+
+    // FIXME set its deprecated to VERSION_1_1_0 once it is refactored to use a SimpleAttributeDefinition
+    LiveConnectorRefAttribute LIVE_CONNECTOR_REF = LiveConnectorRefAttribute.INSTANCE;
 
     SimpleAttributeDefinition LOCAL_BIND_ADDRESS = create("local-bind-address", ModelType.STRING)
             .setDefaultValue(null)
@@ -518,7 +533,6 @@ public interface CommonAttributes {
     String CLASS_NAME = "class-name";
     String CLUSTER_CONNECTION = "cluster-connection";
     String CLUSTER_CONNECTIONS = "cluster-connections";
-    String CLUSTERED = "clustered";
     String CONNECTION_FACTORY = "connection-factory";
     String CONNECTOR = "connector";
     String CONNECTORS = "connectors";
@@ -556,7 +570,7 @@ public interface CommonAttributes {
     String INBOUND_CONFIG = "inbound-config";
     String LARGE_MESSAGES_DIRECTORY = "large-messages-directory";
     String LAST_VALUE_QUEUE = "last-value=queue";
-    String LIVE_CONNECTOR_REF = "live-connector-ref";
+    String LIVE_CONNECTOR_REF_STRING = "live-connector-ref";
     String LOCAL = "local";
     String LOCAL_TX = "LocalTransaction";
     String MANAGE_XML_NAME = "manage";

@@ -141,7 +141,7 @@ class HornetQServerAdd implements OperationStepHandler {
     static final String DEFAULT_LARGE_MESSAGE_DIR = "largemessages";
     static final String DEFAULT_PAGING_DIR = "paging";
 
-    private static final String[] DEPRECATED_ATTRIBUTES = { CommonAttributes.CLUSTERED, CommonAttributes.LIVE_CONNECTOR_REF };
+    private static final AttributeDefinition[] DEPRECATED_ATTRIBUTES = { CommonAttributes.CLUSTERED, CommonAttributes.LIVE_CONNECTOR_REF };
 
     public static final HornetQServerAdd INSTANCE = new HornetQServerAdd();
 
@@ -161,9 +161,9 @@ class HornetQServerAdd implements OperationStepHandler {
         }
 
         PathAddress pa = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
-        for (String attr : DEPRECATED_ATTRIBUTES) {
-            if (operation.hasDefined(attr)) {
-                MessagingLogger.MESSAGING_LOGGER.deprecatedAttribute(attr, pa);
+        for (AttributeDefinition attr : DEPRECATED_ATTRIBUTES) {
+            if (operation.hasDefined(attr.getName())) {
+                MessagingLogger.MESSAGING_LOGGER.deprecatedAttribute(attr.getName(), pa);
             }
         }
 

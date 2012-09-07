@@ -356,4 +356,5 @@
         </hornetq-server>
 
         <hornetq-server name="empty"/>
+
     </subsystem>
