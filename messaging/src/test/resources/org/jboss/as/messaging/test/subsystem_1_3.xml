@@ -31,6 +31,9 @@
             <server-dump-interval>8642</server-dump-interval>
             <memory-warning-threshold>1024</memory-warning-threshold>
             <memory-measure-interval>2048</memory-measure-interval>
+            <check-for-live-server>false</check-for-live-server>
+            <backup-group-name>ngname</backup-group-name>
+            <replication-clustername>repclustername</replication-clustername>
             <paging-directory path="test" relative-to="test" />
             <bindings-directory path="test" relative-to="test" />
             <journal-directory path="test" relative-to="test" />
@@ -382,5 +385,4 @@
         </hornetq-server>
 
         <hornetq-server name="empty"/>
-
     </subsystem>

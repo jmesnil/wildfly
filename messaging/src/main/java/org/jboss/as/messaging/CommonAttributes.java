@@ -39,6 +39,7 @@ import static org.jboss.dmr.ModelType.BIG_DECIMAL;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
+import static org.jboss.dmr.ModelType.STRING;
 
 import java.util.List;
 
@@ -102,6 +103,11 @@ public interface CommonAttributes {
             .build();
 
     AttributeDefinition CLIENT_ID = create("client-id", ModelType.STRING)
+            .setAllowNull(true)
+            .build();
+
+    SimpleAttributeDefinition CHECK_FOR_LIVE_SERVER = create("check-for-live-server", BOOLEAN)
+            .setDefaultValue(new ModelNode(ConfigurationImpl.DEFAULT_CHECK_FOR_LIVE_SERVER))
             .setAllowNull(true)
             .build();
 
@@ -356,6 +362,11 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
+    AttributeDefinition BACKUP_GROUP_NAME = create("backup-group-name", ModelType.STRING)
+            .setAllowNull(true)
+            .setRestartAllServices()
+            .build();
+
     SimpleAttributeDefinition PAGE_MAX_CONCURRENT_IO = create("page-max-concurrent-io", INT)
             .setDefaultValue(new ModelNode()
             .set(ConfigurationImpl.DEFAULT_MAX_CONCURRENT_PAGE_IO))
@@ -425,6 +436,10 @@ public interface CommonAttributes {
             })
             .build();
 
+    SimpleAttributeDefinition REPLICATION_CLUSTERNAME = create("replication-clustername", ModelType.STRING)
+            .setAllowNull(true)
+            .setRestartAllServices()
+            .build();
 
     AttributeDefinition RETRY_INTERVAL = create("retry-interval", LONG)
             .setDefaultValue(new ModelNode().set(HornetQClient.DEFAULT_RETRY_INTERVAL))
@@ -628,7 +643,7 @@ public interface CommonAttributes {
             JOURNAL_BUFFER_SIZE, JOURNAL_SYNC_TRANSACTIONAL, JOURNAL_SYNC_NON_TRANSACTIONAL, LOG_JOURNAL_WRITE_RATE,
             JOURNAL_FILE_SIZE, JOURNAL_MIN_FILES, JOURNAL_COMPACT_PERCENTAGE, JOURNAL_COMPACT_MIN_FILES, JOURNAL_MAX_IO,
             PERF_BLAST_PAGES, RUN_SYNC_SPEED_TEST, SERVER_DUMP_INTERVAL, MEMORY_WARNING_THRESHOLD, MEMORY_MEASURE_INTERVAL,
-    };
+            CHECK_FOR_LIVE_SERVER, BACKUP_GROUP_NAME, REPLICATION_CLUSTERNAME };
 
     AttributeDefinition[] SIMPLE_ROOT_RESOURCE_WRITE_ATTRIBUTES = { FAILOVER_ON_SHUTDOWN, MESSAGE_COUNTER_ENABLED,
             MESSAGE_COUNTER_MAX_DAY_HISTORY, MESSAGE_COUNTER_SAMPLE_PERIOD };

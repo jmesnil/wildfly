@@ -136,6 +136,9 @@
           <xs:element maxOccurs="1" minOccurs="0" name="server-dump-interval" type="xs:long" />
           <xs:element maxOccurs="1" minOccurs="0" name="memory-warning-threshold" type="xs:int" />
           <xs:element maxOccurs="1" minOccurs="0" name="memory-measure-interval" type="xs:long" />
+          <xs:element maxOccurs="1" minOccurs="0" name="check-for-live-server" type="xs:boolean" />
+          <xs:element maxOccurs="1" minOccurs="0" name="backup-group-name" type="xs:string" />
+          <xs:element maxOccurs="1" minOccurs="0" name="replication-clustername" type="xs:string" />
 
           <xs:element maxOccurs="1" minOccurs="0" name="paging-directory" type="directoryType" />
           <xs:element maxOccurs="1" minOccurs="0" name="bindings-directory" type="directoryType" />

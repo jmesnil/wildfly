@@ -36,6 +36,7 @@ import java.util.List;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.transform.OperationResultTransformer;
 import org.jboss.as.controller.transform.OperationTransformer;
 import org.jboss.as.controller.transform.TransformationContext;
@@ -48,6 +49,22 @@ import org.jboss.dmr.ModelNode;
  */
 public interface OperationTransformers {
 
+    public static final class MultipleOperationalTransformer implements OperationTransformer {
+
+        private final OperationTransformer[] transformers;
+
+        public MultipleOperationalTransformer(OperationTransformer... transformers) {
+            this.transformers = transformers;
+        }
+
+        public TransformedOperation transformOperation(TransformationContext context, PathAddress address, ModelNode operation) throws OperationFailedException {
+            TransformedOperation transformedOperation = new TransformedOperation(operation, ORIGINAL_RESULT);
+            for (OperationTransformer transformer : transformers) {
+                transformedOperation = transformer.transformOperation(context,address, transformedOperation.getTransformedOperation());
+            }
+            return transformedOperation;
+        }
+    }
     /**
      * Transform the operation by removing the given attributes.
      */

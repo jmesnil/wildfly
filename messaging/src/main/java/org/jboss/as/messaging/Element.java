@@ -58,6 +58,7 @@ public enum Element {
    BROADCAST_GROUP(CommonAttributes.BROADCAST_GROUP),
    BROADCAST_GROUPS(CommonAttributes.BROADCAST_GROUPS),
    BROADCAST_PERIOD(BroadcastGroupDefinition.BROADCAST_PERIOD),
+   CHECK_FOR_LIVE_SERVER(CommonAttributes.CHECK_FOR_LIVE_SERVER),
    CLASS_NAME(CommonAttributes.CLASS_NAME),
    @Deprecated
    CLUSTERED(CommonAttributes.CLUSTERED),
@@ -123,6 +124,7 @@ public enum Element {
    NAME(CommonAttributes.NAME),
    NETTY_ACCEPTOR(CommonAttributes.NETTY_ACCEPTOR),
    NETTY_CONNECTOR(CommonAttributes.NETTY_CONNECTOR),
+   BACKUP_GROUP_NAME(CommonAttributes.BACKUP_GROUP_NAME),
    PAGE_MAX_CONCURRENT_IO(CommonAttributes.PAGE_MAX_CONCURRENT_IO),
    PAGING_DIRECTORY(CommonAttributes.PAGING_DIRECTORY),
    PERF_BLAST_PAGES(CommonAttributes.PERF_BLAST_PAGES),
@@ -132,6 +134,7 @@ public enum Element {
    QUEUE(CommonAttributes.QUEUE),
    REFRESH_TIMEOUT(DiscoveryGroupDefinition.REFRESH_TIMEOUT),
    REMOTING_INTERCEPTORS(CommonAttributes.REMOTING_INTERCEPTORS),
+   REPLICATION_CLUSTERNAME(CommonAttributes.REPLICATION_CLUSTERNAME),
    ROUTING_NAME(DivertDefinition.ROUTING_NAME),
    RUN_SYNC_SPEED_TEST(CommonAttributes.RUN_SYNC_SPEED_TEST),
    SECURITY_DOMAIN(CommonAttributes.SECURITY_DOMAIN),

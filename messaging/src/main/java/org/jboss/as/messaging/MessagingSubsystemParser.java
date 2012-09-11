@@ -310,10 +310,15 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                             throw MESSAGES.unsupportedElement(element.getLocalName());
                         }
                     } else {
-                        throw ParseUtils.unexpectedElement(reader);
+                        handleUnknownConfigurationAttribute(reader, element, operation);
                     }
             }
         } while (reader.hasNext() && localName.equals(elementName) == false);
+    }
+
+    protected void handleUnknownConfigurationAttribute(XMLExtendedStreamReader reader, Element element, ModelNode operation)
+            throws XMLStreamException {
+        throw ParseUtils.unexpectedElement(reader);
     }
 
     private static void processConnectorServices(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> updates) throws XMLStreamException {
