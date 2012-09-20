@@ -23,6 +23,10 @@
 package org.jboss.as.messaging.jms;
 
 
+import static org.jboss.as.messaging.MessagingLogger.MESSAGING_LOGGER;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
 
 import org.jboss.as.txn.service.TxnServices;
@@ -35,11 +39,29 @@ import org.jboss.msc.service.ServiceController;
  * @author Jason T. Greene
  */
 public class TransactionManagerLocator {
+    private static final String TRANSACTION_MANAGER_JNDI_NAME = "java:jboss/TransactionManager";
+
     static volatile ServiceContainer container;
 
+    /**
+     * This method can be called from 2 different contexts:
+     * 
+     * 1. when a PooledConnectionFactoryService is created, in that case, the container is not null
+     * 2. when HornetQ RA is deployed. In that case, the container is null and we default to looking up the TM using JNDI
+     */
     public static TransactionManager getTransactionManager() {
-        @SuppressWarnings("unchecked")
-        ServiceController<TransactionManager> service = (ServiceController<TransactionManager>) container.getService(TxnServices.JBOSS_TXN_TRANSACTION_MANAGER);
-        return service == null ? null : service.getValue();
+        if (container == null) {
+            try {
+                InitialContext context = new InitialContext();
+                return (TransactionManager) context.lookup(TRANSACTION_MANAGER_JNDI_NAME);
+            } catch (NamingException e) {
+                MESSAGING_LOGGER.debug("Unable to lookup transaction manager from " + TRANSACTION_MANAGER_JNDI_NAME, e);
+                return null;
+            }
+        } else {
+            @SuppressWarnings("unchecked")
+            ServiceController<TransactionManager> service = (ServiceController<TransactionManager>) container.getService(TxnServices.JBOSS_TXN_TRANSACTION_MANAGER);
+            return service == null ? null : service.getValue();
+        }
     }
 }
