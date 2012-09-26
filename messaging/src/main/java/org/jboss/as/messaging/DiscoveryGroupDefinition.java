@@ -27,6 +27,8 @@ import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECOND
 import static org.jboss.as.controller.registry.AttributeAccess.Flag.RESTART_ALL_SERVICES;
 import static org.jboss.as.messaging.CommonAttributes.GROUP_ADDRESS;
 import static org.jboss.as.messaging.CommonAttributes.GROUP_PORT;
+import static org.jboss.as.messaging.CommonAttributes.JGROUPS_CHANNEL;
+import static org.jboss.as.messaging.CommonAttributes.JGROUPS_REF;
 import static org.jboss.as.messaging.CommonAttributes.LOCAL_BIND_ADDRESS;
 import static org.jboss.as.messaging.CommonAttributes.SOCKET_BINDING_ALTERNATIVE;
 
@@ -65,7 +67,7 @@ public class DiscoveryGroupDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final AttributeDefinition[] ATTRIBUTES = { SOCKET_BINDING_ALTERNATIVE, LOCAL_BIND_ADDRESS, GROUP_ADDRESS, GROUP_PORT,
-            REFRESH_TIMEOUT, INITIAL_WAIT_TIMEOUT
+            REFRESH_TIMEOUT, INITIAL_WAIT_TIMEOUT, JGROUPS_REF, JGROUPS_CHANNEL
     };
 
     private final boolean registerRuntimeOnly;

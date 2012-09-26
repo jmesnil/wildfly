@@ -2520,5 +2520,32 @@ public interface ControllerMessages {
     @Message(id = 14875, value = "Could not marshal attribute as attribute: %s")
     UnsupportedOperationException couldNotMarshalAttributeAsAttribute(String attributeName);
 
+    /**
+     * Creates an exception indicating there must be one of the two sets of elements, represented
+     * by the {@code sb1} and {@code sb2} parameters.
+     *
+     * @param sb1       one of the two acceptable elements.
+     * @param sb2       the other one of two acceptable elements.
+     * @param location the location of the error.
+     *
+     * @return a {@link XMLStreamException} for the error.
+     */
+
+    @Message(id = 14876, value = "Must include one of the two sets: {%s} or {%s}")
+    XMLStreamException presentOneOf(StringBuilder sb1, StringBuilder sb2, @Param Location location);
+
+    /**
+     * Creates an exception indicating there only one of the two sets of elements, not both, represented
+     * by the {@code sb1} and {@code sb2} parameters.
+     *
+     * @param sb1       one of the two acceptable elements.
+     * @param sb2       the other one of two acceptable elements.
+     * @param location the location of the error.
+     *
+     * @return a {@link XMLStreamException} for the error.
+     */
+    @Message(id = 14877, value = "Only one of the two sets: {%s} or {%s}")
+    XMLStreamException requireOneOf(StringBuilder sb1, StringBuilder sb2, @Param Location location);
+
 
 }

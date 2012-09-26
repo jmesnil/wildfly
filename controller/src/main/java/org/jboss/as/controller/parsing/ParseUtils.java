@@ -174,6 +174,64 @@ public final class ParseUtils {
         return MESSAGES.missingOneOf(b, reader.getLocation());
     }
 
+         /**
+     * Get an exception reporting only one of the sets is needed, not both
+     * @param reader the stream reader
+     * @param required a set of enums whose toString method returns the
+     *        attribute name
+     * @return the exception
+     */
+    public static XMLStreamException requireOneOf(final XMLExtendedStreamReader reader, final Set<?> required1, final Set<?> required2) {
+        final StringBuilder b1 = new StringBuilder();
+        Iterator<?> iterator = required1.iterator();
+        while (iterator.hasNext()) {
+            final Object o = iterator.next();
+            b1.append(o.toString());
+            if (iterator.hasNext()) {
+                b1.append(", ");
+            }
+        }
+        final StringBuilder b2 = new StringBuilder();
+        iterator = required2.iterator();
+        while (iterator.hasNext()) {
+            final Object o = iterator.next();
+            b2.append(o.toString());
+            if (iterator.hasNext()) {
+                b2.append(", ");
+            }
+        }
+        return MESSAGES.requireOneOf(b1, b2, reader.getLocation());
+    }
+
+    /**
+     * Get an exception reporting one of the sets must be present
+     * @param reader the stream reader
+     * @param required a set of enums whose toString method returns the
+     *        attribute name
+     * @return the exception
+     */
+    public static XMLStreamException presentOneOf(final XMLExtendedStreamReader reader, final Set<?> required1, final Set<?> required2) {
+        final StringBuilder b1 = new StringBuilder();
+        Iterator<?> iterator = required1.iterator();
+        while (iterator.hasNext()) {
+            final Object o = iterator.next();
+            b1.append(o.toString());
+            if (iterator.hasNext()) {
+                b1.append(", ");
+            }
+        }
+        final StringBuilder b2 = new StringBuilder();
+        iterator = required2.iterator();
+        while (iterator.hasNext()) {
+            final Object o = iterator.next();
+            b2.append(o.toString());
+            if (iterator.hasNext()) {
+                b2.append(", ");
+            }
+        }
+        return MESSAGES.presentOneOf(b1, b2, reader.getLocation());
+    }
+
     /**
      * Checks that the current element has no attributes, throwing an
      * {@link javax.xml.stream.XMLStreamException} if one is found.

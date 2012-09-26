@@ -86,15 +86,15 @@ public class MessagingSubsystem13TestCase extends AbstractSubsystemBaseTest {
                 .setSubsystemXml(subsystemXml);
 
         // Add legacy subsystems
-        ModelVersion version_1_1_0 = ModelVersion.create(1, 1, 0);
-        builder.createLegacyKernelServicesBuilder(createAdditionalInitialization(), version_1_1_0)
+        ModelVersion version_1_3_0 = ModelVersion.create(1, 3, 0);
+        builder.createLegacyKernelServicesBuilder(createAdditionalInitialization(), version_1_3_0)
             .addMavenResourceURL("org.jboss.as:jboss-as-messaging:7.1.2.Final");
 
         KernelServices mainServices = builder.build();
-        KernelServices legacyServices = mainServices.getLegacyServices(version_1_1_0);
+        KernelServices legacyServices = mainServices.getLegacyServices(version_1_3_0);
         assertNotNull(legacyServices);
 
-        checkSubsystemModelTransformation(mainServices, version_1_1_0);
+        checkSubsystemModelTransformation(mainServices, version_1_3_0);
 
         ModelNode operation = new ModelNode();
         operation.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
@@ -120,7 +120,7 @@ public class MessagingSubsystem13TestCase extends AbstractSubsystemBaseTest {
         ignoreResult.protect();
 
         try {
-            TransformedOperation transformedOperation = mainServices.transformOperation(version_1_1_0, operation);
+            TransformedOperation transformedOperation = mainServices.transformOperation(version_1_3_0, operation);
             // legacyServices.executeOperation(operation); would actually work - however it does not understand the expr
             // so we need to reject the expression on the DC already
             fail("should reject the expression,instead got " + transformedOperation.getTransformedOperation().toJSONString(true));
@@ -150,7 +150,7 @@ public class MessagingSubsystem13TestCase extends AbstractSubsystemBaseTest {
         mainResult = mainServices.executeOperation(operation);
         assertEquals(mainResult.toJSONString(true), SUCCESS, mainResult.get(OUTCOME).asString());
 
-        TransformedOperation transformedOperation = mainServices.transformOperation(version_1_1_0, operation);
+        TransformedOperation transformedOperation = mainServices.transformOperation(version_1_3_0, operation);
         ModelNode transformedResult = transformedOperation.getResultTransformer().transformResult(successResult);
         assertEquals("success transformed to failed", FAILED, transformedResult.get(OUTCOME).asString());
         transformedResult = transformedOperation.getResultTransformer().transformResult(successResult);
@@ -167,15 +167,15 @@ public class MessagingSubsystem13TestCase extends AbstractSubsystemBaseTest {
                 .setSubsystemXml(subsystemXml);
 
         // Add legacy subsystems
-        ModelVersion version_1_1_0 = ModelVersion.create(1, 1, 0);
-        builder.createLegacyKernelServicesBuilder(createAdditionalInitialization(), version_1_1_0)
+        ModelVersion version_1_3_0 = ModelVersion.create(1, 3, 0);
+        builder.createLegacyKernelServicesBuilder(createAdditionalInitialization(), version_1_3_0)
             .addMavenResourceURL("org.jboss.as:jboss-as-messaging:7.1.2.Final");
 
         KernelServices mainServices = builder.build();
-        KernelServices legacyServices = mainServices.getLegacyServices(version_1_1_0);
+        KernelServices legacyServices = mainServices.getLegacyServices(version_1_3_0);
         assertNotNull(legacyServices);
 
-        checkSubsystemModelTransformation(mainServices, version_1_1_0);
+        checkSubsystemModelTransformation(mainServices, version_1_3_0);
 
         ModelNode operation = new ModelNode();
         operation.get(OP).set(ADD);
@@ -191,7 +191,7 @@ public class MessagingSubsystem13TestCase extends AbstractSubsystemBaseTest {
         assertEquals(mainResult.toJSONString(true), SUCCESS, mainResult.get(OUTCOME).asString());
 
         try {
-            TransformedOperation transformedOperation = mainServices.transformOperation(version_1_1_0, operation);
+            TransformedOperation transformedOperation = mainServices.transformOperation(version_1_3_0, operation);
             fail("should reject the expression,instead got " + transformedOperation.getTransformedOperation().toJSONString(true));
         } catch (OperationFailedException e) {
             // OK

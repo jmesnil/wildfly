@@ -116,6 +116,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-clustering-jgroups</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.jboss.ironjacamar</groupId>
             <artifactId>ironjacamar-common-api</artifactId>
         </dependency>

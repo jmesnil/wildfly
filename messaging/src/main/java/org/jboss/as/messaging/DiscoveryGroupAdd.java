@@ -33,7 +33,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.hornetq.api.core.DiscoveryGroupConfiguration;
+import org.hornetq.api.core.BroadcastEndpointFactoryConfiguration;
 import org.hornetq.core.config.Configuration;
+import org.hornetq.api.core.UDPBroadcastGroupConfiguration;
+import org.jboss.as.clustering.jgroups.ChannelFactory;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -50,6 +53,7 @@ import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
 import org.jboss.msc.service.ServiceTarget;
 import org.jboss.msc.value.ImmediateValue;
+import org.jgroups.JChannel;
 
 /**
  * Handler for adding a discovery group.
@@ -92,8 +96,10 @@ public class DiscoveryGroupAdd extends AbstractAddStepHandler {
 
                 final ModelNode localAddrNode = CommonAttributes.LOCAL_BIND_ADDRESS.resolveModelAttribute(context, model);
                 final String localAddress = localAddrNode.isDefined() ? localAddrNode.asString() : null;
-                final String groupAddress = CommonAttributes.GROUP_ADDRESS.resolveModelAttribute(context, model).asString();
-                final int groupPort = CommonAttributes.GROUP_PORT.resolveModelAttribute(context, model).asInt();
+                final ModelNode groupAddrNode = CommonAttributes.GROUP_ADDRESS.resolveModelAttribute(context, model);
+                final String groupAddress = groupAddrNode.isDefined() ? groupAddrNode.asString() : null;
+                final ModelNode groupPortNode = CommonAttributes.GROUP_PORT.resolveModelAttribute(context, model);
+                final int groupPort = groupPortNode.isDefined() ? groupPortNode.asInt() : -1;
 
                 try {
 
@@ -134,11 +140,22 @@ public class DiscoveryGroupAdd extends AbstractAddStepHandler {
 
         final long refreshTimeout = DiscoveryGroupDefinition.REFRESH_TIMEOUT.resolveModelAttribute(context, model).asLong();
         final long initialWaitTimeout = DiscoveryGroupDefinition.INITIAL_WAIT_TIMEOUT.resolveModelAttribute(context, model).asLong();
+        ModelNode jgroupsNode = CommonAttributes.JGROUPS_REF.resolveModelAttribute(context, model);
+        final String jgroupsRef = jgroupsNode.asString();
+        final String jgroupsChannel = CommonAttributes.JGROUPS_CHANNEL.resolveModelAttribute(context, model).asString();
         // Requires runtime service
-        return new DiscoveryGroupConfiguration(name, null, null, 0, refreshTimeout, initialWaitTimeout);
+        DiscoveryGroupConfiguration newConfig = null;
+        if (!jgroupsNode.isDefined()) {
+            UDPBroadcastGroupConfiguration endpoint = new UDPBroadcastGroupConfiguration(null, 0, null, -1);
+            newConfig = new DiscoveryGroupConfiguration(name, refreshTimeout, initialWaitTimeout, endpoint);
+        } else {
+            JGroupsBroadcastGroupConfigurationWithChannel endpoint = new JGroupsBroadcastGroupConfigurationWithChannel(jgroupsRef, jgroupsChannel);
+            newConfig = new DiscoveryGroupConfiguration(name, refreshTimeout, initialWaitTimeout, endpoint);
+        }
+        return newConfig;
     }
 
-    static DiscoveryGroupConfiguration createDiscoveryGroupConfiguration(final String name, final DiscoveryGroupConfiguration config, final SocketBinding socketBinding) {
+    static DiscoveryGroupConfiguration createDiscoveryGroupConfiguration(final String name, final DiscoveryGroupConfiguration config, final SocketBinding socketBinding, final ChannelFactory factory) throws Exception {
 
         final String localAddress = socketBinding.getAddress().getHostAddress();
         final String groupAddress = socketBinding.getMulticastAddress().getHostAddress();
@@ -146,7 +163,17 @@ public class DiscoveryGroupAdd extends AbstractAddStepHandler {
         final long refreshTimeout = config.getRefreshTimeout();
         final long initialWaitTimeout = config.getDiscoveryInitialWaitTimeout();
 
-        return new DiscoveryGroupConfiguration(name, localAddress, groupAddress, groupPort, refreshTimeout, initialWaitTimeout);
+        DiscoveryGroupConfiguration newConfig = null;
+        BroadcastEndpointFactoryConfiguration endpoint = config.getBroadcastEndpointFactoryConfiguration();
+        if (endpoint instanceof UDPBroadcastGroupConfiguration) {
+            UDPBroadcastGroupConfiguration newEndpoint = new UDPBroadcastGroupConfiguration(groupAddress, groupPort, localAddress, -1);
+            newConfig = new DiscoveryGroupConfiguration(name, refreshTimeout, initialWaitTimeout, newEndpoint);
+        } else {
+            JGroupsBroadcastGroupConfigurationWithChannel oldEndpoint = (JGroupsBroadcastGroupConfigurationWithChannel)endpoint;
+            oldEndpoint.setChannelInstance((JChannel)factory.createChannel("hornetq-discovery"));
+            newConfig = new DiscoveryGroupConfiguration(name, refreshTimeout, initialWaitTimeout, oldEndpoint);
+        }
+        return newConfig;
     }
 
 }
