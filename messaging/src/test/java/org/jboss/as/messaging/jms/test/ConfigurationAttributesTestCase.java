@@ -46,7 +46,6 @@ public class ConfigurationAttributesTestCase extends AttributesTestBase {
         UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("securityInvalidationInterval");
         UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("name");
         UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("maskPassword");
-        UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("clustered");
 
         //stuff we arent bothered about
         KNOWN_ATTRIBUTES = new TreeSet<String>();
@@ -56,6 +55,7 @@ public class ConfigurationAttributesTestCase extends AttributesTestBase {
         KNOWN_ATTRIBUTES.add("securityDomain");
         KNOWN_ATTRIBUTES.add("securityInvalidationInterval");
         KNOWN_ATTRIBUTES.add("liveConnectorRef");
+        KNOWN_ATTRIBUTES.add("clustered");
 
         //where we have slightly different names between as7/HornetQ
         DODGY_NAME.put("allowFailback", "allowAutoFailBack");
