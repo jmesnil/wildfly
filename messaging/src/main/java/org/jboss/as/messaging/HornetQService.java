@@ -201,8 +201,15 @@ class HornetQService implements Service<HornetQServer> {
 
             // Now start the server
             server = new HornetQServerImpl(configuration, mbeanServer.getOptionalValue(), hornetQSecurityManagerAS7);
-            if (ConfigurationImpl.DEFAULT_CLUSTER_PASSWORD.equals(server.getConfiguration().getClusterPassword())) {
-                server.getConfiguration().setClusterPassword(java.util.UUID.randomUUID().toString());
+            if (configuration.isClustered()) {
+                if (ConfigurationImpl.DEFAULT_CLUSTER_PASSWORD.equals(server.getConfiguration().getClusterPassword())) {
+                    throw MESSAGES.defaultClusterPasswordisForbidden();
+                }
+            } else {
+                // if the server is not clustered, its cluster password is randomized to close a security hole (AS7-3641)
+                if (ConfigurationImpl.DEFAULT_CLUSTER_PASSWORD.equals(server.getConfiguration().getClusterPassword())) {
+                    server.getConfiguration().setClusterPassword(java.util.UUID.randomUUID().toString());
+                }
             }
 
             // FIXME started by the JMSService

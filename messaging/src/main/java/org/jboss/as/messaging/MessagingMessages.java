@@ -500,4 +500,13 @@ public interface MessagingMessages {
     @Message(id = 11672, value = "Attribute(s) %s are not supported by messaging management model %s")
     String unsupportedAttributeInVersion(String attributes, ModelVersion version);
 
+    /**
+     * Create an exception when a clustered HornetQ server is started with the default cluster password.
+     * If it could be started, it would create a security hole to create HornetQ sessions and other resources.
+     *
+     * @return the exception.
+     */
+    @Message(id = 11673, value = "A clustered HornetQ server can not be started with the default cluster password. Please change the value of the cluster-password attribute (or use the expression jboss.messaging.cluster.password)")
+    StartException defaultClusterPasswordisForbidden();
+
 }
