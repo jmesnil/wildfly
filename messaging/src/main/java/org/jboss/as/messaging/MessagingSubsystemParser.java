@@ -463,6 +463,9 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
     protected void checkClusterConnectionConstraints(XMLExtendedStreamReader reader, Set<Element> seen) throws XMLStreamException {
     }
 
+    protected void checkBroadcastGroupConstraints(XMLExtendedStreamReader reader, Set<Element> seen) throws XMLStreamException {
+    }
+
     private void processBridges(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> updates) throws XMLStreamException {
         requireNoAttributes(reader);
         while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
@@ -680,8 +683,10 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
         ModelNode broadcastGroupAdd = org.jboss.as.controller.operations.common.Util.getEmptyOperation(ADD, address.clone().add(CommonAttributes.BROADCAST_GROUP, name));
 
         EnumSet<Element> required = EnumSet.of(Element.GROUP_ADDRESS, Element.GROUP_PORT);
+        Set<Element> seen = EnumSet.noneOf(Element.class);
         while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             final Element element = Element.forName(reader.getLocalName());
+            seen.add(element);
             required.remove(element);
             switch (element) {
                 case LOCAL_BIND_ADDRESS:
@@ -696,7 +701,7 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     handleElementText(reader, element, "broadcast-group", broadcastGroupAdd);
                     break;
                 default: {
-                    throw ParseUtils.unexpectedElement(reader);
+                    handleUnknownBroadcastGroupAttribute(reader, element, broadcastGroupAdd);
                 }
             }
         }
@@ -705,7 +710,14 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
             missingRequired(reader, required);
         }
 
+        checkBroadcastGroupConstraints(reader, seen);
+
         updates.add(broadcastGroupAdd);
+    }
+
+    protected void handleUnknownBroadcastGroupAttribute(XMLExtendedStreamReader reader, Element element, ModelNode operation)
+            throws XMLStreamException {
+        throw ParseUtils.unexpectedElement(reader);
     }
 
     void processDiscoveryGroups(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> updates) throws XMLStreamException {
@@ -748,9 +760,11 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
         ModelNode discoveryGroup = org.jboss.as.controller.operations.common.Util.getEmptyOperation(ADD, address.clone().add(CommonAttributes.DISCOVERY_GROUP, name));
 
         EnumSet<Element> required = EnumSet.of(Element.GROUP_ADDRESS, Element.GROUP_PORT);
+        Set<Element> seen = EnumSet.noneOf(Element.class);
         while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             final Element element = Element.forName(reader.getLocalName());
             required.remove(element);
+            seen.add(element);
             switch (element) {
                 case LOCAL_BIND_ADDRESS:
                 case GROUP_ADDRESS:
@@ -761,7 +775,7 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     handleElementText(reader, element, discoveryGroup);
                     break;
                 default: {
-                    throw ParseUtils.unexpectedElement(reader);
+                    handleUnknownDiscoveryGroupAttribute(reader, element, discoveryGroup);
                 }
             }
         }
@@ -770,7 +784,17 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
             missingRequired(reader, required);
         }
 
+        checkDiscoveryGroupConstraints(reader, seen);
+
         updates.add(discoveryGroup);
+    }
+
+    protected void handleUnknownDiscoveryGroupAttribute(XMLExtendedStreamReader reader, Element element, ModelNode operation)
+            throws XMLStreamException {
+        throw ParseUtils.unexpectedElement(reader);
+    }
+
+    protected void checkDiscoveryGroupConstraints(XMLExtendedStreamReader reader, Set<Element> seen) throws XMLStreamException {
     }
 
     void processConnectionFactories(final XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> updates) throws XMLStreamException {

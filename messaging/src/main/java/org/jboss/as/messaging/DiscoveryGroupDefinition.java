@@ -66,8 +66,8 @@ public class DiscoveryGroupDefinition extends SimpleResourceDefinition {
             .setFlags(RESTART_ALL_SERVICES)
             .build();
 
-    public static final AttributeDefinition[] ATTRIBUTES = { SOCKET_BINDING_ALTERNATIVE, LOCAL_BIND_ADDRESS, GROUP_ADDRESS, GROUP_PORT,
-            REFRESH_TIMEOUT, INITIAL_WAIT_TIMEOUT, JGROUPS_REF, JGROUPS_CHANNEL
+    public static final AttributeDefinition[] ATTRIBUTES = { JGROUPS_REF, JGROUPS_CHANNEL, SOCKET_BINDING_ALTERNATIVE, LOCAL_BIND_ADDRESS, GROUP_ADDRESS, GROUP_PORT,
+            REFRESH_TIMEOUT, INITIAL_WAIT_TIMEOUT
     };
 
     private final boolean registerRuntimeOnly;

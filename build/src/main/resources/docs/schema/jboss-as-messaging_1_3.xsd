@@ -249,6 +249,10 @@
        <xs:sequence>
            <xs:choice>
                <xs:sequence>
+                  <xs:element maxOccurs="1" minOccurs="1" name="jgroups-ref" type="xs:string" />
+                  <xs:element maxOccurs="1" minOccurs="1" name="jgroups-channel" type="xs:string" />
+               </xs:sequence>
+               <xs:sequence>
                   <xs:element maxOccurs="1" minOccurs="1" name="socket-binding" type="xs:string" />
                </xs:sequence>
                <xs:sequence>
@@ -291,6 +295,10 @@
     <xs:complexType name="discovery-groupType">
         <xs:sequence>
             <xs:choice>
+               <xs:sequence>
+                  <xs:element maxOccurs="1" minOccurs="1" name="jgroups-ref" type="xs:string" />
+                  <xs:element maxOccurs="1" minOccurs="1" name="jgroups-channel" type="xs:string" />
+               </xs:sequence>
                <xs:sequence>
                   <xs:element maxOccurs="1" minOccurs="1" name="socket-binding" type="xs:string" />
                </xs:sequence>

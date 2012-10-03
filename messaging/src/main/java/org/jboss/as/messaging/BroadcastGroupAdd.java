@@ -24,6 +24,7 @@ package org.jboss.as.messaging;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SOCKET_BINDING;
+import static org.jboss.as.messaging.CommonAttributes.JGROUPS_REF;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -33,8 +34,9 @@ import java.util.List;
 
 import org.hornetq.api.core.BroadcastEndpointFactoryConfiguration;
 import org.hornetq.api.core.BroadcastGroupConfiguration;
-import org.hornetq.core.config.Configuration;
+import org.hornetq.api.core.JGroupsBroadcastGroupConfiguration;
 import org.hornetq.api.core.UDPBroadcastGroupConfiguration;
+import org.hornetq.core.config.Configuration;
 import org.jboss.as.clustering.jgroups.ChannelFactory;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
@@ -87,7 +89,9 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
             final String name = address.getLastElement().getValue();
 
             final ServiceTarget target = context.getServiceTarget();
-            if(model.hasDefined(RemoteTransportDefinition.SOCKET_BINDING.getName())) {
+            if(model.hasDefined(JGROUPS_REF.getName())) {
+                System.out.println("BroadcastGroupAdd.performRuntime()");
+            } else if(model.hasDefined(RemoteTransportDefinition.SOCKET_BINDING.getName())) {
                 final GroupBindingService bindingService = new GroupBindingService();
                 target.addService(GroupBindingService.getBroadcastBaseServiceName(hqServiceName).append(name), bindingService)
                         .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(model.get(SOCKET_BINDING).asString()), SocketBinding.class, bindingService.getBindingRef())
@@ -136,9 +140,6 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
     static BroadcastGroupConfiguration createBroadcastGroupConfiguration(final OperationContext context, final String name, final ModelNode model) throws OperationFailedException {
 
         final long broadcastPeriod = BroadcastGroupDefinition.BROADCAST_PERIOD.resolveModelAttribute(context, model).asLong();
-        ModelNode jgroupsNode = CommonAttributes.JGROUPS_REF.resolveModelAttribute(context, model);
-        final String jgroupsRef = jgroupsNode.asString();
-        final String jgroupsChannel = CommonAttributes.JGROUPS_CHANNEL.resolveModelAttribute(context, model).asString();
         final List<String> connectorRefs = new ArrayList<String>();
         if (model.hasDefined(CommonAttributes.CONNECTORS)) {
             for (ModelNode ref : model.get(CommonAttributes.CONNECTORS).asList()) {
@@ -146,16 +147,10 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
             }
         }
         // Requires runtime service
-        BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration;
-        if (!jgroupsNode.isDefined()) {
-            endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration(null, 0, null, 0);
-        } else {
-            endpointFactoryConfiguration = new JGroupsBroadcastGroupConfigurationWithChannel(jgroupsRef, jgroupsChannel);
-        }
-       return new BroadcastGroupConfiguration(name, broadcastPeriod, connectorRefs, endpointFactoryConfiguration);
+        return new BroadcastGroupConfiguration(name, broadcastPeriod, connectorRefs, null);
     }
 
-    static BroadcastGroupConfiguration createBroadcastGroupConfiguration(final String name, final BroadcastGroupConfiguration config, final SocketBinding socketBinding, final ChannelFactory factory) throws Exception {
+    static BroadcastGroupConfiguration createBroadcastGroupConfiguration(final String name, final BroadcastGroupConfiguration config, final SocketBinding socketBinding) throws Exception {
 
         final String localAddress = socketBinding.getAddress().getHostAddress();
         final String groupAddress = socketBinding.getMulticastAddress().getHostAddress();
@@ -164,15 +159,16 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
         final long broadcastPeriod = config.getBroadcastPeriod();
         final List<String> connectorRefs = config.getConnectorInfos();
 
-        BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration;
-        if (factory == null) {
-            endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration(groupAddress, groupPort, localAddress, localPort);
-        } else {
-            JGroupsBroadcastGroupConfigurationWithChannel oldCfg = (JGroupsBroadcastGroupConfigurationWithChannel)config.getEndpointFactoryConfiguration();
-            endpointFactoryConfiguration = new JGroupsBroadcastGroupConfigurationWithChannel(oldCfg.getJgroupsRef(), oldCfg.getJGroupsChannel());
-            ((JGroupsBroadcastGroupConfigurationWithChannel)endpointFactoryConfiguration).setChannelInstance((JChannel) factory.createChannel("hornetq-broadcast"));
-        }
+        final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration(groupAddress, groupPort, localAddress, localPort);
         return new BroadcastGroupConfiguration(name, broadcastPeriod, connectorRefs, endpointFactoryConfiguration);
     }
 
+    static BroadcastGroupConfiguration createBroadcastGroupConfiguration(final String name, final BroadcastGroupConfiguration config, final ChannelFactory factory, final String channelName) throws Exception {
+
+        final long broadcastPeriod = config.getBroadcastPeriod();
+        final List<String> connectorRefs = config.getConnectorInfos();
+
+        final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = new JGroupsBroadcastGroupConfiguration((JChannel) factory.createChannel("hornetq-broadcast"), channelName);
+        return new BroadcastGroupConfiguration(name, broadcastPeriod, connectorRefs, endpointFactoryConfiguration);
+    }
 }

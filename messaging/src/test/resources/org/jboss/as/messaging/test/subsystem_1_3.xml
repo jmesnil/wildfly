@@ -61,7 +61,6 @@
                </in-vm-acceptor>
             </acceptors>
             <broadcast-groups>
-<!-- since 1.3, it must use socket-binding
                 <broadcast-group name="groupA">
                     <local-bind-address>localhost</local-bind-address>
                     <local-bind-port>12345</local-bind-port>
@@ -75,13 +74,11 @@
                     <group-address>224.0.1.105</group-address>
                     <group-port>34567</group-port>
                 </broadcast-group>
--->
                 <broadcast-group name="groupS">
                     <socket-binding>group-s-binding</socket-binding>
                 </broadcast-group>
             </broadcast-groups>
             <discovery-groups>
-<!-- since 1.3, it must use socket-binding
                 <discovery-group name="groupC">
                     <local-bind-address>localhost</local-bind-address>
                     <group-address>224.0.1.105</group-address>
@@ -93,7 +90,6 @@
                     <group-address>224.0.1.105</group-address>
                     <group-port>56789</group-port>
                 </discovery-group>
--->
                 <discovery-group name="groupT">
                     <socket-binding>group-t-binding</socket-binding>
                 </discovery-group>

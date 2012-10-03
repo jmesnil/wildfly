@@ -67,6 +67,7 @@ class HornetQService implements Service<HornetQServer> {
     private final InjectedValue<MBeanServer> mbeanServer = new InjectedValue<MBeanServer>();
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
     private final PathConfig pathConfig;
+    private final Map<String, String> jgroupsChannels = new HashMap<String, String>();
 
     public HornetQService(PathConfig pathConfig) {
         this.pathConfig = pathConfig;
@@ -180,16 +181,18 @@ class HornetQService implements Service<HornetQServer> {
                 final List<BroadcastGroupConfiguration> newConfigs = new ArrayList<BroadcastGroupConfiguration>();
                 for(final BroadcastGroupConfiguration config : broadcastGroups) {
                     final String name = config.getName();
-                    final SocketBinding binding = groupBindings.get("broadcast" + name);
-                    if (binding == null) {
-                        throw MESSAGES.failedToFindBroadcastSocketBinding(name);
-                    }
+                    final String key = "broadcast" + name;
                     BroadcastEndpointFactoryConfiguration endpointFact = config.getEndpointFactoryConfiguration();
                     if (endpointFact instanceof UDPBroadcastGroupConfiguration) {
-                       newConfigs.add(BroadcastGroupAdd.createBroadcastGroupConfiguration(name, config, binding, null));
+                        final SocketBinding binding = groupBindings.get(key);
+                        if (binding == null) {
+                            throw MESSAGES.failedToFindBroadcastSocketBinding(name);
+                        }
+                       newConfigs.add(BroadcastGroupAdd.createBroadcastGroupConfiguration(name, config, binding));
                     } else {
-                        String jgroupsRef = ((JGroupsBroadcastGroupConfigurationWithChannel)endpointFact).getJgroupsRef();
-                        newConfigs.add(BroadcastGroupAdd.createBroadcastGroupConfiguration(name, config, binding, jgroupFactories.get(jgroupsRef)));
+                        ChannelFactory channelFactory = jgroupFactories.get(key);
+                        String channelName = jgroupsChannels.get(key);
+                        newConfigs.add(BroadcastGroupAdd.createBroadcastGroupConfiguration(name, config, channelFactory, channelName));
                     }
                 }
                 configuration.getBroadcastGroupConfigurations().clear();
@@ -199,18 +202,20 @@ class HornetQService implements Service<HornetQServer> {
                 configuration.setDiscoveryGroupConfigurations(new HashMap<String, DiscoveryGroupConfiguration>());
                 for(final Map.Entry<String, DiscoveryGroupConfiguration> entry : discoveryGroups.entrySet()) {
                     final String name = entry.getKey();
-                    final SocketBinding binding = groupBindings.get("discovery" + name);
-                    if (binding == null) {
-                        throw MESSAGES.failedToFindDiscoverySocketBinding(name);
-                    }
+                    final String key = "discovery" + name;
                     DiscoveryGroupConfiguration oldCfg = entry.getValue();
                     BroadcastEndpointFactoryConfiguration endpointFact = oldCfg.getBroadcastEndpointFactoryConfiguration();
                     DiscoveryGroupConfiguration config = null;
                     if (endpointFact instanceof UDPBroadcastGroupConfiguration) {
-                        config = DiscoveryGroupAdd.createDiscoveryGroupConfiguration(name, entry.getValue(), binding, null);
+                        final SocketBinding binding = groupBindings.get(key);
+                        if (binding == null) {
+                            throw MESSAGES.failedToFindDiscoverySocketBinding(name);
+                        }
+                        config = DiscoveryGroupAdd.createDiscoveryGroupConfiguration(name, entry.getValue(), binding);
                     } else {
-                        String jgroupsRef = ((JGroupsBroadcastGroupConfigurationWithChannel)endpointFact).getJgroupsRef();
-                        config = DiscoveryGroupAdd.createDiscoveryGroupConfiguration(name, entry.getValue(), binding, jgroupFactories.get(jgroupsRef));
+                        ChannelFactory channelFactory = jgroupFactories.get(key);
+                        String channelName = jgroupsChannels.get(key);
+                        config = DiscoveryGroupAdd.createDiscoveryGroupConfiguration(name, entry.getValue(), channelFactory, channelName);
                     }
                     configuration.getDiscoveryGroupConfigurations().put(name, config);
                 }
@@ -268,6 +273,10 @@ class HornetQService implements Service<HornetQServer> {
 
     public Injector<SecurityDomainContext> getSecurityDomainContextInjector() {
         return securityDomainContextValue;
+    }
+
+    public Map<String, String> getJGroupsChannels() {
+        return jgroupsChannels;
     }
 
     static class PathConfig {

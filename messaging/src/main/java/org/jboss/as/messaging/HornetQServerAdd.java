@@ -28,16 +28,21 @@ import static org.jboss.as.messaging.CommonAttributes.ADDRESS_SETTING;
 import static org.jboss.as.messaging.CommonAttributes.ALLOW_FAILBACK;
 import static org.jboss.as.messaging.CommonAttributes.ASYNC_CONNECTION_EXECUTION_ENABLED;
 import static org.jboss.as.messaging.CommonAttributes.BACKUP;
+import static org.jboss.as.messaging.CommonAttributes.BACKUP_GROUP_NAME;
 import static org.jboss.as.messaging.CommonAttributes.BINDINGS_DIRECTORY;
+import static org.jboss.as.messaging.CommonAttributes.BROADCAST_GROUP;
 import static org.jboss.as.messaging.CommonAttributes.CHECK_FOR_LIVE_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTER_PASSWORD;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTER_USER;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTION_TTL_OVERRIDE;
 import static org.jboss.as.messaging.CommonAttributes.CREATE_BINDINGS_DIR;
 import static org.jboss.as.messaging.CommonAttributes.CREATE_JOURNAL_DIR;
+import static org.jboss.as.messaging.CommonAttributes.DISCOVERY_GROUP;
 import static org.jboss.as.messaging.CommonAttributes.FAILBACK_DELAY;
 import static org.jboss.as.messaging.CommonAttributes.FAILOVER_ON_SHUTDOWN;
 import static org.jboss.as.messaging.CommonAttributes.ID_CACHE_SIZE;
+import static org.jboss.as.messaging.CommonAttributes.JGROUPS_CHANNEL;
+import static org.jboss.as.messaging.CommonAttributes.JGROUPS_REF;
 import static org.jboss.as.messaging.CommonAttributes.JMX_DOMAIN;
 import static org.jboss.as.messaging.CommonAttributes.JMX_MANAGEMENT_ENABLED;
 import static org.jboss.as.messaging.CommonAttributes.JOURNAL_BUFFER_SIZE;
@@ -62,7 +67,6 @@ import static org.jboss.as.messaging.CommonAttributes.MESSAGE_COUNTER_MAX_DAY_HI
 import static org.jboss.as.messaging.CommonAttributes.MESSAGE_COUNTER_SAMPLE_PERIOD;
 import static org.jboss.as.messaging.CommonAttributes.MESSAGE_EXPIRY_SCAN_PERIOD;
 import static org.jboss.as.messaging.CommonAttributes.MESSAGE_EXPIRY_THREAD_PRIORITY;
-import static org.jboss.as.messaging.CommonAttributes.BACKUP_GROUP_NAME;
 import static org.jboss.as.messaging.CommonAttributes.PAGE_MAX_CONCURRENT_IO;
 import static org.jboss.as.messaging.CommonAttributes.PAGING_DIRECTORY;
 import static org.jboss.as.messaging.CommonAttributes.PATH;
@@ -92,10 +96,9 @@ import java.util.Set;
 
 import javax.management.MBeanServer;
 
+import org.hornetq.api.core.BroadcastGroupConfiguration;
 import org.hornetq.api.core.DiscoveryGroupConfiguration;
 import org.hornetq.api.core.SimpleString;
-import org.hornetq.api.core.BroadcastEndpointFactoryConfiguration;
-import org.hornetq.api.core.BroadcastGroupConfiguration;
 import org.hornetq.core.config.Configuration;
 import org.hornetq.core.config.impl.ConfigurationImpl;
 import org.hornetq.core.security.Role;
@@ -272,20 +275,35 @@ class HornetQServerAdd implements OperationStepHandler {
                 if(broadcastGroupConfigurations != null) {
                     for(final BroadcastGroupConfiguration config : broadcastGroupConfigurations) {
                         final String name = config.getName();
-                        final ServiceName groupBinding = GroupBindingService.getBroadcastBaseServiceName(hqServiceName).append(name);
-                        serviceBuilder.addDependency(groupBinding, SocketBinding.class, hqService.getGroupBindingInjector("broadcast" + name));
-                        BroadcastEndpointFactoryConfiguration endpointFact = config.getEndpointFactoryConfiguration();
-                        if (endpointFact instanceof JGroupsBroadcastGroupConfigurationWithChannel) {
-                            String jgroupsRef = ((JGroupsBroadcastGroupConfigurationWithChannel)endpointFact).getJgroupsRef();
-                            serviceBuilder.addDependency(DependencyType.OPTIONAL, ServiceName.JBOSS.append("jgroups").append("stack").append(jgroupsRef), ChannelFactory.class, hqService.getJGroupsInjector(jgroupsRef));
+                        final String key = "broadcast" + name;
+                        ModelNode broadcastGroupModel = model.get(BROADCAST_GROUP, name);
+
+                        if (broadcastGroupModel.hasDefined(JGROUPS_REF.getName())) {
+                            String jgroupsRef = JGROUPS_REF.resolveModelAttribute(context, broadcastGroupModel).asString();
+                            String channelName = JGROUPS_CHANNEL.resolveModelAttribute(context, broadcastGroupModel).asString();
+                            serviceBuilder.addDependency(ServiceName.JBOSS.append("jgroups").append("stack").append(jgroupsRef), ChannelFactory.class, hqService.getJGroupsInjector(key));
+                            hqService.getJGroupsChannels().put(key, channelName);
+                        } else {
+                            final ServiceName groupBinding = GroupBindingService.getBroadcastBaseServiceName(hqServiceName).append(name);
+                            serviceBuilder.addDependency(groupBinding, SocketBinding.class, hqService.getGroupBindingInjector(key));
                         }
                     }
                 }
                 if(discoveryGroupConfigurations != null) {
                     for(final DiscoveryGroupConfiguration config : discoveryGroupConfigurations.values()) {
                         final String name = config.getName();
-                        final ServiceName groupBinding = GroupBindingService.getDiscoveryBaseServiceName(hqServiceName).append(name);
-                        serviceBuilder.addDependency(groupBinding, SocketBinding.class, hqService.getGroupBindingInjector("discovery" + name));
+                        final String key = "discovery" + name;
+                        ModelNode discoveryGroupModel = model.get(DISCOVERY_GROUP, name);
+                        System.out.println(discoveryGroupModel);
+                        if (discoveryGroupModel.hasDefined(JGROUPS_REF.getName())) {
+                            String jgroupsRef = JGROUPS_REF.resolveModelAttribute(context, discoveryGroupModel).asString();
+                            String channelName = JGROUPS_CHANNEL.resolveModelAttribute(context, discoveryGroupModel).asString();
+                            serviceBuilder.addDependency(ServiceName.JBOSS.append("jgroups").append("stack").append(jgroupsRef), ChannelFactory.class, hqService.getJGroupsInjector(key));
+                            hqService.getJGroupsChannels().put(key, channelName);
+                        } else {
+                            final ServiceName groupBinding = GroupBindingService.getDiscoveryBaseServiceName(hqServiceName).append(name);
+                            serviceBuilder.addDependency(groupBinding, SocketBinding.class, hqService.getGroupBindingInjector(key));
+                        }
                     }
                 }
 

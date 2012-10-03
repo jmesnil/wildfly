@@ -28,15 +28,19 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUB
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.VALUE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRITE_ATTRIBUTE_OPERATION;
 import static org.jboss.as.controller.transform.OperationResultTransformer.ORIGINAL_RESULT;
+import static org.jboss.as.messaging.CommonAttributes.BACKUP_GROUP_NAME;
+import static org.jboss.as.messaging.CommonAttributes.BROADCAST_GROUP;
 import static org.jboss.as.messaging.CommonAttributes.CALL_FAILOVER_TIMEOUT;
 import static org.jboss.as.messaging.CommonAttributes.CHECK_FOR_LIVE_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTERED;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTER_CONNECTION;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTION_FACTORY;
+import static org.jboss.as.messaging.CommonAttributes.DISCOVERY_GROUP;
 import static org.jboss.as.messaging.CommonAttributes.HA;
 import static org.jboss.as.messaging.CommonAttributes.HORNETQ_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.ID_CACHE_SIZE;
-import static org.jboss.as.messaging.CommonAttributes.BACKUP_GROUP_NAME;
+import static org.jboss.as.messaging.CommonAttributes.JGROUPS_CHANNEL;
+import static org.jboss.as.messaging.CommonAttributes.JGROUPS_REF;
 import static org.jboss.as.messaging.CommonAttributes.PARAM;
 import static org.jboss.as.messaging.CommonAttributes.POOLED_CONNECTION_FACTORY;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_CLUSTERNAME;
@@ -252,7 +256,6 @@ public class MessagingExtension implements Extension {
                 ModelNode oldModel = model.clone();
                 if (oldModel.hasDefined(HORNETQ_SERVER)) {
                     for (Property server : oldModel.get(HORNETQ_SERVER).asPropertyList()) {
-
                         if (!oldModel.get(HORNETQ_SERVER, server.getName()).hasDefined(CLUSTERED.getName())) {
                             oldModel.get(HORNETQ_SERVER, server.getName()).get(CLUSTERED.getName()).set(false);
                         }
@@ -262,6 +265,18 @@ public class MessagingExtension implements Extension {
                         if (server.getValue().hasDefined(CLUSTER_CONNECTION)) {
                             for (Property clusterConnection : server.getValue().get(CLUSTER_CONNECTION).asPropertyList()) {
                                 oldModel.get(HORNETQ_SERVER, server.getName(), CLUSTER_CONNECTION, clusterConnection.getName()).remove(CALL_FAILOVER_TIMEOUT.getName());
+                            }
+                        }
+                        if (server.getValue().hasDefined(BROADCAST_GROUP)) {
+                            for (Property broadcastGroup : server.getValue().get(BROADCAST_GROUP).asPropertyList()) {
+                                oldModel.get(HORNETQ_SERVER, server.getName(), BROADCAST_GROUP, broadcastGroup.getName()).remove(JGROUPS_REF.getName());
+                                oldModel.get(HORNETQ_SERVER, server.getName(), BROADCAST_GROUP, broadcastGroup.getName()).remove(JGROUPS_CHANNEL.getName());
+                            }
+                        }
+                        if (server.getValue().hasDefined(DISCOVERY_GROUP)) {
+                            for (Property discoveryGroup : server.getValue().get(DISCOVERY_GROUP).asPropertyList()) {
+                                oldModel.get(HORNETQ_SERVER, server.getName(), DISCOVERY_GROUP, discoveryGroup.getName()).remove(JGROUPS_REF.getName());
+                                oldModel.get(HORNETQ_SERVER, server.getName(), DISCOVERY_GROUP, discoveryGroup.getName()).remove(JGROUPS_CHANNEL.getName());
                             }
                         }
                         if (server.getValue().hasDefined(POOLED_CONNECTION_FACTORY)) {

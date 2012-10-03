@@ -75,8 +75,8 @@ public class BroadcastGroupDefinition extends SimpleResourceDefinition {
             .setFlags(RESTART_ALL_SERVICES)
             .build();
 
-    public static final AttributeDefinition[] ATTRIBUTES = { SOCKET_BINDING_ALTERNATIVE, LOCAL_BIND_ADDRESS, LOCAL_BIND_PORT,
-        GROUP_ADDRESS, GROUP_PORT, BROADCAST_PERIOD, CONNECTOR_REFS, JGROUPS_REF, JGROUPS_CHANNEL };
+    public static final AttributeDefinition[] ATTRIBUTES = { JGROUPS_REF, JGROUPS_CHANNEL, SOCKET_BINDING_ALTERNATIVE, LOCAL_BIND_ADDRESS, LOCAL_BIND_PORT,
+        GROUP_ADDRESS, GROUP_PORT, BROADCAST_PERIOD, CONNECTOR_REFS };
 
     public static final String GET_CONNECTOR_PAIRS_AS_JSON = "get-connector-pairs-as-json";
 

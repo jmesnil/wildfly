@@ -27,8 +27,6 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.parsing.ParseUtils.readStringAttributeElement;
 import static org.jboss.as.controller.parsing.ParseUtils.requireSingleAttribute;
-import static org.jboss.as.controller.parsing.ParseUtils.requireOneOf;
-import static org.jboss.as.controller.parsing.ParseUtils.presentOneOf;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
 import static org.jboss.as.messaging.CommonAttributes.DEFAULT;
@@ -38,8 +36,6 @@ import static org.jboss.as.messaging.Element.DISCOVERY_GROUP_REF;
 import static org.jboss.as.messaging.Element.STATIC_CONNECTORS;
 import static org.jboss.as.messaging.MessagingMessages.MESSAGES;
 
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -75,9 +71,21 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
     protected void checkClusterConnectionConstraints(XMLExtendedStreamReader reader, Set<Element> seen) throws XMLStreamException {
         // AS7-5598 relax constraints on the cluster-connection to accept one without static-connectors or discovery-group-ref
         // howver it is still not valid to have both
-        if (seen.contains(STATIC_CONNECTORS) && seen.contains(DISCOVERY_GROUP_REF)) {
-            throw new XMLStreamException(MESSAGES.onlyOneRequired(STATIC_CONNECTORS.getLocalName(), DISCOVERY_GROUP_REF.getLocalName()), reader.getLocation());
-        }
+        checkNotBothElements(reader, seen, STATIC_CONNECTORS, DISCOVERY_GROUP_REF);
+    }
+
+    @Override
+    protected void checkBroadcastGroupConstraints(XMLExtendedStreamReader reader, Set<Element> seen) throws XMLStreamException {
+        checkNotBothElements(reader, seen, Element.SOCKET_BINDING, Element.JGROUPS_REF);
+        checkNotBothElements(reader, seen, Element.JGROUPS_REF, Element.GROUP_ADDRESS);
+        checkNotBothElements(reader, seen, Element.GROUP_ADDRESS, Element.SOCKET_BINDING);
+    }
+
+    @Override
+    protected void checkDiscoveryGroupConstraints(XMLExtendedStreamReader reader, Set<Element> seen) throws XMLStreamException {
+        checkNotBothElements(reader, seen, Element.SOCKET_BINDING, Element.JGROUPS_REF);
+        checkNotBothElements(reader, seen, Element.JGROUPS_REF, Element.GROUP_ADDRESS);
+        checkNotBothElements(reader, seen, Element.GROUP_ADDRESS, Element.SOCKET_BINDING);
     }
 
     protected void handleUnknownConnectionFactoryAttribute(XMLExtendedStreamReader reader, Element element, ModelNode connectionFactory, boolean pooled)
@@ -128,6 +136,34 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
         }
     }
 
+    @Override
+    protected void handleUnknownBroadcastGroupAttribute(XMLExtendedStreamReader reader, Element element, ModelNode operation)
+            throws XMLStreamException {
+        switch (element) {
+            case JGROUPS_REF:
+            case JGROUPS_CHANNEL:
+                handleElementText(reader, element, operation);
+                break;
+            default: {
+                super.handleUnknownBroadcastGroupAttribute(reader, element, operation);
+            }
+        }
+    }
+
+    @Override
+    protected void handleUnknownDiscoveryGroupAttribute(XMLExtendedStreamReader reader, Element element, ModelNode operation)
+            throws XMLStreamException {
+        switch (element) {
+            case JGROUPS_REF:
+            case JGROUPS_CHANNEL:
+                handleElementText(reader, element, operation);
+                break;
+            default: {
+                super.handleUnknownDiscoveryGroupAttribute(reader, element, operation);
+            }
+        }
+    }
+
     protected void processHornetQServers(final XMLExtendedStreamReader reader, final ModelNode subsystemAddress, final List<ModelNode> list) throws XMLStreamException {
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             final Namespace schemaVer = Namespace.forUri(reader.getNamespaceURI());
@@ -150,134 +186,6 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
                 }
             }
         }
-    }
-
-    protected void parseBroadcastGroup(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> updates) throws XMLStreamException {
-
-        String name = null;
-
-        int count = reader.getAttributeCount();
-        for (int i = 0; i < count; i++) {
-            final String attrValue = reader.getAttributeValue(i);
-            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
-            switch (attribute) {
-                case NAME: {
-                    name = attrValue;
-                    break;
-                }
-                default: {
-                    throw ParseUtils.unexpectedAttribute(reader, i);
-                }
-            }
-        }
-        if(name == null) {
-            ParseUtils.missingRequired(reader, Collections.singleton(Attribute.NAME));
-        }
-
-        ModelNode broadcastGroupAdd = org.jboss.as.controller.operations.common.Util.getEmptyOperation(ADD, address.clone().add(CommonAttributes.BROADCAST_GROUP, name));
-
-        EnumSet<Element> oldRequired = EnumSet.of(Element.SOCKET_BINDING);
-        EnumSet<Element> newRequired = EnumSet.of(Element.JGROUPS_REF, Element.JGROUPS_CHANNEL);
-        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-            final Element element = Element.forName(reader.getLocalName());
-            oldRequired.remove(element);
-            newRequired.remove(element);
-            switch (element) {
-                case LOCAL_BIND_ADDRESS:
-                case LOCAL_BIND_PORT:
-                case SOCKET_BINDING:
-                case BROADCAST_PERIOD:
-                case JGROUPS_REF:
-                case JGROUPS_CHANNEL:
-                case GROUP_ADDRESS:
-                case GROUP_PORT:
-                    handleElementText(reader, element, broadcastGroupAdd);
-                    break;
-                case CONNECTOR_REF:
-                    handleElementText(reader, element, "broadcast-group", broadcastGroupAdd);
-                    break;
-                default: {
-                    throw ParseUtils.unexpectedElement(reader);
-                }
-            }
-        }
-
-        //here either old is empty or new is empty, not both
-        if(oldRequired.isEmpty()) {
-            //new must not
-            if (newRequired.isEmpty()) {
-                throw requireOneOf(reader, oldRequired, newRequired);
-            }
-        } else {
-            //old must empty
-            if (!newRequired.isEmpty()) {
-                throw presentOneOf(reader, oldRequired, newRequired);
-            }
-        }
-
-        updates.add(broadcastGroupAdd);
-    }
-
-    @Override
-    protected void parseDiscoveryGroup(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> updates) throws XMLStreamException {
-
-       String name = null;
-
-       int count = reader.getAttributeCount();
-       for (int i = 0; i < count; i++) {
-           final String attrValue = reader.getAttributeValue(i);
-           final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
-           switch (attribute) {
-               case NAME: {
-                   name = attrValue;
-                   break;
-               }
-               default: {
-                   throw ParseUtils.unexpectedAttribute(reader, i);
-               }
-           }
-       }
-       if(name == null) {
-           ParseUtils.missingRequired(reader, Collections.singleton(Attribute.NAME));
-       }
-
-       ModelNode discoveryGroup = org.jboss.as.controller.operations.common.Util.getEmptyOperation(ADD, address.clone().add(CommonAttributes.DISCOVERY_GROUP, name));
-
-       EnumSet<Element> oldRequired = EnumSet.of(Element.SOCKET_BINDING);
-       EnumSet<Element> newRequired = EnumSet.of(Element.JGROUPS_REF, Element.JGROUPS_CHANNEL);
-       while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-           final Element element = Element.forName(reader.getLocalName());
-           oldRequired.remove(element);
-           newRequired.remove(element);
-           switch (element) {
-               case LOCAL_BIND_ADDRESS:
-               case REFRESH_TIMEOUT:
-               case SOCKET_BINDING:
-               case INITIAL_WAIT_TIMEOUT:
-               case JGROUPS_REF:
-               case JGROUPS_CHANNEL:
-                   handleElementText(reader, element, discoveryGroup);
-                   break;
-               default: {
-                   throw ParseUtils.unexpectedElement(reader);
-               }
-           }
-        }
-
-        //here either old is empty or new is empty, not both
-        if(oldRequired.isEmpty()) {
-            //new must not
-            if (newRequired.isEmpty()) {
-                throw requireOneOf(reader, oldRequired, newRequired);
-            }
-        } else {
-            //old must empty
-            if (!newRequired.isEmpty()) {
-                throw presentOneOf(reader, oldRequired, newRequired);
-            }
-        }
-
-        updates.add(discoveryGroup);
     }
 
     private void processJmsBridge(XMLExtendedStreamReader reader, ModelNode subsystemAddress, List<ModelNode> list) throws XMLStreamException {
@@ -405,6 +313,15 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
             ((SimpleAttributeDefinition) attributeDefinition).parseAndSetParameter(value, node, reader);
         } else if (attributeDefinition instanceof ListAttributeDefinition) {
             ((ListAttributeDefinition) attributeDefinition).parseAndAddParameterElement(value, node, reader);
+        }
+    }
+
+    /**
+     * Check that not both elements have been defined
+     */
+    protected static void checkNotBothElements(XMLExtendedStreamReader reader, Set<Element> seen, Element element1, Element element2) throws XMLStreamException {
+        if (seen.contains(element1) && seen.contains(element2)) {
+            throw new XMLStreamException(MESSAGES.onlyOneRequired(element1.getLocalName(), element2.getLocalName()), reader.getLocation());
         }
     }
 }
