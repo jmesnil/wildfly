@@ -22,6 +22,8 @@
 
 package org.jboss.as.test.integration.messaging.mgmt;
 
+import static java.util.UUID.randomUUID;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -117,6 +119,32 @@ public class CoreQueueManagementTestCase {
             session.deleteQueue(getOtherQueueName());
             session.close();
         }
+    }
+
+    @Test
+    public void testReadResource() throws Exception {
+        String address = randomUUID().toString();
+        String queueName = randomUUID().toString();
+
+        final ModelNode readResourceOp = getQueueOperation("read-resource", queueName);
+        
+        // resource does not exist
+        ModelNode result = execute(readResourceOp, false);
+        Assert.assertTrue(result.toJSONString(false), result.asString().contains("JBAS014807"));
+
+        session.createQueue(address, queueName, false);
+
+        // resource exists
+        result = execute(readResourceOp, true);
+        Assert.assertTrue(result.isDefined());
+        Assert.assertEquals(address, result.get("queue-address").asString());
+        
+        session.deleteQueue(queueName);
+        
+        // resource no longer exists
+        result = execute(readResourceOp, false);
+        // ControllerMessage.managementResourceNotFound failure description
+        Assert.assertTrue(result.asString().contains("JBAS014807"));
     }
 
     @Test
@@ -331,12 +359,16 @@ public class CoreQueueManagementTestCase {
         Assert.assertEquals(ModelType.STRING, result.getType());
     }
 
-    private ModelNode getQueueOperation(String operationName) {
+    private ModelNode getQueueOperation(String operationName, String queueName) {
         final ModelNode address = new ModelNode();
         address.add("subsystem", "messaging");
         address.add("hornetq-server", "default");
-        address.add("queue", getQueueName());
+        address.add("queue", queueName);
         return org.jboss.as.controller.operations.common.Util.getEmptyOperation(operationName, address);
+    }
+    
+    private ModelNode getQueueOperation(String operationName) {
+        return getQueueOperation(operationName, getQueueName());
     }
 
     private ModelNode execute(final ModelNode op, final boolean expectSuccess) throws IOException {

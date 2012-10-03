@@ -22,12 +22,16 @@
 
 package org.jboss.as.messaging.jms;
 
+import org.hornetq.api.core.management.NotificationType;
 import org.hornetq.core.security.HornetQPrincipal;
 import org.hornetq.core.server.HornetQServer;
+import org.hornetq.core.server.management.Notification;
+import org.hornetq.core.server.management.NotificationListener;
 import org.hornetq.jms.server.JMSServerManager;
 import org.hornetq.jms.server.impl.JMSServerManagerImpl;
 import org.jboss.as.messaging.HornetQDefaultCredentials;
 import org.jboss.msc.service.Service;
+import org.jboss.msc.service.ServiceContainer;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceController.Mode;
 import org.jboss.msc.service.ServiceListener;
@@ -38,6 +42,7 @@ import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
 
+import static org.hornetq.api.core.management.NotificationType.BINDING_ADDED;
 import static org.jboss.as.messaging.MessagingLogger.MESSAGING_LOGGER;
 
 /**
@@ -62,7 +67,7 @@ public class JMSService implements Service<JMSServerManager> {
         //
     }
 
-    public synchronized void start(StartContext context) throws StartException {
+    public synchronized void start(final StartContext context) throws StartException {
         try {
             final JMSServerManager jmsServer = new JMSServerManagerImpl(hornetQServer.getValue(), new AS7BindingRegistry(context.getController().getServiceContainer()));
 
@@ -71,7 +76,17 @@ public class JMSService implements Service<JMSServerManager> {
                 final ClassLoader loader = getClass().getClassLoader();
                 SecurityActions.setContextClassLoader(loader);
                 jmsServer.start();
-
+                jmsServer.getHornetQServer().getManagementService().addNotificationListener(new NotificationListener() {
+                    @Override
+                    public void onNotification(Notification notification) {
+                        if (BINDING_ADDED.equals(notification.getType())
+                                || NotificationType.BINDING_REMOVED.equals(notification.getType())) {
+                            ServiceContainer sc = context.getController().getServiceContainer();
+                            // TODO persist the controller model to ensure that any queue created/deleted
+                            // through the HornetQ API are persisted correctly
+                        }
+                    }
+                });
                 // FIXME - this check is a work-around for AS7-3658
                 if (!hornetQServer.getValue().getConfiguration().isBackup()) {
                     hornetQServer.getValue().getRemotingService().allowInvmSecurityOverride(new HornetQPrincipal(HornetQDefaultCredentials.getUsername(), HornetQDefaultCredentials.getPassword()));
