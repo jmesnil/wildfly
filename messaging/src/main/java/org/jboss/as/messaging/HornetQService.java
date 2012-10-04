@@ -12,12 +12,12 @@ import java.util.Map;
 
 import javax.management.MBeanServer;
 
-import org.hornetq.api.core.DiscoveryGroupConfiguration;
-import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.BroadcastEndpointFactoryConfiguration;
 import org.hornetq.api.core.BroadcastGroupConfiguration;
-import org.hornetq.core.config.Configuration;
+import org.hornetq.api.core.DiscoveryGroupConfiguration;
+import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.UDPBroadcastGroupConfiguration;
+import org.hornetq.core.config.Configuration;
 import org.hornetq.core.config.impl.ConfigurationImpl;
 import org.hornetq.core.journal.impl.AIOSequentialFileFactory;
 import org.hornetq.core.server.HornetQServer;
@@ -36,6 +36,7 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
+import org.jgroups.JChannel;
 
 /**
  * Service configuring and starting the {@code HornetQService}.
@@ -177,6 +178,10 @@ class HornetQService implements Service<HornetQServer> {
                     }
                 }
             }
+
+            // broadcast-group and discovery-groups configured with JGroups must share the same channel
+            final Map<String, JChannel> channels = new HashMap<String, JChannel>();
+
             if(broadcastGroups != null) {
                 final List<BroadcastGroupConfiguration> newConfigs = new ArrayList<BroadcastGroupConfiguration>();
                 for(final BroadcastGroupConfiguration config : broadcastGroups) {
@@ -192,7 +197,9 @@ class HornetQService implements Service<HornetQServer> {
                     } else {
                         ChannelFactory channelFactory = jgroupFactories.get(key);
                         String channelName = jgroupsChannels.get(key);
-                        newConfigs.add(BroadcastGroupAdd.createBroadcastGroupConfiguration(name, config, channelFactory, channelName));
+                        JChannel channel = (JChannel) channelFactory.createChannel(channelName);
+                        channels.put(channelName, channel);
+                        newConfigs.add(BroadcastGroupAdd.createBroadcastGroupConfiguration(name, config, channel, channelName));
                     }
                 }
                 configuration.getBroadcastGroupConfigurations().clear();
@@ -215,7 +222,12 @@ class HornetQService implements Service<HornetQServer> {
                     } else {
                         ChannelFactory channelFactory = jgroupFactories.get(key);
                         String channelName = jgroupsChannels.get(key);
-                        config = DiscoveryGroupAdd.createDiscoveryGroupConfiguration(name, entry.getValue(), channelFactory, channelName);
+                        JChannel channel = channels.get(channelName);
+                        if (channel == null) {
+                            channel = (JChannel) channelFactory.createChannel(key);
+                            channels.put(channelName, channel);
+                        }
+                        config = DiscoveryGroupAdd.createDiscoveryGroupConfiguration(name, entry.getValue(), channel, channelName);
                     }
                     configuration.getDiscoveryGroupConfigurations().put(name, config);
                 }
