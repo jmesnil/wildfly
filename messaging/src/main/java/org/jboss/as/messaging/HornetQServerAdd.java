@@ -42,7 +42,7 @@ import static org.jboss.as.messaging.CommonAttributes.FAILBACK_DELAY;
 import static org.jboss.as.messaging.CommonAttributes.FAILOVER_ON_SHUTDOWN;
 import static org.jboss.as.messaging.CommonAttributes.ID_CACHE_SIZE;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_CHANNEL;
-import static org.jboss.as.messaging.CommonAttributes.JGROUPS_REF;
+import static org.jboss.as.messaging.CommonAttributes.JGROUPS_STACK;
 import static org.jboss.as.messaging.CommonAttributes.JMX_DOMAIN;
 import static org.jboss.as.messaging.CommonAttributes.JMX_MANAGEMENT_ENABLED;
 import static org.jboss.as.messaging.CommonAttributes.JOURNAL_BUFFER_SIZE;
@@ -278,10 +278,10 @@ class HornetQServerAdd implements OperationStepHandler {
                         final String key = "broadcast" + name;
                         ModelNode broadcastGroupModel = model.get(BROADCAST_GROUP, name);
 
-                        if (broadcastGroupModel.hasDefined(JGROUPS_REF.getName())) {
-                            String jgroupsRef = JGROUPS_REF.resolveModelAttribute(context, broadcastGroupModel).asString();
+                        if (broadcastGroupModel.hasDefined(JGROUPS_STACK.getName())) {
+                            String jgroupsStack = JGROUPS_STACK.resolveModelAttribute(context, broadcastGroupModel).asString();
                             String channelName = JGROUPS_CHANNEL.resolveModelAttribute(context, broadcastGroupModel).asString();
-                            serviceBuilder.addDependency(ServiceName.JBOSS.append("jgroups").append("stack").append(jgroupsRef), ChannelFactory.class, hqService.getJGroupsInjector(key));
+                            serviceBuilder.addDependency(ServiceName.JBOSS.append("jgroups").append("stack").append(jgroupsStack), ChannelFactory.class, hqService.getJGroupsInjector(key));
                             hqService.getJGroupsChannels().put(key, channelName);
                         } else {
                             final ServiceName groupBinding = GroupBindingService.getBroadcastBaseServiceName(hqServiceName).append(name);
@@ -294,11 +294,10 @@ class HornetQServerAdd implements OperationStepHandler {
                         final String name = config.getName();
                         final String key = "discovery" + name;
                         ModelNode discoveryGroupModel = model.get(DISCOVERY_GROUP, name);
-                        System.out.println(discoveryGroupModel);
-                        if (discoveryGroupModel.hasDefined(JGROUPS_REF.getName())) {
-                            String jgroupsRef = JGROUPS_REF.resolveModelAttribute(context, discoveryGroupModel).asString();
+                        if (discoveryGroupModel.hasDefined(JGROUPS_STACK.getName())) {
+                            String jgroupsStack = JGROUPS_STACK.resolveModelAttribute(context, discoveryGroupModel).asString();
                             String channelName = JGROUPS_CHANNEL.resolveModelAttribute(context, discoveryGroupModel).asString();
-                            serviceBuilder.addDependency(ServiceName.JBOSS.append("jgroups").append("stack").append(jgroupsRef), ChannelFactory.class, hqService.getJGroupsInjector(key));
+                            serviceBuilder.addDependency(ServiceName.JBOSS.append("jgroups").append("stack").append(jgroupsStack), ChannelFactory.class, hqService.getJGroupsInjector(key));
                             hqService.getJGroupsChannels().put(key, channelName);
                         } else {
                             final ServiceName groupBinding = GroupBindingService.getDiscoveryBaseServiceName(hqServiceName).append(name);

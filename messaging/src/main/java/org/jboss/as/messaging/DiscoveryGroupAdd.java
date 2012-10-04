@@ -24,7 +24,7 @@ package org.jboss.as.messaging;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SOCKET_BINDING;
-import static org.jboss.as.messaging.CommonAttributes.JGROUPS_REF;
+import static org.jboss.as.messaging.CommonAttributes.JGROUPS_STACK;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -88,8 +88,8 @@ public class DiscoveryGroupAdd extends AbstractAddStepHandler {
             context.reloadRequired();
         } else {
             final ServiceTarget target = context.getServiceTarget();
-            if(model.hasDefined(JGROUPS_REF.getName())) {
-                System.out.println("DiscoveryGroupAdd.performRuntime()");
+            if(model.hasDefined(JGROUPS_STACK.getName())) {
+                // nothing to do, in that case, the clustering.jgroups subsystem will have setup the stack
             } else if(model.hasDefined(RemoteTransportDefinition.SOCKET_BINDING.getName())) {
                 final GroupBindingService bindingService = new GroupBindingService();
                 target.addService(GroupBindingService.getDiscoveryBaseServiceName(hqServiceName).append(name), bindingService)

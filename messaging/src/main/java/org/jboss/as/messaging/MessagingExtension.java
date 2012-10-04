@@ -40,7 +40,7 @@ import static org.jboss.as.messaging.CommonAttributes.HA;
 import static org.jboss.as.messaging.CommonAttributes.HORNETQ_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.ID_CACHE_SIZE;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_CHANNEL;
-import static org.jboss.as.messaging.CommonAttributes.JGROUPS_REF;
+import static org.jboss.as.messaging.CommonAttributes.JGROUPS_STACK;
 import static org.jboss.as.messaging.CommonAttributes.PARAM;
 import static org.jboss.as.messaging.CommonAttributes.POOLED_CONNECTION_FACTORY;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_CLUSTERNAME;
@@ -269,13 +269,13 @@ public class MessagingExtension implements Extension {
                         }
                         if (server.getValue().hasDefined(BROADCAST_GROUP)) {
                             for (Property broadcastGroup : server.getValue().get(BROADCAST_GROUP).asPropertyList()) {
-                                oldModel.get(HORNETQ_SERVER, server.getName(), BROADCAST_GROUP, broadcastGroup.getName()).remove(JGROUPS_REF.getName());
+                                oldModel.get(HORNETQ_SERVER, server.getName(), BROADCAST_GROUP, broadcastGroup.getName()).remove(JGROUPS_STACK.getName());
                                 oldModel.get(HORNETQ_SERVER, server.getName(), BROADCAST_GROUP, broadcastGroup.getName()).remove(JGROUPS_CHANNEL.getName());
                             }
                         }
                         if (server.getValue().hasDefined(DISCOVERY_GROUP)) {
                             for (Property discoveryGroup : server.getValue().get(DISCOVERY_GROUP).asPropertyList()) {
-                                oldModel.get(HORNETQ_SERVER, server.getName(), DISCOVERY_GROUP, discoveryGroup.getName()).remove(JGROUPS_REF.getName());
+                                oldModel.get(HORNETQ_SERVER, server.getName(), DISCOVERY_GROUP, discoveryGroup.getName()).remove(JGROUPS_STACK.getName());
                                 oldModel.get(HORNETQ_SERVER, server.getName(), DISCOVERY_GROUP, discoveryGroup.getName()).remove(JGROUPS_CHANNEL.getName());
                             }
                         }

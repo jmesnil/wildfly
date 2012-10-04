@@ -93,7 +93,7 @@ public enum Element {
    IN_VM_ACCEPTOR(CommonAttributes.IN_VM_ACCEPTOR),
    IN_VM_CONNECTOR(CommonAttributes.IN_VM_CONNECTOR),
    JGROUPS_CHANNEL(CommonAttributes.JGROUPS_CHANNEL),
-   JGROUPS_REF(CommonAttributes.JGROUPS_REF),
+   JGROUPS_REF(CommonAttributes.JGROUPS_STACK),
    JMX_DOMAIN(CommonAttributes.JMX_DOMAIN),
    JMX_MANAGEMENT_ENABLED(CommonAttributes.JMX_MANAGEMENT_ENABLED),
    JOURNAL_BUFFER_SIZE(CommonAttributes.JOURNAL_BUFFER_SIZE),
