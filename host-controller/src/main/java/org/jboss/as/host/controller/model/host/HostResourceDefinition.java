@@ -79,7 +79,6 @@ import org.jboss.as.host.controller.resources.HttpManagementResourceDefinition;
 import org.jboss.as.host.controller.resources.NativeManagementResourceDefinition;
 import org.jboss.as.host.controller.resources.ServerConfigResourceDefinition;
 import org.jboss.as.patching.PatchResourceDefinition;
-import org.jboss.as.patching.PatchResourceRegistration;
 import org.jboss.as.platform.mbean.PlatformMBeanResourceRegistrar;
 import org.jboss.as.repository.ContentRepository;
 import org.jboss.as.repository.HostFileRepository;
