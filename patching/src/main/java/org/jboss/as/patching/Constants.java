@@ -37,4 +37,7 @@ public class Constants {
 
     public static final String TIMESTAMP = "timestamp";
     public static final String APPLIED_AT = "applied-at";
+    public static final String APPLIED_TO = "applied-to";
+    public static final String RESULTING_VERSION = "resulting-version";
+    public static final String PREVIOUS_CUMULATIVE = "previous-cumulative";
 }

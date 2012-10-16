@@ -23,6 +23,11 @@
 package org.jboss.as.patching.runner;
 
 import org.jboss.as.patching.Constants;
+
+import static org.jboss.as.patching.Constants.APPLIED_TO;
+import static org.jboss.as.patching.Constants.PREVIOUS_CUMULATIVE;
+import static org.jboss.as.patching.Constants.RESULTING_VERSION;
+import static org.jboss.as.patching.Constants.TIMESTAMP;
 import static org.jboss.as.patching.runner.PatchUtils.generateTimestamp;
 
 import org.jboss.as.boot.DirectoryStructure;
@@ -234,13 +239,18 @@ class PatchingContext {
             newInfo = new LocalPatchInfo(resultingVersion, patchId, Collections.<String>emptyList(), info.getEnvironment());
         }
         // Backup the current active patch Info
-        final File cumulativeBackup = new File(backup, DirectoryStructure.CUMULATIVE);
-        final File referencesBackup = new File(backup, DirectoryStructure.REFERENCES);
-        final File timestamp = new File(backup, Constants.TIMESTAMP);
+        final File timestamp = new File(backup, TIMESTAMP);
+        final File appliedToVersion = new File(backup, APPLIED_TO);
         try {
-            PatchUtils.writeRef(cumulativeBackup, info.getCumulativeID());
-            PatchUtils.writeRefs(referencesBackup, info.getPatchIDs());
             PatchUtils.writeRef(timestamp, generateTimestamp());
+            PatchUtils.writeRef(appliedToVersion, info.getVersion());
+            if (Patch.PatchType.CUMULATIVE == patch.getPatchType()) {
+                final File resultingVersion = new File(backup, RESULTING_VERSION);
+                final File cumulativeBackup = new File(backup, PREVIOUS_CUMULATIVE);
+
+                PatchUtils.writeRef(cumulativeBackup, info.getCumulativeID());
+                PatchUtils.writeRef(resultingVersion, patch.getResultingVersion());
+            }
         } catch (IOException e) {
             throw  new PatchingException(e);
         }

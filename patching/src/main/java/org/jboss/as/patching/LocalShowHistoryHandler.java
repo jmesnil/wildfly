@@ -22,19 +22,21 @@
 
 package org.jboss.as.patching;
 
-import static org.jboss.as.patching.PatchInfo.BASE;
-import static org.jboss.as.patching.metadata.Patch.PatchType.CUMULATIVE;
-import static org.jboss.as.patching.metadata.Patch.PatchType.ONE_OFF;
+import static org.jboss.as.patching.Constants.APPLIED_TO;
+import static org.jboss.as.patching.Constants.PREVIOUS_CUMULATIVE;
+import static org.jboss.as.patching.Constants.RESULTING_VERSION;
+import static org.jboss.as.patching.Constants.TIMESTAMP;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.jboss.as.boot.DirectoryStructure;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
-import org.jboss.as.patching.metadata.Patch.PatchType;
 import org.jboss.as.patching.runner.PatchUtils;
+import org.jboss.as.version.ProductConfig;
 import org.jboss.dmr.ModelNode;
 
 /**
@@ -51,20 +53,25 @@ public final class LocalShowHistoryHandler implements OperationStepHandler {
 
         try {
             final PatchInfo info = service.getPatchInfo();
-            final DirectoryStructure structure = service.getStructure();
+
+            // history is composed of 3 parts stacked on top of each other, the most recent applied patch being at the top:
+            //
+            // +--------------------+
+            // |  one-off patches   | * always applied at the top of a base version or a cumulative patch
+            // |                    | * can be empty if no one-off patches have been applied
+            // +--------------------+
+            // | cumulative patches | * stack of applied cumulative patches
+            // |                    | * can be empty if no cumulative patches have been appplied
+            // +--------------------+
+            // |    base version    | * the base version of this AS7 installation
+            // |                    | * always present
+            // +--------------------+
             ModelNode result = new ModelNode();
-            result.setEmptyList();
+            result.get("current-version").set(info.getVersion());
+            fillOneOffPatchesHistory(result, info);
+            fillCumulativePatchesHistory(result, info);
+            fillBaseVersionHistory(result, service.getProductConfig());
 
-            String cumulativePatchID = info.getCumulativeID();
-            if (!BASE.equals(cumulativePatchID)) {
-                fillHistory(result, CUMULATIVE, cumulativePatchID, structure.getHistoryDir(cumulativePatchID));
-            }
-
-            List<String> oneOffPatchIDs = info.getPatchIDs();
-            for (String oneOffPatchID : oneOffPatchIDs) {
-                File historyDir = structure.getHistoryDir(oneOffPatchID);
-                fillHistory(result, ONE_OFF, oneOffPatchID, historyDir);
-            }
             context.getResult().set(result);
             context.stepCompleted();
         } catch (Throwable t) {
@@ -73,14 +80,75 @@ public final class LocalShowHistoryHandler implements OperationStepHandler {
         }
     }
 
-    private void fillHistory(ModelNode result, PatchType type, String oneOffPatchID, File historyDir) throws Exception {
-        ModelNode history = new ModelNode();
-        history.get(type.getName()).set(oneOffPatchID);
+    private void fillBaseVersionHistory(ModelNode result, ProductConfig productConfig) {
+        result.get("base-version").set(productConfig.resolveVersion());
+    }
 
-        File timestampFile = new File(historyDir, Constants.TIMESTAMP);
+    private void fillCumulativePatchesHistory(ModelNode result, PatchInfo info) throws Exception {
+        String cumulativeID = info.getCumulativeID();
+        if (cumulativeID == PatchInfo.BASE) {
+            // no applied cumulative patches
+            return;
+        }
+
+        ModelNode cumulativePatches = new ModelNode();
+        cumulativePatches.setEmptyList();
+        do {
+            cumulativeID = createCumulativePatchMetadata(cumulativePatches, cumulativeID, info.getEnvironment());
+        } while (cumulativeID != PatchInfo.BASE);
+        result.get("cumulatives").set(cumulativePatches);
+    }
+
+    private String createCumulativePatchMetadata(ModelNode cumulativePatches, String cumulativeID, DirectoryStructure environment) throws Exception {
+        File patchHistoryDir = environment.getHistoryDir(cumulativeID);
+        String timestamp = readTimeStamp(patchHistoryDir);
+        String resultingVersion = PatchUtils.readRef(new File(patchHistoryDir, RESULTING_VERSION));
+        final String appliedToVersion = PatchUtils.readRef(new File(patchHistoryDir, APPLIED_TO));
+
+        ModelNode patch = new ModelNode();
+        patch.get("patchID").set(cumulativeID);
+        patch.get("resulting-version").set(resultingVersion);
+        patch.get("applied-to").set(appliedToVersion);
+        patch.get("applied-at").set(timestamp);
+        cumulativePatches.add(patch);
+
+        File previousCumulativeRefFile = new File(patchHistoryDir, PREVIOUS_CUMULATIVE);
+        if (previousCumulativeRefFile.exists()) {
+            return PatchUtils.readRef(previousCumulativeRefFile);
+        } else {
+            return PatchInfo.BASE;
+        }
+    }
+
+    private void fillOneOffPatchesHistory(ModelNode result, PatchInfo info) throws IOException {
+        List<String> patchIDs = info.getPatchIDs();
+        if (patchIDs.isEmpty()) {
+            return;
+        }
+        ModelNode oneOffPatches = new ModelNode();
+        oneOffPatches.setEmptyList();
+        for (String patchID : patchIDs) {
+            oneOffPatches.add(createOneOffPatchHistory(patchID, info.getEnvironment()));
+        }
+        result.get("one-offs").set(oneOffPatches);
+    }
+
+    private ModelNode createOneOffPatchHistory(String patchID, DirectoryStructure environment) throws IOException {
+        File patchHistoryDir = environment.getHistoryDir(patchID);
+        String timestamp = readTimeStamp(patchHistoryDir);
+        final String appliedToVersion = PatchUtils.readRef(new File(patchHistoryDir, APPLIED_TO));
+
+        ModelNode patch = new ModelNode();
+        patch.get("patchID").set(patchID);
+        patch.get("applied-to").set(appliedToVersion);
+        patch.get("applied-at").set(timestamp);
+        return patch;
+    }
+
+    private String readTimeStamp(File historyDir) throws IOException {
+        File timestampFile = new File(historyDir, TIMESTAMP);
         String timestamp = PatchUtils.readRef(timestampFile);
-        history.get(Constants.APPLIED_AT).set(timestamp);
-        result.add(history);
+        return timestamp;
     }
 
 }

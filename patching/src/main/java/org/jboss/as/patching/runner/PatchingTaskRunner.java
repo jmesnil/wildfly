@@ -134,7 +134,6 @@ public class PatchingTaskRunner {
             if(patchInfo.getPatchIDs().contains(patchId)) {
                 throw new PatchingException("already applied " + patchId);
             }
-
             // Execute the patch itself
             final PatchingContext context = PatchingContext.create(patch, patchInfo, structure, policy, workDir);
             try {

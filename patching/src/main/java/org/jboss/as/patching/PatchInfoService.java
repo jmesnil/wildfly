@@ -83,4 +83,8 @@ public final class PatchInfoService implements Service<PatchInfoService> {
         return updater.compareAndSet(this, oldInfo, newInfo);
     }
 
+    ProductConfig getProductConfig() {
+        return config;
+    }
+
 }

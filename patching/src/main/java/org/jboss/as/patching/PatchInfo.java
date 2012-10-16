@@ -46,17 +46,22 @@ public interface PatchInfo {
     String getVersion();
 
     /**
-     * The cumulative patch id.
+     * The patch id of the latest applied cumulative patch
+     * or {@link #BASE} if a cumulative patch has
+     * never been applied to the installation
      *
      * @return the cp id
      */
     String getCumulativeID();
 
     /**
-     * Get cumulative patch ids.
+     * Get the list of one-off patch ids applied on top of the current version.
+     *
+     * The list is ordered by date, the most recent applied patch being the first element
      *
      * @return the patch ids
      */
+    // FIXME should be a stack instead
     List<String> getPatchIDs();
 
     /**
