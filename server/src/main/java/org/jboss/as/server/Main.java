@@ -56,7 +56,7 @@ import org.jboss.stdio.StdioContext;
 public final class Main {
 
     public static void usage() {
-        CommandLineArgumentUsageImpl.printUsage(System.out);
+        CommandLineUsage.printUsage(System.out);
     }
 
     private Main() {
