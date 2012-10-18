@@ -86,6 +86,7 @@ public interface PatchingTask {
         static PatchingTask createBundleTask(final ContentModification modification, final BundleItem item, final PatchingContext context) {
             final ModificationType type = modification.getType();
             if(type == ModificationType.REMOVE) {
+                // FIXME update this to handle a bundle removal. this tasks add a module.xml file with a <module-absent>.
                 return new ModuleRemoveTask(item, modification.getTargetHash());
             } else {
                 return new ModuleUpdateTask(item, modification.getTargetHash(), type == ModificationType.ADD);
