@@ -62,11 +62,14 @@ fi
 
 # Sample JPDA settings for remote socket debugging
 #JAVA_OPTS="$JAVA_OPTS -agentlib:jdwp=transport=dt_socket,address=8787,server=y,suspend=y"
-# Uncomment to override standalone and domain user location  
+# Uncomment to override standalone and domain user location
 #JAVA_OPTS="$JAVA_OPTS -Djboss.server.config.user.dir=../standalone/configuration -Djboss.domain.config.user.dir=../domain/configuration"
 
 eval \"$JAVA\" $JAVA_OPTS \
-         -jar \"$JBOSS_HOME/jboss-modules.jar\" \
+         \"-Djboss.home.dir=$JBOSS_HOME\" \
+         \"-Dboot.module.loader=org.jboss.as.boot.BootModuleLoader\" \
+         -cp \"$JBOSS_HOME/jboss-modules.jar:$JBOSS_HOME/loader.jar\" \
+         org.jboss.modules.Main \
          -mp \"${JBOSS_MODULEPATH}\" \
          org.jboss.as.domain-add-user \
          '"$@"'

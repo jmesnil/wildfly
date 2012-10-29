@@ -4,7 +4,7 @@ rem JBoss Diagnostic Report (JDR) Script for Windows
 rem -------------------------------------------------------------------------
 rem
 rem This script creates a JDR report containing useful information for
-rem diagnosing problems with the application server.  The report consists 
+rem diagnosing problems with the application server.  The report consists
 rem of a zip file containing log files, configuration, a list of all files
 rem in the distribution and, if available, runtime metrics.
 
@@ -24,7 +24,7 @@ set "RESOLVED_JBOSS_HOME=%CD%"
 popd
 
 if "x%JBOSS_HOME%" == "x" (
-  set "JBOSS_HOME=%RESOLVED_JBOSS_HOME%" 
+  set "JBOSS_HOME=%RESOLVED_JBOSS_HOME%"
 )
 
 pushd "%JBOSS_HOME%"
@@ -72,8 +72,10 @@ if "x%JBOSS_MODULEPATH%" == "x" (
 )
 
 "%JAVA%" ^
-    -Djboss.home.dir="%JBOSS_HOME%" ^
-    -jar "%JBOSS_HOME%\jboss-modules.jar" ^
+ -Djboss.home.dir="%JBOSS_HOME%" ^
+ "-Dboot.module.loader=org.jboss.as.boot.BootModuleLoader" ^
+    -cp "%JBOSS_HOME%\jboss-modules.jar;%JBOSS_HOME%\loader.jar" ^
+     org.jboss.modules.Main ^
     -mp "%JBOSS_MODULEPATH%" ^
      org.jboss.as.jdr ^
      %*

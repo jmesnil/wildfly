@@ -19,8 +19,10 @@ set JBOSS_HOME=%DIRNAME%\..
 
 rem Execute the command
 "%JAVA%" %JAVA_OPTS% ^
+    -Djboss.home.dir="%JBOSS_HOME%" ^
     "-Djava.endorsed.dirs=%JBOSS_HOME%/modules/com/sun/xml/bind/main;%JBOSS_HOME%/modules/javax/xml/ws/api/main" ^
-    -classpath "%JAVA_HOME%\lib\tools.jar;%JBOSS_HOME%\jboss-modules.jar" ^
+    "-Dboot.module.loader=org.jboss.as.boot.BootModuleLoader" ^
+    -classpath "%JAVA_HOME%\lib\tools.jar;%JBOSS_HOME%\jboss-modules.jar;%JBOSS_HOME%\loader.jar" ^
     org.jboss.modules.Main ^
     -mp "%JBOSS_HOME%\modules" ^
     org.jboss.ws.tools.wsconsume ^
