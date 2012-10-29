@@ -3,7 +3,7 @@ rem -------------------------------------------------------------------------
 rem Add User script for Windows
 rem -------------------------------------------------------------------------
 rem
-rem A simple utility for adding new users to the properties file used 
+rem A simple utility for adding new users to the properties file used
 rem for domain management authentication out of the box.
 
 rem $Id$
@@ -22,7 +22,7 @@ set "RESOLVED_JBOSS_HOME=%CD%"
 popd
 
 if "x%JBOSS_HOME%" == "x" (
-  set "JBOSS_HOME=%RESOLVED_JBOSS_HOME%" 
+  set "JBOSS_HOME=%RESOLVED_JBOSS_HOME%"
 )
 
 pushd "%JBOSS_HOME%"
@@ -69,11 +69,14 @@ if "x%JBOSS_MODULEPATH%" == "x" (
   set  "JBOSS_MODULEPATH=%JBOSS_HOME%\modules"
 )
 
-rem Uncomment to override standalone and domain user location  
+rem Uncomment to override standalone and domain user location
 rem set "JAVA_OPTS=%JAVA_OPTS% -Djboss.server.config.user.dir=..\standalone\configuration -Djboss.domain.config.user.dir=..\domain\configuration"
 
 "%JAVA%" %JAVA_OPTS% ^
-    -jar "%JBOSS_HOME%\jboss-modules.jar" ^
+ "-Dboot.module.loader=org.jboss.as.boot.BootModuleLoader" ^
+  -Djboss.home.dir="%JBOSS_HOME%" ^
+    -cp "%JBOSS_HOME%\jboss-modules.jar;%JBOSS_HOME%\loader.jar" ^
+     org.jboss.modules.Main ^
     -mp "%JBOSS_MODULEPATH%" ^
      org.jboss.as.domain-add-user ^
      %*
