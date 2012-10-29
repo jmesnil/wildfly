@@ -69,7 +69,10 @@ fi
 # Execute the command
 eval \"$JAVA\" $JAVA_OPTS \
     \"-Djava.endorsed.dirs=$JBOSS_HOME/modules/com/sun/xml/bind/main:$JBOSS_HOME/modules/javax/xml/ws/api/main\" \
-    -jar \"$JBOSS_HOME/jboss-modules.jar\" \
+    \"-Djboss.home.dir=$JBOSS_HOME\" \
+    \"-Dboot.module.loader=org.jboss.as.boot.BootModuleLoader\" \
+    -cp \"$JBOSS_HOME/jboss-modules.jar:$JBOSS_HOME/loader.jar\" \
+    org.jboss.modules.Main \
     -mp \"$JBOSS_HOME/modules\" \
     org.jboss.ws.tools.wsprovide \
     '"$@"'

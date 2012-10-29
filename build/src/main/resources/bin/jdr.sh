@@ -3,7 +3,7 @@
 # JBoss Diagnostic Reporter (JDR)
 #
 # This script creates a JDR report containing useful information for
-# diagnosing problems with the application server.  The report consists 
+# diagnosing problems with the application server.  The report consists
 # of a zip file containing log files, configuration, a list of all files
 # in the distribution and, if available, runtime metrics.
 #
@@ -63,8 +63,9 @@ if $cygwin; then
 fi
 
 eval \"$JAVA\" $JAVA_OPTS \
-         -Djboss.home.dir=\"$JBOSS_HOME\" \
-         -jar \"$JBOSS_HOME/jboss-modules.jar\" \
+         \"-Djboss.home.dir=$JBOSS_HOME\" \
+         -cp \"$JBOSS_HOME/jboss-modules.jar:$JBOSS_HOME/loader.jar\" \
+         org.jboss.modules.Main \
          -mp \"${JBOSS_MODULEPATH}\" \
          org.jboss.as.jdr \
-         "$@" 
+         "$@"
