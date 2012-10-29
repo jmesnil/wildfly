@@ -62,7 +62,10 @@ rem Add base package for L&F
 set JAVA_OPTS=%JAVA_OPTS% -Djboss.modules.system.pkgs=com.sun.java.swing
 
 "%JAVA%" %JAVA_OPTS% ^
-    -jar "%JBOSS_HOME%\jboss-modules.jar" ^
+  -Djboss.home.dir="%JBOSS_HOME%" ^
+ "-Dboot.module.loader=org.jboss.as.boot.BootModuleLoader" ^
+    -cp "%JBOSS_HOME%\jboss-modules.jar;%JBOSS_HOME%\loader.jar" ^
+     org.jboss.modules.Main ^
     -mp "%JBOSS_HOME%\modules" ^
      org.jboss.as.cli ^
      %*

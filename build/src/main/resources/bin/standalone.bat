@@ -31,7 +31,7 @@ if "%OS%" == "Windows_NT" (
 
 rem Read command-line args.
 :READ-ARGS
-if "%1" == "" ( 
+if "%1" == "" (
    goto MAIN
 ) else if "%1" == "--debug" (
    goto READ-DEBUG-PORT
@@ -190,7 +190,9 @@ echo.
 "%JAVA%" %JAVA_OPTS% ^
  "-Dorg.jboss.boot.log.file=%JBOSS_LOG_DIR%\boot.log" ^
  "-Dlogging.configuration=file:%JBOSS_CONFIG_DIR%/logging.properties" ^
-    -jar "%JBOSS_HOME%\jboss-modules.jar" ^
+ "-Dboot.module.loader=org.jboss.as.boot.BootModuleLoader" ^
+    -cp "%JBOSS_HOME%\jboss-modules.jar;%JBOSS_HOME%\loader.jar" ^
+     org.jboss.modules.Main ^
     -mp "%JBOSS_MODULEPATH%" ^
     -jaxpmodule "javax.xml.jaxp-provider" ^
      org.jboss.as.standalone ^
