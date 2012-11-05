@@ -44,6 +44,10 @@ else
 fi
 export JBOSS_HOME
 
+if [ "x$JBOSS_MODULEPATH" = "x" ]; then
+    JBOSS_MODULEPATH="$JBOSS_HOME/modules"
+fi
+
 # Setup the JVM
 if [ "x$JAVA" = "x" ]; then
     if [ "x$JAVA_HOME" != "x" ]; then
@@ -70,7 +74,7 @@ fi
 # Sample JPDA settings for remote socket debugging
 #JAVA_OPTS="$JAVA_OPTS -agentlib:jdwp=transport=dt_socket,address=8787,server=y,suspend=n"
 
-eval \"$JAVA\" $JAVA_OPTS
+eval \"$JAVA\" $JAVA_OPTS \
    \"-Dlogging.configuration=file:$JBOSS_HOME/bin/jboss-cli-logging.properties\" \
    \"-Djboss.home.dir=$JBOSS_HOME\" \
    \"-Dboot.module.loader=org.jboss.as.boot.BootModuleLoader\" \
