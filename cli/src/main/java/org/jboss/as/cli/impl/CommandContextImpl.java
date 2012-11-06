@@ -94,6 +94,7 @@ import org.jboss.as.cli.handlers.HelpHandler;
 import org.jboss.as.cli.handlers.HistoryHandler;
 import org.jboss.as.cli.handlers.LsHandler;
 import org.jboss.as.cli.handlers.OperationRequestHandler;
+import org.jboss.as.cli.handlers.PatchHandler;
 import org.jboss.as.cli.handlers.PrefixHandler;
 import org.jboss.as.cli.handlers.PrintWorkingNodeHandler;
 import org.jboss.as.cli.handlers.QuitHandler;
@@ -347,6 +348,10 @@ class CommandContextImpl implements CommandContext {
         cmdRegistry.registerHandler(new UndeployHandler(this), "undeploy");
         cmdRegistry.registerHandler(new DeploymentInfoHandler(this), "deployment-info");
         cmdRegistry.registerHandler(new DeploymentOverlayHandler(this), "deployment-overlay");
+
+        // FIXME should be loaded dynamically from the patching module
+        // patching
+        cmdRegistry.registerHandler(new PatchHandler(this), "patch");
 
         // batch commands
         cmdRegistry.registerHandler(new BatchHandler(this), "batch");
