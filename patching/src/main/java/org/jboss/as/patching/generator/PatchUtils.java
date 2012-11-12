@@ -33,6 +33,7 @@ import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.zip.ZipFile;
 
 /**
  * Utilities related to patch file generation.
@@ -73,19 +74,27 @@ public class PatchUtils {
                 }
             }
         } else {
-            FileInputStream fis = new FileInputStream(file);
-            try {
+            // for jar, we do not checksum the file since its zip entries might have different dates
+            // instead, we iterate on the zip entries and checksum their names/size/crc
+            if (file.getName().endsWith(".jar")) {
+                org.jboss.as.patching.runner.PatchUtils.internalCalculateHashForZip(new ZipFile(file), digest);
+            } else if (file.getName().endsWith(".index")) {
+                // skip generated jar index files when computing the checksum
+                return;
+            } else {
+                FileInputStream fis = new FileInputStream(file);
+                try {
 
-                BufferedInputStream bis = new BufferedInputStream(fis);
-                byte[] bytes = new byte[8192];
-                int read;
-                while ((read = bis.read(bytes)) > -1) {
-                    digest.update(bytes, 0, read);
+                    BufferedInputStream bis = new BufferedInputStream(fis);
+                    byte[] bytes = new byte[8192];
+                    int read;
+                    while ((read = bis.read(bytes)) > -1) {
+                        digest.update(bytes, 0, read);
+                    }
+                } finally {
+                    safeClose(fis);
                 }
-            } finally {
-                safeClose(fis);
             }
-
         }
     }
 

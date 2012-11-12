@@ -313,8 +313,11 @@ public class PatchGenerator {
                     recurse = false;
                     break;
                 case MODULE_CONTENT:
-                    recordModuleUpdateViaContentRemove(itemPath);
-                    recurse = false;
+                    // do not update content for generated jar index files
+                    if (!itemPath.getName().endsWith(".index")) {
+                        recordModuleUpdateViaContentRemove(itemPath);
+                        recurse = false;
+                    }
                     break;
                 case MISC:
                     recordMiscFileRemove(itemPath, patchConfig,  getHash(file));
@@ -671,8 +674,6 @@ public class PatchGenerator {
                     }
                 }
             }
-
-            System.out.println("Cleaned " + file + " -- " + file.delete());
         }
     }
 

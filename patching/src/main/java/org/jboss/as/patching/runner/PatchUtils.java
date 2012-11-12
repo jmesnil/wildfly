@@ -32,6 +32,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -39,7 +40,10 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * @author Emanuel Muckenhuber
@@ -299,6 +303,14 @@ public final class PatchUtils {
         }
     }
 
+    public static byte[] calculateHashForZip(final ZipFile file) throws IOException {
+        synchronized (DIGEST) {
+            DIGEST.reset();
+            internalCalculateHashForZip(file, DIGEST);
+            return DIGEST.digest();
+        }
+    }
+
     static void internalCalculateHash(final File file, final MessageDigest digest) throws IOException {
         if(file.isDirectory()) {
             final File[] children = file.listFiles();
@@ -308,16 +320,45 @@ public final class PatchUtils {
                 }
             }
         } else {
-            final InputStream is = new FileInputStream(file);
-            try {
-                final DigestOutputStream os = new DigestOutputStream(PatchUtils.NULL_OUTPUT_STREAM, digest);
-                PatchUtils.copyStream(is, os);
-                is.close();
-            } finally {
-                safeClose(is);
+            if (file.getName().endsWith(".jar")) {
+                internalCalculateHashForZip(new ZipFile(file), DIGEST);
+            } else if (file.getName().endsWith("jar.index")) {
+                return;
+            } else {
+                final InputStream is = new FileInputStream(file);
+                try {
+                    final DigestOutputStream os = new DigestOutputStream(PatchUtils.NULL_OUTPUT_STREAM, digest);
+                    PatchUtils.copyStream(is, os);
+                    is.close();
+                } finally {
+                    safeClose(is);
+                }
             }
         }
-   }
+    }
+
+    public static void internalCalculateHashForZip(ZipFile zip, MessageDigest digest) {
+        synchronized (digest) {
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = (ZipEntry) entries.nextElement();
+                long size = entry.getSize();
+                long crc = entry.getCrc();
+                String name = entry.getName();
+                String input = name + ":" + crc + ":" + size;
+                // bypass files which contains the jar generation date & time
+                if (name.endsWith("pom.properties")
+                        || name.endsWith("MANIFEST.MF")
+                        || name.endsWith("_$logger.class")
+                        || name.endsWith("_$bundle.class")
+                        || name.endsWith("MANIFEST.MF")) {
+                    continue;
+                }
+                digest.update(input.getBytes(Charset.forName("UTF-8")));
+            }
+        }
+    }
+
 
     private static final char[] table = "0123456789abcdef".toCharArray();
     /**

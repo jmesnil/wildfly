@@ -117,7 +117,7 @@ public class TestUtils {
     public static File createModule(File baseDir, String moduleName, String... resourcesContents) throws Exception {
         File moduleDir = mkdir(baseDir, "modules", moduleName);
         File mainDir = mkdir(moduleDir, "main");
-        String resourceFilePrefix = randomString();
+        String resourceFilePrefix = "resource";
         String[] resourceFileNames = new String[resourcesContents.length];
         for (int i = 0; i < resourcesContents.length; i++) {
             String content = resourcesContents[i];
