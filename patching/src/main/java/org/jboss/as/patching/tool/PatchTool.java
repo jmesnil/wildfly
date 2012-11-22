@@ -151,7 +151,7 @@ public interface PatchTool {
          */
         public static PatchTool create(final File jbossHome) throws IOException {
             final DirectoryStructure structure = DirectoryStructure.createDefault(jbossHome.getAbsoluteFile());
-            final ModuleLoader loader = ModuleLoader.forClass(Main.class);
+            final ModuleLoader loader = ModuleLoader.forClass(PatchTool.class);
             final ProductConfig config = new ProductConfig(loader, jbossHome.getAbsolutePath());
             final PatchInfo info = LocalPatchInfo.load(config, structure);
             return create(info, structure);
