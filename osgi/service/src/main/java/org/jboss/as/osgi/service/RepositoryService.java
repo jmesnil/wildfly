@@ -26,6 +26,7 @@ import static org.jboss.as.osgi.OSGiLogger.LOGGER;
 import static org.jboss.osgi.repository.XRepository.MODULE_IDENTITY_NAMESPACE;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.jboss.as.osgi.OSGiConstants;
 import org.jboss.as.server.ServerEnvironment;
@@ -97,7 +98,12 @@ class RepositoryService extends AbstractService<XRepository> {
         };
         BundleContext syscontext = injectedSystemContext.getValue();
         XRepositoryBuilder builder = XRepositoryBuilder.create(syscontext);
-        builder.addRepository(new ModuleIdentityRepository(serverenv));
+        try {
+            final File[] repoRoots = RepositoryRootUtils.resolveRoots(serverenv);
+            builder.addRepository(new ModuleIdentityRepository(repoRoots));
+        } catch (IOException e) {
+            throw new StartException(e);
+        }
         builder.addRepositoryStorage(factory);
         repository = builder.addDefaultRepositories();
     }

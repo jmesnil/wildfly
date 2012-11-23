@@ -51,16 +51,24 @@ import org.osgi.resource.Requirement;
  */
 final class ModuleIdentityRepository extends AbstractRepository {
 
-    private final File modulesDir;
-    private final File bundlesDir;
+    private final File[] repoRoots;
 
-    ModuleIdentityRepository(ServerEnvironment serverEnvironment) {
-        bundlesDir = serverEnvironment.getBundlesDir();
+    static File[] getRoots(ServerEnvironment serverEnvironment) {
+        final File bundlesDir = serverEnvironment.getBundlesDir();
         if (bundlesDir.isDirectory() == false)
             throw MESSAGES.illegalStateArtifactBaseLocation(bundlesDir);
-        modulesDir = new File(bundlesDir.getParent() + File.separator + "modules");
+        final File modulesDir = new File(bundlesDir.getParent() + File.separator + "modules");
         if (modulesDir.isDirectory() == false)
             throw MESSAGES.illegalStateArtifactBaseLocation(modulesDir);
+        return new File[] { bundlesDir, modulesDir };
+    }
+
+    ModuleIdentityRepository(ServerEnvironment serverEnvironment) {
+        this(getRoots(serverEnvironment));
+    }
+
+    ModuleIdentityRepository(final File[] repoRoots) {
+        this.repoRoots = repoRoots;
     }
 
     @Override
@@ -71,10 +79,7 @@ final class ModuleIdentityRepository extends AbstractRepository {
             String moduleId = (String) req.getAttributes().get(MODULE_IDENTITY_NAMESPACE);
             ModuleIdentifier moduleIdentifier = ModuleIdentifier.fromString(moduleId);
             try {
-                File contentFile = getRepositoryEntry(bundlesDir, moduleIdentifier);
-                if (contentFile == null) {
-                    contentFile = getRepositoryEntry(modulesDir, moduleIdentifier);
-                }
+                final File contentFile = getRepositoryEntry(repoRoots, moduleIdentifier);
                 if (contentFile != null) {
                     URL contentURL = contentFile.toURI().toURL();
                     XResourceBuilder builder = URLResourceBuilderFactory.create(contentURL, null, true);
@@ -89,6 +94,16 @@ final class ModuleIdentityRepository extends AbstractRepository {
             }
         }
         return Collections.unmodifiableList(result);
+    }
+
+    static File getRepositoryEntry(File[] roots, ModuleIdentifier identifier) throws IOException {
+        for(final File root : roots) {
+            final File contentFile = getRepositoryEntry(root, identifier);
+            if(contentFile != null) {
+                return contentFile;
+            }
+        }
+        return null;
     }
 
     /**
