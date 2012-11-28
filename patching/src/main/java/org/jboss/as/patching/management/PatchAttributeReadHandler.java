@@ -1,8 +1,9 @@
-package org.jboss.as.patching;
+package org.jboss.as.patching.management;
 
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
+import org.jboss.as.patching.PatchInfo;
 import org.jboss.dmr.ModelNode;
 
 abstract class PatchAttributeReadHandler implements OperationStepHandler {
