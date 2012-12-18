@@ -225,6 +225,7 @@ class HornetQService implements Service<HornetQServer> {
                         String channelName = jgroupsChannels.get(key);
                         JChannel channel = (JChannel) channelFactory.createChannel(channelName);
                         channels.put(channelName, channel);
+                        JGroupsChannelLocator.putChannel(channelName, channel);
                         newConfigs.add(BroadcastGroupAdd.createBroadcastGroupConfiguration(name, config, channel, channelName));
                     } else {
                         final SocketBinding binding = groupBindings.get(key);
@@ -250,6 +251,7 @@ class HornetQService implements Service<HornetQServer> {
                         if (channel == null) {
                             channel = (JChannel) channelFactory.createChannel(key);
                             channels.put(channelName, channel);
+                            JGroupsChannelLocator.putChannel(channelName, channel);
                         }
                         config = DiscoveryGroupAdd.createDiscoveryGroupConfiguration(name, entry.getValue(), channel, channelName);
                     } else {
@@ -291,6 +293,7 @@ class HornetQService implements Service<HornetQServer> {
                 // FIXME stopped by the JMSService
                 // server.stop();
             }
+            JGroupsChannelLocator.removeChannels();
             pathConfig.closeCallbacks(pathManager.getValue());
         } catch (Exception e) {
             throw MESSAGES.failedToShutdownServer(e, "HornetQ");

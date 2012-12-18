@@ -28,6 +28,7 @@ import static org.jboss.as.messaging.ClusterConnectionDefinition.DISCOVERY_GROUP
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.core.config.ClusterConnectionConfiguration;
 import org.hornetq.core.config.Configuration;
 import org.jboss.as.controller.AbstractAddStepHandler;
@@ -116,12 +117,14 @@ public class ClusterConnectionAdd extends AbstractAddStepHandler {
             return new ClusterConnectionConfiguration(name, address, connectorName, minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
                     retryInterval, retryIntervalMultiplier, maxRetryInterval, reconnectAttempts, callTimeout, callFailoverTimeout,
                     duplicateDetection, forwardWhenNoConsumers, maxHops, confirmationWindowSize,
-                    discoveryGroupName);
+                    discoveryGroupName,  HornetQDefaultConfiguration.DEFAULT_CLUSTER_NOTIFICATION_INTERVAL,
+                    HornetQDefaultConfiguration.DEFAULT_CLUSTER_NOTIFICATION_ATTEMPTS);
         } else {
             return new ClusterConnectionConfiguration(name, address, connectorName, minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
                     retryInterval, retryIntervalMultiplier, maxRetryInterval, reconnectAttempts, callTimeout, callFailoverTimeout,
                     duplicateDetection, forwardWhenNoConsumers, maxHops, confirmationWindowSize,
-                    staticConnectors, allowDirectOnly);
+                    staticConnectors, allowDirectOnly,  HornetQDefaultConfiguration.DEFAULT_CLUSTER_NOTIFICATION_INTERVAL,
+                    HornetQDefaultConfiguration.DEFAULT_CLUSTER_NOTIFICATION_ATTEMPTS);
         }
     }
 

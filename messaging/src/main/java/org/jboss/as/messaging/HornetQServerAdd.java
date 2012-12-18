@@ -463,7 +463,7 @@ class HornetQServerAdd implements OperationStepHandler {
             for (ModelNode child : interceptors.asList()) {
                 interceptorClassNames.add(child.asString());
             }
-            configuration.setInterceptorClassNames(interceptorClassNames);
+            configuration.setIncomingInterceptorClassNames(interceptorClassNames);
         }
     }
 
