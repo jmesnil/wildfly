@@ -24,13 +24,13 @@ package org.jboss.as.host.controller.transformers;
 import org.jboss.as.controller.transform.RejectExpressionValuesTransformer;
 import org.jboss.as.controller.transform.ResourceTransformer;
 import org.jboss.as.controller.transform.TransformersSubRegistration;
-import org.jboss.as.domain.management.security.KeystoreAttributes;
-import org.jboss.as.domain.management.security.LdapAuthenticationResourceDefinition;
 import org.jboss.as.domain.management.security.SSLServerIdentityResourceDefinition;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRITE_ATTRIBUTE_OPERATION;
-import static org.jboss.as.domain.management.security.LdapAuthenticationResourceDefinition.*;
+import static org.jboss.as.domain.management.security.KeystoreAttributes.ALIAS;
+import static org.jboss.as.domain.management.security.KeystoreAttributes.KEYSTORE_PATH;
+import static org.jboss.as.domain.management.security.SSLServerIdentityResourceDefinition.PROTOCOL;
 
 /**
  * The older versions of the model do not allow expressions for the ssl server identity resource's attributes.
@@ -42,8 +42,7 @@ class SSLServerIdentityTransformers {
     static TransformersSubRegistration registerTransformers(TransformersSubRegistration parent) {
         TransformersSubRegistration reg = parent.registerSubResource(SSLServerIdentityResourceDefinition.PATH, ResourceTransformer.DEFAULT);
 
-        RejectExpressionValuesTransformer rejectExpression = new RejectExpressionValuesTransformer(SSLServerIdentityResourceDefinition.PROTOCOL,
-                KeystoreAttributes.ALIAS);
+        RejectExpressionValuesTransformer rejectExpression = new RejectExpressionValuesTransformer(ALIAS, KEYSTORE_PATH, PROTOCOL);
 
         reg.registerOperationTransformer(ADD, rejectExpression);
         reg.registerOperationTransformer(WRITE_ATTRIBUTE_OPERATION, rejectExpression.getWriteAttributeTransformer());

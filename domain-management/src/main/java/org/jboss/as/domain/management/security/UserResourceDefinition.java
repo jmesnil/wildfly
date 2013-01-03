@@ -42,13 +42,15 @@ import org.jboss.dmr.ModelType;
  */
 public class UserResourceDefinition extends SimpleResourceDefinition {
 
+    public static final PathElement PATH = PathElement.pathElement(ModelDescriptionConstants.USER);
+
     public static final SimpleAttributeDefinition PASSWORD = new SimpleAttributeDefinitionBuilder(ModelDescriptionConstants.PASSWORD, ModelType.STRING, false)
             .setValidator(new StringLengthValidator(1, Integer.MAX_VALUE, false, true))
             .setAllowExpression(true)
             .build();
 
     public UserResourceDefinition() {
-        super(PathElement.pathElement(ModelDescriptionConstants.USER),
+        super(PATH,
                 ControllerResolver.getResolver("core.management.security-realm.authentication.xml.user"),
                 UserAddHandler.INSTANCE,
                 UserRemoveHandler.INSTANCE,

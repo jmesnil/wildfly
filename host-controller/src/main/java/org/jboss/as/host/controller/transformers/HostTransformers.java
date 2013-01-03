@@ -25,6 +25,9 @@ package org.jboss.as.host.controller.transformers;
 import org.jboss.as.controller.ModelVersion;
 import org.jboss.as.controller.transform.TransformerRegistry;
 import org.jboss.as.controller.transform.TransformersSubRegistration;
+import org.jboss.as.domain.management.security.SecurityRealmResourceDefinition;
+import org.jboss.as.domain.management.security.XmlAuthenticationResourceDefinition;
+import org.jboss.as.host.controller.model.host.CoreServiceResourceDefinition;
 
 /**
  * Global transformation rules for the host model.
@@ -55,11 +58,19 @@ public class HostTransformers {
         if (modelVersion == VERSION_1_2 || modelVersion == VERSION_1_3) {
             TransformersSubRegistration host = registry.getHostRegistration(modelVersion);
 
-            TransformersSubRegistration management = ManagementTransformers.registerTransformers(host);
-            TransformersSubRegistration securityRealm = SecurityRealmTransformers.registerTransformers(management);
+            TransformersSubRegistration management =  host.registerSubResource(CoreServiceResourceDefinition.PATH);
+            TransformersSubRegistration securityRealm = management.registerSubResource(SecurityRealmResourceDefinition.PATH);
+
             LdapAuthenticationTransformers.registerTransformers(securityRealm);
             LocalAuthenticationTransformers.registerTransformers(securityRealm);
             PropertiesAuthenticationTransformers.registerTransformers(securityRealm);
+            TruststoreAuthenticationTransformers.registerTransformers(securityRealm);
+
+            TransformersSubRegistration usersAuthentication = securityRealm.registerSubResource(XmlAuthenticationResourceDefinition.PATH);
+            UserAuthenticationTransformers.registerTransformers(usersAuthentication);
+
+            PropertiesAuthorizationTransformers.registerTransformers(securityRealm);
+
             SSLServerIdentityTransformers.registerTransformers(securityRealm);
         }
     }

@@ -36,10 +36,12 @@ import org.jboss.as.controller.registry.OperationEntry;
  */
 public class PropertiesAuthorizationResourceDefinition extends PropertiesFileResourceDefinition {
 
+    public static final PathElement PATH_ELEMENT = PathElement.pathElement(ModelDescriptionConstants.AUTHORIZATION, ModelDescriptionConstants.PROPERTIES);
+
     public static final AttributeDefinition[] ATTRIBUTE_DEFINITIONS = { PATH, RELATIVE_TO };
 
     public PropertiesAuthorizationResourceDefinition() {
-        super(PathElement.pathElement(ModelDescriptionConstants.AUTHORIZATION, ModelDescriptionConstants.PROPERTIES),
+        super(PATH_ELEMENT,
                 ControllerResolver.getResolver("core.management.security-realm.authorization.properties"),
                 new SecurityRealmChildAddHandler(true, ATTRIBUTE_DEFINITIONS), new SecurityRealmChildRemoveHandler(true),
                 OperationEntry.Flag.RESTART_RESOURCE_SERVICES, OperationEntry.Flag.RESTART_RESOURCE_SERVICES);

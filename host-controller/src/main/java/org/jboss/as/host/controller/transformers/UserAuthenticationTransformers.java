@@ -21,15 +21,30 @@
 */
 package org.jboss.as.host.controller.transformers;
 
+import org.jboss.as.controller.transform.RejectExpressionValuesTransformer;
 import org.jboss.as.controller.transform.ResourceTransformer;
 import org.jboss.as.controller.transform.TransformersSubRegistration;
-import org.jboss.as.host.controller.model.host.CoreServiceResourceDefinition;
+import org.jboss.as.domain.management.security.UserResourceDefinition;
+
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRITE_ATTRIBUTE_OPERATION;
+import static org.jboss.as.domain.management.security.UserResourceDefinition.PASSWORD;
 
 /**
+ * The older versions of the model do not allow expressions for the ssl server identity resource's attributes.
+ * Reject the attributes if they contain an expression.
+ *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat, inc
  */
-class ManagementTransformers {
+class UserAuthenticationTransformers {
     static TransformersSubRegistration registerTransformers(TransformersSubRegistration parent) {
-        return parent.registerSubResource(CoreServiceResourceDefinition.PATH, ResourceTransformer.DEFAULT);
+        TransformersSubRegistration reg = parent.registerSubResource(UserResourceDefinition.PATH, ResourceTransformer.DEFAULT);
+
+        RejectExpressionValuesTransformer rejectExpression = new RejectExpressionValuesTransformer(PASSWORD);
+
+        reg.registerOperationTransformer(ADD, rejectExpression);
+        reg.registerOperationTransformer(WRITE_ATTRIBUTE_OPERATION, rejectExpression.getWriteAttributeTransformer());
+
+        return reg;
     }
 }

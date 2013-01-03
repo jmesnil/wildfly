@@ -37,8 +37,10 @@ import org.jboss.as.controller.registry.OperationEntry;
  */
 public class XmlAuthenticationResourceDefinition extends SimpleResourceDefinition {
 
+    public static final PathElement PATH = PathElement.pathElement(ModelDescriptionConstants.AUTHENTICATION, ModelDescriptionConstants.USERS);
+
     public XmlAuthenticationResourceDefinition() {
-        super(PathElement.pathElement(ModelDescriptionConstants.AUTHENTICATION, ModelDescriptionConstants.USERS),
+        super(PATH,
                 ControllerResolver.getResolver("core.management.security-realm.authentication.xml"),
                 new SecurityRealmChildAddHandler(true),
                 new SecurityRealmChildRemoveHandler(true),

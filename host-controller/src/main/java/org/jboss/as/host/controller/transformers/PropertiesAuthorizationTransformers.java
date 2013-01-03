@@ -24,12 +24,10 @@ package org.jboss.as.host.controller.transformers;
 import org.jboss.as.controller.transform.RejectExpressionValuesTransformer;
 import org.jboss.as.controller.transform.ResourceTransformer;
 import org.jboss.as.controller.transform.TransformersSubRegistration;
-import org.jboss.as.domain.management.security.PropertiesAuthenticationResourceDefinition;
+import org.jboss.as.domain.management.security.PropertiesAuthorizationResourceDefinition;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRITE_ATTRIBUTE_OPERATION;
-import static org.jboss.as.domain.management.security.PropertiesAuthenticationResourceDefinition.PLAIN_TEXT;
-import static org.jboss.as.domain.management.security.PropertiesFileResourceDefinition.PATH;
 
 /**
  * The older versions of the model do not allow expressions for the properties authentication resource's attributes.
@@ -37,11 +35,11 @@ import static org.jboss.as.domain.management.security.PropertiesFileResourceDefi
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat, inc
  */
-class PropertiesAuthenticationTransformers {
+class PropertiesAuthorizationTransformers {
     static TransformersSubRegistration registerTransformers(TransformersSubRegistration parent) {
-        TransformersSubRegistration reg = parent.registerSubResource(PropertiesAuthenticationResourceDefinition.PATH_ELEMENT, ResourceTransformer.DEFAULT);
+        TransformersSubRegistration reg = parent.registerSubResource(PropertiesAuthorizationResourceDefinition.PATH_ELEMENT, ResourceTransformer.DEFAULT);
 
-        RejectExpressionValuesTransformer rejectExpression = new RejectExpressionValuesTransformer(PATH, PLAIN_TEXT);
+        RejectExpressionValuesTransformer rejectExpression = new RejectExpressionValuesTransformer(PropertiesAuthorizationResourceDefinition.PATH);
 
         reg.registerOperationTransformer(ADD, rejectExpression);
         reg.registerOperationTransformer(WRITE_ATTRIBUTE_OPERATION, rejectExpression.getWriteAttributeTransformer());

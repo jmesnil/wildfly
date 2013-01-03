@@ -38,12 +38,14 @@ import org.jboss.as.controller.registry.OperationEntry;
  */
 public class TruststoreAuthenticationResourceDefinition extends SimpleResourceDefinition {
 
+    public static final PathElement PATH = PathElement.pathElement(ModelDescriptionConstants.AUTHENTICATION, ModelDescriptionConstants.TRUSTSTORE);
+
     public static final AttributeDefinition[] ATTRIBUTE_DEFINITIONS = {
             KeystoreAttributes.KEYSTORE_PASSWORD, KeystoreAttributes.KEYSTORE_PATH, KeystoreAttributes.KEYSTORE_RELATIVE_TO
     };
 
     public TruststoreAuthenticationResourceDefinition() {
-        super(PathElement.pathElement(ModelDescriptionConstants.AUTHENTICATION, ModelDescriptionConstants.TRUSTSTORE),
+        super(PATH,
                 ControllerResolver.getResolver("core.management.security-realm.authentication.truststore"),
                 new SecurityRealmChildAddHandler(true, ATTRIBUTE_DEFINITIONS),
                 new SecurityRealmChildRemoveHandler(true),
