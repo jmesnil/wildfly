@@ -49,9 +49,12 @@ import org.jboss.dmr.ModelType;
  */
 public class VaultResourceDefinition extends SimpleResourceDefinition {
 
+    public static final PathElement PATH = PathElement.pathElement(CORE_SERVICE, VAULT);
+
     public static SimpleAttributeDefinition CODE = SimpleAttributeDefinitionBuilder.create(ModelDescriptionConstants.CODE, ModelType.STRING, true)
             .addFlag(Flag.RESTART_ALL_SERVICES)
             .setValidator(new ModelTypeValidator(ModelType.STRING, true))
+            .setAllowExpression(true)
             .build();
 
     public static MapAttributeDefinition VAULT_OPTIONS = new SimpleMapAttributeDefinition.Builder(ModelDescriptionConstants.VAULT_OPTIONS, true)
@@ -64,7 +67,7 @@ public class VaultResourceDefinition extends SimpleResourceDefinition {
     public static AttributeDefinition[] ALL_ATTRIBUTES = new AttributeDefinition[] {CODE, VAULT_OPTIONS};
 
     public VaultResourceDefinition(AbstractVaultReader vaultReader) {
-        super(PathElement.pathElement(CORE_SERVICE, VAULT),
+        super(PATH,
                 ServerDescriptions.getResourceDescriptionResolver(VAULT),
                 new VaultAddHandler(vaultReader),
                 new VaultRemoveHandler(vaultReader));

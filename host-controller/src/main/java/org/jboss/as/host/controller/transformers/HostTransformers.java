@@ -72,6 +72,8 @@ public class HostTransformers {
             PropertiesAuthorizationTransformers.registerTransformers(securityRealm);
 
             SSLServerIdentityTransformers.registerTransformers(securityRealm);
+
+            VaultTransformers.registerTransformers(host);
         }
     }
 }
