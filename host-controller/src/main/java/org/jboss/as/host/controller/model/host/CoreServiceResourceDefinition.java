@@ -34,10 +34,12 @@ import org.jboss.as.host.controller.HostModelUtil;
  * @author <a href="mailto:tomaz.cerar@redhat.com">Tomaz Cerar</a> (c) 2012 Red Hat Inc.
  */
 public class CoreServiceResourceDefinition extends SimpleResourceDefinition {
+    public static final PathElement PATH = PathElement.pathElement(CORE_SERVICE, MANAGEMENT);
+
     public static CoreServiceResourceDefinition INSTANCE = new CoreServiceResourceDefinition();
 
     private CoreServiceResourceDefinition() {
-        super(PathElement.pathElement(CORE_SERVICE, MANAGEMENT), HostModelUtil.getResourceDescriptionResolver("core", "management"));
+        super(PATH, HostModelUtil.getResourceDescriptionResolver("core", "management"));
     }
 
 

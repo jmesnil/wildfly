@@ -41,6 +41,7 @@ import org.jboss.as.host.controller.operations.LocalDomainControllerRemoveHandle
 import org.jboss.as.host.controller.operations.LocalHostControllerInfoImpl;
 import org.jboss.as.host.controller.operations.RemoteDomainControllerAddHandler;
 import org.jboss.as.host.controller.operations.RemoteDomainControllerRemoveHandler;
+import org.jboss.as.host.controller.transformers.HostTransformers;
 import org.jboss.as.repository.ContentRepository;
 import org.jboss.as.repository.HostFileRepository;
 import org.jboss.as.server.services.security.AbstractVaultReader;
@@ -109,6 +110,10 @@ public class HostModelUtil {
                         hostControllerInfo, serverInventory, remoteFileRepository,
                         contentRepository, domainController, extensionRegistry,
                         vaultReader, ignoredRegistry, processState, pathManager));
+
+
+        // resource transformations
+        HostTransformers.initializeHostRegistry(extensionRegistry.getTransformerRegistry());
 
         //TODO See if some of all these parameters can come from domain controller
         LocalDomainControllerAddHandler localDcAddHandler = LocalDomainControllerAddHandler.getInstance(root, hostControllerInfo,

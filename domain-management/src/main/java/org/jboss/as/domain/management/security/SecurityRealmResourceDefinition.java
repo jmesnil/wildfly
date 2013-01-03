@@ -38,10 +38,12 @@ import org.jboss.as.controller.registry.OperationEntry;
  */
 public class SecurityRealmResourceDefinition extends SimpleResourceDefinition {
 
+    public static final PathElement PATH = PathElement.pathElement(ModelDescriptionConstants.SECURITY_REALM);
+
     public static final SecurityRealmResourceDefinition INSTANCE = new SecurityRealmResourceDefinition();
 
     private SecurityRealmResourceDefinition() {
-        super(PathElement.pathElement(ModelDescriptionConstants.SECURITY_REALM),
+        super(PATH,
                 ControllerResolver.getResolver("core.management.security-realm"),
                 SecurityRealmAddHandler.INSTANCE,
                 SecurityRealmRemoveHandler.INSTANCE,
