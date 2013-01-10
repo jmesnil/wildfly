@@ -354,7 +354,8 @@ public class FailedOperationTransformationConfig {
         @Override
         public ModelNode correctWriteAttributeOperation(ModelNode operation) {
             ModelNode op = operation.clone();
-            if (hasExpressions(op.get(NAME).asString(), op.get(VALUE))) {
+            String name = op.get(NAME).asString();
+            if (attributes.contains(name) && hasExpressions(name, op.get(VALUE))) {
                 op.get(VALUE).set(op.get(VALUE).resolve());
                 return op;
             }
@@ -380,10 +381,7 @@ public class FailedOperationTransformationConfig {
         @Override
         public boolean expectFailedWriteAttributeOperation(ModelNode operation) {
             String name = operation.get(NAME).asString();
-            if (attributes.contains(name)) {
-                return !noWriteFailureAttributes.contains(name) && hasExpressions(name, operation.clone().get(VALUE));
-            }
-            return false;
+            return attributes.contains(name) && !noWriteFailureAttributes.contains(name) && hasExpressions(name, operation.clone().get(VALUE));
         }
 
         boolean hasExpressions(String attrName, ModelNode attribute) {
@@ -519,7 +517,8 @@ public class FailedOperationTransformationConfig {
 
         @Override
         public boolean expectFailedWriteAttributeOperation(ModelNode operation) {
-            return operation.hasDefined(VALUE);
+            String name = operation.get(NAME).asString();
+            return attributes.contains(name) && operation.hasDefined(VALUE);
         }
 
     }
@@ -586,7 +585,8 @@ public class FailedOperationTransformationConfig {
 
         @Override
         public boolean expectFailedWriteAttributeOperation(ModelNode operation) {
-            if (!noWriteFailureAttributes.contains(operation.get(NAME).asString())) {
+            String name = operation.get(NAME).asString();
+            if (attributes.contains(name) && !noWriteFailureAttributes.contains(name)) {
                 for (PathAddressConfig link : links.values()) {
                     if (link.expectFailedWriteAttributeOperation(operation)) {
                         return true;

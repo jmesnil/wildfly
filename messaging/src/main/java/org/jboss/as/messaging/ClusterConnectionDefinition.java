@@ -198,7 +198,7 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             ALLOW_DIRECT_CONNECTIONS_ONLY, CHECK_PERIOD, CONNECTION_TTL, FORWARD_WHEN_NO_CONSUMERS, MAX_HOPS,
             MAX_RETRY_INTERVAL,
             CommonAttributes.MIN_LARGE_MESSAGE_SIZE, RETRY_INTERVAL, RETRY_INTERVAL_MULTIPLIER,
-            USE_DUPLICATE_DETECTION, CommonAttributes.CALL_TIMEOUT, CommonAttributes.CALL_FAILOVER_TIMEOUT,
+            USE_DUPLICATE_DETECTION, CommonAttributes.CALL_TIMEOUT,
             RECONNECT_ATTEMPTS, CommonAttributes.BRIDGE_CONFIRMATION_WINDOW_SIZE
     };
 

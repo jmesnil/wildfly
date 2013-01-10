@@ -25,9 +25,15 @@ package org.jboss.as.messaging.test;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.jboss.as.controller.PathElement.pathElement;
+import static org.jboss.as.messaging.CommonAttributes.BACKUP_GROUP_NAME;
 import static org.jboss.as.messaging.CommonAttributes.CALL_FAILOVER_TIMEOUT;
+import static org.jboss.as.messaging.CommonAttributes.CHECK_FOR_LIVE_SERVER;
+import static org.jboss.as.messaging.CommonAttributes.REPLICATION_CLUSTERNAME;
 import static org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Common.COMPRESS_LARGE_MESSAGES;
-import static org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Pooled.*;
+import static org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Pooled;
+import static org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Pooled.INITIAL_CONNECT_ATTEMPTS;
+import static org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Pooled.INITIAL_MESSAGE_PACKET_SIZE;
+import static org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Pooled.USE_AUTO_RECOVERY;
 import static org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Regular.FACTORY_TYPE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
@@ -58,7 +64,6 @@ import org.jboss.as.messaging.HornetQServerResourceDefinition;
 import org.jboss.as.messaging.InVMTransportDefinition;
 import org.jboss.as.messaging.MessagingExtension;
 import org.jboss.as.messaging.QueueDefinition;
-import org.jboss.as.messaging.jms.ConnectionFactoryAttributes;
 import org.jboss.as.messaging.jms.ConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.JMSQueueDefinition;
 import org.jboss.as.messaging.jms.PooledConnectionFactoryDefinition;
@@ -146,7 +151,16 @@ public class MessagingSubsystem13TestCase extends AbstractSubsystemBaseTest {
                 new FailedOperationTransformationConfig()
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH),
-                                new RejectExpressionsConfig(HornetQServerResourceDefinition.REJECTED_EXPRESSION_ATTRIBUTES))
+                                new ChainedConfig(new HashMap<String, FailedOperationTransformationConfig.PathAddressConfig>() {{
+                                    RejectExpressionsConfig reject = new RejectExpressionsConfig(HornetQServerResourceDefinition.REJECTED_EXPRESSION_ATTRIBUTES);
+                                    for (AttributeDefinition attr : HornetQServerResourceDefinition.REJECTED_EXPRESSION_ATTRIBUTES) {
+                                        put(attr.getName(), reject);
+                                    }
+                                    NewAttributesConfig newAttributes = new NewAttributesConfig(BACKUP_GROUP_NAME, CHECK_FOR_LIVE_SERVER, REPLICATION_CLUSTERNAME);
+                                    put(BACKUP_GROUP_NAME.getName(), newAttributes);
+                                    put(CHECK_FOR_LIVE_SERVER.getName(), newAttributes);
+                                    put(REPLICATION_CLUSTERNAME.getName(), newAttributes);
+                                }}))
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH).append(pathElement(ModelDescriptionConstants.PATH)),
                                 new RejectExpressionsConfig(ModelDescriptionConstants.PATH))
@@ -194,7 +208,13 @@ public class MessagingSubsystem13TestCase extends AbstractSubsystemBaseTest {
                                 new RejectExpressionsConfig(QueueDefinition.REJECTED_EXPRESSION_ATTRIBUTES))
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH).append(ClusterConnectionDefinition.PATH),
-                                new RejectExpressionsConfig(ClusterConnectionDefinition.REJECTED_EXPRESSION_ATTRIBUTES))
+                                new ChainedConfig(new HashMap<String, FailedOperationTransformationConfig.PathAddressConfig>() {{
+                                    RejectExpressionsConfig reject = new RejectExpressionsConfig(ClusterConnectionDefinition.REJECTED_EXPRESSION_ATTRIBUTES);
+                                    for (AttributeDefinition attr : ClusterConnectionDefinition.REJECTED_EXPRESSION_ATTRIBUTES) {
+                                        put(attr.getName(), reject);
+                                    }
+                                    put(CALL_FAILOVER_TIMEOUT.getName(), new NewAttributesConfig(CALL_FAILOVER_TIMEOUT));
+                                }}))
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH).append(BridgeDefinition.PATH),
                                 new RejectExpressionsConfig(BridgeDefinition.REJECTED_EXPRESSION_ATTRIBUTES))
@@ -212,20 +232,28 @@ public class MessagingSubsystem13TestCase extends AbstractSubsystemBaseTest {
                                 new RejectExpressionsConfig(ConnectorServiceParamDefinition.VALUE))
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH).append(ConnectionFactoryDefinition.PATH),
-                                new RejectExpressionsConfig(ConnectionFactoryDefinition.REJECTED_EXPRESSION_ATTRIBUTES)
-                                        .setReadOnly(FACTORY_TYPE))
+                                new ChainedConfig(new HashMap<String, FailedOperationTransformationConfig.PathAddressConfig>() {{
+                                    RejectExpressionsConfig reject = new RejectExpressionsConfig(ConnectionFactoryDefinition.REJECTED_EXPRESSION_ATTRIBUTES);
+                                    for (AttributeDefinition attr : ConnectionFactoryDefinition.REJECTED_EXPRESSION_ATTRIBUTES) {
+                                        put(attr.getName(), reject);
+                                    }
+                                    put(CALL_FAILOVER_TIMEOUT.getName(), new NewAttributesConfig(CALL_FAILOVER_TIMEOUT));
+                                }}).setReadOnly(FACTORY_TYPE, CommonAttributes.CLIENT_ID))
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH).append(PooledConnectionFactoryDefinition.PATH),
                                 new ChainedConfig(new HashMap<String, FailedOperationTransformationConfig.PathAddressConfig>() {{
+                                    RejectExpressionsConfig reject = new RejectExpressionsConfig(PooledConnectionFactoryDefinition.REJECTED_EXPRESSION_ATTRIBUTES);
                                     for (AttributeDefinition attr : PooledConnectionFactoryDefinition.REJECTED_EXPRESSION_ATTRIBUTES) {
-                                            put(attr.getName(), new RejectExpressionsConfig(attr));
+                                        put(attr.getName(), reject);
                                     }
-                                    //put(USE_AUTO_RECOVERY.getName(), new NewAttributesConfig(USE_AUTO_RECOVERY));
-                                    //put(INITIAL_CONNECT_ATTEMPTS.getName(), new NewAttributesConfig(INITIAL_CONNECT_ATTEMPTS));
-                                    //put(INITIAL_MESSAGE_PACKET_SIZE.getName(), new NewAttributesConfig(INITIAL_MESSAGE_PACKET_SIZE));
-                                    //put(COMPRESS_LARGE_MESSAGES.getName(), new NewAttributesConfig(COMPRESS_LARGE_MESSAGES));
-                                    //put(CALL_FAILOVER_TIMEOUT.getName(), new NewAttributesConfig(CALL_FAILOVER_TIMEOUT));
-                                }}).setReadOnly(ConnectionFactoryAttributes.Pooled.TRANSACTION))
+                                    NewAttributesConfig newAttributes = new NewAttributesConfig(USE_AUTO_RECOVERY, INITIAL_CONNECT_ATTEMPTS, INITIAL_MESSAGE_PACKET_SIZE,
+                                            COMPRESS_LARGE_MESSAGES, CALL_FAILOVER_TIMEOUT);
+                                    put(USE_AUTO_RECOVERY.getName(), newAttributes);
+                                    put(INITIAL_CONNECT_ATTEMPTS.getName(), newAttributes);
+                                    put(INITIAL_MESSAGE_PACKET_SIZE.getName(), newAttributes);
+                                    put(COMPRESS_LARGE_MESSAGES.getName(), newAttributes);
+                                    put(CALL_FAILOVER_TIMEOUT.getName(), newAttributes);
+                                }}).setReadOnly(Pooled.TRANSACTION))
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH).append(JMSQueueDefinition.PATH),
                                 new RejectExpressionsConfig(JMSQueueDefinition.REJECTED_EXPRESSION_ATTRIBUTES))

@@ -27,15 +27,19 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.FAI
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.IGNORED;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OUTCOME;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.VALUE;
 import static org.jboss.as.controller.transform.OperationResultTransformer.ORIGINAL_RESULT;
 import static org.jboss.as.messaging.MessagingMessages.MESSAGES;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.transform.OperationRejectionPolicy;
 import org.jboss.as.controller.transform.OperationResultTransformer;
 import org.jboss.as.controller.transform.OperationTransformer;
 import org.jboss.as.controller.transform.TransformationContext;
@@ -96,10 +100,12 @@ public interface OperationTransformers {
      */
     public static final class InsertDefaultValuesOperationTransformer implements OperationTransformer {
 
-        private final AttributeDefinition[] definitions;
+        private final List<AttributeDefinition> definitions;
+        private final OperationTransformer writeAttributeTransformer = new WriteAttributeTransformer();
+        private final OperationTransformer undefineAttributeTransformer = writeAttributeTransformer;
 
         public InsertDefaultValuesOperationTransformer(final AttributeDefinition... definitions) {
-            this.definitions = definitions;
+            this.definitions = new ArrayList<AttributeDefinition>(Arrays.asList(definitions));
         }
 
         @Override
@@ -111,6 +117,28 @@ public interface OperationTransformers {
                 }
             }
             return new TransformedOperation(operation, ORIGINAL_RESULT);
+        }
+
+        OperationTransformer getWriteAttributeTransformer() {
+            return writeAttributeTransformer;
+        }
+
+        OperationTransformer getUndefineAttributeTransformer() {
+            return undefineAttributeTransformer;
+        }
+
+        private class WriteAttributeTransformer implements OperationTransformer {
+            @Override
+            public OperationTransformer.TransformedOperation transformOperation(TransformationContext context, PathAddress address, ModelNode operation) throws OperationFailedException {
+                final String attribute = operation.require(NAME).asString();
+                for (AttributeDefinition attr: definitions) {
+                    if (attr.getName().equals(attribute)) {
+                        return OperationTransformer.DISCARD.transformOperation(context, address, operation);
+                    }
+                }
+                // Not relevant to us
+                return new OperationTransformer.TransformedOperation(operation, OperationResultTransformer.ORIGINAL_RESULT);
+            }
         }
     }
 
