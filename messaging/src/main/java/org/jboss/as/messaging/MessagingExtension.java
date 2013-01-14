@@ -35,6 +35,8 @@ import static org.jboss.as.messaging.CommonAttributes.CALL_FAILOVER_TIMEOUT;
 import static org.jboss.as.messaging.CommonAttributes.CHECK_FOR_LIVE_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTERED;
 import static org.jboss.as.messaging.CommonAttributes.CLUSTER_CONNECTION;
+import static org.jboss.as.messaging.CommonAttributes.CLUSTER_NOTIFICATION_ATTEMPTS;
+import static org.jboss.as.messaging.CommonAttributes.CLUSTER_NOTIFICATION_INTERVAL;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTION_FACTORY;
 import static org.jboss.as.messaging.CommonAttributes.CORE_ADDRESS;
 import static org.jboss.as.messaging.CommonAttributes.DISCOVERY_GROUP;
@@ -288,6 +290,8 @@ public class MessagingExtension implements Extension {
                         if (server.getValue().hasDefined(CLUSTER_CONNECTION)) {
                             for (Property clusterConnection : server.getValue().get(CLUSTER_CONNECTION).asPropertyList()) {
                                 oldModel.get(HORNETQ_SERVER, server.getName(), CLUSTER_CONNECTION, clusterConnection.getName()).remove(CALL_FAILOVER_TIMEOUT.getName());
+                                oldModel.get(HORNETQ_SERVER, server.getName(), CLUSTER_CONNECTION, clusterConnection.getName()).remove(CLUSTER_NOTIFICATION_ATTEMPTS.getName());
+                                oldModel.get(HORNETQ_SERVER, server.getName(), CLUSTER_CONNECTION, clusterConnection.getName()).remove(CLUSTER_NOTIFICATION_INTERVAL.getName());
                             }
                         }
                         if (server.getValue().hasDefined(BROADCAST_GROUP)) {

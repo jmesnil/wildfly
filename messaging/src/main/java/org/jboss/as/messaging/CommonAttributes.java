@@ -102,6 +102,20 @@ public interface CommonAttributes {
             .setMeasurementUnit(MILLISECONDS)
             .build();
 
+    SimpleAttributeDefinition CLUSTER_NOTIFICATION_INTERVAL  = create("notification-interval",LONG)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.DEFAULT_CLUSTER_NOTIFICATION_INTERVAL))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setMeasurementUnit(MILLISECONDS)
+            .build();
+
+    SimpleAttributeDefinition CLUSTER_NOTIFICATION_ATTEMPTS  = create("notification-attempts",INT)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.DEFAULT_CLUSTER_NOTIFICATION_ATTEMPTS))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setMeasurementUnit(MILLISECONDS)
+            .build();
+
     SimpleAttributeDefinition CHECK_PERIOD = create("check-period", LONG)
             .setDefaultValue(new ModelNode(DEFAULT_CLIENT_FAILURE_CHECK_PERIOD))
             .setAllowNull(true)

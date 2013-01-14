@@ -124,6 +124,8 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
             throws XMLStreamException {
         switch (element) {
             case CALL_FAILOVER_TIMEOUT:
+            case CLUSTER_NOTIFICATION_ATTEMPTS:
+            case CLUSTER_NOTIFICATION_INTERVAL:
                 handleElementText(reader, element, clusterConnectionAdd);
                 break;
             default: {

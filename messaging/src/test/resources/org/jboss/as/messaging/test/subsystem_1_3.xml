@@ -192,6 +192,8 @@
                     <forward-when-no-consumers>true</forward-when-no-consumers>
                     <max-hops>7</max-hops>
                     <confirmation-window-size>459</confirmation-window-size>
+                    <notification-interval>1</notification-interval>
+                    <notification-attempts>2</notification-attempts>
                     <static-connectors>
                         <connector-ref>in-vm</connector-ref>
                         <connector-ref>netty</connector-ref>

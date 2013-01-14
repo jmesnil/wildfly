@@ -184,6 +184,8 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
             CommonAttributes.CALL_TIMEOUT,
             CommonAttributes.CALL_FAILOVER_TIMEOUT,
+            CommonAttributes.CLUSTER_NOTIFICATION_INTERVAL,
+            CommonAttributes.CLUSTER_NOTIFICATION_ATTEMPTS,
             RETRY_INTERVAL, RETRY_INTERVAL_MULTIPLIER, MAX_RETRY_INTERVAL,
             RECONNECT_ATTEMPTS, USE_DUPLICATE_DETECTION,
             FORWARD_WHEN_NO_CONSUMERS, MAX_HOPS,
@@ -199,6 +201,8 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             MAX_RETRY_INTERVAL,
             CommonAttributes.MIN_LARGE_MESSAGE_SIZE, RETRY_INTERVAL, RETRY_INTERVAL_MULTIPLIER,
             USE_DUPLICATE_DETECTION, CommonAttributes.CALL_TIMEOUT, CommonAttributes.CALL_FAILOVER_TIMEOUT,
+            CommonAttributes.CLUSTER_NOTIFICATION_INTERVAL,
+            CommonAttributes.CLUSTER_NOTIFICATION_ATTEMPTS,
             RECONNECT_ATTEMPTS, CommonAttributes.BRIDGE_CONFIRMATION_WINDOW_SIZE
     };
 
