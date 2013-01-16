@@ -26,10 +26,14 @@
             <message-expiry-thread-priority>${message.expiry.thread.priority:7}</message-expiry-thread-priority>
             <id-cache-size>${id.cache.size:102030}</id-cache-size>
             <persist-id-cache>${persist.id.cache:false}</persist-id-cache>
-            <remoting-interceptors>
-                <class-name>foo.bar</class-name>
-                <class-name>${remoting.interceptor.class:bar.foo}</class-name>
-            </remoting-interceptors>
+            <remoting-incoming-interceptors>
+                <class-name>${remoting-incoming-interceptor.class1:foo.bar}</class-name>
+                <class-name>${remoting-incoming-interceptor.class2:bar.foo}</class-name>
+            </remoting-incoming-interceptors>
+            <remoting-outgoing-interceptors>
+                <class-name>${remoting-outgoing-interceptor.class1:foo.bar}</class-name>
+                <class-name>${remoting-outgoing-interceptor.class2:bar.foo}</class-name>
+            </remoting-outgoing-interceptors>
             <backup>${backup:false}</backup>
             <allow-failback>${allow.failback:false}</allow-failback>
             <failback-delay>${failback.delay:9876}</failback-delay>
@@ -195,6 +199,8 @@
                     <connection-ttl>${connection.ttl:1234}</connection-ttl>
                     <min-large-message-size>${min.large.message.size:10245}</min-large-message-size>
                     <call-timeout>${call.timeout:3456}</call-timeout>
+                    <notification-interval>${notification.interval:1}</notification-interval>
+                    <notification-attempts>${notification.attempts:2}</notification-attempts>
                     <retry-interval>${retry.interval:987}</retry-interval>
                     <retry-interval-multiplier>${retry.interval.multiplier:3.0}</retry-interval-multiplier>
                     <max-retry-interval>${max.retry.interval:3600}</max-retry-interval>

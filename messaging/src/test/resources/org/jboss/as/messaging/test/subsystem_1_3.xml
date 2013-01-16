@@ -59,14 +59,6 @@
             <check-for-live-server>false</check-for-live-server>
             <backup-group-name>ngname</backup-group-name>
             <replication-clustername>repclustername</replication-clustername>
-            <remoting-incoming-interceptors>
-                <class-name>foo.bar</class-name>
-                <class-name>bar.foo</class-name>
-            </remoting-incoming-interceptors>
-            <remoting-outgoing-interceptors>
-                <class-name>foo.bar</class-name>
-                <class-name>bar.foo</class-name>
-            </remoting-outgoing-interceptors>
             <paging-directory path="test" relative-to="test" />
             <bindings-directory path="test" relative-to="test" />
             <journal-directory path="test" relative-to="test" />
@@ -200,8 +192,6 @@
                     <forward-when-no-consumers>true</forward-when-no-consumers>
                     <max-hops>7</max-hops>
                     <confirmation-window-size>459</confirmation-window-size>
-                    <notification-interval>1</notification-interval>
-                    <notification-attempts>2</notification-attempts>
                     <static-connectors>
                         <connector-ref>in-vm</connector-ref>
                         <connector-ref>netty</connector-ref>

@@ -145,14 +145,23 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
             case REPLICATION_CLUSTERNAME:
                 handleElementText(reader, element, operation);
                 break;
-            case REMOTING_INCOMING_INTERCEPTORS:
-               processRemotingIncomingInterceptors(reader, operation);
-               break;
-            case REMOTING_OUTGOING_INTERCEPTORS:
-               processRemotingOutgoingInterceptors(reader, operation);
-               break;
             default: {
                 super.handleUnknownConfigurationAttribute(reader, element, operation);
+            }
+        }
+    }
+
+    @Override
+    protected void handleComplexConfigurationAttribute(XMLExtendedStreamReader reader, Element element, ModelNode operation) throws XMLStreamException {
+        switch (element) {
+            case REMOTING_INCOMING_INTERCEPTORS:
+                processRemotingIncomingInterceptors(reader, operation);
+                break;
+            case REMOTING_OUTGOING_INTERCEPTORS:
+                processRemotingOutgoingInterceptors(reader, operation);
+                break;
+            default: {
+                super.handleComplexConfigurationAttribute(reader, element, operation);
             }
         }
     }

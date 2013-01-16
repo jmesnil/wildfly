@@ -350,7 +350,7 @@
        <xs:annotation>
           <xs:documentation>
             <![CDATA[
-              Remoting interceptors must be placed into a JBoss module and added as a dependency to org.jboss.as.messaging:main module.
+              Deprecated. Use remoting-incoming-interceptors instead.
             ]]>
             </xs:documentation>
        </xs:annotation>

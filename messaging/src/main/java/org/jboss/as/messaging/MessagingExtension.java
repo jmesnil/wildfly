@@ -353,13 +353,15 @@ public class MessagingExtension implements Extension {
         });
 
         RejectExpressionValuesTransformer rejectServerExpressionTransformer = new RejectExpressionValuesTransformer(HornetQServerResourceDefinition.REJECTED_EXPRESSION_ATTRIBUTES);
-        MessagingDiscardAttributesTransformer discardNewServerAttributes = new MessagingDiscardAttributesTransformer(CHECK_FOR_LIVE_SERVER, BACKUP_GROUP_NAME, REPLICATION_CLUSTERNAME);
+        MessagingDiscardAttributesTransformer discardNewServerAttributes = new MessagingDiscardAttributesTransformer(CHECK_FOR_LIVE_SERVER, BACKUP_GROUP_NAME, REPLICATION_CLUSTERNAME, REMOTING_INCOMING_INTERCEPTORS, REMOTING_OUTGOING_INTERCEPTORS);
         TransformersSubRegistration server = transformers.registerSubResource(PathElement.pathElement(HORNETQ_SERVER));
         server.registerOperationTransformer(ADD, new ChainedOperationTransformer(
                 new OperationTransformers.InsertDefaultValuesOperationTransformer(ID_CACHE_SIZE, CLUSTERED),
                 rejectServerExpressionTransformer,
                 discardNewServerAttributes));
-        server.registerOperationTransformer(WRITE_ATTRIBUTE_OPERATION, rejectServerExpressionTransformer.getWriteAttributeTransformer());
+        server.registerOperationTransformer(WRITE_ATTRIBUTE_OPERATION, new ChainedOperationTransformer(
+                rejectServerExpressionTransformer.getWriteAttributeTransformer(),
+                discardNewServerAttributes.getWriteAttributeTransformer()));
         server.registerOperationTransformer(UNDEFINE_ATTRIBUTE_OPERATION, discardNewServerAttributes.getUndefineAttributeTransformer());
 
         rejectExpressions(server, AddressSettingDefinition.PATH, AddressSettingDefinition.REJECTED_EXPRESSION_ATTRIBUTES);
