@@ -571,8 +571,64 @@ public interface CommonAttributes {
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
-
+    //now deprecated
     PrimitiveListAttributeDefinition REMOTING_INTERCEPTORS = new PrimitiveListAttributeDefinition.Builder("remoting-interceptors", ModelType.STRING)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setMinSize(1)
+            .setMaxSize(Integer.MAX_VALUE)
+            .setRestartAllServices()
+            .setValidator(new StringLengthValidator(1, false, true))
+            .setAttributeMarshaller(new AttributeMarshaller() {
+                @Override
+                public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
+                    if (resourceModel.hasDefined(attribute.getName())) {
+                        List<ModelNode> list = resourceModel.get(attribute.getName()).asList();
+                        if (list.size() > 0) {
+                            writer.writeStartElement(attribute.getXmlName());
+
+                            for (ModelNode child : list) {
+                                writer.writeStartElement(Element.CLASS_NAME.getLocalName());
+                                writer.writeCharacters(child.asString());
+                                writer.writeEndElement();
+                            }
+
+                            writer.writeEndElement();
+                        }
+                    }
+                }
+            })
+            .build();
+
+    PrimitiveListAttributeDefinition REMOTING_INCOMING_INTERCEPTORS = new PrimitiveListAttributeDefinition.Builder("remoting-incoming-interceptors", ModelType.STRING)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setMinSize(1)
+            .setMaxSize(Integer.MAX_VALUE)
+            .setRestartAllServices()
+            .setValidator(new StringLengthValidator(1, false, true))
+            .setAttributeMarshaller(new AttributeMarshaller() {
+                @Override
+                public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
+                    if (resourceModel.hasDefined(attribute.getName())) {
+                        List<ModelNode> list = resourceModel.get(attribute.getName()).asList();
+                        if (list.size() > 0) {
+                            writer.writeStartElement(attribute.getXmlName());
+
+                            for (ModelNode child : list) {
+                                writer.writeStartElement(Element.CLASS_NAME.getLocalName());
+                                writer.writeCharacters(child.asString());
+                                writer.writeEndElement();
+                            }
+
+                            writer.writeEndElement();
+                        }
+                    }
+                }
+            })
+            .build();
+
+    PrimitiveListAttributeDefinition REMOTING_OUTGOING_INTERCEPTORS = new PrimitiveListAttributeDefinition.Builder("remoting-outgoing-interceptors", ModelType.STRING)
             .setAllowNull(true)
             .setAllowExpression(true)
             .setMinSize(1)
@@ -813,6 +869,8 @@ public interface CommonAttributes {
     String REMOTE_ACCEPTOR = "remote-acceptor";
     String REMOTE_CONNECTOR = "remote-connector";
     String REMOTING_INTERCEPTOR = "remoting-interceptor";
+    String REMOTING_INCOMING_INTERCEPTOR = "remoting-incoming-interceptor";
+    String REMOTING_OUTGOING_INTERCEPTOR = "remoting-outgoing-interceptor";
     String RESOURCE_ADAPTER = "resource-adapter";
     String ROLE = "role";
     String ROLES_ATTR_NAME = "roles";

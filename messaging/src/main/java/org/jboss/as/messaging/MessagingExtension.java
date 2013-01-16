@@ -46,6 +46,10 @@ import static org.jboss.as.messaging.CommonAttributes.ID_CACHE_SIZE;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_CHANNEL;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_STACK;
 import static org.jboss.as.messaging.CommonAttributes.POOLED_CONNECTION_FACTORY;
+import static org.jboss.as.messaging.CommonAttributes.REMOTING_INCOMING_INTERCEPTORS;
+import static org.jboss.as.messaging.CommonAttributes.REMOTING_OUTGOING_INTERCEPTOR;
+import static org.jboss.as.messaging.CommonAttributes.REMOTING_OUTGOING_INTERCEPTORS;
+import static org.jboss.as.messaging.CommonAttributes.REMOTING_INTERCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.REPLICATION_CLUSTERNAME;
 import static org.jboss.as.messaging.CommonAttributes.RUNTIME_QUEUE;
 import static org.jboss.as.messaging.DiscoveryGroupDefinition.INITIAL_WAIT_TIMEOUT;
@@ -312,6 +316,17 @@ public class MessagingExtension implements Extension {
                                     oldModel.get(HORNETQ_SERVER, server.getName(), POOLED_CONNECTION_FACTORY, pooledConnectionFactory.getName()).remove(attribute.getName());
                                 }
                             }
+                        }
+                        if (server.getValue().hasDefined(REMOTING_INCOMING_INTERCEPTORS.getName())) {
+                           for (Property interceptor : server.getValue().get(REMOTING_INCOMING_INTERCEPTORS.getName()).asPropertyList()) {
+                                // put the interceptor in the old place:
+                                server.getValue().get(REMOTING_INTERCEPTOR, interceptor.getName()).set(interceptor.getValue());
+                                // remove from the new place:
+                                server.getValue().get(REMOTING_INCOMING_INTERCEPTORS.getName()).remove(interceptor.getName());
+                           }
+                        }
+                        if(server.getValue().hasDefined(REMOTING_OUTGOING_INTERCEPTORS.getName())) {
+                           server.getValue().remove(REMOTING_OUTGOING_INTERCEPTORS.getName());
                         }
                         if (server.getValue().hasDefined(CONNECTION_FACTORY)) {
                             for (Property connectionFactory : server.getValue().get(CONNECTION_FACTORY).asPropertyList()) {
