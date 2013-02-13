@@ -132,6 +132,7 @@ public class ModelDescriptionConstants {
     public static final String JVM = "jvm";
     public static final String LDAP = "ldap";
     public static final String LDAP_CONNECTION = "ldap-connection";
+    public static final String LIST_NOTIFICATION_LISTENERS = "list-notification-listeners";
     public static final String LOCAL = "local";
     public static final String LOCAL_DESTINATION_OUTBOUND_SOCKET_BINDING = "local-destination-outbound-socket-binding";
     public static final String LOCAL_HOST_NAME = "local-host-name";
@@ -212,6 +213,7 @@ public class ModelDescriptionConstants {
     public static final String RECURSIVE = "recursive";
     public static final String RECURSIVE_DEPTH = "recursive-depth";
     public static final String REDEPLOY = "redeploy";
+    public static final String REGISTER_NOTIFICATION_LISTENER = "register-notification-listener";
     public static final String RELATIVE_TO = "relative-to";
     public static final String RELEASE_CODENAME = "release-codename";
     public static final String RELEASE_VERSION = "release-version";
@@ -292,6 +294,7 @@ public class ModelDescriptionConstants {
     public static final String TYPE = "type";
     public static final String UNDEFINE_ATTRIBUTE_OPERATION = "undefine-attribute";
     public static final String UNDEPLOY = "undeploy";
+    public static final String UNREGISTER_NOTIFICATION_LISTENER = "unregister-notification-listener";
     public static final String UPLOAD_DEPLOYMENT_BYTES = "upload-deployment-bytes";
     public static final String UPLOAD_DEPLOYMENT_URL = "upload-deployment-url";
     public static final String UPLOAD_DEPLOYMENT_STREAM = "upload-deployment-stream";

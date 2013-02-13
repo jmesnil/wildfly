@@ -23,11 +23,13 @@
 package org.jboss.as.controller;
 
 import static org.jboss.as.controller.ControllerLogger.MGMT_OP_LOGGER;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OUTCOME;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
+import org.jboss.as.controller.operations.global.NotificationService;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
 
@@ -63,6 +65,25 @@ public abstract class AbstractRemoveStepHandler implements OperationStepHandler 
                     });
                 }
             }, OperationContext.Stage.RUNTIME);
+            context.addStep(new OperationStepHandler() {
+                @Override
+                public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
+                    try {
+                        if (ModelDescriptionConstants.FAILED.equals(context.getResult().get(OUTCOME).asString())) {
+                            return;
+                        }
+                        PathAddress sourceAddress = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR));
+                        NotificationService.INSTANCE.emit(context,
+                                sourceAddress,
+                                "RESOURCE_REMOVED",
+                                // TODO i18n
+                                "The resource was removed",
+                                operation.clone());
+                    } finally {
+                        context.stepCompleted();
+                    }
+                }
+            }, OperationContext.Stage.VERIFY);
         }
         context.stepCompleted();
     }

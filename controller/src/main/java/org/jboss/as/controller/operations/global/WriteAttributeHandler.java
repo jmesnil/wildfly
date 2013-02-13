@@ -23,6 +23,7 @@
 package org.jboss.as.controller.operations.global;
 
 import static org.jboss.as.controller.ControllerMessages.MESSAGES;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OUTCOME;
 import static org.jboss.as.controller.operations.global.GlobalOperationHandlers.NAME;
 import static org.jboss.as.controller.operations.global.GlobalOperationHandlers.VALUE;
 
@@ -69,6 +70,27 @@ public class WriteAttributeHandler implements OperationStepHandler {
         } else if (attributeAccess.getAccessType() != AttributeAccess.AccessType.READ_WRITE) {
             throw new OperationFailedException(new ModelNode().set(MESSAGES.attributeNotWritable(attributeName)));
         } else {
+            context.addStep(new OperationStepHandler() {
+                @Override
+                public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
+                    try {
+                        if (ModelDescriptionConstants.FAILED.equals(context.getResult().get(OUTCOME).asString())) {
+                            return;
+                        }
+
+                        PathAddress sourceAddress = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR));
+                        NotificationService.INSTANCE.emit(context,
+                                sourceAddress,
+                                "ATTRIBUTE_VALUE_CHANGED",
+                                // TODO i18n
+                                 "attribute " + attributeName + " value written to " + operation.get(VALUE.getName()),
+                                operation.clone());
+                    } finally {
+                        context.stepCompleted();
+                    }
+                }
+            }, OperationContext.Stage.VERIFY);
+
             OperationStepHandler handler = attributeAccess.getWriteHandler();
             ClassLoader oldTccl = SecurityActions.setThreadContextClassLoader(handler.getClass());
             try {

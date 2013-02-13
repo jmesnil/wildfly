@@ -25,6 +25,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ATT
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.CHILD_TYPE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.INCLUDE_DEFAULTS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.INCLUDE_RUNTIME;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LIST_NOTIFICATION_LISTENERS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OPERATIONS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OPERATION_NAME;
@@ -38,8 +39,10 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REA
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_RESOURCE_DESCRIPTION_OPERATION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RECURSIVE;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REGISTER_NOTIFICATION_LISTENER;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REQUEST_PROPERTIES;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.TYPE;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.UNREGISTER_NOTIFICATION_LISTENER;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.VALUE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRITE_ATTRIBUTE_OPERATION;
 import static org.junit.Assert.assertEquals;
@@ -548,10 +551,11 @@ public class GlobalOperationsTestCase extends AbstractGlobalOperationsTestCase {
         ModelNode result = executeForResult(operation);
 
         assertEquals(ModelType.LIST, result.getType());
-        assertEquals(12, result.asList().size());
+        assertEquals(15, result.asList().size());
         List<String> names = modelNodeListToStringList(result.asList());
         assertTrue(names.contains("testA1-1"));
         assertTrue(names.contains("testA1-2"));
+        assertTrue(names.contains(LIST_NOTIFICATION_LISTENERS));
         assertTrue(names.contains(READ_RESOURCE_OPERATION));
         assertTrue(names.contains(READ_ATTRIBUTE_OPERATION));
         assertTrue(names.contains(READ_RESOURCE_DESCRIPTION_OPERATION));
@@ -560,16 +564,18 @@ public class GlobalOperationsTestCase extends AbstractGlobalOperationsTestCase {
         assertTrue(names.contains(READ_CHILDREN_RESOURCES_OPERATION));
         assertTrue(names.contains(READ_OPERATION_NAMES_OPERATION));
         assertTrue(names.contains(READ_OPERATION_DESCRIPTION_OPERATION));
+        assertTrue(names.contains(REGISTER_NOTIFICATION_LISTENER));
+        assertTrue(names.contains(UNREGISTER_NOTIFICATION_LISTENER));
         assertTrue(names.contains(WRITE_ATTRIBUTE_OPERATION));
-
 
         operation = createOperation(READ_OPERATION_NAMES_OPERATION, "profile", "profileA", "subsystem", "subsystem2");
 
         result = executeForResult(operation);
         assertEquals(ModelType.LIST, result.getType());
-        assertEquals(11, result.asList().size());
+        assertEquals(14, result.asList().size());
         names = modelNodeListToStringList(result.asList());
         assertTrue(names.contains("testA2"));
+        assertTrue(names.contains(LIST_NOTIFICATION_LISTENERS));
         assertTrue(names.contains(READ_RESOURCE_OPERATION));
         assertTrue(names.contains(READ_ATTRIBUTE_OPERATION));
         assertTrue(names.contains(READ_RESOURCE_DESCRIPTION_OPERATION));
@@ -578,12 +584,15 @@ public class GlobalOperationsTestCase extends AbstractGlobalOperationsTestCase {
         assertTrue(names.contains(READ_CHILDREN_RESOURCES_OPERATION));
         assertTrue(names.contains(READ_OPERATION_NAMES_OPERATION));
         assertTrue(names.contains(READ_OPERATION_DESCRIPTION_OPERATION));
+        assertTrue(names.contains(REGISTER_NOTIFICATION_LISTENER));
+        assertTrue(names.contains(UNREGISTER_NOTIFICATION_LISTENER));
         assertTrue(names.contains(WRITE_ATTRIBUTE_OPERATION));
 
         operation = createOperation(READ_OPERATION_NAMES_OPERATION, "profile", "profileB");
         result = executeForResult(operation);
         assertEquals(ModelType.LIST, result.getType());
-        assertEquals(10, result.asList().size());
+        assertEquals(13, result.asList().size());
+        assertTrue(names.contains(LIST_NOTIFICATION_LISTENERS));
         assertTrue(names.contains(READ_RESOURCE_OPERATION));
         assertTrue(names.contains(READ_ATTRIBUTE_OPERATION));
         assertTrue(names.contains(READ_RESOURCE_DESCRIPTION_OPERATION));
@@ -592,6 +601,8 @@ public class GlobalOperationsTestCase extends AbstractGlobalOperationsTestCase {
         assertTrue(names.contains(READ_CHILDREN_RESOURCES_OPERATION));
         assertTrue(names.contains(READ_OPERATION_NAMES_OPERATION));
         assertTrue(names.contains(READ_OPERATION_DESCRIPTION_OPERATION));
+        assertTrue(names.contains(REGISTER_NOTIFICATION_LISTENER));
+        assertTrue(names.contains(UNREGISTER_NOTIFICATION_LISTENER));
         assertTrue(names.contains(WRITE_ATTRIBUTE_OPERATION));
     }
 
