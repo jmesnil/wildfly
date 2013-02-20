@@ -202,6 +202,7 @@ public class ManagementHttpServer {
         }
         managementHttpServer.addHandler(new RootHandler(consoleHandler));
         managementHttpServer.addHandler(new DomainApiHandler(modelControllerClient, auth, controlledProcessStateService));
+        managementHttpServer.addHandler(new NotificationApiHandler(modelControllerClient, auth));
         if (consoleHandler != null) {
             managementHttpServer.addHandler(consoleHandler);
         }
