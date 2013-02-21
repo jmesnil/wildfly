@@ -27,7 +27,6 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.CHI
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DESCRIPTION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.FAILED;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.FAILURE_DESCRIPTION;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LIST_NOTIFICATION_LISTENERS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MIN_LENGTH;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MIN_OCCURS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MODEL_DESCRIPTION;
@@ -47,12 +46,10 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REA
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_OPERATION_NAMES_OPERATION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_RESOURCE_DESCRIPTION_OPERATION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REGISTER_NOTIFICATION_LISTENER;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REQUIRED;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RESULT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.TYPE;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.UNREGISTER_NOTIFICATION_LISTENER;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.VALUE_TYPE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRITE_ATTRIBUTE_OPERATION;
 import static org.junit.Assert.assertEquals;
@@ -481,11 +478,10 @@ public abstract class AbstractGlobalOperationsTestCase extends AbstractControlle
         if (operations) {
             assertTrue(result.require(OPERATIONS).isDefined());
             Set<String> ops = result.require(OPERATIONS).keys();
-            assertEquals(processType == ProcessType.DOMAIN_SERVER ? 8 : 15, ops.size());
+            assertEquals(processType == ProcessType.DOMAIN_SERVER ? 8 : 12, ops.size());
             boolean runtimeOnly = processType != ProcessType.DOMAIN_SERVER;
             assertEquals(runtimeOnly, ops.contains("testA1-1"));
             assertEquals(runtimeOnly, ops.contains("testA1-2"));
-            assertEquals(runtimeOnly, ops.contains(LIST_NOTIFICATION_LISTENERS));
             assertTrue(ops.contains(READ_RESOURCE_OPERATION));
             assertTrue(ops.contains(READ_ATTRIBUTE_OPERATION));
             assertTrue(ops.contains(READ_RESOURCE_DESCRIPTION_OPERATION));
@@ -494,8 +490,6 @@ public abstract class AbstractGlobalOperationsTestCase extends AbstractControlle
             assertTrue(ops.contains(READ_CHILDREN_RESOURCES_OPERATION));
             assertTrue(ops.contains(READ_OPERATION_NAMES_OPERATION));
             assertTrue(ops.contains(READ_OPERATION_DESCRIPTION_OPERATION));
-            assertEquals(runtimeOnly, ops.contains(REGISTER_NOTIFICATION_LISTENER));
-            assertEquals(runtimeOnly, ops.contains(UNREGISTER_NOTIFICATION_LISTENER));
             assertEquals(runtimeOnly, ops.contains(WRITE_ATTRIBUTE_OPERATION));
 
         } else {
@@ -524,8 +518,7 @@ public abstract class AbstractGlobalOperationsTestCase extends AbstractControlle
         if (result.hasDefined(OPERATIONS)) {
             assertTrue(result.require(OPERATIONS).isDefined());
             Set<String> ops = result.require(OPERATIONS).keys();
-            assertEquals(processType == ProcessType.DOMAIN_SERVER ? 8 : 13, ops.size());
-            assertEquals(processType != ProcessType.DOMAIN_SERVER, ops.contains(LIST_NOTIFICATION_LISTENERS));
+            assertEquals(processType == ProcessType.DOMAIN_SERVER ? 8 : 10, ops.size());
             assertTrue(ops.contains(READ_RESOURCE_OPERATION));
             assertTrue(ops.contains(READ_ATTRIBUTE_OPERATION));
             assertTrue(ops.contains(READ_RESOURCE_DESCRIPTION_OPERATION));
@@ -534,8 +527,6 @@ public abstract class AbstractGlobalOperationsTestCase extends AbstractControlle
             assertTrue(ops.contains(READ_CHILDREN_RESOURCES_OPERATION));
             assertTrue(ops.contains(READ_OPERATION_NAMES_OPERATION));
             assertTrue(ops.contains(READ_OPERATION_DESCRIPTION_OPERATION));
-            assertEquals(processType != ProcessType.DOMAIN_SERVER, ops.contains(REGISTER_NOTIFICATION_LISTENER));
-            assertEquals(processType != ProcessType.DOMAIN_SERVER, ops.contains(UNREGISTER_NOTIFICATION_LISTENER));
             assertEquals(processType != ProcessType.DOMAIN_SERVER, ops.contains(WRITE_ATTRIBUTE_OPERATION));
 
         }
@@ -551,8 +542,7 @@ public abstract class AbstractGlobalOperationsTestCase extends AbstractControlle
         if (result.hasDefined(OPERATIONS)) {
             assertTrue(result.require(OPERATIONS).isDefined());
             Set<String> ops = result.require(OPERATIONS).keys();
-            assertEquals(processType == ProcessType.DOMAIN_SERVER ? 8 : 13, ops.size());
-            assertEquals(processType != ProcessType.DOMAIN_SERVER, ops.contains(LIST_NOTIFICATION_LISTENERS));
+            assertEquals(processType == ProcessType.DOMAIN_SERVER ? 8 : 10, ops.size());
             assertTrue(ops.contains(READ_RESOURCE_OPERATION));
             assertTrue(ops.contains(READ_ATTRIBUTE_OPERATION));
             assertTrue(ops.contains(READ_RESOURCE_DESCRIPTION_OPERATION));
@@ -561,8 +551,6 @@ public abstract class AbstractGlobalOperationsTestCase extends AbstractControlle
             assertTrue(ops.contains(READ_CHILDREN_RESOURCES_OPERATION));
             assertTrue(ops.contains(READ_OPERATION_NAMES_OPERATION));
             assertTrue(ops.contains(READ_OPERATION_DESCRIPTION_OPERATION));
-            assertEquals(processType != ProcessType.DOMAIN_SERVER, ops.contains(REGISTER_NOTIFICATION_LISTENER));
-            assertEquals(processType != ProcessType.DOMAIN_SERVER, ops.contains(UNREGISTER_NOTIFICATION_LISTENER));
             assertEquals(processType != ProcessType.DOMAIN_SERVER, ops.contains(WRITE_ATTRIBUTE_OPERATION));
         }
     }

@@ -77,7 +77,8 @@ public class WriteAttributeHandler implements OperationStepHandler {
                         if (ModelDescriptionConstants.FAILED.equals(context.getResult().get(OUTCOME).asString())) {
                             return;
                         }
-
+                        // FIXME store old + new value
+                        // FIXME is it a runtime or configuration attribute?
                         PathAddress sourceAddress = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR));
                         NotificationService.INSTANCE.emit(context,
                                 sourceAddress,

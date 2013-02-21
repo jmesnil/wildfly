@@ -23,6 +23,8 @@
 package org.jboss.as.domain.http.server;
 
 import static org.jboss.as.controller.operations.global.NotificationService.NotificationHandler;
+import static org.jboss.as.domain.http.server.Constants.APPLICATION_JSON;
+import static org.jboss.as.domain.http.server.Constants.CONTENT_TYPE;
 import static org.jboss.as.domain.http.server.Constants.CREATED;
 import static org.jboss.as.domain.http.server.Constants.GET;
 import static org.jboss.as.domain.http.server.Constants.INTERNAL_SERVER_ERROR;
@@ -34,11 +36,13 @@ import static org.jboss.as.domain.http.server.Constants.NO_CONTENT;
 import static org.jboss.as.domain.http.server.Constants.OK;
 import static org.jboss.as.domain.http.server.Constants.POST;
 import static org.jboss.as.domain.http.server.DomainUtil.safeClose;
+import static org.jboss.dmr.ModelType.LIST;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -58,6 +62,7 @@ import org.jboss.com.sun.net.httpserver.HttpContext;
 import org.jboss.com.sun.net.httpserver.HttpExchange;
 import org.jboss.com.sun.net.httpserver.HttpServer;
 import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.ModelType;
 
 /**
  *
@@ -70,6 +75,8 @@ public class NotificationApiHandler implements ManagementHttpHandler {
     private static final String NOTIFICATION_API_CONTEXT = "/notification";
     public static final String HANDLER_PREFIX = "handler";
     public static final String DELETE = "DELETE";
+    public static final String LINK = "Link";
+    public static final String NOTIFICATIONS = "notifications";
 
     private final ModelControllerClient modelController;
     private final Authenticator authenticator;
@@ -109,6 +116,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         try {
             doHandle(exchange);
         } catch (Exception e) {
+            e.printStackTrace();
             sendResponse(exchange, INTERNAL_SERVER_ERROR, e.getMessage() + "\n");
         }
     }
@@ -125,38 +133,64 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                 registerNotificationHandler(handlerID, operation);
                 http.getResponseHeaders().add(LOCATION, NOTIFICATION_API_CONTEXT + "/" + handlerID);
                 sendResponse(http, CREATED);
+                return;
             } else {
                 sendResponse(http, METHOD_NOT_ALLOWED);
+                return;
             }
         } else {
-            final String handlerID = requestURI.getPath().substring((NOTIFICATION_API_CONTEXT + "/").length());
-            if (POST.equals(method)) {
-                ModelNode notifications = fetchNotifications(handlerID);
-                if (notifications == null) {
-                    sendResponse(http, NOT_FOUND);
-                } else if (notifications.asList().isEmpty()) {
-                    sendResponse(http, NOT_MODIFIED);
+            String[] splits = requestURI.getPath().split("/");
+            final String handlerID = splits[2];
+            // /notification/${handlerID}
+            if (splits.length == 3) {
+                if (GET.equals(method)) {
+                    ModelNode addresses = getAddressesListeningTo(handlerID);
+                    if (addresses == null) {
+                        sendResponse(http, NOT_FOUND);
+                        return;
+                    } else {
+                        http.getResponseHeaders().add(LINK, String.format("%s/%s/%s; rel=%s",
+                                NOTIFICATION_API_CONTEXT,
+                                handlerID,
+                                NOTIFICATIONS,
+                                NOTIFICATIONS));
+                        http.getResponseHeaders().add(CONTENT_TYPE, APPLICATION_JSON);
+                        sendResponse(http, OK, addresses.isDefined()? addresses.toJSONString(true) : null);
+                        return;
+                    }
+                } else if (POST.equals(method)) {
+                    ModelNode operation = ModelNode.fromJSONStream(http.getRequestBody());
+                    // update the notification handler registration
+                    unregisterNotificationHandler(handlerID);
+                    registerNotificationHandler(handlerID, operation);
+                    sendResponse(http, OK);
+                    return;
+                } else if (DELETE.equals(method)) {
+                    boolean unregistered = unregisterNotificationHandler(handlerID);
+                    if (unregistered) {
+                        sendResponse(http, NO_CONTENT);
+                        return;
+                    } else {
+                        sendResponse(http, NOT_FOUND);
+                        return;
+                    }
                 } else {
-                    sendResponse(http, OK, notifications.toJSONString(true));
+                    sendResponse(http, METHOD_NOT_ALLOWED);
+                    return;
                 }
-            } else if (DELETE.equals(method)) {
-                boolean unregistered = unregisterNotificationHandler(handlerID);
-                if (unregistered) {
-                    sendResponse(http, NO_CONTENT);
-                } else {
-                    sendResponse(http, NOT_FOUND);
+            } else if (splits.length == 4 && splits[3].equals(NOTIFICATIONS)) {
+                if (POST.equals(method)) {
+                    ModelNode notifications = fetchNotifications(handlerID);
+                    if (notifications == null) {
+                        sendResponse(http, NOT_FOUND);
+                        return;
+                    } else {
+                        http.getResponseHeaders().add(CONTENT_TYPE, APPLICATION_JSON);
+                        sendResponse(http, OK, notifications.isDefined()? notifications.toJSONString(true) : null);
+                        return;
+                    }
                 }
-            } else if (GET.equals(method)) {
-                ModelNode addresses = getAddressesListeningTo(handlerID);
-                if (addresses == null) {
-                    sendResponse(http, NOT_FOUND);
-                } else {
-                    sendResponse(http, OK, addresses.toJSONString(true));
-                }
-            } else {
-                sendResponse(http, METHOD_NOT_ALLOWED);
             }
-            return;
         }
         sendResponse(http, NOT_FOUND);
     }
@@ -207,7 +241,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         HttpNotificationHandler handler = handlers.remove(handlerID);
         if (handler != null) {
             for (PathAddress address : handler.getListeningAddresses()) {
-                NotificationService.INSTANCE.unregisterNotificationListener(address, handler);
+                NotificationService.INSTANCE.unregisterNotificationHandler(address, handler);
             }
         }
         return handler != null;
@@ -218,6 +252,10 @@ public class NotificationApiHandler implements ManagementHttpHandler {
     }
 
     private void sendResponse(final HttpExchange exchange, final int responseCode, final String body) throws IOException {
+        if (body == null) {
+            exchange.sendResponseHeaders(responseCode, -1);
+            return;
+        }
         exchange.sendResponseHeaders(responseCode, 0);
         final PrintWriter out = new PrintWriter(exchange.getResponseBody());
         try {
@@ -263,5 +301,13 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                     ", addresses=" + addresses +
                     "]@" + System.identityHashCode(this);
         }
+    }
+
+    public static void main(String[] args) {
+        ModelNode node = new ModelNode();
+        System.out.println("node = " + node.toJSONString(true));
+        node.add("susbsystem", "messaging");
+        System.out.println("node = " + node.toJSONString(true));
+
     }
 }

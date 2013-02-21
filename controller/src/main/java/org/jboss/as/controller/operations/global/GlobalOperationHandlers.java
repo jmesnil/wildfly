@@ -170,9 +170,6 @@ public class GlobalOperationHandlers {
         root.registerOperationHandler(ReadChildrenResourcesHandler.DEFINITION, ReadChildrenResourcesHandler.INSTANCE, true);
         root.registerOperationHandler(ReadOperationNamesHandler.DEFINITION, ReadOperationNamesHandler.INSTANCE, true);
         root.registerOperationHandler(ReadOperationDescriptionHandler.DEFINITION, ReadOperationDescriptionHandler.INSTANCE, true);
-        root.registerOperationHandler(NotificationHandlers.RegisterNotificationListenerHandler.DEFINITION, NotificationHandlers.RegisterNotificationListenerHandler.INSTANCE, true);
-        root.registerOperationHandler(NotificationHandlers.UnregisterNotificationListenerHandler.DEFINITION, NotificationHandlers.UnregisterNotificationListenerHandler.INSTANCE, true);
-        root.registerOperationHandler(NotificationHandlers.ListNotificationListenersHandler.DEFINITION, NotificationHandlers.ListNotificationListenersHandler.INSTANCE, true);
         if (processType != ProcessType.DOMAIN_SERVER) {
             root.registerOperationHandler(org.jboss.as.controller.operations.global.WriteAttributeHandler.DEFINITION,
                                           org.jboss.as.controller.operations.global.WriteAttributeHandler.INSTANCE, true);

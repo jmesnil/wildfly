@@ -26,7 +26,6 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.CHI
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MAX_OCCURS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MIN_OCCURS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PATH;
-import static org.jboss.as.controller.operations.global.NotificationHandlers.HandleNotificationHandler;
 import static org.jboss.as.messaging.CommonAttributes.ALLOW_FAILBACK;
 import static org.jboss.as.messaging.CommonAttributes.ASYNC_CONNECTION_EXECUTION_ENABLED;
 import static org.jboss.as.messaging.CommonAttributes.BACKUP;
@@ -138,12 +137,6 @@ public class HornetQServerResourceDefinition extends SimpleResourceDefinition {
         HornetQServerControlWriteHandler.INSTANCE.registerAttributes(resourceRegistration, registerRuntimeOnly);
         if (registerRuntimeOnly) {
             HornetQServerControlHandler.INSTANCE.registerAttributes(resourceRegistration);
-            resourceRegistration.registerOperationHandler(HandleNotificationHandler.DEFINITION, new HandleNotificationHandler() {
-                public void handleNotification(ModelNode notification) {
-                    System.out.println("HornetQServerResourceDefinition.handleNotification");
-                    System.out.println("notification = [" + notification + "]");
-                }
-            });
         }
         // unsupported READ-ATTRIBUTES
         // getConnectors, getAddressNames, getQueueNames, getDivertNames, getBridgeNames,

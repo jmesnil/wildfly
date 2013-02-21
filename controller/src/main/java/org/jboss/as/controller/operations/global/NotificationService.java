@@ -22,23 +22,12 @@
 
 package org.jboss.as.controller.operations.global;
 
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.jboss.as.controller.operations.global.NotificationHandlers.HandleNotificationHandler;
-import static org.jboss.as.controller.operations.global.NotificationHandlers.HandleNotificationHandler.DATA;
-import static org.jboss.as.controller.operations.global.NotificationHandlers.HandleNotificationHandler.MESSAGE;
-import static org.jboss.as.controller.operations.global.NotificationHandlers.HandleNotificationHandler.RESOURCE;
-import static org.jboss.as.controller.operations.global.NotificationHandlers.HandleNotificationHandler.TIMESTAMP;
-import static org.jboss.as.controller.operations.global.NotificationHandlers.HandleNotificationHandler.TYPE;
-
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.jboss.as.controller.OperationContext;
-import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.dmr.ModelNode;
 
@@ -51,8 +40,12 @@ import org.jboss.dmr.ModelNode;
 public class NotificationService {
 
     public static final NotificationService INSTANCE = new NotificationService();
+    private static final String RESOURCE = "resource";
+    private static final String TYPE = "type";
+    private static final String MESSAGE = "message";
+    private static final String TIMESTAMP = "timestamp";
+    private static final String DATA = "data";
 
-    private Map<PathAddress, Set<PathAddress>> notificationListeners = new HashMap<PathAddress, Set<PathAddress>>();
     private Map<PathAddress, Set<NotificationHandler>> notificationHandlers = new HashMap<PathAddress, Set<NotificationHandler>>();
 
     private NotificationService() {
@@ -67,38 +60,14 @@ public class NotificationService {
         notificationHandlers.put(source, handlers);
     }
 
-    public void unregisterNotificationListener(PathAddress source, NotificationHandler handler) {
+    public void unregisterNotificationHandler(PathAddress source, NotificationHandler handler) {
         Set<NotificationHandler> handlers = notificationHandlers.get(source);
         if (notificationHandlers != null) {
             notificationHandlers.remove(handler);
         }
     }
 
-    void registerNotificationListener(PathAddress source, PathAddress listener) {
-        Set<PathAddress> listeners = notificationListeners.get(source);
-        if (listeners == null) {
-            listeners = new HashSet<PathAddress>();
-        }
-        listeners.add(listener);
-        notificationListeners.put(source, listeners);
-    }
-
-    public void unregisterNotificationListener(PathAddress source, PathAddress listener) {
-        Set<PathAddress> listeners = notificationListeners.get(source);
-        if (listeners != null) {
-            listeners.remove(listener);
-        }
-    }
-
-    public Set<PathAddress> listNotificationListeners(PathAddress source) {
-        Set<PathAddress> listeners = notificationListeners.get(source);
-        if (listeners != null) {
-            return listeners;
-        } else {
-            return Collections.emptySet();
-        }
-    }
-
+    // TODO emit notifications asynchronously
     public void emit(OperationContext context, final PathAddress address, final String type, final String message, final ModelNode data) {
         System.out.println("NotificationService.emit");
         System.out.println("context = [" + context + "], address = [" + address + "], type = [" + type + "], message = [" + message + "], data = [" + data + "]");
@@ -115,14 +84,13 @@ public class NotificationService {
                 return;
             }
         }
-        System.out.println("handlers = " + handlers);
 
         ModelNode notification = new ModelNode();
-        notification.get(RESOURCE.getName()).set(address.toModelNode());
-        notification.get(TYPE.getName()).set(type);
-        notification.get(MESSAGE.getName()).set(message);
-        notification.get(TIMESTAMP.getName()).set(timestamp);
-        notification.get(DATA.getName()).set(data);
+        notification.get(RESOURCE).set(address.toModelNode());
+        notification.get(TYPE).set(type);
+        notification.get(MESSAGE).set(message);
+        notification.get(TIMESTAMP).set(timestamp);
+        notification.get(DATA).set(data);
 
         for (NotificationHandler handler : handlers) {
             handler.handleNotification(notification);
