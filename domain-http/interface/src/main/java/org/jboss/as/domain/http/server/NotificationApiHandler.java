@@ -22,21 +22,23 @@
 
 package org.jboss.as.domain.http.server;
 
+import static org.jboss.as.controller.operations.global.NotificationService.NotificationHandler;
 import static org.jboss.as.domain.http.server.Constants.CREATED;
 import static org.jboss.as.domain.http.server.Constants.GET;
 import static org.jboss.as.domain.http.server.Constants.INTERNAL_SERVER_ERROR;
 import static org.jboss.as.domain.http.server.Constants.LOCATION;
 import static org.jboss.as.domain.http.server.Constants.METHOD_NOT_ALLOWED;
 import static org.jboss.as.domain.http.server.Constants.NOT_FOUND;
+import static org.jboss.as.domain.http.server.Constants.NOT_MODIFIED;
 import static org.jboss.as.domain.http.server.Constants.NO_CONTENT;
 import static org.jboss.as.domain.http.server.Constants.OK;
-import static org.jboss.as.domain.http.server.Constants.ORIGIN;
 import static org.jboss.as.domain.http.server.Constants.POST;
 import static org.jboss.as.domain.http.server.DomainUtil.safeClose;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +48,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.client.ModelControllerClient;
+import org.jboss.as.controller.operations.global.NotificationService;
 import org.jboss.as.domain.http.server.security.SubjectAssociationHandler;
 import org.jboss.as.domain.management.AuthenticationMechanism;
 import org.jboss.as.domain.management.SecurityRealm;
@@ -72,8 +75,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
     private final Authenticator authenticator;
     private final AtomicLong handlerCounter;
 
-    private final Map<String, Set<PathAddress>> handlers = new HashMap<String, Set<PathAddress>>();
-    private final Map<String, List<ModelNode>> notifications = new HashMap<String, List<ModelNode>>();
+    private final Map<String, HttpNotificationHandler> handlers = new HashMap<String, HttpNotificationHandler>();
 
     public NotificationApiHandler(ModelControllerClient modelController, Authenticator authenticator) {
         this.modelController = modelController;
@@ -99,7 +101,6 @@ public class NotificationApiHandler implements ManagementHttpHandler {
     public void stop(final HttpServer httpServer) {
         httpServer.removeContext(NOTIFICATION_API_CONTEXT);
         handlers.clear();
-        notifications.clear();
     }
 
     @Override
@@ -124,18 +125,34 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                 registerNotificationHandler(handlerID, operation);
                 http.getResponseHeaders().add(LOCATION, NOTIFICATION_API_CONTEXT + "/" + handlerID);
                 sendResponse(http, CREATED);
+            } else {
+                sendResponse(http, METHOD_NOT_ALLOWED);
             }
         } else {
             final String handlerID = requestURI.getPath().substring((NOTIFICATION_API_CONTEXT + "/").length());
             if (POST.equals(method)) {
                 ModelNode notifications = fetchNotifications(handlerID);
-                sendResponse(http, OK, notifications.toJSONString(true));
+                if (notifications == null) {
+                    sendResponse(http, NOT_FOUND);
+                } else if (notifications.asList().isEmpty()) {
+                    sendResponse(http, NOT_MODIFIED);
+                } else {
+                    sendResponse(http, OK, notifications.toJSONString(true));
+                }
             } else if (DELETE.equals(method)) {
-                unregisterNotificationHandler(handlerID);
-                sendResponse(http, NO_CONTENT);
+                boolean unregistered = unregisterNotificationHandler(handlerID);
+                if (unregistered) {
+                    sendResponse(http, NO_CONTENT);
+                } else {
+                    sendResponse(http, NOT_FOUND);
+                }
             } else if (GET.equals(method)) {
                 ModelNode addresses = getAddressesListeningTo(handlerID);
-                sendResponse(http, OK, addresses.toJSONString(true));
+                if (addresses == null) {
+                    sendResponse(http, NOT_FOUND);
+                } else {
+                    sendResponse(http, OK, addresses.toJSONString(true));
+                }
             } else {
                 sendResponse(http, METHOD_NOT_ALLOWED);
             }
@@ -146,43 +163,58 @@ public class NotificationApiHandler implements ManagementHttpHandler {
 
     private ModelNode getAddressesListeningTo(String handlerID) {
         System.out.println(">>> NotificationApiHandler.getAddressesListeningTo handlerID = [" + handlerID + "]");
+        if (!handlers.containsKey(handlerID)) {
+            return null;
+        }
         final ModelNode node = new ModelNode();
-        if (handlers.containsKey(handlerID)) {
-            for (PathAddress address : handlers.get(handlerID)) {
-                node.add(address.toModelNode());
-            }
+        HttpNotificationHandler handler = handlers.get(handlerID);
+        for (PathAddress address : handler.getListeningAddresses()) {
+            node.add(address.toModelNode());
         }
         return node;
     }
 
     private ModelNode fetchNotifications(String handlerID) {
         System.out.println(">>> NotificationApiHandler.fetchNotifications handlerID = [" + handlerID + "]");
-        final ModelNode node = new ModelNode();
-        if (notifications.containsKey(handlerID)) {
-            for (ModelNode notification : notifications.remove(handlerID)) {
-                node.add(notification);
-            }
+        if (!handlers.containsKey(handlerID)) {
+            return null;
         }
+        ModelNode node = new ModelNode();
+        HttpNotificationHandler handler = handlers.get(handlerID);
+        for (ModelNode notification : handler.getNotifications()) {
+                node.add(notification);
+        }
+        handler.clear();
         return node;
     }
 
-    private void registerNotificationHandler(String handlerID, ModelNode operation) {
+    private void registerNotificationHandler(final String handlerID, final ModelNode operation) {
         System.out.println("NotificationApiHandler.registerNotificationHandler handlerID = [" + handlerID + "], operation = [" + operation + "]");
-        Set<PathAddress> resourceAddresses = new HashSet<PathAddress>();
+        final Set<PathAddress> addresses = new HashSet<PathAddress>();
         for (ModelNode resource : operation.get("resources").asList()) {
-            resourceAddresses.add(PathAddress.pathAddress(resource));
+            addresses.add(PathAddress.pathAddress(resource));
         }
-        handlers.put(handlerID, resourceAddresses);
+        System.out.println("addresses = " + addresses);
+        final HttpNotificationHandler handler = new HttpNotificationHandler(handlerID, addresses);
+        for (PathAddress address : addresses) {
+            NotificationService.INSTANCE.registerNotificationHandler(address, handler);
+        }
+        handlers.put(handlerID, handler);
     }
 
-    private void unregisterNotificationHandler(String handlerID) {
+    private boolean unregisterNotificationHandler(String handlerID) {
         System.out.println(">>> NotificationApiHandler.unregisterNotificationHandler handlerID = [" + handlerID + "]");
-        notifications.remove(handlerID);
-        handlers.remove(handlerID);
+        HttpNotificationHandler handler = handlers.remove(handlerID);
+        if (handler != null) {
+            for (PathAddress address : handler.getListeningAddresses()) {
+                NotificationService.INSTANCE.unregisterNotificationListener(address, handler);
+            }
+        }
+        return handler != null;
     }
 
     private void sendResponse(final HttpExchange exchange, final int responseCode) throws IOException {
-        sendResponse(exchange, responseCode, null);
+        exchange.sendResponseHeaders(responseCode, -1);
     }
 
     private void sendResponse(final HttpExchange exchange, final int responseCode, final String body) throws IOException {
@@ -193,6 +225,43 @@ public class NotificationApiHandler implements ManagementHttpHandler {
             out.flush();
         } finally {
             safeClose(out);
+        }
+    }
+
+    private class HttpNotificationHandler implements NotificationHandler {
+
+        private final String handlerID;
+        private final Set<PathAddress> addresses;
+        private final List<ModelNode> notifications = new ArrayList<ModelNode>();
+
+        public HttpNotificationHandler(String handlerID, Set<PathAddress> addresses) {
+            this.handlerID = handlerID;
+            this.addresses = addresses;
+        }
+
+        public Set<PathAddress> getListeningAddresses() {
+            return addresses;
+        }
+
+        public List<ModelNode> getNotifications() {
+            return notifications;
+        }
+
+        public void clear() {
+            notifications.clear();
+        }
+
+        @Override
+        public void handleNotification(ModelNode notification) {
+            notifications.add(notification);
+        }
+
+        @Override
+        public String toString() {
+            return "HttpNotificationHandler[" +
+                    "handlerID='" + handlerID + '\'' +
+                    ", addresses=" + addresses +
+                    "]@" + System.identityHashCode(this);
         }
     }
 }

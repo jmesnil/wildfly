@@ -53,8 +53,25 @@ public class NotificationService {
     public static final NotificationService INSTANCE = new NotificationService();
 
     private Map<PathAddress, Set<PathAddress>> notificationListeners = new HashMap<PathAddress, Set<PathAddress>>();
+    private Map<PathAddress, Set<NotificationHandler>> notificationHandlers = new HashMap<PathAddress, Set<NotificationHandler>>();
 
     private NotificationService() {
+    }
+
+    public void registerNotificationHandler(PathAddress source, NotificationHandler handler) {
+        Set<NotificationHandler> handlers = notificationHandlers.get(source);
+        if (handlers == null) {
+            handlers = new HashSet<NotificationHandler>();
+        }
+        handlers.add(handler);
+        notificationHandlers.put(source, handlers);
+    }
+
+    public void unregisterNotificationListener(PathAddress source, NotificationHandler handler) {
+        Set<NotificationHandler> handlers = notificationHandlers.get(source);
+        if (notificationHandlers != null) {
+            notificationHandlers.remove(handler);
+        }
     }
 
     void registerNotificationListener(PathAddress source, PathAddress listener) {
@@ -66,14 +83,14 @@ public class NotificationService {
         notificationListeners.put(source, listeners);
     }
 
-    void unregisterNotificationListener(PathAddress source, PathAddress listener) {
+    public void unregisterNotificationListener(PathAddress source, PathAddress listener) {
         Set<PathAddress> listeners = notificationListeners.get(source);
         if (listeners != null) {
             listeners.remove(listener);
         }
     }
 
-    Set<PathAddress> listNotificationListeners(PathAddress source) {
+    public Set<PathAddress> listNotificationListeners(PathAddress source) {
         Set<PathAddress> listeners = notificationListeners.get(source);
         if (listeners != null) {
             return listeners;
@@ -86,34 +103,34 @@ public class NotificationService {
         System.out.println("NotificationService.emit");
         System.out.println("context = [" + context + "], address = [" + address + "], type = [" + type + "], message = [" + message + "], data = [" + data + "]");
         long timestamp = System.currentTimeMillis();
-        Set<PathAddress> listeners = listNotificationListeners(address);
-        if (listeners.isEmpty()) {
+        Set<NotificationHandler> handlers = notificationHandlers.get(address);
+        if (handlers == null || handlers.isEmpty()) {
             if (address.size() <= 1) {
                 return;
             }
             PathAddress parent = PathAddress.pathAddress(address.subAddress(0, address.size() - 1));
             PathAddress wildcard = parent.append(address.getLastElement().getKey(), "#");
-            listeners = listNotificationListeners(wildcard);
-            if (listeners.isEmpty()) {
+            handlers = notificationHandlers.get(wildcard);
+            if (handlers == null || handlers.isEmpty()) {
                 return;
             }
         }
-        System.out.println("listeners = " + listeners);
+        System.out.println("handlers = " + handlers);
 
-        ModelNode operation = new ModelNode();
-        operation.get(OP).set(HandleNotificationHandler.DEFINITION.getName());
-        operation.get(RESOURCE.getName()).set(address.toModelNode());
-        operation.get(TYPE.getName()).set(type);
-        operation.get(MESSAGE.getName()).set(message);
-        operation.get(TIMESTAMP.getName()).set(timestamp);
-        operation.get(DATA.getName()).set(data);
+        ModelNode notification = new ModelNode();
+        notification.get(RESOURCE.getName()).set(address.toModelNode());
+        notification.get(TYPE.getName()).set(type);
+        notification.get(MESSAGE.getName()).set(message);
+        notification.get(TIMESTAMP.getName()).set(timestamp);
+        notification.get(DATA.getName()).set(data);
 
-        for (PathAddress listener : listeners) {
-            operation.get(OP_ADDR).set(listener.toModelNode());
-            OperationStepHandler operationHandler = context.getRootResourceRegistration().getOperationHandler(listener, HandleNotificationHandler.DEFINITION.getName());
-            ModelNode response = new ModelNode();
-            context.addStep(response, operation, operationHandler, OperationContext.Stage.VERIFY, true);
+        for (NotificationHandler handler : handlers) {
+            handler.handleNotification(notification);
         }
+    }
+
+    public interface NotificationHandler {
+        void handleNotification(ModelNode notification);
     }
 
 }
