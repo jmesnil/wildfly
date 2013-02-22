@@ -66,7 +66,6 @@ import java.util.Random;
 import java.util.Set;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.ModelController;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationDefinition;
 import org.jboss.as.controller.OperationFailedException;
@@ -94,11 +93,6 @@ import org.jboss.dmr.Property;
 public abstract class AbstractGlobalOperationsTestCase extends AbstractControllerTestBase {
 
     private final AccessType expectedRwAttributeAccess;
-
-    @Override
-    public ModelController getController() {
-        return super.getController();    //To change body of overridden methods use File | Settings | File Templates.
-    }
 
     private static final OperationDefinition SETUP_OP_DEF = new SimpleOperationDefinitionBuilder("setup", new NonResolvingResourceDescriptionResolver())
             .setPrivateEntry()

@@ -562,6 +562,7 @@ public class GlobalOperationsTestCase extends AbstractGlobalOperationsTestCase {
         assertTrue(names.contains(READ_OPERATION_DESCRIPTION_OPERATION));
         assertTrue(names.contains(WRITE_ATTRIBUTE_OPERATION));
 
+
         operation = createOperation(READ_OPERATION_NAMES_OPERATION, "profile", "profileA", "subsystem", "subsystem2");
 
         result = executeForResult(operation);
