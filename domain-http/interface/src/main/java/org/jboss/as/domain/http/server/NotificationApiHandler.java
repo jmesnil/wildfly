@@ -31,18 +31,15 @@ import static org.jboss.as.domain.http.server.Constants.INTERNAL_SERVER_ERROR;
 import static org.jboss.as.domain.http.server.Constants.LOCATION;
 import static org.jboss.as.domain.http.server.Constants.METHOD_NOT_ALLOWED;
 import static org.jboss.as.domain.http.server.Constants.NOT_FOUND;
-import static org.jboss.as.domain.http.server.Constants.NOT_MODIFIED;
 import static org.jboss.as.domain.http.server.Constants.NO_CONTENT;
 import static org.jboss.as.domain.http.server.Constants.OK;
 import static org.jboss.as.domain.http.server.Constants.POST;
 import static org.jboss.as.domain.http.server.DomainUtil.safeClose;
-import static org.jboss.dmr.ModelType.LIST;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,7 +59,6 @@ import org.jboss.com.sun.net.httpserver.HttpContext;
 import org.jboss.com.sun.net.httpserver.HttpExchange;
 import org.jboss.com.sun.net.httpserver.HttpServer;
 import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.ModelType;
 
 /**
  *
@@ -116,7 +112,6 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         try {
             doHandle(exchange);
         } catch (Exception e) {
-            e.printStackTrace();
             sendResponse(exchange, INTERNAL_SERVER_ERROR, e.getMessage() + "\n");
         }
     }
@@ -127,11 +122,12 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         System.out.println("requestURI = " + requestURI.getPath());
         if (requestURI.getPath().equals(NOTIFICATION_API_CONTEXT)) {
             if (method.equals(POST)) {
-                String handlerID = HANDLER_PREFIX + handlerCounter.incrementAndGet();
+                String handlerID = generateHandlerID();
                 ModelNode operation = ModelNode.fromJSONStream(http.getRequestBody());
                 // create the listener based on the address in the operation
                 registerNotificationHandler(handlerID, operation);
-                http.getResponseHeaders().add(LOCATION, NOTIFICATION_API_CONTEXT + "/" + handlerID);
+                http.getResponseHeaders().add(LOCATION, getHandlerURL(handlerID));
+                http.getResponseHeaders().add(LINK, getHandlerNotificationsURL(handlerID));
                 sendResponse(http, CREATED);
                 return;
             } else {
@@ -149,12 +145,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                         sendResponse(http, NOT_FOUND);
                         return;
                     } else {
-                        http.getResponseHeaders().add(LINK, String.format("%s/%s/%s; rel=%s",
-                                NOTIFICATION_API_CONTEXT,
-                                handlerID,
-                                NOTIFICATIONS,
-                                NOTIFICATIONS));
-                        http.getResponseHeaders().add(CONTENT_TYPE, APPLICATION_JSON);
+                        http.getResponseHeaders().add(LINK, getHandlerNotificationsURL(handlerID));
                         sendResponse(http, OK, addresses.isDefined()? addresses.toJSONString(true) : null);
                         return;
                     }
@@ -185,7 +176,6 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                         sendResponse(http, NOT_FOUND);
                         return;
                     } else {
-                        http.getResponseHeaders().add(CONTENT_TYPE, APPLICATION_JSON);
                         sendResponse(http, OK, notifications.isDefined()? notifications.toJSONString(true) : null);
                         return;
                     }
@@ -193,6 +183,10 @@ public class NotificationApiHandler implements ManagementHttpHandler {
             }
         }
         sendResponse(http, NOT_FOUND);
+    }
+
+    private String generateHandlerID() {
+        return HANDLER_PREFIX + handlerCounter.incrementAndGet();
     }
 
     private ModelNode getAddressesListeningTo(String handlerID) {
@@ -229,6 +223,11 @@ public class NotificationApiHandler implements ManagementHttpHandler {
             addresses.add(PathAddress.pathAddress(resource));
         }
         System.out.println("addresses = " + addresses);
+        for (PathAddress address : addresses) {
+            if (address.isMultiTarget()) {
+                System.out.println("got pattern:" + address);
+            }
+        }
         final HttpNotificationHandler handler = new HttpNotificationHandler(handlerID, addresses);
         for (PathAddress address : addresses) {
             NotificationService.INSTANCE.registerNotificationHandler(address, handler);
@@ -256,6 +255,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
             exchange.sendResponseHeaders(responseCode, -1);
             return;
         }
+        exchange.getResponseHeaders().add(CONTENT_TYPE, APPLICATION_JSON);
         exchange.sendResponseHeaders(responseCode, 0);
         final PrintWriter out = new PrintWriter(exchange.getResponseBody());
         try {
@@ -301,6 +301,18 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                     ", addresses=" + addresses +
                     "]@" + System.identityHashCode(this);
         }
+    }
+
+    private static String getHandlerURL(final String handlerID) {
+        return NOTIFICATION_API_CONTEXT + "/" + handlerID;
+    }
+
+    private static String getHandlerNotificationsURL(final String handlerID) {
+        return String.format("%s/%s/%s; rel=%s",
+                NOTIFICATION_API_CONTEXT,
+                handlerID,
+                NOTIFICATIONS,
+                NOTIFICATIONS);
     }
 
     public static void main(String[] args) {

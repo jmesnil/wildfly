@@ -22,13 +22,17 @@
 
 package org.jboss.as.controller.operations.global;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.PathElement;
 import org.jboss.dmr.ModelNode;
 
 
@@ -72,17 +76,15 @@ public class NotificationService {
         System.out.println("NotificationService.emit");
         System.out.println("context = [" + context + "], address = [" + address + "], type = [" + type + "], message = [" + message + "], data = [" + data + "]");
         long timestamp = System.currentTimeMillis();
-        Set<NotificationHandler> handlers = notificationHandlers.get(address);
-        if (handlers == null || handlers.isEmpty()) {
-            if (address.size() <= 1) {
-                return;
+        List<NotificationHandler> handlers = new ArrayList<NotificationHandler>();
+        for (Map.Entry<PathAddress, Set<NotificationHandler>> entry : notificationHandlers.entrySet()) {
+            PathAddress entryAddress = entry.getKey();
+            if (matches(address, entryAddress)) {
+                handlers.addAll(entry.getValue());
             }
-            PathAddress parent = PathAddress.pathAddress(address.subAddress(0, address.size() - 1));
-            PathAddress wildcard = parent.append(address.getLastElement().getKey(), "#");
-            handlers = notificationHandlers.get(wildcard);
-            if (handlers == null || handlers.isEmpty()) {
-                return;
-            }
+        }
+        if (handlers.isEmpty()) {
+            return;
         }
 
         ModelNode notification = new ModelNode();
@@ -95,6 +97,31 @@ public class NotificationService {
         for (NotificationHandler handler : handlers) {
             handler.handleNotification(notification);
         }
+    }
+
+    public static boolean matches(PathAddress address, PathAddress other) {
+        if (!other.isMultiTarget()) {
+            return address.equals(other);
+        }
+        if (address.size() != other.size()) {
+            return false;
+        }
+        ListIterator<PathElement> addressIter = address.iterator();
+        ListIterator<PathElement> otherIterator = other.iterator();
+        while (addressIter.hasNext() && otherIterator.hasNext()) {
+            PathElement element = addressIter.next();
+            PathElement otherElement = otherIterator.next();
+            if (!otherElement.isMultiTarget()) {
+                if (!element.equals(otherElement)) {
+                    return false;
+                }
+            } else {
+                if (!element.getKey().equals(otherElement.getKey())) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public interface NotificationHandler {
