@@ -41,11 +41,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.jboss.as.controller.PathAddress;
@@ -68,6 +74,11 @@ import org.jboss.dmr.ModelNode;
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) Red Hat, inc
  */
 public class NotificationApiHandler implements ManagementHttpHandler {
+
+    /**
+     * Maximum number of notifications held *per handler*
+     */
+    public static final int MAX_NOTIFICATIONS = 1024;
 
     private static final String NOTIFICATION_API_CONTEXT = "/notification";
     private static final String HANDLER_PREFIX = "handler";
@@ -216,7 +227,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         ModelNode node = new ModelNode();
         HttpNotificationHandler handler = handlers.get(handlerID);
         for (ModelNode notification : handler.getNotifications()) {
-                node.add(notification);
+            node.add(notification);
         }
         handler.clear();
         return node;
@@ -272,11 +283,11 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         }
     }
 
-    private class HttpNotificationHandler implements NotificationHandler {
+   static class HttpNotificationHandler implements NotificationHandler {
 
         private final String handlerID;
         private final Set<PathAddress> addresses;
-        private final List<ModelNode> notifications = new ArrayList<ModelNode>();
+        private final Queue<ModelNode> notifications = new ArrayBlockingQueue<ModelNode>(MAX_NOTIFICATIONS);
 
         public HttpNotificationHandler(String handlerID, Set<PathAddress> addresses) {
             this.handlerID = handlerID;
@@ -288,7 +299,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         }
 
         public List<ModelNode> getNotifications() {
-            return notifications;
+            return new ArrayList<ModelNode>(notifications);
         }
 
         public void clear() {
@@ -297,7 +308,11 @@ public class NotificationApiHandler implements ManagementHttpHandler {
 
         @Override
         public void handleNotification(ModelNode notification) {
-            notifications.add(notification);
+            // keep only the most recent notifications
+            if (notifications.size() == MAX_NOTIFICATIONS) {
+                notifications.poll();
+            }
+            notifications.add(notification.clone());
         }
 
         @Override
