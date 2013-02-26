@@ -25,8 +25,10 @@ package org.jboss.as.domain.http.server;
 import static org.jboss.as.domain.http.server.Constants.APPLICATION_JSON;
 import static org.jboss.as.domain.http.server.Constants.CONTENT_TYPE;
 import static org.jboss.as.domain.http.server.Constants.CREATED;
+import static org.jboss.as.domain.http.server.Constants.DELETE;
 import static org.jboss.as.domain.http.server.Constants.GET;
 import static org.jboss.as.domain.http.server.Constants.INTERNAL_SERVER_ERROR;
+import static org.jboss.as.domain.http.server.Constants.LINK;
 import static org.jboss.as.domain.http.server.Constants.LOCATION;
 import static org.jboss.as.domain.http.server.Constants.METHOD_NOT_ALLOWED;
 import static org.jboss.as.domain.http.server.Constants.NOT_FOUND;
@@ -68,21 +70,20 @@ import org.jboss.dmr.ModelNode;
 public class NotificationApiHandler implements ManagementHttpHandler {
 
     private static final String NOTIFICATION_API_CONTEXT = "/notification";
-    public static final String HANDLER_PREFIX = "handler";
-    public static final String DELETE = "DELETE";
-    public static final String LINK = "Link";
-    public static final String NOTIFICATIONS = "notifications";
+    private static final String HANDLER_PREFIX = "handler";
+    private static final String NOTIFICATIONS = "notifications";
 
-    private final Authenticator authenticator;
-    private final AtomicLong handlerCounter;
-
-    private final Map<String, HttpNotificationHandler> handlers = new HashMap<String, HttpNotificationHandler>();
     private final NotificationSupport notificationSupport;
+    private final Authenticator authenticator;
+    /**
+     * Map of HttpNotificationHandler holding the notifications for a given handlerID
+     */
+    private final Map<String, HttpNotificationHandler> handlers = new HashMap<String, HttpNotificationHandler>();
+    private final AtomicLong handlerCounter = new AtomicLong();
 
     public NotificationApiHandler(NotificationSupport notificationSupport, Authenticator authenticator) {
         this.notificationSupport = notificationSupport;
         this.authenticator = authenticator;
-        this.handlerCounter = new AtomicLong();
     }
 
     public void start(final HttpServer httpServer, final SecurityRealm securityRealm) {
@@ -94,7 +95,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         if (authenticator != null) {
             context.setAuthenticator(authenticator);
             List<Filter> filters = context.getFilters();
-            if (securityRealm != null &&  securityRealm.getSupportedAuthenticationMechanisms().contains(AuthenticationMechanism.CLIENT_CERT) == false) {
+            if (securityRealm != null && !securityRealm.getSupportedAuthenticationMechanisms().contains(AuthenticationMechanism.CLIENT_CERT)) {
                 filters.add(new DmrFailureReadinessFilter(securityRealm, ErrorHandler.getRealmRedirect()));
             }
         }
@@ -118,12 +119,11 @@ public class NotificationApiHandler implements ManagementHttpHandler {
     private void doHandle(final HttpExchange http) throws IOException {
         final String method = http.getRequestMethod();
         final URI requestURI = http.getRequestURI();
-        System.out.println("requestURI = " + requestURI.getPath());
         if (requestURI.getPath().equals(NOTIFICATION_API_CONTEXT)) {
             if (method.equals(POST)) {
+                // POST /notification => create a handler resource that listens to a list of resources
                 String handlerID = generateHandlerID();
                 ModelNode operation = ModelNode.fromJSONStream(http.getRequestBody());
-                // create the listener based on the address in the operation
                 registerNotificationHandler(handlerID, operation);
                 http.getResponseHeaders().add(LOCATION, getHandlerURL(handlerID));
                 http.getResponseHeaders().add(LINK, getHandlerNotificationsURL(handlerID));
@@ -139,6 +139,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
             // /notification/${handlerID}
             if (splits.length == 3) {
                 if (GET.equals(method)) {
+                    // GET /notification/${handlerID} => returns a representation of the handler
                     ModelNode addresses = getAddressesListeningTo(handlerID);
                     if (addresses == null) {
                         sendResponse(http, NOT_FOUND);
@@ -149,13 +150,14 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                         return;
                     }
                 } else if (POST.equals(method)) {
+                    // POST /notification/${handlerID} => update the resources that the handler listens to.
                     ModelNode operation = ModelNode.fromJSONStream(http.getRequestBody());
-                    // update the notification handler registration
                     unregisterNotificationHandler(handlerID);
                     registerNotificationHandler(handlerID, operation);
                     sendResponse(http, OK);
                     return;
                 } else if (DELETE.equals(method)) {
+                    // DELETE /notification/${handlerID} => unregister the handler and delete it
                     boolean unregistered = unregisterNotificationHandler(handlerID);
                     if (unregistered) {
                         sendResponse(http, NO_CONTENT);
@@ -170,6 +172,8 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                 }
             } else if (splits.length == 4 && splits[3].equals(NOTIFICATIONS)) {
                 if (POST.equals(method)) {
+                    // POST /notification/${handlerID}/notifications => returns a representation of the notifications received by the handler
+                    // and clears it.
                     ModelNode notifications = fetchNotifications(handlerID);
                     if (notifications == null) {
                         sendResponse(http, NOT_FOUND);
@@ -178,6 +182,9 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                         sendResponse(http, OK, notifications.isDefined()? notifications.toJSONString(true) : null);
                         return;
                     }
+                } else {
+                    sendResponse(http, METHOD_NOT_ALLOWED);
+                    return;
                 }
             }
         }
@@ -312,13 +319,5 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                 handlerID,
                 NOTIFICATIONS,
                 NOTIFICATIONS);
-    }
-
-    public static void main(String[] args) {
-        ModelNode node = new ModelNode();
-        System.out.println("node = " + node.toJSONString(true));
-        node.add("susbsystem", "messaging");
-        System.out.println("node = " + node.toJSONString(true));
-
     }
 }

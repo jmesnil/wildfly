@@ -22,6 +22,7 @@
 
 package org.jboss.as.controller.notification;
 
+import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,10 +30,14 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.dmr.ModelNode;
+import org.jboss.msc.inject.Injector;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
@@ -40,6 +45,8 @@ import org.jboss.msc.service.ServiceTarget;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
+import org.jboss.msc.value.InjectedValue;
+import org.jboss.threads.JBossThreadFactory;
 
 
 /**
@@ -56,6 +63,8 @@ public class NotificationService implements Service<NotificationSupport> {
     public static final String DATA = "data";
     public static final ServiceName SERVICE_NAME = ServiceName.JBOSS.append("notification");
 
+    private final InjectedValue<ExecutorService> executorServiceValue = new InjectedValue<ExecutorService>();
+
     private NotificationSupport emitter;
 
     private NotificationService() {
@@ -63,7 +72,12 @@ public class NotificationService implements Service<NotificationSupport> {
     }
 
     public static void installNotificationService(ServiceTarget serviceTarget) {
-        serviceTarget.addService(SERVICE_NAME, new NotificationService())
+        final ThreadFactory notificationThreads = new JBossThreadFactory(new ThreadGroup("NotificationService-threads"),
+                Boolean.FALSE, null, "%G - %t", null, null, AccessController.getContext());
+
+        NotificationService service = new NotificationService();
+        serviceTarget.addService(SERVICE_NAME, service)
+                .addInjection(service.getExecutorServiceInjector(), Executors.newFixedThreadPool(1, notificationThreads))
                 .setInitialMode(ServiceController.Mode.ACTIVE)
                 .install();
     }
@@ -81,6 +95,15 @@ public class NotificationService implements Service<NotificationSupport> {
     @Override
     public NotificationSupport getValue() throws IllegalStateException, IllegalArgumentException {
         return emitter;
+    }
+
+    /**
+     * Get the executor service injector.
+     *
+     * @return The injector
+     */
+    public Injector<ExecutorService> getExecutorServiceInjector() {
+        return executorServiceValue;
     }
 
     public static boolean matches(PathAddress address, PathAddress other) {
@@ -138,33 +161,40 @@ public class NotificationService implements Service<NotificationSupport> {
             emit(address, type, message, new ModelNode());
         }
 
-        // TODO emit notifications asynchronously
         public void emit(final PathAddress address, final String type, final String message, final ModelNode data) {
-            //System.out.println("address = [" + address + "], type = [" + type + "], message = [" + message + "], data = [" + data + "]");
-            long timestamp = System.currentTimeMillis();
-            List<NotificationHandler> handlers = new ArrayList<NotificationHandler>();
-            for (Map.Entry<PathAddress, Set<NotificationHandler>> entry : notificationHandlers.entrySet()) {
-                PathAddress entryAddress = entry.getKey();
-                if (matches(address, entryAddress)) {
-                    handlers.addAll(entry.getValue());
-                }
-            }
+            final List<NotificationHandler> handlers = findMatchingNotificationHandlers(address);
             if (handlers.isEmpty()) {
                 return;
             }
 
-            ModelNode notification = new ModelNode();
+            final ModelNode notification = new ModelNode();
             notification.get(RESOURCE).set(address.toModelNode());
             notification.get(TYPE).set(type);
             notification.get(MESSAGE).set(message);
-            notification.get(TIMESTAMP).set(timestamp);
+            notification.get(TIMESTAMP).set(System.currentTimeMillis());
             if (data.isDefined()) {
                 notification.get(DATA).set(data);
             }
 
-            for (NotificationHandler handler : handlers) {
-                handler.handleNotification(notification);
+            executorServiceValue.getValue().execute(new Runnable() {
+                @Override
+                public void run() {
+                    for (NotificationHandler handler : handlers) {
+                        handler.handleNotification(notification);
+                    }
+                }
+            });
+
+        }
+
+        private List<NotificationHandler> findMatchingNotificationHandlers(PathAddress address) {
+            final List<NotificationHandler> handlers = new ArrayList<NotificationHandler>();
+            for (Map.Entry<PathAddress, Set<NotificationHandler>> entry : notificationHandlers.entrySet()) {
+                if (matches(address, entry.getKey())) {
+                    handlers.addAll(entry.getValue());
+                }
             }
+            return handlers;
         }
     }
 }

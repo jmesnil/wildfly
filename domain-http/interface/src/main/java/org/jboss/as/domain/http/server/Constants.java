@@ -33,6 +33,7 @@ public interface Constants {
      * Request Methods
      */
 
+    String DELETE = "DELETE";
     String GET = "GET";
     String OPTIONS = "OPTIONS";
     String POST = "POST";
@@ -53,6 +54,7 @@ public interface Constants {
     String CONTENT_DISPOSITION = "Content-Disposition";
     String CONTENT_TYPE = "Content-Type";
     String HOST = "Host";
+    String LINK = "Link";
     String LOCATION = "Location";
     String ORIGIN = "Origin";
     String REFERER = "Referer";
