@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import org.jboss.as.controller.ControlledProcessStateService;
 import org.jboss.as.controller.ModelController;
 import org.jboss.as.controller.client.ModelControllerClient;
+import org.jboss.as.controller.notification.NotificationSupport;
 import org.jboss.as.domain.http.server.ConsoleMode;
 import org.jboss.as.domain.http.server.ManagementHttpServer;
 import org.jboss.as.domain.management.security.SecurityRealmService;
@@ -65,6 +66,7 @@ public class HttpManagementService implements Service<HttpManagement> {
     private final InjectedValue<ExecutorService> executorServiceValue = new InjectedValue<ExecutorService>();
     private final InjectedValue<SecurityRealmService> securityRealmServiceValue = new InjectedValue<SecurityRealmService>();
     private final InjectedValue<ControlledProcessStateService> controlledProcessStateServiceValue = new InjectedValue<ControlledProcessStateService>();
+    private final InjectedValue<NotificationSupport> notificationServiceValue = new InjectedValue<NotificationSupport>();
     private final ConsoleMode consoleMode;
     private final String consoleSkin;
     private ManagementHttpServer serverManagement;
@@ -157,6 +159,7 @@ public class HttpManagementService implements Service<HttpManagement> {
         final ControlledProcessStateService controlledProcessStateService = controlledProcessStateServiceValue.getValue();
         final ExecutorService executorService = executorServiceValue.getValue();
         final ModelControllerClient modelControllerClient = modelController.createClient(executorService);
+        final NotificationSupport notificationSupport = notificationServiceValue.getValue();
         socketBindingManager = injectedSocketBindingManager.getOptionalValue();
 
         final SecurityRealmService securityRealmService = securityRealmServiceValue.getOptionalValue();
@@ -188,7 +191,7 @@ public class HttpManagementService implements Service<HttpManagement> {
 
         try {
             serverManagement = ManagementHttpServer.create(bindAddress, secureBindAddress, 50, modelControllerClient,
-                    executorService, securityRealmService, controlledProcessStateService, consoleMode, consoleSkin);
+                    executorService, securityRealmService, controlledProcessStateService, consoleMode, consoleSkin, notificationSupport);
             serverManagement.start();
 
             // Register the now-created sockets with the SBM
@@ -339,4 +342,12 @@ public class HttpManagementService implements Service<HttpManagement> {
         return controlledProcessStateServiceValue;
     }
 
+    /**
+     * Get the notification support injector.
+     *
+     * @return the notificationServiceValue
+     */
+    public InjectedValue<NotificationSupport> getNotificationServiceInjector() {
+        return notificationServiceValue;
+    }
 }

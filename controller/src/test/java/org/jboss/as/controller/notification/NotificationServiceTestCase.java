@@ -20,11 +20,11 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.as.controller.operations.global;
+package org.jboss.as.controller.notification;
 
 import static org.jboss.as.controller.PathAddress.pathAddress;
 import static org.jboss.as.controller.PathElement.pathElement;
-import static org.jboss.as.controller.operations.global.NotificationService.matches;
+import static org.jboss.as.controller.notification.NotificationService.matches;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

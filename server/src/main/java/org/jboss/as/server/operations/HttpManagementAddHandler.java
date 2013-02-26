@@ -43,6 +43,8 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.RunningMode;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
+import org.jboss.as.controller.notification.NotificationService;
+import org.jboss.as.controller.notification.NotificationSupport;
 import org.jboss.as.domain.http.server.ConsoleMode;
 import org.jboss.as.domain.management.security.SecurityRealmService;
 import org.jboss.as.network.NetworkInterfaceBinding;
@@ -220,12 +222,16 @@ public class HttpManagementAddHandler extends AbstractAddStepHandler {
             consoleMode = ConsoleMode.NO_CONSOLE;
         }
 
+        // FIXME the notification service will also be used by the native management API (and by resources that emit notifications) => find the correct place to install the service
+        NotificationService.installNotificationService(serviceTarget);
+
         ServerEnvironment environment = (ServerEnvironment) context.getServiceRegistry(false).getRequiredService(ServerEnvironmentService.SERVICE_NAME).getValue();
         final HttpManagementService service = new HttpManagementService(consoleMode, environment.getProductConfig().getConsoleSlot());
         ServiceBuilder<HttpManagement> builder = serviceTarget.addService(HttpManagementService.SERVICE_NAME, service)
                 .addDependency(Services.JBOSS_SERVER_CONTROLLER, ModelController.class, service.getModelControllerInjector())
                 .addDependency(SocketBindingManagerImpl.SOCKET_BINDING_MANAGER, SocketBindingManager.class, service.getSocketBindingManagerInjector())
                 .addDependency(ControlledProcessStateService.SERVICE_NAME, ControlledProcessStateService.class, service.getControlledProcessStateServiceInjector())
+                .addDependency(NotificationService.SERVICE_NAME, NotificationSupport.class, service.getNotificationServiceInjector())
                 .addInjection(service.getExecutorServiceInjector(), Executors.newCachedThreadPool(new JBossThreadFactory(new ThreadGroup("HttpManagementService-threads"), Boolean.FALSE, null, "%G - %t", null, null, AccessController.getContext())));
 
         if (interfaceSvcName != null) {
@@ -253,4 +259,5 @@ public class HttpManagementAddHandler extends AbstractAddStepHandler {
             newControllers.add(controller);
         }
     }
+
 }

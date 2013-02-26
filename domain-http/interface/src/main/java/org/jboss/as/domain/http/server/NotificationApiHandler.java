@@ -22,7 +22,6 @@
 
 package org.jboss.as.domain.http.server;
 
-import static org.jboss.as.controller.operations.global.NotificationService.NotificationHandler;
 import static org.jboss.as.domain.http.server.Constants.APPLICATION_JSON;
 import static org.jboss.as.domain.http.server.Constants.CONTENT_TYPE;
 import static org.jboss.as.domain.http.server.Constants.CREATED;
@@ -48,8 +47,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.client.ModelControllerClient;
-import org.jboss.as.controller.operations.global.NotificationService;
+import org.jboss.as.controller.notification.NotificationHandler;
+import org.jboss.as.controller.notification.NotificationSupport;
 import org.jboss.as.domain.http.server.security.SubjectAssociationHandler;
 import org.jboss.as.domain.management.AuthenticationMechanism;
 import org.jboss.as.domain.management.SecurityRealm;
@@ -74,14 +73,14 @@ public class NotificationApiHandler implements ManagementHttpHandler {
     public static final String LINK = "Link";
     public static final String NOTIFICATIONS = "notifications";
 
-    private final ModelControllerClient modelController;
     private final Authenticator authenticator;
     private final AtomicLong handlerCounter;
 
     private final Map<String, HttpNotificationHandler> handlers = new HashMap<String, HttpNotificationHandler>();
+    private final NotificationSupport notificationSupport;
 
-    public NotificationApiHandler(ModelControllerClient modelController, Authenticator authenticator) {
-        this.modelController = modelController;
+    public NotificationApiHandler(NotificationSupport notificationSupport, Authenticator authenticator) {
+        this.notificationSupport = notificationSupport;
         this.authenticator = authenticator;
         this.handlerCounter = new AtomicLong();
     }
@@ -230,7 +229,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         }
         final HttpNotificationHandler handler = new HttpNotificationHandler(handlerID, addresses);
         for (PathAddress address : addresses) {
-            NotificationService.INSTANCE.registerNotificationHandler(address, handler);
+            notificationSupport.registerNotificationHandler(address, handler);
         }
         handlers.put(handlerID, handler);
     }
@@ -240,7 +239,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         HttpNotificationHandler handler = handlers.remove(handlerID);
         if (handler != null) {
             for (PathAddress address : handler.getListeningAddresses()) {
-                NotificationService.INSTANCE.unregisterNotificationHandler(address, handler);
+                notificationSupport.unregisterNotificationHandler(address, handler);
             }
         }
         return handler != null;

@@ -29,9 +29,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
-import org.jboss.as.controller.operations.global.NotificationService;
+import org.jboss.as.controller.notification.NotificationService;
+import org.jboss.as.controller.notification.NotificationSupport;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
+import org.jboss.msc.service.ServiceController;
 
 /**
  * Base class for handlers that remove resources.
@@ -73,12 +75,15 @@ public abstract class AbstractRemoveStepHandler implements OperationStepHandler 
                             return;
                         }
                         PathAddress sourceAddress = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR));
-                        NotificationService.INSTANCE.emit(context,
-                                sourceAddress,
-                                "RESOURCE_REMOVED",
-                                // TODO i18n
-                                "The resource was removed",
-                                operation.clone());
+                        ServiceController<?> notificationService = context.getServiceRegistry(false).getService(NotificationService.SERVICE_NAME);
+                        if (notificationService != null) {
+                            NotificationSupport notificationSupport = NotificationSupport.class.cast(notificationService.getValue());
+                            notificationSupport.emit(sourceAddress,
+                                      "RESOURCE_REMOVED",
+                                      // TODO i18n
+                                     "The resource was removed",
+                                      operation.clone());
+                        }
                     } finally {
                         context.stepCompleted();
                     }

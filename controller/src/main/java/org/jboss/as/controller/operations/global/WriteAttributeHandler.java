@@ -35,10 +35,13 @@ import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.SimpleOperationDefinitionBuilder;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.descriptions.common.ControllerResolver;
+import org.jboss.as.controller.notification.NotificationService;
+import org.jboss.as.controller.notification.NotificationSupport;
 import org.jboss.as.controller.operations.validation.ParametersValidator;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.dmr.ModelNode;
+import org.jboss.msc.service.ServiceController;
 
 /**
  * {@link org.jboss.as.controller.OperationStepHandler} writing a single attribute. The required request parameter "name" represents the attribute name.
@@ -80,12 +83,15 @@ public class WriteAttributeHandler implements OperationStepHandler {
                         // FIXME store old + new value
                         // FIXME is it a runtime or configuration attribute?
                         PathAddress sourceAddress = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR));
-                        NotificationService.INSTANCE.emit(context,
-                                sourceAddress,
-                                "ATTRIBUTE_VALUE_CHANGED",
-                                // TODO i18n
-                                 "attribute " + attributeName + " value written to " + operation.get(VALUE.getName()),
-                                operation.clone());
+                        ServiceController<?> notificationService = context.getServiceRegistry(false).getService(NotificationService.SERVICE_NAME);
+                        if (notificationService != null) {
+                            NotificationSupport notificationSupport = NotificationSupport.class.cast(notificationService.getValue());
+                            notificationSupport.emit(sourceAddress,
+                                    "ATTRIBUTE_VALUE_CHANGED",
+                                    // TODO i18n
+                                    "attribute " + attributeName + " value written to " + operation.get(VALUE.getName()),
+                                    operation.clone());
+                        }
                     } finally {
                         context.stepCompleted();
                     }
