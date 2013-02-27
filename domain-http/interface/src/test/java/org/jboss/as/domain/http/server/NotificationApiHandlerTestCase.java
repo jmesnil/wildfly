@@ -60,7 +60,6 @@ public class NotificationApiHandlerTestCase {
         for (; i < NotificationApiHandler.MAX_NOTIFICATIONS; i++) {
             notification.get(key).set(i);
             handler.handleNotification(notification);
-            System.out.println(handler.getNotifications());
             assertEquals(i, handler.getNotifications().get(i).get(key).asInt());
         }
         assertEquals(NotificationApiHandler.MAX_NOTIFICATIONS, handler.getNotifications().size());

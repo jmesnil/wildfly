@@ -41,12 +41,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -58,10 +54,10 @@ import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.notification.NotificationHandler;
 import org.jboss.as.controller.notification.NotificationSupport;
 import org.jboss.as.domain.http.server.security.SubjectAssociationHandler;
-import org.jboss.as.domain.management.AuthenticationMechanism;
+//import org.jboss.as.domain.management.AuthenticationMechanism;
 import org.jboss.as.domain.management.SecurityRealm;
 import org.jboss.com.sun.net.httpserver.Authenticator;
-import org.jboss.com.sun.net.httpserver.Filter;
+//import org.jboss.com.sun.net.httpserver.Filter;
 import org.jboss.com.sun.net.httpserver.HttpContext;
 import org.jboss.com.sun.net.httpserver.HttpExchange;
 import org.jboss.com.sun.net.httpserver.HttpServer;
@@ -103,6 +99,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         HttpContext context = httpServer.createContext(NOTIFICATION_API_CONTEXT, new SubjectAssociationHandler(this));
         // Once there is a trust store we can no longer rely on users being defined so skip
         // any redirects.
+        /*
         if (authenticator != null) {
             context.setAuthenticator(authenticator);
             List<Filter> filters = context.getFilters();
@@ -110,6 +107,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                 filters.add(new DmrFailureReadinessFilter(securityRealm, ErrorHandler.getRealmRedirect()));
             }
         }
+        */
     }
 
     public void stop(final HttpServer httpServer) {
@@ -140,9 +138,90 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                 http.getResponseHeaders().add(LINK, getHandlerNotificationsURL(handlerID));
                 sendResponse(http, CREATED);
                 return;
+            } else if (method.equals(GET)) {
+                System.out.println("NotificationApiHandler.doHandle");
+                String body = "<!DOCTYPE html>\n" +
+                        "<html>\n" +
+                        "<body onload =\"registerSSE()\" >\n" +
+                        "    <script>\n" +
+                        "\n" +
+                        "        function registerSSE()\n" +
+                        "        {\n" +
+                        "            alert('test 1');\n" +
+                        "            var source = new EventSource('/notification/sse');  \n" +
+                        "            alert('Test2');\n" +
+                        "            source.onopen=function(event) {\n" +
+                        //"               alert(event);\n" +
+                        "            };\n" +
+                        "            source.onerror=function(event) {\n" +
+                        //"               alert(event);\n" +
+                        "            };\n" +
+                        "            source.onmessage=function(event)\n" +
+                        "            {\n" +
+                        "                document.getElementById(\"result\").innerHTML+=event.data + \"<br />\";\n" +
+                        "            };\n" +
+                        "\n" +
+                        "            /*source.addEventListener('server-time',function (e){\n" +
+                        "                alert('ea');\n" +
+                        "            },true);*/\n" +
+                        "        }\n" +
+                        "    </script>\n" +
+                        "    <output id =\"result\"></output>\n" +
+                        "\n" +
+                        "</body>\n" +
+                        "</html>\n";
+                    http.sendResponseHeaders(200, body.length());
+                    http.getResponseHeaders().add(CONTENT_TYPE, "text/html");
+                    final PrintWriter out = new PrintWriter(http.getResponseBody());
+                    try {
+                        out.print(body);
+                        out.flush();
+                    } finally {
+                        safeClose(out);
+                    }
             } else {
                 sendResponse(http, METHOD_NOT_ALLOWED);
                 return;
+            }
+        } else if (requestURI.getPath().startsWith(NOTIFICATION_API_CONTEXT + "/sse")) {
+            System.out.println(">>>>>>>>>" + requestURI.getQuery());
+            http.getResponseHeaders().add(CONTENT_TYPE, "text/event-stream");
+            http.getResponseHeaders().add("cache-control", "no-cache");
+            http.getResponseHeaders().add("connection", "keep-alive");
+            http.sendResponseHeaders(OK, 0);
+            final PrintWriter out = new PrintWriter(http.getResponseBody());
+            out.write("data: hello\n");
+            out.write("\n\n");
+            out.flush();
+            NotificationHandler handler = new NotificationHandler() {
+                @Override
+                public void handleNotification(ModelNode notification) {
+                    System.out.println("#");
+                    out.write("data: " + notification.toJSONString(true) + "\n");
+                    out.write("\n\n");
+                    out.flush();
+                }
+            };
+            Set<PathAddress> addresses = new HashSet<PathAddress>();
+            ModelNode n = new ModelNode();
+            n.add("subsystem", "messaging");
+            n.add("hornetq-server", "*");
+            n.add("queue", "*");
+            addresses.add(PathAddress.pathAddress(n));
+            for (PathAddress address : addresses) {
+                notificationSupport.registerNotificationHandler(PathAddress.pathAddress(address), handler);
+            }
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                    System.out.println(".");
+                    if (out.checkError()) {
+                        System.out.println("oups");
+                        return;
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
             }
         } else {
             String[] splits = requestURI.getPath().split("/");
