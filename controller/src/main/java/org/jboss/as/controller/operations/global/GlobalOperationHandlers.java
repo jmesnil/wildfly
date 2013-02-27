@@ -172,7 +172,7 @@ public class GlobalOperationHandlers {
         root.registerOperationHandler(ReadOperationDescriptionHandler.DEFINITION, ReadOperationDescriptionHandler.INSTANCE, true);
         if (processType != ProcessType.DOMAIN_SERVER) {
             root.registerOperationHandler(org.jboss.as.controller.operations.global.WriteAttributeHandler.DEFINITION,
-                                          org.jboss.as.controller.operations.global.WriteAttributeHandler.INSTANCE, true);
+                                          org.jboss.as.controller.operations.global.WriteAttributeHandler.WRAPPED_INSTANCE, true);
             root.registerOperationHandler(org.jboss.as.controller.operations.global.UndefineAttributeHandler.DEFINITION,
                                           org.jboss.as.controller.operations.global.UndefineAttributeHandler.INSTANCE, true);
         }

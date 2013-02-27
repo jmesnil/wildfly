@@ -175,6 +175,7 @@ public class NotificationService implements Service<NotificationSupport> {
             if (data.isDefined()) {
                 notification.get(DATA).set(data);
             }
+            notification.protect();
 
             executorServiceValue.getValue().execute(new Runnable() {
                 @Override

@@ -23,7 +23,9 @@
 package org.jboss.as.controller.operations.global;
 
 import static org.jboss.as.controller.ControllerMessages.MESSAGES;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OUTCOME;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OPERATION_NAME;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_ATTRIBUTE_OPERATION;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RESULT;
 import static org.jboss.as.controller.operations.global.GlobalOperationHandlers.NAME;
 import static org.jboss.as.controller.operations.global.GlobalOperationHandlers.VALUE;
 
@@ -73,15 +75,41 @@ public class WriteAttributeHandler implements OperationStepHandler {
         } else if (attributeAccess.getAccessType() != AttributeAccess.AccessType.READ_WRITE) {
             throw new OperationFailedException(new ModelNode().set(MESSAGES.attributeNotWritable(attributeName)));
         } else {
+            OperationStepHandler handler = attributeAccess.getWriteHandler();
+            ClassLoader oldTccl = SecurityActions.setThreadContextClassLoader(handler.getClass());
+            try {
+                handler.execute(context, operation);
+                System.out.println("++ context = " + context.getResult());
+            } finally {
+                SecurityActions.setThreadContextClassLoader(oldTccl);
+            }
+        }
+    }
+
+    public static OperationStepHandler WRAPPED_INSTANCE = new OperationStepHandler() {
+        @Override
+        public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
+            final String attributeName = operation.require(GlobalOperationHandlers.NAME.getName()).asString();
+
+            ModelNode readAttributeOperation = operation.clone();
+            readAttributeOperation.get(OPERATION_NAME).set(READ_ATTRIBUTE_OPERATION);
+            final ModelNode readOldValueAttributeResponse = new ModelNode();
+            context.addStep(readOldValueAttributeResponse, readAttributeOperation, ReadAttributeHandler.INSTANCE, context.getCurrentStage());
+            context.addStep(context.getResult(), operation, INSTANCE, context.getCurrentStage());
             context.addStep(new OperationStepHandler() {
                 @Override
                 public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
                     try {
-                        if (ModelDescriptionConstants.FAILED.equals(context.getResult().get(OUTCOME).asString())) {
+                        System.out.println("oldValue = " + readOldValueAttributeResponse);
+                        if (context.hasFailureDescription()) {
                             return;
                         }
-                        // FIXME store old + new value
                         // FIXME is it a runtime or configuration attribute?
+                        ModelNode data = new ModelNode();
+                        data.get("old-value").set(readOldValueAttributeResponse.get(RESULT));
+                        data.get("new-value").set(operation.get(VALUE.getName()));
+                        data.get(OPERATION_NAME).set(operation);
+
                         PathAddress sourceAddress = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR));
                         ServiceController<?> notificationService = context.getServiceRegistry(false).getService(NotificationService.SERVICE_NAME);
                         if (notificationService != null) {
@@ -89,22 +117,15 @@ public class WriteAttributeHandler implements OperationStepHandler {
                             notificationSupport.emit(sourceAddress,
                                     "ATTRIBUTE_VALUE_CHANGED",
                                     // TODO i18n
-                                    "attribute " + attributeName + " value written to " + operation.get(VALUE.getName()),
-                                    operation.clone());
+                                    "attribute " + attributeName + " value written from " + data.get("old-value") + " to " + data.get("new-value"),
+                                    data);
                         }
                     } finally {
                         context.stepCompleted();
                     }
                 }
             }, OperationContext.Stage.VERIFY);
-
-            OperationStepHandler handler = attributeAccess.getWriteHandler();
-            ClassLoader oldTccl = SecurityActions.setThreadContextClassLoader(handler.getClass());
-            try {
-                handler.execute(context, operation);
-            } finally {
-                SecurityActions.setThreadContextClassLoader(oldTccl);
-            }
+            context.stepCompleted();
         }
-    }
+    };
 }
