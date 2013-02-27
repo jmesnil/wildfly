@@ -51,11 +51,15 @@ public interface Constants {
 
     String ACCEPT = "Accept";
     String AUTHORIZATION_HEADER = "Authorization";
+    String CACHE_CONTROL = "Cache-Control";
     String CONTENT_DISPOSITION = "Content-Disposition";
     String CONTENT_TYPE = "Content-Type";
+    String CONNECTION = "Connection";
     String HOST = "Host";
+    String KEEP_ALIVE = "Keep-Alive";
     String LINK = "Link";
     String LOCATION = "Location";
+    String NO_CACHE = "No-Cache";
     String ORIGIN = "Origin";
     String REFERER = "Referer";
     String RETRY_AFTER = "Retry-After";
@@ -75,6 +79,7 @@ public interface Constants {
     String IMAGE_JPEG = "image/jpeg";
     String IMAGE_PNG = "image/png";
     String TEXT_CSS = "text/css";
+    String TEXT_EVENT_STREAM = "text/event-stream";
     String TEXT_HTML = "text/html";
 
     /*
@@ -128,5 +133,4 @@ public interface Constants {
     int SERVICE_UNAVAILABLE = 503;
     int GATEWAY_TIME_OUT = 504;
     int HTTP_VERSION_NOT_SUPPORTED = 505;
-
 }

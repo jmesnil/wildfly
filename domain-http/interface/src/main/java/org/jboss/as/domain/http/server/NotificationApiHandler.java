@@ -22,6 +22,8 @@
 
 package org.jboss.as.domain.http.server;
 
+import static java.lang.String.format;
+import static org.jboss.as.domain.http.server.Constants.ACCEPT;
 import static org.jboss.as.domain.http.server.Constants.APPLICATION_JSON;
 import static org.jboss.as.domain.http.server.Constants.CONTENT_TYPE;
 import static org.jboss.as.domain.http.server.Constants.CREATED;
@@ -31,15 +33,20 @@ import static org.jboss.as.domain.http.server.Constants.INTERNAL_SERVER_ERROR;
 import static org.jboss.as.domain.http.server.Constants.LINK;
 import static org.jboss.as.domain.http.server.Constants.LOCATION;
 import static org.jboss.as.domain.http.server.Constants.METHOD_NOT_ALLOWED;
+import static org.jboss.as.domain.http.server.Constants.NOT_ACCEPTABLE;
 import static org.jboss.as.domain.http.server.Constants.NOT_FOUND;
 import static org.jboss.as.domain.http.server.Constants.NO_CONTENT;
 import static org.jboss.as.domain.http.server.Constants.OK;
 import static org.jboss.as.domain.http.server.Constants.POST;
+import static org.jboss.as.domain.http.server.Constants.TEXT_EVENT_STREAM;
+import static org.jboss.as.domain.http.server.Constants.TEXT_HTML;
 import static org.jboss.as.domain.http.server.DomainUtil.safeClose;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,10 +61,10 @@ import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.notification.NotificationHandler;
 import org.jboss.as.controller.notification.NotificationSupport;
 import org.jboss.as.domain.http.server.security.SubjectAssociationHandler;
-//import org.jboss.as.domain.management.AuthenticationMechanism;
+import org.jboss.as.domain.management.AuthenticationMechanism;
 import org.jboss.as.domain.management.SecurityRealm;
 import org.jboss.com.sun.net.httpserver.Authenticator;
-//import org.jboss.com.sun.net.httpserver.Filter;
+import org.jboss.com.sun.net.httpserver.Filter;
 import org.jboss.com.sun.net.httpserver.HttpContext;
 import org.jboss.com.sun.net.httpserver.HttpExchange;
 import org.jboss.com.sun.net.httpserver.HttpServer;
@@ -77,6 +84,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
     public static final int MAX_NOTIFICATIONS = 1024;
 
     private static final String NOTIFICATION_API_CONTEXT = "/notification";
+    private static final String NOTIFICATION_SSE_ENDPOINT = NOTIFICATION_API_CONTEXT + "/sse";
     private static final String HANDLER_PREFIX = "handler";
     private static final String NOTIFICATIONS = "notifications";
 
@@ -99,7 +107,6 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         HttpContext context = httpServer.createContext(NOTIFICATION_API_CONTEXT, new SubjectAssociationHandler(this));
         // Once there is a trust store we can no longer rely on users being defined so skip
         // any redirects.
-        /*
         if (authenticator != null) {
             context.setAuthenticator(authenticator);
             List<Filter> filters = context.getFilters();
@@ -107,7 +114,6 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                 filters.add(new DmrFailureReadinessFilter(securityRealm, ErrorHandler.getRealmRedirect()));
             }
         }
-        */
     }
 
     public void stop(final HttpServer httpServer) {
@@ -121,7 +127,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         try {
             doHandle(exchange);
         } catch (Exception e) {
-            sendResponse(exchange, INTERNAL_SERVER_ERROR, e.getMessage() + "\n");
+            sendResponse(exchange, INTERNAL_SERVER_ERROR, e.getMessage() + "\n", TEXT_HTML);
         }
     }
 
@@ -138,91 +144,20 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                 http.getResponseHeaders().add(LINK, getHandlerNotificationsURL(handlerID));
                 sendResponse(http, CREATED);
                 return;
-            } else if (method.equals(GET)) {
-                System.out.println("NotificationApiHandler.doHandle");
-                String body = "<!DOCTYPE html>\n" +
-                        "<html>\n" +
-                        "<body onload =\"registerSSE()\" >\n" +
-                        "    <script>\n" +
-                        "\n" +
-                        "        function registerSSE()\n" +
-                        "        {\n" +
-                        "            alert('test 1');\n" +
-                        "            var source = new EventSource('/notification/sse');  \n" +
-                        "            alert('Test2');\n" +
-                        "            source.onopen=function(event) {\n" +
-                        //"               alert(event);\n" +
-                        "            };\n" +
-                        "            source.onerror=function(event) {\n" +
-                        //"               alert(event);\n" +
-                        "            };\n" +
-                        "            source.onmessage=function(event)\n" +
-                        "            {\n" +
-                        "                document.getElementById(\"result\").innerHTML+=event.data + \"<br />\";\n" +
-                        "            };\n" +
-                        "\n" +
-                        "            /*source.addEventListener('server-time',function (e){\n" +
-                        "                alert('ea');\n" +
-                        "            },true);*/\n" +
-                        "        }\n" +
-                        "    </script>\n" +
-                        "    <output id =\"result\"></output>\n" +
-                        "\n" +
-                        "</body>\n" +
-                        "</html>\n";
-                    http.sendResponseHeaders(200, body.length());
-                    http.getResponseHeaders().add(CONTENT_TYPE, "text/html");
-                    final PrintWriter out = new PrintWriter(http.getResponseBody());
-                    try {
-                        out.print(body);
-                        out.flush();
-                    } finally {
-                        safeClose(out);
-                    }
             } else {
                 sendResponse(http, METHOD_NOT_ALLOWED);
                 return;
             }
-        } else if (requestURI.getPath().startsWith(NOTIFICATION_API_CONTEXT + "/sse")) {
-            System.out.println(">>>>>>>>>" + requestURI.getQuery());
-            http.getResponseHeaders().add(CONTENT_TYPE, "text/event-stream");
-            http.getResponseHeaders().add("cache-control", "no-cache");
-            http.getResponseHeaders().add("connection", "keep-alive");
-            http.sendResponseHeaders(OK, 0);
-            final PrintWriter out = new PrintWriter(http.getResponseBody());
-            out.write("data: hello\n");
-            out.write("\n\n");
-            out.flush();
-            NotificationHandler handler = new NotificationHandler() {
-                @Override
-                public void handleNotification(ModelNode notification) {
-                    System.out.println("#");
-                    out.write("data: " + notification.toJSONString(true) + "\n");
-                    out.write("\n\n");
-                    out.flush();
-                }
-            };
-            Set<PathAddress> addresses = new HashSet<PathAddress>();
-            ModelNode n = new ModelNode();
-            n.add("subsystem", "messaging");
-            n.add("hornetq-server", "*");
-            n.add("queue", "*");
-            addresses.add(PathAddress.pathAddress(n));
-            for (PathAddress address : addresses) {
-                notificationSupport.registerNotificationHandler(PathAddress.pathAddress(address), handler);
+        } else if (requestURI.getPath().equals(NOTIFICATION_API_CONTEXT + "/test")) {
+            displayTestPageForNotificationSSE(http);
+            return;
+        } else if (requestURI.getPath().equals(NOTIFICATION_SSE_ENDPOINT)) {
+            if (TEXT_EVENT_STREAM.equals(http.getRequestHeaders().getFirst(ACCEPT))) {
+                handleServerSentEvent(http);
+            } else {
+                sendResponse(http, NOT_ACCEPTABLE);
             }
-            while (true) {
-                try {
-                    Thread.sleep(1000);
-                    System.out.println(".");
-                    if (out.checkError()) {
-                        System.out.println("oups");
-                        return;
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-            }
+            return;
         } else {
             String[] splits = requestURI.getPath().split("/");
             final String handlerID = splits[2];
@@ -236,7 +171,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                         return;
                     } else {
                         http.getResponseHeaders().add(LINK, getHandlerNotificationsURL(handlerID));
-                        sendResponse(http, OK, addresses.isDefined()? addresses.toJSONString(true) : null);
+                        sendResponse(http, OK, addresses.isDefined()? addresses.toJSONString(true) : null, APPLICATION_JSON);
                         return;
                     }
                 } else if (POST.equals(method)) {
@@ -269,7 +204,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
                         sendResponse(http, NOT_FOUND);
                         return;
                     } else {
-                        sendResponse(http, OK, notifications.isDefined()? notifications.toJSONString(true) : null);
+                        sendResponse(http, OK, notifications.isDefined()? notifications.toJSONString(true) : null, APPLICATION_JSON);
                         return;
                     }
                 } else {
@@ -279,6 +214,70 @@ public class NotificationApiHandler implements ManagementHttpHandler {
             }
         }
         sendResponse(http, NOT_FOUND);
+    }
+
+    private void handleServerSentEvent(HttpExchange http) throws IOException {
+        Set<PathAddress> addresses = parseAddresses(http.getRequestURI().getRawQuery());
+        System.out.println("registring for addresses: " + addresses);
+        // send the header for the server-sent events
+        http.getResponseHeaders().add(CONTENT_TYPE, Constants.TEXT_EVENT_STREAM);
+        http.getResponseHeaders().add(Constants.CACHE_CONTROL, Constants.NO_CACHE);
+        http.getResponseHeaders().add(Constants.CONNECTION, Constants.KEEP_ALIVE);
+        http.sendResponseHeaders(OK, 0);
+
+        final PrintWriter out = new PrintWriter(http.getResponseBody(), true);
+        ModelNode dummy = new ModelNode();
+        dummy.get("hello").set("world");
+        out.write(formatData(dummy));
+        NotificationHandler handler = new NotificationHandler() {
+            @Override
+            public void handleNotification(ModelNode notification) {
+                out.write(formatData(notification));
+            }
+        };
+        for (PathAddress address : addresses) {
+            notificationSupport.registerNotificationHandler(PathAddress.pathAddress(address), handler);
+        }
+        // keep the connection open until the client closes it or we are not able to write to the client
+        try {
+            while (true) {
+                Thread.sleep(500);
+                out.write("\n");
+                out.flush();
+                if (out.checkError()) {
+                    System.err.println("Lost connection to the client " + http.getRemoteAddress());
+                    return;
+                }
+            }
+        } catch (InterruptedException e) {
+        } finally {
+                System.err.println("unregister from " + addresses);
+                // unregister from all sources
+                for (PathAddress address : addresses) {
+                    notificationSupport.unregisterNotificationHandler(PathAddress.pathAddress(address), handler);
+                }
+        }
+    }
+
+    private void displayTestPageForNotificationSSE(HttpExchange http) throws IOException {
+        String body = "<!DOCTYPE html>\n" +
+                "<html>\n" +
+                "<body onload =\"registerSSE()\" >\n" +
+                "    <script>\n" +
+                "        function registerSSE()\n" +
+                "        {\n" +
+                "            var source = new EventSource('/notification/sse?address=/subsystem%3Dmessaging/hornetq-server%3D*&address=/subsystem%3Dmessaging/hornetq-server%3D*/jms-queue%3D*');  \n" +
+                "            source.onmessage=function(event)\n" +
+                "            {\n" +
+                "                var notification = JSON.parse(event.data);\n" +
+                "                document.getElementById(\"result\").innerHTML += JSON.stringify(notification, null, '  ') + '\\n';\n" +
+                "            };\n" +
+                "        }\n" +
+                "    </script>\n" +
+                "    <pre id =\"result\"></pre>\n" +
+                "</body>\n" +
+                "</html>\n";
+        sendResponse(http, OK, body, TEXT_HTML);
     }
 
     private String generateHandlerID() {
@@ -346,12 +345,12 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         exchange.sendResponseHeaders(responseCode, -1);
     }
 
-    private void sendResponse(final HttpExchange exchange, final int responseCode, final String body) throws IOException {
+    private void sendResponse(final HttpExchange exchange, final int responseCode, final String body, final String contentType) throws IOException {
         if (body == null) {
             exchange.sendResponseHeaders(responseCode, -1);
             return;
         }
-        exchange.getResponseHeaders().add(CONTENT_TYPE, APPLICATION_JSON);
+        exchange.getResponseHeaders().add(CONTENT_TYPE, contentType);
         exchange.sendResponseHeaders(responseCode, 0);
         final PrintWriter out = new PrintWriter(exchange.getResponseBody());
         try {
@@ -362,7 +361,7 @@ public class NotificationApiHandler implements ManagementHttpHandler {
         }
     }
 
-   static class HttpNotificationHandler implements NotificationHandler {
+    static class HttpNotificationHandler implements NotificationHandler {
 
         private final String handlerID;
         private final Set<PathAddress> addresses;
@@ -408,10 +407,42 @@ public class NotificationApiHandler implements ManagementHttpHandler {
     }
 
     private static String getHandlerNotificationsURL(final String handlerID) {
-        return String.format("%s/%s/%s; rel=%s",
+        return format("%s/%s/%s; rel=%s",
                 NOTIFICATION_API_CONTEXT,
                 handlerID,
                 NOTIFICATIONS,
                 NOTIFICATIONS);
+    }
+
+
+
+    private static String formatData(final ModelNode node) {
+        return format("data: %s\n\n", node.toJSONString(true));
+    }
+
+    public static Set<PathAddress> parseAddresses(String query) {
+        Set<PathAddress> addresses = new HashSet<PathAddress>();
+        try {
+            String[] params = query.split("&");
+            for (String param : params) {
+                String[] split = param.split("=");
+                if (split[0].equals("address")) {
+                    ModelNode node = new ModelNode();
+                    String address = split[1];
+                    String decodedAddress= URLDecoder.decode(address, "UTF-8");
+                    for(String element : decodedAddress.split("/")) {
+                        if(element.isEmpty()) {
+                            continue;
+                        }
+                        String[] split1 = element.split("=");
+                        node.add(split1[0], split1[1]);
+                    }
+                    addresses.add(PathAddress.pathAddress(node));
+                }
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return addresses;
     }
 }

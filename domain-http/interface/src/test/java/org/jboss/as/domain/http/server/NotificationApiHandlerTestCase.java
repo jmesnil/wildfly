@@ -80,4 +80,12 @@ public class NotificationApiHandlerTestCase {
 
         assertTrue(handler.getNotifications().isEmpty());
     }
+
+    @Test
+    public void testParseAddressesQuery() {
+        String query = "address=/subsystem%3Dmessaging/hornetq-server%3D*&address=/subsystem%3Dmessaging/hornetq-server%3D*/queue%3D*";
+        Set<PathAddress> addresses = NotificationApiHandler.parseAddresses(query);
+        assertEquals(2, addresses.size());
+
+    }
 }
