@@ -2639,4 +2639,9 @@ public interface ControllerMessages {
     @Message(id = 14899, value = "read only context")
     IllegalStateException readOnlyContext();
 
+    @Message(id = 14900, value = "The resource was added at the address %s.")
+    String resourceWasAdded(PathAddress address);
+
+    @Message(id = 14901, value = "The resource was removed at the address %s.")
+    String resourceWasRemoved(PathAddress address);
 }
