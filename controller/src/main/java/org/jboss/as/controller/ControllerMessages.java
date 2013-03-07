@@ -2644,4 +2644,7 @@ public interface ControllerMessages {
 
     @Message(id = 14901, value = "The resource was removed at the address %s.")
     String resourceWasRemoved(PathAddress address);
+
+    @Message(id = 14901, value = "The attribute %s value has been changed from %s to %s.")
+    String attributeValueWritten(String attributeName, ModelNode currentValue, ModelNode newVal);
 }
