@@ -2635,4 +2635,10 @@ public interface ControllerMessages {
      */
     @Message(id = 14898, value = "%s must be declared or the %s and the %s need to be provided.")
     XMLStreamException discoveryOptionsMustBeDeclared(String discoveryOptionsName, String hostName, String portName, @Param Location location);
+
+    @Message(id = 14899, value = "The resource was added at the address %s.")
+    String resourceWasAdded(PathAddress address);
+
+    @Message(id = 14900, value = "The resource was removed at the address %s.")
+    String resourceWasRemoved(PathAddress address);
 }
