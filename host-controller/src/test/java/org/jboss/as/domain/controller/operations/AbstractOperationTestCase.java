@@ -63,6 +63,7 @@ import org.jboss.as.controller.client.OperationAttachments;
 import org.jboss.as.controller.client.OperationMessageHandler;
 import org.jboss.as.controller.descriptions.DescriptionProvider;
 import org.jboss.as.controller.descriptions.OverrideDescriptionProvider;
+import org.jboss.as.controller.notification.NotificationSupport;
 import org.jboss.as.controller.registry.AliasEntry;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ImmutableManagementResourceRegistration;
@@ -425,6 +426,11 @@ public abstract class AbstractOperationTestCase {
         }
 
         public void report(MessageSeverity severity, String message) {
+        }
+
+        @Override
+        public NotificationSupport getNotificationSupport() {
+            return null;
         }
 
         public boolean markResourceRestarted(PathAddress resource, Object owner) {
