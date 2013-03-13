@@ -55,6 +55,7 @@ import org.jboss.as.controller.client.OperationAttachments;
 import org.jboss.as.controller.client.OperationMessageHandler;
 import org.jboss.as.controller.extension.ExtensionAddHandler;
 import org.jboss.as.controller.extension.ParallelExtensionAddHandler;
+import org.jboss.as.controller.notification.NotificationSupport;
 import org.jboss.as.controller.operations.common.Util;
 import org.jboss.as.controller.persistence.ConfigurationPersistenceException;
 import org.jboss.as.controller.persistence.ConfigurationPersister;
@@ -88,6 +89,7 @@ class ModelControllerImpl implements ModelController {
     private final ControlledProcessState processState;
     private final ExecutorService executorService;
     private final ExpressionResolver expressionResolver;
+    private final NotificationSupport notificationSupport;
 
     private final ConcurrentMap<Integer, OperationContext> activeOperations = new ConcurrentHashMap<>();
 
@@ -95,7 +97,7 @@ class ModelControllerImpl implements ModelController {
                         final ContainerStateMonitor stateMonitor, final ConfigurationPersister persister,
                         final ProcessType processType, final RunningModeControl runningModeControl,
                         final OperationStepHandler prepareStep, final ControlledProcessState processState, final ExecutorService executorService,
-                        final ExpressionResolver expressionResolver) {
+                        final ExpressionResolver expressionResolver, final NotificationSupport notificationSupport) {
         this.serviceRegistry = serviceRegistry;
         this.serviceTarget = serviceTarget;
         this.rootRegistration = rootRegistration;
@@ -103,6 +105,7 @@ class ModelControllerImpl implements ModelController {
         this.persister = persister;
         this.processType = processType;
         this.runningModeControl = runningModeControl;
+        this.notificationSupport = notificationSupport;
         this.prepareStep = prepareStep == null ? new DefaultPrepareStepHandler() : prepareStep;
         this.processState = processState;
         this.serviceTarget.addListener(stateMonitor);
@@ -531,6 +534,9 @@ class ModelControllerImpl implements ModelController {
         return serviceTarget;
     }
 
+    public NotificationSupport getNotificationSupport() {
+        return notificationSupport;
+    }
 
     ModelNode resolveExpressions(ModelNode node) throws OperationFailedException {
         return expressionResolver.resolveExpressions(node);
