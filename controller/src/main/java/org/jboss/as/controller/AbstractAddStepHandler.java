@@ -80,7 +80,7 @@ public abstract class AbstractAddStepHandler implements OperationStepHandler {
                 Notification notification = new Notification(RESOURCE_ADDED_NOTIFICATION,
                         sourceAddress,
                         MESSAGES.resourceWasAdded(sourceAddress));
-                context.getNotificationSupport().emit(notification);
+                context.emit(notification);
             }
         });
     }
