@@ -31,6 +31,7 @@ import java.util.Set;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.jboss.as.controller.notification.Notification;
 import org.jboss.dmr.ModelNode;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
@@ -443,4 +444,8 @@ public interface ControllerLogger extends BasicLogger {
     @Message(id = 13404, value = "Extension '%s' is deprecated and may not be supported in future versions")
     @LogMessage(level = WARN)
     void extensionDeprecated(String extensionName);
+
+    @Message(id = 13405, value = "Failed to emit notification %s")
+    @LogMessage(level = WARN)
+    void failedToEmitNotification(Notification notification, @Cause Throwable cause);
 }
