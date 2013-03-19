@@ -23,6 +23,9 @@
 package org.jboss.as.controller;
 
 import org.jboss.as.controller.client.MessageSeverity;
+import org.jboss.as.controller.notification.Notification;
+import org.jboss.as.controller.notification.NotificationFilter;
+import org.jboss.as.controller.notification.NotificationHandler;
 import org.jboss.as.controller.persistence.ConfigurationPersistenceException;
 import org.jboss.as.controller.persistence.ConfigurationPersister;
 import org.jboss.as.controller.registry.ImmutableManagementResourceRegistration;
@@ -277,6 +280,21 @@ class ReadOnlyContext extends AbstractOperationContext {
 
     @Override
     public <T> T detach(AttachmentKey<T> key) {
+        throw readOnlyContext();
+    }
+
+    @Override
+    public void registerNotificationHandler(PathAddress source, NotificationHandler handler, NotificationFilter filter) {
+        throw readOnlyContext();
+    }
+
+    @Override
+    public void unregisterNotificationHandler(PathAddress source, NotificationHandler handler, NotificationFilter filter) {
+        throw readOnlyContext();
+    }
+
+    @Override
+    public void emit(Notification notification) {
         throw readOnlyContext();
     }
 
