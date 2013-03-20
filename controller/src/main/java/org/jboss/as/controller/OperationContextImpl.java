@@ -680,9 +680,9 @@ final class OperationContextImpl extends AbstractOperationContext {
     }
 
     @Override
-<<<<<<< HEAD
     public int getLocalOperationId() {
         return operationId;
+    }
 
     @Override
     public void registerNotificationHandler(PathAddress source, NotificationHandler handler, NotificationFilter filter) {
