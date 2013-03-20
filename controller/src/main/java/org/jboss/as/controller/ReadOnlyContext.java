@@ -249,6 +249,21 @@ class ReadOnlyContext extends AbstractOperationContext {
     }
 
     @Override
+    public void registerNotificationHandler(PathAddress source, NotificationHandler handler, NotificationFilter filter) {
+        primaryContext.registerNotificationHandler(source, handler, filter);
+    }
+
+    @Override
+    public void unregisterNotificationHandler(PathAddress source, NotificationHandler handler, NotificationFilter filter) {
+        primaryContext.unregisterNotificationHandler(source, handler, filter);
+    }
+
+    @Override
+    public void emit(Notification notification) {
+        primaryContext.emit(notification);
+    }
+
+    @Override
     public boolean markResourceRestarted(PathAddress resource, Object owner) {
         return false;
     }
