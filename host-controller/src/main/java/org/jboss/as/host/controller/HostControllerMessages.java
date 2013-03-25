@@ -728,4 +728,13 @@ public interface HostControllerMessages {
 
     @Message(id=16538, value="Invalid value for %s. Must only contain all of the existing discovery options")
     OperationFailedException invalidDiscoveryOptionsOrdering(String name);
+
+    @Message(id=16539, value="The server has been started")
+    String serverHasBeenStarted();
+
+    @Message(id=16540, value="The server has been stopped")
+    String serverHasBeenStopped();
+
+    @Message(id=16541, value="The server has been restarted")
+    String serverHasBeenRestarted();
 }
