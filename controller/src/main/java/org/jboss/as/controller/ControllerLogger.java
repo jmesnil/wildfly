@@ -31,7 +31,7 @@ import java.util.Set;
 
 import javax.xml.stream.XMLStreamWriter;
 
-import org.jboss.as.controller.notification.Notification;
+import org.jboss.as.controller.client.Notification;
 import org.jboss.dmr.ModelNode;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
