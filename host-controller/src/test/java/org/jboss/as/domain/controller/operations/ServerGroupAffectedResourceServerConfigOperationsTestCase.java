@@ -48,6 +48,8 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.client.NotificationFilter;
+import org.jboss.as.controller.client.NotificationHandler;
 import org.jboss.as.controller.client.Operation;
 import org.jboss.as.controller.client.OperationMessageHandler;
 import org.jboss.as.controller.registry.Resource;
@@ -669,6 +671,14 @@ public class ServerGroupAffectedResourceServerConfigOperationsTestCase extends A
                                     @Override
                                     public HostFileRepository getRemoteFileRepository() {
                                         return null;
+                                    }
+
+                                    @Override
+                                    public void registerNotificationHandler(ModelNode address, NotificationHandler handler, NotificationFilter filter) {
+                                    }
+
+                                    @Override
+                                    public void unregisterNotificationHandler(ModelNode address, NotificationHandler handler, NotificationFilter filter) {
                                     }
 
                                     @Override

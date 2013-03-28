@@ -35,6 +35,7 @@ import static io.undertow.util.StatusCodes.NOT_FOUND;
 import static io.undertow.util.StatusCodes.NO_CONTENT;
 import static io.undertow.util.StatusCodes.OK;
 import static java.lang.String.format;
+import static org.jboss.as.controller.PathAddress.pathAddress;
 import static org.jboss.as.controller.client.NotificationFilter.ALL;
 import static org.jboss.as.domain.http.server.Common.APPLICATION_JSON;
 import static org.jboss.as.domain.http.server.Common.LINK;
@@ -56,7 +57,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HttpString;
-import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.client.Notification;
 import org.jboss.as.controller.client.NotificationHandler;
 import org.jboss.as.controller.notification.NotificationSupport;
@@ -203,8 +203,8 @@ public class NotificationApiHandler implements HttpHandler {
         }
         final ModelNode node = new ModelNode();
         HttpNotificationHandler handler = handlers.get(handlerID);
-        for (PathAddress address : handler.getListeningAddresses()) {
-            node.add(address.toModelNode());
+        for (ModelNode address : handler.getListeningAddresses()) {
+            node.add(address);
         }
         return node;
     }
@@ -223,13 +223,13 @@ public class NotificationApiHandler implements HttpHandler {
     }
 
     private void registerNotificationHandler(final String handlerID, final ModelNode operation) {
-        final Set<PathAddress> addresses = new HashSet<>();
+        final Set<ModelNode> addresses = new HashSet<>();
         for (ModelNode resource : operation.get(RESOURCES).asList()) {
-            addresses.add(PathAddress.pathAddress(resource));
+            addresses.add(resource);
         }
         final HttpNotificationHandler handler = new HttpNotificationHandler(handlerID, addresses);
-        for (PathAddress address : addresses) {
-            notificationSupport.registerNotificationHandler(address, handler, ALL);
+        for (ModelNode address : addresses) {
+            notificationSupport.registerNotificationHandler(pathAddress(address), handler, ALL);
         }
         handlers.put(handlerID, handler);
     }
@@ -237,8 +237,8 @@ public class NotificationApiHandler implements HttpHandler {
     private boolean unregisterNotificationHandler(final String handlerID) {
         HttpNotificationHandler handler = handlers.remove(handlerID);
         if (handler != null) {
-            for (PathAddress address : handler.getListeningAddresses()) {
-                notificationSupport.unregisterNotificationHandler(address, handler, ALL);
+            for (ModelNode address : handler.getListeningAddresses()) {
+                notificationSupport.unregisterNotificationHandler(pathAddress(address), handler, ALL);
             }
         }
         return handler != null;
@@ -280,15 +280,15 @@ public class NotificationApiHandler implements HttpHandler {
     private static class HttpNotificationHandler implements NotificationHandler {
 
         private final String handlerID;
-        private final Set<PathAddress> addresses;
+        private final Set<ModelNode> addresses;
         private final Queue<ModelNode> notifications = new ArrayBlockingQueue<>(MAX_NOTIFICATIONS);
 
-        public HttpNotificationHandler(final String handlerID, final Set<PathAddress> addresses) {
+        public HttpNotificationHandler(final String handlerID, final Set<ModelNode> addresses) {
             this.handlerID = handlerID;
             this.addresses = addresses;
         }
 
-        public Set<PathAddress> getListeningAddresses() {
+        public Set<ModelNode> getListeningAddresses() {
             return addresses;
         }
 
