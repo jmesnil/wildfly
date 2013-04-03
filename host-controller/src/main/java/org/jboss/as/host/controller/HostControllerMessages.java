@@ -737,4 +737,10 @@ public interface HostControllerMessages {
 
     @Message(id=16541, value="The server has been restarted")
     String serverHasBeenRestarted();
+
+    @Message(id=16542, value="The server has been killed")
+    String serverHasBeenKilled();
+
+    @Message(id=16543, value="The server has been destroyed")
+    String serverHasBeenDestroyed();
 }
