@@ -1,0 +1,100 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2013, Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
+package org.jboss.as.messaging;
+
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
+import static org.jboss.as.messaging.MessagingMessages.MESSAGES;
+
+import java.util.List;
+import java.util.Locale;
+
+import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.OperationStepHandler;
+import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.as.controller.descriptions.DescriptionProvider;
+import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
+import org.jboss.as.controller.registry.Resource;
+import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.Property;
+import org.jboss.msc.service.ServiceController;
+
+/**
+ * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
+ */
+public class HttpConnectorAdd extends HornetQReloadRequiredHandlers.AddStepHandler implements DescriptionProvider {
+
+    static final OperationStepHandler INSTANCE = new HttpConnectorAdd();
+
+    private HttpConnectorAdd() {
+    }
+
+    @Override
+    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
+        for (final AttributeDefinition attribute : HttpConnectorDefinition.ATTRIBUTES) {
+            attribute.validateAndSet(operation, model);
+        }
+    }
+
+    @Override
+    protected void populateModel(OperationContext context, ModelNode operation, Resource resource)
+            throws OperationFailedException {
+        super.populateModel(context, operation, resource);
+
+        if(operation.hasDefined(CommonAttributes.PARAM)) {
+            for(Property property : operation.get(CommonAttributes.PARAM).asPropertyList()) {
+                final Resource param = context.createResource(PathAddress.pathAddress(PathElement.pathElement(CommonAttributes.PARAM, property.getName())));
+                final ModelNode value = property.getValue();
+                if(! value.isDefined()) {
+                    throw new OperationFailedException(new ModelNode().set(MESSAGES.parameterNotDefined(property.getName())));
+                }
+                param.getModel().get(ModelDescriptionConstants.VALUE).set(value);
+            }
+        }
+    }
+
+    @Override
+    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
+        super.performRuntime(context, operation, model, verificationHandler, newControllers);
+
+        PathAddress address = PathAddress.pathAddress(operation.get(OP_ADDR));
+        String hornetqServerName = address.getElement(address.size() - 2).getValue();
+        String connectorName = address.getLastElement().getValue();
+        String host = HttpConnectorDefinition.HOST.resolveModelAttribute(context, model).asString();
+
+        // that's counter-intuitive but the http-connector will only be created by HornetQ after a reload.
+        // if the hornetq service is already installed, it will not be ready to create the http connector service
+        if (!HornetQService.isHornetQServiceInstalled(context, operation)) {
+            final ServiceController<Void> serviceController = HttpConnectorService.addService(context.getServiceTarget(), verificationHandler, host, hornetqServerName, connectorName);
+            newControllers.add(serviceController);
+        }
+    }
+
+    @Override
+    public ModelNode getModelDescription(Locale locale) {
+        return MessagingDescriptions.getConnectorAdd(locale, HttpConnectorDefinition.ATTRIBUTES);
+    }
+}

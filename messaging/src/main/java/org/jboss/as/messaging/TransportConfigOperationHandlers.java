@@ -25,6 +25,7 @@ package org.jboss.as.messaging;
 import static org.jboss.as.messaging.CommonAttributes.ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.FACTORY_CLASS;
+import static org.jboss.as.messaging.CommonAttributes.HTTP_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.IN_VM_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.IN_VM_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.PARAM;
@@ -162,6 +163,29 @@ class TransportConfigOperationHandlers {
                 final Map<String, Object> parameters = getParameters(context, config);
                 parameters.put(InVMTransportDefinition.SERVER_ID.getName(), InVMTransportDefinition.SERVER_ID.resolveModelAttribute(context, config).asInt());
                 connectors.put(connectorName, new TransportConfiguration(InVMConnectorFactory.class.getName(), parameters, connectorName));
+            }
+        }
+        if (params.hasDefined(HTTP_CONNECTOR)) {
+            final String serverName = configuration.getName();
+            for (final Property property : params.get(HTTP_CONNECTOR).asPropertyList()) {
+                final String connectorName = property.getName();
+                final ModelNode config = property.getValue();
+                final Map<String, Object> parameters = getParameters(context, config);
+                parameters.put("use-servlet", true);
+                parameters.put("servlet-path", HttpConnectorService.getServletPath(serverName, connectorName));
+                final String binding = config.get(HttpConnectorDefinition.SOCKET_BINDING.getName()).asString();
+                parameters.put(HttpConnectorDefinition.SOCKET_BINDING.getName(), binding);
+                bindings.add(binding);
+                connectors.put(connectorName, new TransportConfiguration(NettyConnectorFactory.class.getName(), parameters, connectorName));
+
+                // for each http connector added, we must add a corresponding special (use-invm) netty acceptor that will be used by the netty servlet
+                String acceptorName = connectorName + "-acceptor";
+                final Map<String, Object> acceptorParams = new HashMap<String, Object>();
+                acceptorParams.put("use-invm", true);
+                acceptorParams.put("host", HttpConnectorService.getServletEndpoint(serverName, connectorName));
+                TransportConfiguration httpAcceptor = new TransportConfiguration(NettyAcceptorFactory.class.getName(), acceptorParams, acceptorName);
+                configuration.getAcceptorConfigurations().add(httpAcceptor);
+
             }
         }
         configuration.setConnectorConfigurations(connectors);

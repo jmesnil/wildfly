@@ -51,7 +51,7 @@ public class RemoteTransportDefinition extends AbstractTransportDefinition {
             })
             .build();
 
-    static AttributeDefinition[] ATTRIBUTES = { SOCKET_BINDING };
+    static AttributeDefinition[] ATTRIBUTES = { RemoteTransportDefinition.SOCKET_BINDING };
 
 
     public static SimpleResourceDefinition createAcceptorDefinition(final boolean registerRuntimeOnly) {
@@ -62,7 +62,7 @@ public class RemoteTransportDefinition extends AbstractTransportDefinition {
         return new RemoteTransportDefinition(registerRuntimeOnly, false, CommonAttributes.REMOTE_CONNECTOR);
     }
 
-    private RemoteTransportDefinition(final boolean registerRuntimeOnly, boolean isAcceptor, String specificType) {
+    protected RemoteTransportDefinition(final boolean registerRuntimeOnly, boolean isAcceptor, String specificType) {
         super(registerRuntimeOnly, isAcceptor, specificType, ATTRIBUTES);
     }
 }

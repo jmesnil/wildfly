@@ -760,6 +760,8 @@ public interface CommonAttributes {
     String ENTRY = "entry";
     String FILE_DEPLOYMENT_ENABLED = "file-deployment-enabled";
     String GROUPING_HANDLER = "grouping-handler";
+    String HTTP_CONNECTOR = "http-connector";
+    String HOST = "host";
     String ID = "id";
     String IN_VM_ACCEPTOR = "in-vm-acceptor";
     String IN_VM_CONNECTOR = "in-vm-connector";
@@ -836,5 +838,4 @@ public interface CommonAttributes {
 
     AttributeDefinition[] SIMPLE_ROOT_RESOURCE_WRITE_ATTRIBUTES = { FAILOVER_ON_SHUTDOWN, MESSAGE_COUNTER_ENABLED,
             MESSAGE_COUNTER_MAX_DAY_HISTORY, MESSAGE_COUNTER_SAMPLE_PERIOD };
-
 }
