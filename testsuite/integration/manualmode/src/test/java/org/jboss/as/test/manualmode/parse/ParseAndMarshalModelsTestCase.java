@@ -717,6 +717,7 @@ public class ParseAndMarshalModelsTestCase {
                 ServerRootResourceDefinition def = new ServerRootResourceDefinition(new MockContentRepository(), persister, null, null, null, null, extensionRegistry, false, MOCK_PATH_MANAGER);
                 def.registerAttributes(rootRegistration);
                 def.registerOperations(rootRegistration);
+                def.registerNotifications(rootRegistration);
                 def.registerChildren(rootRegistration);
             }
         });

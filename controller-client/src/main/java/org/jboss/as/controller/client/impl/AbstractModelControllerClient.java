@@ -23,10 +23,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jboss.as.controller.client.MessageSeverity;
 import org.jboss.as.controller.client.ModelControllerClient;
+import org.jboss.as.controller.client.Notification;
+import org.jboss.as.controller.client.NotificationFilter;
+import org.jboss.as.controller.client.NotificationHandler;
 import org.jboss.as.controller.client.Operation;
 import org.jboss.as.controller.client.OperationBuilder;
 import org.jboss.as.controller.client.OperationMessageHandler;
@@ -55,8 +60,10 @@ public abstract class AbstractModelControllerClient implements ModelControllerCl
 
     private static ManagementRequestHandler<ModelNode, OperationExecutionContext> MESSAGE_HANDLER = new HandleReportRequestHandler();
     private static ManagementRequestHandler<ModelNode, OperationExecutionContext> GET_INPUT_STREAM = new ReadAttachmentInputStreamRequestHandler();
+    private static ManagementRequestHandler<ModelNode, NotificationExecutionContext> NOTIFICATION_HANDLER = new HandleNotificationRequestHandler();
 
     private static final OperationMessageHandler NO_OP_HANDLER = OperationMessageHandler.DISCARD;
+    private Map<NotificationExecutionContext, Integer> notificationHandlers = new HashMap<NotificationExecutionContext, Integer>();
 
     /**
      * Get the mgmt channel association.
@@ -111,8 +118,54 @@ public abstract class AbstractModelControllerClient implements ModelControllerCl
             return MESSAGE_HANDLER;
         } else if (operationType == ModelControllerProtocol.GET_INPUTSTREAM_REQUEST) {
             return GET_INPUT_STREAM;
+        } else if (operationType == ModelControllerProtocol.HANDLE_NOTIFICATION_REQUEST) {
+            return NOTIFICATION_HANDLER;
         }
         return handlers.resolveNext();
+    }
+
+    @Override
+    public void registerNotificationHandler(final ModelNode address, final NotificationHandler handler, final NotificationFilter filter) {
+        try {
+            NotificationExecutionContext entry = new NotificationExecutionContext(handler, filter);
+            ActiveOperation<Void, NotificationExecutionContext> handleNotificationOperation = getChannelAssociation().initializeOperation(entry, new ActiveOperation.CompletedCallback<Void>() {
+                @Override
+                public void completed(Void result) {
+                    notificationHandlers.remove(handler);
+                }
+
+                @Override
+                public void failed(Exception e) {
+                    notificationHandlers.remove(handler);
+
+                }
+
+                @Override
+                public void cancelled() {
+                    notificationHandlers.remove(handler);
+                }
+            });
+            notificationHandlers.put(entry, handleNotificationOperation.getOperationId());
+            AsyncFuture<Void> result = getChannelAssociation().executeRequest(new RegisterNotificationHandlerRequest(address, handleNotificationOperation.getOperationId(), true), null).getResult();
+            result.get();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    @Override
+    public void unregisterNotificationHandler(ModelNode address, NotificationHandler handler, NotificationFilter filter) {
+        NotificationExecutionContext entry = new NotificationExecutionContext(handler, filter);
+        if (notificationHandlers.containsKey(entry)) {
+            int operationId = notificationHandlers.get(entry);
+            try {
+                AsyncFuture<Void> result = getChannelAssociation().executeRequest(new RegisterNotificationHandlerRequest(address, operationId, false), null).getResult();
+                result.get();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
@@ -366,4 +419,97 @@ public abstract class AbstractModelControllerClient implements ModelControllerCl
         return entries;
     }
 
+
+    private static class HandleNotificationRequestHandler implements ManagementRequestHandler<ModelNode, NotificationExecutionContext> {
+        @Override
+        public void handleRequest(DataInput input, ActiveOperation.ResultHandler<ModelNode> resultHandler, ManagementRequestContext<NotificationExecutionContext> context) throws IOException {
+            ModelNode notif = new ModelNode();
+            notif.readExternal(input);
+            Notification notification = Notification.fromModelNode(notif);
+            NotificationFilter filter = context.getAttachment().getFilter();
+            if (filter.isNotificationEnabled(notification)) {
+                NotificationHandler notificationHandler = context.getAttachment().getHandler();
+                notificationHandler.handleNotification(notification);
+            }
+        }
+    }
+
+    private static class RegisterNotificationHandlerRequest implements ManagementRequest<Void, Void> {
+
+        private final ModelNode address;
+        private final int operationId;
+        private final boolean register;
+
+        private RegisterNotificationHandlerRequest(ModelNode address, int operationId, boolean register) {
+            this.address = address;
+            this.operationId = operationId;
+            this.register = register;
+        }
+
+        @Override
+        public byte getOperationType() {
+            return ModelControllerProtocol.REGISTER_NOTIFICATION_HANDLER_REQUEST;
+        }
+
+        @Override
+        public void sendRequest(ActiveOperation.ResultHandler<Void> resultHandler, ManagementRequestContext<Void> context) throws IOException {
+            final FlushableDataOutput output = context.writeMessage(context.getRequestHeader());
+            try {
+                address.writeExternal(output);
+                output.writeInt(operationId);
+                output.writeBoolean(register);
+                output.close();
+            } finally {
+                StreamUtils.safeClose(output);
+            }
+        }
+
+        @Override
+        public void handleFailed(ManagementResponseHeader header, ActiveOperation.ResultHandler<Void> resultHandler) {
+            resultHandler.failed(new IOException(header.getError()));
+        }
+
+        @Override
+        public void handleRequest(DataInput input, ActiveOperation.ResultHandler<Void> resultHandler, ManagementRequestContext<Void> context) throws IOException {
+            resultHandler.done(null);
+        }
+    }
+
+    private class NotificationExecutionContext {
+        private final NotificationHandler handler;
+        private final NotificationFilter filter;
+
+        private NotificationExecutionContext(NotificationHandler handler, NotificationFilter filter) {
+            this.handler = handler;
+            this.filter = filter;
+        }
+
+        public NotificationHandler getHandler() {
+            return handler;
+        }
+
+        public NotificationFilter getFilter() {
+            return filter;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            NotificationExecutionContext that = (NotificationExecutionContext) o;
+
+            if (filter != null ? !filter.equals(that.filter) : that.filter != null) return false;
+            if (handler != null ? !handler.equals(that.handler) : that.handler != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = handler != null ? handler.hashCode() : 0;
+            result = 31 * result + (filter != null ? filter.hashCode() : 0);
+            return result;
+        }
+    }
 }
