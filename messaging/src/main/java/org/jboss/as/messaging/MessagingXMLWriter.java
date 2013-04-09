@@ -196,8 +196,8 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
                 for(final Property property : node.get(HTTP_CONNECTOR).asPropertyList()) {
                     writer.writeStartElement(Element.HTTP_CONNECTOR.getLocalName());
                     writer.writeAttribute(Attribute.NAME.getLocalName(), property.getName());
+                    HttpConnectorDefinition.HOST.marshallAsAttribute(property.getValue(), writer);
                     HttpConnectorDefinition.SOCKET_BINDING.marshallAsAttribute(property.getValue(), writer);
-                    HttpConnectorDefinition.HOST.marshallAsElement(property.getValue(), writer);
                     writeTransportParam(writer, property.getValue().get(PARAM));
                     writer.writeEndElement();
                 }

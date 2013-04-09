@@ -1123,17 +1123,13 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     parseTransportConfiguration(reader, operation, false);
                     break;
                 } default: {
-                    handleUnknownConnector(reader, element, operation, connectorAddress, name, socketBinding);
+                    throw ParseUtils.unexpectedElement(reader);
                 }
             }
 
             operation.get(OP_ADDR).set(connectorAddress);
             updates.add(operation);
         }
-    }
-
-    protected void handleUnknownConnector(XMLExtendedStreamReader reader, Element element, ModelNode modelNode, ModelNode operation, String name, String socketBinding) throws XMLStreamException {
-        throw ParseUtils.unexpectedElement(reader);
     }
 
     static void processAddressSettings(final XMLExtendedStreamReader reader, final ModelNode address, final List<ModelNode> operations) throws XMLStreamException {

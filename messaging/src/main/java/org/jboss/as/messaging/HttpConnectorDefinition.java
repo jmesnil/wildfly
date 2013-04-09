@@ -57,8 +57,9 @@ public class HttpConnectorDefinition extends SimpleResourceDefinition {
 
     // the http connector defines a socket-binding attribute to be able to fill the host & port
     // parameters required by the connector. However, the connector will *not* bind the socket, this is done
-    // by the web container where the netty servlet will be deployed.
+    // by the web container that deploys the netty servlet.
     static final SimpleAttributeDefinition SOCKET_BINDING = create(GenericTransportDefinition.SOCKET_BINDING)
+            .setAllowExpression(false) // references another resource
             .setAllowNull(false)
             .setAttributeMarshaller(new AttributeMarshaller() {
                 public void marshallAsAttribute(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws javax.xml.stream.XMLStreamException {
@@ -70,9 +71,8 @@ public class HttpConnectorDefinition extends SimpleResourceDefinition {
             .build();
 
     static final SimpleAttributeDefinition HOST = SimpleAttributeDefinitionBuilder.create(CommonAttributes.HOST, ModelType.STRING)
-            .setAllowExpression(false)
-            .setAllowNull(true)
-            .setDefaultValue(new ModelNode("default-host"))
+            .setAllowExpression(false) // references another resource
+            .setAllowNull(false)
             .setRestartAllServices()
             .build();
 

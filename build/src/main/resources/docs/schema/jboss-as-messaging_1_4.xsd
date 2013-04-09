@@ -403,10 +403,25 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="base-connectorType">
-                <xs:sequence>
-                    <xs:element maxOccurs="1" minOccurs="0" name="host" type="xs:string" />
-                </xs:sequence>
-                <xs:attribute name="socket-binding" type="xs:string" use="required" />
+                <xs:attribute name="host" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <![CDATA[
+                                This attribute references the web host that will deploy a Servlet used to provide HornetQ protocol over HTTP.
+                            ]]>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="socket-binding" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <![CDATA[
+                                This attribute references the socket-binding used by the web host. Its host and port will be used to configure the connector
+                                with the Servlet URL to access teh Servlet endpoint to tunnel the HornetQ protocol over HTTP.
+                            ]]>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

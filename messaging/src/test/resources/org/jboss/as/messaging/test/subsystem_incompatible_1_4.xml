@@ -77,9 +77,8 @@
                <netty-connector name="netty-throughput" socket-binding="messaging-throughput">
                   <param key="batch-delay" value="${batch.delay:50}"/>
                </netty-connector>
-               <http-connector name="http" socket-binding="http" />
-               <http-connector name="http2" socket-binding="http">
-                  <host>myhost</host>
+               <http-connector name="http" host="default-host" socket-binding="http" />
+               <http-connector name="http2" host="default-host2" socket-binding="http">
                   <param key="batch-delay" value="${batch.delay:50}"/>
                </http-connector>
                <in-vm-connector name="in-vm" server-id="${my.server-id:0}">

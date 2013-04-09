@@ -22,6 +22,7 @@
 
 package org.jboss.as.messaging;
 
+import static org.jboss.as.messaging.CommonAttributes.HORNETQ_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.HTTP_CONNECTOR;
 import static org.jboss.as.messaging.MessagingLogger.MESSAGING_LOGGER;
 import static org.jboss.as.messaging.MessagingMessages.MESSAGES;
@@ -51,6 +52,11 @@ import org.jboss.netty.channel.socket.http.HttpTunnelingServlet;
  */
 class HttpConnectorService implements Service<Void> {
 
+    static final String USE_SERVLET = "use-servlet";
+    static final String SERVLET_PATH = "servlet-path";
+    static final String USE_INVM = "use-invm";
+    static final String HOST = "host";
+
     private final String hornetqServerName;
     private final String connectorName;
 
@@ -63,8 +69,16 @@ class HttpConnectorService implements Service<Void> {
         return getHornetQServiceName(hornetqServerName).append(HTTP_CONNECTOR, connectorName);
     }
 
+    private static String getContextRoot() {
+        return "/" + HORNETQ_SERVER;
+    }
+
+    private static String getUrlMapping(String hornetqServerName, String connectorName) {
+        return "/" + hornetqServerName + "/" + connectorName;
+    }
+
     static String getServletPath(String hornetqServerName, String connectorName) {
-        return "/hornetq/" + hornetqServerName + "/" + connectorName;
+        return getContextRoot() + getUrlMapping(hornetqServerName, connectorName);
     }
 
     static String getServletEndpoint(final String hornetqServerName, final String connectorName) {
@@ -102,7 +116,6 @@ class HttpConnectorService implements Service<Void> {
 
     @Override
     public synchronized void start(StartContext context) throws StartException {
-        System.out.println("HttpConnectorService.start");
         try {
             WebDeploymentBuilder deployment = createWebDeployment(hornetqServerName, connectorName);
             controller = injectedVirtualHost.getValue().addWebDeployment(deployment);
@@ -130,9 +143,9 @@ class HttpConnectorService implements Service<Void> {
 
     private WebDeploymentBuilder createWebDeployment(String hornetqServerName, String connectorName) throws Exception {
         WebDeploymentBuilder builder = new WebDeploymentBuilder();
-        builder.setContextRoot("/hornetq");
+        builder.setContextRoot(getContextRoot());
         File documentRoot = new File(injectedServerEnvironment.getValue().getServerTempDir() + File.separator + hornetqServerName + File.separator + connectorName + "-root");
-        // JBoss Web requires a document root. Undertow doesn't
+        // JBoss Web requires a document root. Undertow doesn't.
         builder.setDocumentRoot(documentRoot);
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         builder.setClassLoader(classLoader);
@@ -140,8 +153,8 @@ class HttpConnectorService implements Service<Void> {
         ServletBuilder servlet = new ServletBuilder();
         servlet.setServletName(hornetqServerName + "-" + connectorName);
         servlet.setServletClass(classLoader.loadClass(HttpTunnelingServlet.class.getName()));
+        servlet.addUrlMapping(getUrlMapping(hornetqServerName, connectorName));
         servlet.addInitParam("endpoint", "local:" + getServletEndpoint(hornetqServerName, connectorName));
-        servlet.addUrlMapping("/" + hornetqServerName + "/" + connectorName);
         servlet.setForceInit(true);
         builder.addServlet(servlet);
 

@@ -23,57 +23,27 @@
 package org.jboss.as.messaging;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.jboss.as.messaging.MessagingMessages.MESSAGES;
 
 import java.util.List;
-import java.util.Locale;
 
-import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.DescriptionProvider;
-import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
-import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.Property;
 import org.jboss.msc.service.ServiceController;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */
-public class HttpConnectorAdd extends HornetQReloadRequiredHandlers.AddStepHandler implements DescriptionProvider {
+public class HttpConnectorAdd extends TransportConfigOperationHandlers.BasicTransportConfigAdd implements DescriptionProvider {
 
     static final OperationStepHandler INSTANCE = new HttpConnectorAdd();
 
     private HttpConnectorAdd() {
-    }
-
-    @Override
-    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-        for (final AttributeDefinition attribute : HttpConnectorDefinition.ATTRIBUTES) {
-            attribute.validateAndSet(operation, model);
-        }
-    }
-
-    @Override
-    protected void populateModel(OperationContext context, ModelNode operation, Resource resource)
-            throws OperationFailedException {
-        super.populateModel(context, operation, resource);
-
-        if(operation.hasDefined(CommonAttributes.PARAM)) {
-            for(Property property : operation.get(CommonAttributes.PARAM).asPropertyList()) {
-                final Resource param = context.createResource(PathAddress.pathAddress(PathElement.pathElement(CommonAttributes.PARAM, property.getName())));
-                final ModelNode value = property.getValue();
-                if(! value.isDefined()) {
-                    throw new OperationFailedException(new ModelNode().set(MESSAGES.parameterNotDefined(property.getName())));
-                }
-                param.getModel().get(ModelDescriptionConstants.VALUE).set(value);
-            }
-        }
+        super(false, HttpConnectorDefinition.ATTRIBUTES);
     }
 
     @Override
@@ -87,14 +57,10 @@ public class HttpConnectorAdd extends HornetQReloadRequiredHandlers.AddStepHandl
 
         // that's counter-intuitive but the http-connector will only be created by HornetQ after a reload.
         // if the hornetq service is already installed, it will not be ready to create the http connector service
+        // because the required connector and acceptor will not be started.
         if (!HornetQService.isHornetQServiceInstalled(context, operation)) {
             final ServiceController<Void> serviceController = HttpConnectorService.addService(context.getServiceTarget(), verificationHandler, host, hornetqServerName, connectorName);
             newControllers.add(serviceController);
         }
-    }
-
-    @Override
-    public ModelNode getModelDescription(Locale locale) {
-        return MessagingDescriptions.getConnectorAdd(locale, HttpConnectorDefinition.ATTRIBUTES);
     }
 }

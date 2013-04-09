@@ -22,9 +22,19 @@
 
 package org.jboss.as.messaging;
 
-import static org.jboss.as.controller.parsing.ParseUtils.unexpectedAttribute;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
+import static org.jboss.as.controller.parsing.ParseUtils.missingRequired;
+import static org.jboss.as.messaging.Attribute.HOST;
+import static org.jboss.as.messaging.Attribute.SOCKET_BINDING;
+import static org.jboss.as.messaging.CommonAttributes.CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.HTTP_CONNECTOR;
-import static org.jboss.as.messaging.CommonAttributes.PARAM;
+import static org.jboss.as.messaging.CommonAttributes.IN_VM_CONNECTOR;
+import static org.jboss.as.messaging.CommonAttributes.REMOTE_CONNECTOR;
+
+import java.util.Collections;
+import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -49,53 +59,90 @@ public class Messaging14SubsystemParser extends Messaging13SubsystemParser {
     protected Messaging14SubsystemParser() {
     }
 
-    @Override
-    protected void handleUnknownConnector(XMLExtendedStreamReader reader, Element element, ModelNode operation, ModelNode connectorAddress, String name, String socketBinding) throws XMLStreamException {
-        switch (element) {
-            case HTTP_CONNECTOR:
-                connectorAddress.add(HTTP_CONNECTOR, name);
-                HttpConnectorDefinition.SOCKET_BINDING.parseAndSetParameter(socketBinding, operation, reader);
-                parseHttpConnectorConfiguration(reader, operation);
-                break;
-            default: {
-                super.handleUnknownConfigurationAttribute(reader, element, connectorAddress);
-            }
-        }
-    }
-
-    private void parseHttpConnectorConfiguration(final XMLExtendedStreamReader reader, final ModelNode operation) throws XMLStreamException {
+    void processConnectors(final XMLExtendedStreamReader reader, final ModelNode address, final List<ModelNode> updates) throws XMLStreamException {
         while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-            Element element = Element.forName(reader.getLocalName());
-            switch(element) {
-                case PARAM: {
-                    int count = reader.getAttributeCount();
-                    String key = null;
-                    String value = null;
-                    for (int n = 0; n < count; n++) {
-                        String attrName = reader.getAttributeLocalName(n);
-                        Attribute attribute = Attribute.forName(attrName);
-                        switch (attribute) {
-                            case KEY:
-                                key = reader.getAttributeValue(n);
-                                break;
-                            case VALUE:
-                                value = reader.getAttributeValue(n);
-                                break;
-                            default:
-                                throw unexpectedAttribute(reader, n);
-                        }
+            String name = null;
+            String socketBinding = null;
+            String serverId = null;
+            String host = null;
+
+            int count = reader.getAttributeCount();
+            for (int i = 0; i < count; i++) {
+                final String attrValue = reader.getAttributeValue(i);
+                final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+                switch (attribute) {
+                    case NAME: {
+                        name = attrValue;
+                        break;
                     }
-                    operation.get(PARAM).add(key, TransportParamDefinition.VALUE.parse(value, reader));
-                    ParseUtils.requireNoContent(reader);
-                    break;
+                    case SOCKET_BINDING: {
+                        socketBinding = attrValue;
+                        break;
+                    }
+                    case SERVER_ID: {
+                        serverId = attrValue;
+                        break;
+                    }
+                    case HOST: {
+                        host = attrValue;
+                        break;
+                    }
+                    default: {
+                        throw ParseUtils.unexpectedAttribute(reader, i);
+                    }
                 }
-                case HOST: {
-                    handleElementText(reader, element, operation);
+            }
+            if(name == null) {
+                throw missingRequired(reader, Collections.singleton(Attribute.NAME));
+            }
+
+            final ModelNode connectorAddress = address.clone();
+            final ModelNode operation = new ModelNode();
+            operation.get(OP).set(ADD);
+
+            final Element element = Element.forName(reader.getLocalName());
+            switch (element) {
+                case CONNECTOR: {
+                    connectorAddress.add(CONNECTOR, name);
+                    if (socketBinding != null) {
+                        operation.get(RemoteTransportDefinition.SOCKET_BINDING.getName()).set(socketBinding);
+                    }
+                    parseTransportConfiguration(reader, operation, true);
+                    break;
+                } case NETTY_CONNECTOR: {
+                    connectorAddress.add(REMOTE_CONNECTOR, name);
+                    if (socketBinding == null) {
+                        throw missingRequired(reader, Collections.singleton(Attribute.SOCKET_BINDING));
+                    }
+                    operation.get(RemoteTransportDefinition.SOCKET_BINDING.getName()).set(socketBinding);
+                    parseTransportConfiguration(reader, operation, false);
+                    break;
+                } case HTTP_CONNECTOR: {
+                    if (socketBinding == null) {
+                        throw missingRequired(reader, Collections.singleton(SOCKET_BINDING));
+                    }
+                    if (host == null) {
+                        throw missingRequired(reader, Collections.singleton(HOST));
+                    }
+                    connectorAddress.add(HTTP_CONNECTOR, name);
+                    HttpConnectorDefinition.SOCKET_BINDING.parseAndSetParameter(socketBinding, operation, reader);
+                    HttpConnectorDefinition.HOST.parseAndSetParameter(host, operation, reader);
+                    parseTransportConfiguration(reader, operation, false);
+                    break;
+                } case IN_VM_CONNECTOR: {
+                    connectorAddress.add(IN_VM_CONNECTOR, name);
+                    if (serverId != null) {
+                        InVMTransportDefinition.SERVER_ID.parseAndSetParameter(serverId, operation, reader);
+                    }
+                    parseTransportConfiguration(reader, operation, false);
                     break;
                 } default: {
                     throw ParseUtils.unexpectedElement(reader);
                 }
             }
+
+            operation.get(OP_ADDR).set(connectorAddress);
+            updates.add(operation);
         }
     }
 }

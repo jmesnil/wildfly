@@ -14,7 +14,7 @@
                <netty-connector name="netty-throughput" socket-binding="messaging-throughput">
                    <param key="batch-delay" value="50"/>
                </netty-connector>
-               <http-connector name="http" socket-binding="http" />
+               <http-connector name="http" socket-binding="http" host="default-host" />
                <in-vm-connector name="in-vm" server-id="0"/>
            </connectors>
 

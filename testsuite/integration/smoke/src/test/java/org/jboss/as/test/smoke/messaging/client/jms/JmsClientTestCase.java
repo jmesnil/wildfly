@@ -105,7 +105,7 @@ public class JmsClientTestCase {
         doSendAndReceive("jms/RemoteConnectionFactory");
     }
 
-    @Ignore("works with Jboss Web as the Web container but not with Undertow")
+    @Ignore("works with Jboss Web as the Web container but not with Undertow (UNDERTOW-26)")
     @Test
     public void testJMSOverHTTP() throws  Exception {
         doSendAndReceive("jms/HttpConnectionFactory");
