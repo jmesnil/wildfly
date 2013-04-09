@@ -149,7 +149,7 @@
         <version.org.hibernate.validator>4.3.1.Final</version.org.hibernate.validator>
         <version.org.hibernate3>3.6.6.Final</version.org.hibernate3>
         <version.org.hibernate3.commons.annotations>3.2.0.Final</version.org.hibernate3.commons.annotations>
-        <version.org.hornetq>2.3.0.CR2</version.org.hornetq>
+        <version.org.hornetq>2.3.0.BETA-SNAPSHOT</version.org.hornetq>
         <version.org.infinispan>5.2.5.Final</version.org.infinispan>
         <version.org.jacorb>2.3.2.jbossorg-4</version.org.jacorb>
         <version.org.javassist>3.17.1-GA</version.org.javassist>
@@ -213,7 +213,7 @@
         <version.org.jboss.spec.javax.el.jboss-el-api_2.2_spec>1.0.2.Final</version.org.jboss.spec.javax.el.jboss-el-api_2.2_spec>
         <version.org.jboss.spec.javax.faces.jboss-jsf-api_2.1_spec>2.1.18.Final</version.org.jboss.spec.javax.faces.jboss-jsf-api_2.1_spec>
         <version.org.jboss.spec.javax.interceptor.jboss-interceptors-api_1.2_spec>1.0.0.Alpha1</version.org.jboss.spec.javax.interceptor.jboss-interceptors-api_1.2_spec>
-        <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
+        <version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.0.Alpha1-SNAPSHOT</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>
         <version.org.jboss.spec.javax.management.j2ee.jboss-j2eemgmt-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.management.j2ee.jboss-j2eemgmt-api_1.1_spec>
         <version.org.jboss.spec.javax.resource.jboss-connector-api_1.6_spec>1.0.1.Final</version.org.jboss.spec.javax.resource.jboss-connector-api_1.6_spec>
         <version.org.jboss.spec.javax.rmi.jboss-rmi-api_1.0_spec>1.0.4.Final</version.org.jboss.spec.javax.rmi.jboss-rmi-api_1.0_spec>
@@ -4927,8 +4927,8 @@
 
             <dependency>
                 <groupId>org.jboss.spec.javax.jms</groupId>
-                <artifactId>jboss-jms-api_1.1_spec</artifactId>
-                <version>${version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec}</version>
+                <artifactId>jboss-jms-api_2.0_spec</artifactId>
+                <version>${version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec}</version>
             </dependency>
 
             <dependency>
@@ -5721,6 +5721,11 @@
                     <exclusion>
                         <groupId>org.jboss.spec.javax.ejb</groupId>
                         <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <!-- superseded by org.jboss.spec.javax.jms:jboss-jms-api_1.1_spec -->
+                        <groupId>org.jboss.spec.javax.jms</groupId>
+                        <artifactId>jboss-jms-api_1.1_spec</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>javax.xml.stream.api</groupId>
