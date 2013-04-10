@@ -48,6 +48,7 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.as.controller.client.NotificationFilter;
 import org.jboss.as.controller.client.NotificationHandler;
 import org.jboss.as.controller.client.Operation;
@@ -674,11 +675,8 @@ public class ServerGroupAffectedResourceServerConfigOperationsTestCase extends A
                                     }
 
                                     @Override
-                                    public void registerNotificationHandler(ModelNode address, NotificationHandler handler, NotificationFilter filter) {
-                                    }
-
-                                    @Override
-                                    public void unregisterNotificationHandler(ModelNode address, NotificationHandler handler, NotificationFilter filter) {
+                                    public NotificationRegistration registerNotificationHandler(ModelNode address, NotificationHandler handler, NotificationFilter filter) {
+                                        return null;  //To change body of implemented methods use File | Settings | File Templates.
                                     }
 
                                     @Override

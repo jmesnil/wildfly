@@ -88,6 +88,7 @@ public class NotificationApiHandler implements HttpHandler {
      * Map of HttpNotificationHandler holding the notifications for a given handlerID
      */
     private final Map<String, HttpNotificationHandler> handlers = new HashMap<>();
+
     /**
      * counter to generate unique ID for the registered handlers
      */
@@ -281,22 +282,23 @@ public class NotificationApiHandler implements HttpHandler {
 
         private final String handlerID;
         private final Set<ModelNode> addresses;
+
         private final Queue<ModelNode> notifications = new ArrayBlockingQueue<>(MAX_NOTIFICATIONS);
 
-        public HttpNotificationHandler(final String handlerID, final Set<ModelNode> addresses) {
+        HttpNotificationHandler(final String handlerID, final Set<ModelNode> addresses) {
             this.handlerID = handlerID;
             this.addresses = addresses;
         }
 
-        public Set<ModelNode> getListeningAddresses() {
+        Set<ModelNode> getListeningAddresses() {
             return addresses;
         }
 
-        public List<ModelNode> getNotifications() {
+        List<ModelNode> getNotifications() {
             return new ArrayList<>(notifications);
         }
 
-        public void clear() {
+        void clear() {
             notifications.clear();
         }
 
