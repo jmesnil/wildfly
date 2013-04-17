@@ -662,6 +662,11 @@ public class ServerGroupAffectedResourceServerConfigOperationsTestCase extends A
                                     }
 
                                     @Override
+                                    public NotificationRegistration registerNotificationHandler(ModelNode address, NotificationHandler handler, NotificationFilter filter) {
+                                        return null;
+                                    }
+
+                                    @Override
                                     public void unregister() {
                                     }
 
