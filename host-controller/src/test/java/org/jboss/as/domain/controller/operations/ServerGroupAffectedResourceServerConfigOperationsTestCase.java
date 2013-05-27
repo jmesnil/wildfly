@@ -679,10 +679,6 @@ public class ServerGroupAffectedResourceServerConfigOperationsTestCase extends A
                                         return null;
                                     }
 
-                                    @Override
-                                    public NotificationRegistration registerNotificationHandler(ModelNode address, NotificationHandler handler, NotificationFilter filter) {
-                                        return null;  //To change body of implemented methods use File | Settings | File Templates.
-                                    }
 
                                     @Override
                                     public void pullDownDataForUpdatedServerConfigAndApplyToModel(OperationContext context,
