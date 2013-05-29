@@ -66,8 +66,8 @@ public abstract class AbstractTaskTestCase {
     }
 
     PatchingResult executePatch(final PatchInfo info, final File file) throws FileNotFoundException, PatchingException {
-        final PatchingRunnerWrapper runner = PatchingRunnerWrapper.Factory.create(info, env);
-        final PatchingResult result = runner.executeDirect(new FileInputStream(file), ContentVerificationPolicy.STRICT);
+        final PatchingRunner runner = LegacyPatchingRunnerWrapper.Factory.create(info, env);
+        final PatchingResult result = runner.apply(new FileInputStream(file), ContentVerificationPolicy.STRICT);
         result.commit();
         return result;
     }
@@ -77,7 +77,7 @@ public abstract class AbstractTaskTestCase {
     }
 
     PatchingResult rollback(final PatchInfo info, final String patchId, final boolean rollbackTo) throws PatchingException {
-        final PatchingRunnerWrapper runner = PatchingRunnerWrapper.Factory.create(info, env);
+        final PatchingRunner runner = LegacyPatchingRunnerWrapper.Factory.create(info, env);
         final PatchingResult result = runner.rollback(patchId, ContentVerificationPolicy.STRICT, rollbackTo, true);
         result.commit();
         return result;

@@ -53,7 +53,7 @@ import org.junit.Test;
 
 public class UpdateModifiedFileTaskTestCase extends AbstractTaskTestCase {
 
-    private PatchingRunnerWrapper runner;
+    private PatchingRunner runner;
     private File zippedPatch;
     private Patch patch;
     private ContentModification fileUpdated;
@@ -108,7 +108,7 @@ public class UpdateModifiedFileTaskTestCase extends AbstractTaskTestCase {
         createPatchXMLFile(patchDir, patch);
         zippedPatch = createZippedPatchFile(patchDir, patch.getPatchId());
 
-        runner = PatchingRunnerWrapper.Factory.create(info, env);
+        runner = LegacyPatchingRunnerWrapper.Factory.create(info, env);
     }
 
     @After
@@ -125,7 +125,7 @@ public class UpdateModifiedFileTaskTestCase extends AbstractTaskTestCase {
     @Test
     public void testUpdateModifiedFileWithSTRICT() throws Exception {
         try {
-            runner.executeDirect(new FileInputStream(zippedPatch), ContentVerificationPolicy.STRICT);
+            runner.apply(new FileInputStream(zippedPatch), ContentVerificationPolicy.STRICT);
         } catch (PatchingException e) {
             assertPatchHasNotBeenApplied(e, patch, fileUpdated.getItem(), env);
 
@@ -137,7 +137,7 @@ public class UpdateModifiedFileTaskTestCase extends AbstractTaskTestCase {
 
     @Test
     public void testUpdateModifiedFileWithOVERRIDE_ALL() throws Exception {
-        PatchingResult result = runner.executeDirect(new FileInputStream(zippedPatch), ContentVerificationPolicy.OVERRIDE_ALL);
+        PatchingResult result = runner.apply(new FileInputStream(zippedPatch), ContentVerificationPolicy.OVERRIDE_ALL);
 
         assertPatchHasBeenApplied(result, patch);
 
@@ -153,7 +153,7 @@ public class UpdateModifiedFileTaskTestCase extends AbstractTaskTestCase {
     @Test
     public void testUpdateModifiedFileWithPRESERVE_ALL() throws Exception {
         try {
-            runner.executeDirect(new FileInputStream(zippedPatch), ContentVerificationPolicy.PRESERVE_ALL);
+            runner.apply(new FileInputStream(zippedPatch), ContentVerificationPolicy.PRESERVE_ALL);
         } catch (PatchingException e) {
             assertPatchHasNotBeenApplied(e, patch, fileUpdated.getItem(), env);
 

@@ -32,9 +32,10 @@ import org.jboss.as.patching.DirectoryStructure;
 import org.jboss.as.patching.PatchInfo;
 import org.jboss.as.patching.PatchLogger;
 import org.jboss.as.patching.runner.ContentVerificationPolicy;
+import org.jboss.as.patching.runner.LegacyPatchingRunnerWrapper;
 import org.jboss.as.patching.runner.PatchingException;
 import org.jboss.as.patching.runner.PatchingResult;
-import org.jboss.as.patching.runner.PatchingRunnerWrapper;
+import org.jboss.as.patching.runner.PatchingRunner;
 
 /**
  * An interactive offline patch tool.
@@ -45,10 +46,10 @@ class LocalPatchTool implements PatchTool {
 
 
     private final PatchInfo patchInfo;
-    private final PatchingRunnerWrapper runner;
+    private final PatchingRunner runner;
     LocalPatchTool(PatchInfo info, DirectoryStructure structure) {
         this.patchInfo = info;
-        this.runner = PatchingRunnerWrapper.Factory.create(info, structure);
+        this.runner = LegacyPatchingRunnerWrapper.Factory.create(info, structure);
 
     }
 
@@ -95,7 +96,7 @@ class LocalPatchTool implements PatchTool {
 
     @Override
     public PatchingResult applyPatch(InputStream is, ContentVerificationPolicy contentPolicy) throws PatchingException {
-        return runner.executeDirect(is, contentPolicy);
+        return runner.apply(is, contentPolicy);
     }
 
     @Override
