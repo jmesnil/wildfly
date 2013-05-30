@@ -27,11 +27,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
+import java.util.List;
 
 import org.jboss.as.patching.Constants;
 import org.jboss.as.patching.DirectoryStructure;
 import org.jboss.as.patching.LocalPatchInfo;
 import org.jboss.as.patching.PatchInfo;
+import org.jboss.as.patching.installation.InstallationManager;
+import org.jboss.as.patching.installation.InstallationManagerImpl;
+import org.jboss.as.patching.installation.InstallationManagerService;
+import org.jboss.as.patching.installation.InstalledIdentity;
+import org.jboss.as.patching.installation.InstalledImage;
+import org.jboss.as.patching.installation.LayersFactory;
 import org.jboss.as.patching.metadata.MiscContentItem;
 import org.jboss.as.patching.runner.ContentVerificationPolicy;
 import org.jboss.as.patching.runner.PatchingException;
@@ -155,18 +162,24 @@ public interface PatchTool {
             final ModuleLoader loader = ModuleLoader.forClass(PatchTool.class);
             final ProductConfig config = new ProductConfig(loader, jbossHome.getAbsolutePath(), Collections.emptyMap());
             final PatchInfo info = LocalPatchInfo.load(config, structure);
-            return create(info, structure);
+            final InstalledImage installedImage = InstalledIdentity.installedImage(jbossHome);
+            final List<File> moduleRoots = InstallationManagerService.getModulePath();
+            final List<File> bundlesRoots = InstallationManagerService.getBundlePath(installedImage);
+            final InstalledIdentity identity = LayersFactory.load(installedImage, config, moduleRoots, bundlesRoots);
+            return create(info, installedImage, new InstallationManagerImpl(identity));
         }
 
         /**
          * Create an offline local patch tool.
          *
          * @param patchInfo the patch info
-         * @param structure the directory structure
+         * @param installedImage the installed image
+         * @param installationManager the installation manager
+         *
          * @return the patch tool
          */
-        public static PatchTool create(final PatchInfo patchInfo, final DirectoryStructure structure) {
-            return new LocalPatchTool(patchInfo, structure);
+        public static PatchTool create(final PatchInfo patchInfo, InstalledImage installedImage, final InstallationManager installationManager) {
+            return new LocalPatchTool(patchInfo, installedImage, installationManager);
         }
 
     }

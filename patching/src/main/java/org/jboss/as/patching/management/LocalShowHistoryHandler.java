@@ -34,6 +34,7 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.patching.Constants;
 import org.jboss.as.patching.PatchInfo;
+import org.jboss.as.patching.installation.InstallationManagerService;
 import org.jboss.as.patching.installation.InstalledImage;
 import org.jboss.as.patching.metadata.Patch.PatchType;
 import org.jboss.as.patching.runner.PatchUtils;
@@ -49,11 +50,12 @@ public final class LocalShowHistoryHandler implements OperationStepHandler {
     public void execute(final OperationContext context, final ModelNode operation) throws OperationFailedException {
         context.acquireControllerLock();
         // Setup
-        final PatchInfoService service = (PatchInfoService) context.getServiceRegistry(false).getRequiredService(PatchInfoService.NAME).getValue();
+        final PatchInfoService patchInfoService = (PatchInfoService) context.getServiceRegistry(false).getRequiredService(PatchInfoService.NAME).getValue();
+        final InstallationManagerService installationManagerService = (InstallationManagerService) context.getServiceRegistry(false).getRequiredService(InstallationManagerService.NAME);
 
         try {
-            final PatchInfo info = service.getValue();
-            final InstalledImage installedImage =  service.getStructure().getInstalledImage();
+            final PatchInfo info = patchInfoService.getValue();
+            final InstalledImage installedImage =  installationManagerService.getInstalledImage();
 
             ModelNode result = new ModelNode();
             result.setEmptyList();

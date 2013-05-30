@@ -228,7 +228,7 @@ public abstract class DirectoryStructure {
             }
 
             @Override
-            public File getLayersConf() {
+            public File getModuleLayersConf() {
                 return new File(getModulesDir(), Constants.LAYERS_CONF);
             }
 

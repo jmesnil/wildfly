@@ -28,8 +28,8 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.patching.Constants;
-import org.jboss.as.patching.DirectoryStructure;
 import org.jboss.as.patching.PatchInfo;
+import org.jboss.as.patching.installation.InstallationManagerService;
 import org.jboss.as.patching.metadata.ContentItem;
 import org.jboss.as.patching.metadata.ContentType;
 import org.jboss.as.patching.runner.ContentVerificationPolicy;
@@ -53,19 +53,20 @@ public class LocalPatchRollbackHandler implements OperationStepHandler {
 
         // FIXME can we check whether the process is reload-required directly from the operation context?
         context.acquireControllerLock();
-        final PatchInfoService service = (PatchInfoService) context.getServiceRegistry(false).getRequiredService(PatchInfoService.NAME).getValue();
-        if (service.requiresRestart()) {
+
+        final PatchInfoService patchInfoService = (PatchInfoService) context.getServiceRegistry(false).getRequiredService(PatchInfoService.NAME);
+        final InstallationManagerService installationManagerService = (InstallationManagerService) context.getServiceRegistry(false).getRequiredService(InstallationManagerService.NAME);
+        if (patchInfoService.requiresRestart()) {
             throw MESSAGES.serverRequiresRestart();
         }
 
-        final PatchInfo info = service.getValue();
-        final DirectoryStructure structure = service.getStructure();
-        final PatchTool runner = PatchTool.Factory.create(info, structure);
+        final PatchInfo info = patchInfoService.getValue();
+        final PatchTool runner = PatchTool.Factory.create(info, installationManagerService.getInstalledImage(), installationManagerService.getValue());
         final ContentVerificationPolicy policy = PatchTool.Factory.create(operation);
         try {
             // Rollback
             final PatchingResult result = runner.rollback(patchId, policy, rollbackTo, restoreConfiguration);
-            service.restartRequired();
+            patchInfoService.restartRequired();
             context.restartRequired();
             context.completeStep(new OperationContext.ResultHandler() {
 
@@ -74,7 +75,7 @@ public class LocalPatchRollbackHandler implements OperationStepHandler {
                     if(resultAction == OperationContext.ResultAction.KEEP) {
                         result.commit();
                     } else {
-                        service.clearRestartRequired();
+                        patchInfoService.clearRestartRequired();
                         context.revertRestartRequired();
                         result.rollback();
                     }

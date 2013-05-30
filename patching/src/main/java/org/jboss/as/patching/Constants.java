@@ -66,6 +66,8 @@ public class Constants {
     public static final String DEFAULT_BASE_PATH = "system/base";
     public static final String DEFAULT_ADD_ONS_PATH = "system/add-ons";
 
+    public static final String CONTENT = "content";
+
     // Files
     public static final String CUMULATIVE = "cumulative";
     @Deprecated public static final String INSTALLATION_METADATA = "installation";

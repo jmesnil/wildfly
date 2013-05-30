@@ -28,6 +28,7 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.patching.PatchInfo;
+import org.jboss.as.patching.installation.InstallationManagerService;
 import org.jboss.as.patching.installation.InstalledImage;
 import org.jboss.dmr.ModelNode;
 
@@ -45,15 +46,17 @@ public class LocalPatchGarbageCollectionHandler implements OperationStepHandler 
         final String patchId = operation.require(PATCH_ID).asString();
         //
         context.acquireControllerLock();
-        PatchInfoService service = (PatchInfoService) context.getServiceRegistry(false).getRequiredService(PatchInfoService.NAME);
-        final PatchInfo info = service.getValue();
+        PatchInfoService patchInfoservice = (PatchInfoService) context.getServiceRegistry(false).getRequiredService(PatchInfoService.NAME);
+        final InstallationManagerService installationManagerService = (InstallationManagerService) context.getServiceRegistry(false).getRequiredService(InstallationManagerService.NAME);
+
+        final PatchInfo info = patchInfoservice.getValue();
         if(info.getCumulativeID().equals(patchId)) {
             throw PatchManagementMessages.MESSAGES.patchActive(patchId);
         }
         if(info.getPatchIDs().contains(patchId)) {
             throw PatchManagementMessages.MESSAGES.patchActive(patchId);
         }
-        final InstalledImage installedImage = service.getStructure().getInstalledImage();
+        final InstalledImage installedImage = installationManagerService.getInstalledImage();
 
         // Remove directories
         final File history = installedImage.getPatchHistoryDir(patchId);

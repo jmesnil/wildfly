@@ -28,14 +28,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.jboss.as.patching.DirectoryStructure;
 import org.jboss.as.patching.PatchInfo;
 import org.jboss.as.patching.PatchLogger;
+import org.jboss.as.patching.installation.InstallationManager;
+import org.jboss.as.patching.installation.InstalledImage;
 import org.jboss.as.patching.runner.ContentVerificationPolicy;
-import org.jboss.as.patching.runner.LegacyPatchingRunnerWrapper;
 import org.jboss.as.patching.runner.PatchingException;
 import org.jboss.as.patching.runner.PatchingResult;
 import org.jboss.as.patching.runner.PatchingRunner;
+import org.jboss.as.patching.runner.PatchingRunnerFactory;
 
 /**
  * An interactive offline patch tool.
@@ -47,12 +48,12 @@ class LocalPatchTool implements PatchTool {
 
     private final PatchInfo patchInfo;
     private final PatchingRunner runner;
-    LocalPatchTool(PatchInfo info, DirectoryStructure structure) {
+
+    LocalPatchTool(final PatchInfo info, final InstalledImage installedImage, final InstallationManager installationManager) {
         this.patchInfo = info;
-        this.runner = LegacyPatchingRunnerWrapper.Factory.create(info, structure);
+        this.runner = PatchingRunnerFactory.create(installedImage, installationManager);
 
     }
-
     @Override
     public PatchInfo getPatchInfo() {
         return patchInfo;

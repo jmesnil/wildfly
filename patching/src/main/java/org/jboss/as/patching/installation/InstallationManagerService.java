@@ -31,6 +31,7 @@ public class InstallationManagerService implements Service<InstallationManager> 
 
     private volatile InstallationManager manager;
     private final InjectedValue<ProductConfig> productConfig = new InjectedValue<ProductConfig>();
+    private InstalledImage installedImage;
 
     /**
      * Install the installation manager service.
@@ -55,7 +56,7 @@ public class InstallationManagerService implements Service<InstallationManager> 
         try {
 
             final File jbossHome = new File(System.getProperty("jboss.home.dir"));
-            final InstalledImage installedImage = InstalledIdentity.installedImage(jbossHome);
+            this.installedImage = InstalledIdentity.installedImage(jbossHome);
             final List<File> moduleRoots = getModulePath();
             final List<File> bundlesRoots = getBundlePath(installedImage);
             final InstalledIdentity identity = LayersFactory.load(installedImage, productConfig.getValue(), moduleRoots, bundlesRoots);
@@ -81,7 +82,11 @@ public class InstallationManagerService implements Service<InstallationManager> 
         return manager;
     }
 
-    private static List<File> getModulePath() {
+    public InstalledImage getInstalledImage() {
+        return installedImage;
+    }
+
+    public static List<File> getModulePath() {
         final List<File> path = new ArrayList<File>();
         final String modulePath = System.getProperty(MODULE_PATH, System.getenv("JAVA_MODULEPATH"));
         if (modulePath != null) {
@@ -94,7 +99,7 @@ public class InstallationManagerService implements Service<InstallationManager> 
         return path;
     }
 
-    private static List<File> getBundlePath(final InstalledImage image) {
+    public static List<File> getBundlePath(final InstalledImage image) {
         final String prop = System.getProperty(BUNDLES_DIR);
         final File bundleRoots = prop != null ? new File(prop) : image.getBundlesDir();
         return Collections.singletonList(bundleRoots);

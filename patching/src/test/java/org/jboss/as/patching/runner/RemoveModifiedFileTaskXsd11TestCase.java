@@ -55,7 +55,7 @@ import org.junit.Test;
 
 public class RemoveModifiedFileTaskXsd11TestCase extends AbstractTaskTestCase {
 
-    private PatchingRunnerWrapper runner;
+    private PatchingRunner runner;
     private File zippedPatch;
     private Patch patch;
     private ContentModification fileRemoved;
@@ -108,7 +108,7 @@ public class RemoveModifiedFileTaskXsd11TestCase extends AbstractTaskTestCase {
         createPatchXMLFile(patchDir, patch);
         zippedPatch = createZippedPatchFile(patchDir, patch.getPatchId());
 
-        runner = PatchingRunnerWrapper.Factory.create(info, env);
+        runner = LegacyPatchingRunnerWrapper.Factory.create(info, env);
     }
 
     @After
@@ -124,7 +124,7 @@ public class RemoveModifiedFileTaskXsd11TestCase extends AbstractTaskTestCase {
     @Test
     public void testRemoveModifiedFileWithSTRICT() throws Exception {
         try {
-            PatchingResult result = runner.executeDirect(new FileInputStream(zippedPatch), ContentVerificationPolicy.STRICT);
+            PatchingResult result = runner.apply(new FileInputStream(zippedPatch), ContentVerificationPolicy.STRICT);
         } catch (PatchingException e) {
             assertPatchHasNotBeenApplied(e, patch, fileRemoved.getItem(), env);
 
@@ -137,7 +137,7 @@ public class RemoveModifiedFileTaskXsd11TestCase extends AbstractTaskTestCase {
 
     @Test
     public void testRemovedModifiedFileWithOVERRIDE_ALL() throws Exception {
-        PatchingResult result = runner.executeDirect(new FileInputStream(zippedPatch), ContentVerificationPolicy.OVERRIDE_ALL);
+        PatchingResult result = runner.apply(new FileInputStream(zippedPatch), ContentVerificationPolicy.OVERRIDE_ALL);
 
         assertPatchHasBeenApplied(result, patch);
 
@@ -152,7 +152,7 @@ public class RemoveModifiedFileTaskXsd11TestCase extends AbstractTaskTestCase {
     @Test
     public void testRemoveModifiedFileWithPRESERVE_ALL() throws Exception {
         try {
-            PatchingResult result = runner.executeDirect(new FileInputStream(zippedPatch), ContentVerificationPolicy.PRESERVE_ALL);
+            PatchingResult result = runner.apply(new FileInputStream(zippedPatch), ContentVerificationPolicy.PRESERVE_ALL);
         } catch (PatchingException e) {
             assertPatchHasNotBeenApplied(e, patch, fileRemoved.getItem(), env);
 

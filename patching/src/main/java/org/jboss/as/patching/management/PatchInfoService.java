@@ -51,7 +51,6 @@ public class PatchInfoService implements Service<PatchInfo> {
 
     private final InjectedValue<ProductConfig> productConfig = new InjectedValue<ProductConfig>();
 
-    private volatile DirectoryStructure directoryStructure;
     private volatile PatchInfo patchInfo;
 
     /**
@@ -103,10 +102,6 @@ public class PatchInfoService implements Service<PatchInfo> {
     @Override
     public synchronized PatchInfo getValue() throws IllegalStateException, IllegalArgumentException {
         return patchInfo;
-    }
-
-    public DirectoryStructure getStructure() {
-        return directoryStructure;
     }
 
     public boolean requiresRestart() {

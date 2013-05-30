@@ -98,8 +98,8 @@ public interface InstalledImage {
     /**
      * Get the path to the layers.conf file.
      *
-     * @return the layers.conf path
+     * @return the modules/layers.conf path
      */
-    File getLayersConf();
+    File getModuleLayersConf();
 
 }

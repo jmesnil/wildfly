@@ -49,7 +49,7 @@ import org.jboss.as.version.ProductConfig;
 /**
  * @author Emanuel Muckenhuber
  */
-class LayersFactory {
+public class LayersFactory {
 
     /**
      * Load the available layers.
@@ -61,7 +61,7 @@ class LayersFactory {
      * @return the layers
      * @throws IOException
      */
-    static InstalledIdentity load(final InstalledImage image, final ProductConfig productConfig, final List<File> moduleRoots, final List<File> bundleRoots) throws IOException {
+    public static InstalledIdentity load(final InstalledImage image, final ProductConfig productConfig, final List<File> moduleRoots, final List<File> bundleRoots) throws IOException {
 
         // build the identity information
         final String productVersion = productConfig.resolveVersion();
@@ -100,7 +100,7 @@ class LayersFactory {
         // Process add-ons
         for (final LayerPathConfig addOn : processedLayers.getAddOns().values()) {
             final String name = addOn.name;
-            layers.add(createPatchableTarget(name, addOn, config.getAddOnMetadataDir(name), image));
+            addOns.add(createPatchableTarget(name, addOn, config.getAddOnMetadataDir(name), image));
         }
         return new InstalledIdentity() {
             @Override

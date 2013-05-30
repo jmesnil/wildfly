@@ -65,7 +65,7 @@ public abstract class InstalledIdentity {
      *
      * @param jbossHome     the jboss home directory
      * @param productConfig the product config
-     * @param repoRoots     the repository roots
+     * @param repoRoots     the module repository roots
      * @return the available layers
      * @throws IOException
      */
@@ -88,7 +88,7 @@ public abstract class InstalledIdentity {
         return LayersFactory.load(installedImage, productConfig, moduleRoots, bundleRoots);
     }
 
-    static InstalledImage installedImage(final File jbossHome) {
+    public static InstalledImage installedImage(final File jbossHome) {
         final File appClient = new File(jbossHome, Constants.APP_CLIENT);
         final File bundles = new File(jbossHome, Constants.BUNDLES);
         final File domain = new File(jbossHome, Constants.DOMAIN);
@@ -143,7 +143,7 @@ public abstract class InstalledIdentity {
             }
 
             @Override
-            public File getLayersConf() {
+            public File getModuleLayersConf() {
                 return layersConf;
             }
         };
