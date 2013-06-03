@@ -45,36 +45,24 @@ import org.jboss.as.patching.installation.InstalledImage;
  * |
  * |-- bin
  * |-- bundles
- * |   |-- layers.conf
- * |   |-- system
+ * |   |-- layers.conf (xyz,vuw)
+ * |   |-- system (system bundles contains only bundles, no patches metadata)
  * |   |   |-- layers
  * |   |   |   | -- xyz
- * |   |   |   |   `-- .patches (overlay directory)
- * |   |   |   |       |-- cumulative (cumulative link)
- * |   |   |   |       |-- references
- * |   |   |   |       |   `-- patch-xyz-1 (list of one-off patches)
+ * |   |   |   |   `-- patches (overlay directory)
  * |   |   |   |       |-- patch-xyz-1
  * |   |   |   |       `-- patch-xyz-2
  * |   |   |   |-- vuw
- * |   |   |   |   `-- .patches (overlay directory)
- * |   |   |   |       |-- cumulative (cumulative link)
- * |   |   |   |       |-- references
- * |   |   |   |       |   `-- patch-vuw-1 (list of one-off patches)
+ * |   |   |   |   `-- patches (overlay directory)
  * |   |   |   |       `-- patch-vuw-1
  * |   |   |   `-- base
- * |   |   |       |-- .patches (overlay directory)
- * |   |   |       |   |-- cumulative (cumulative link)
- * |   |   |       |   |-- references
- * |   |   |       |   |   `-- patch-base-1 (list of one-off patches)
+ * |   |   |       |-- patches (overlay directory)
  * |   |   |       |   |-- patch-base-1
  * |   |   |       |   `-- patch-base-2
  * |   |   |       `-- org/jboss/as/osgi
  * |   |   `-- add-ons
  * |   |       `-- def
- * |   |           `-- .patches (overlay directory)
- * |   |               |-- cumulative (cumulative link)
- * |   |               |-- references
- * |   |               |   `-- patch-def-1 (list of one-off patches)
+ * |   |           `-- patches (overlay directory)
  * |   |               |-- patch-def-1
  * |   |               `-- patch-def-2
  * |   |
@@ -82,35 +70,25 @@ import org.jboss.as.patching.installation.InstalledImage;
  * |
  * |-- docs
  * |-- modules
- * |   |-- layers.conf  (vuw,xyz,base)
- * |   |-- system
+ * |   |-- layers.conf (xyz,vuw)
+ * |   |-- system (system modules contains only bundles, no patches metadata)
  * |   |   |-- layers
- * |   |   |   | -- xyz
- * |   |   |   |    `-- .patches (overlay directory)
- * |   |   |   |       |-- cumulative (cumulative link)
- * |   |   |   |       |-- references
- * |   |   |   |       |   `-- patch-xyz-1 (list of one-off patches)
+ * |   |   |   |-- xyz
+ * |   |   |   |    `-- patches (overlay directory)
  * |   |   |   |       |-- patch-xyz-1
  * |   |   |   |       `-- patch-xyz-2
  * |   |   |   |-- vuw
- * |   |   |   |    `-- .patches   (overlay directory)
- * |   |   |   |       |-- cumulative (cumulative link)
- * |   |   |   |       |-- references
- * |   |   |   |       |   `-- patch-vuw-1 (list of one-off patches)
+ * |   |   |   |    `-- patches (overlay directory)
  * |   |   |   |        `-- patch-vuw-1
  * |   |   |   ` -- base
- * |   |   |        |-- .patches   (overlay directory)
- * |   |   |        |   |-- cumulative (links to given patchId)
- * |   |   |        |   |-- references
- * |   |   |        |   |   `-- patch-base-1 (list of one-off patches)
+ * |   |   |        |-- patches (overlay directory)
  * |   |   |        |   |-- patch-base-1
  * |   |   |        |   `-- patch-base-2
  * |   |   |        |-- org/jboss/as/...
  * |   |   |        `-- org/jboss/as/server/main/module.xml
- * |   |   |
  * |   |   `-- add-ons
  * |   |       `-- def
- * |   |           `-- .patches    (overlay directory)
+ * |   |           `-- patches (overlay directory)
  * |   |               |-- patch-def-1
  * |   |               `-- patch-def-2
  * |   |
@@ -121,13 +99,39 @@ import org.jboss.as.patching.installation.InstalledImage;
  * |   |-- references
  * |   |   `-- patch-identity-1    (list of one-off patches)
  * |   `-- patches                 (history dir)
- * |       `-- patch-identity-1
- * |           |-- patch.xml
- * |           |-- rollback.xml
- * |           |-- timestamp
- * |           |-- configuration   (configuration backup)
- * |           `-- misc            (misc backup)
- * |
+ * |       |-- patch-identity-1
+ * |       |   |-- patch.xml
+ * |       |   |-- rollback.xml
+ * |       |   |-- timestamp
+ * |       |   |-- configuration   (configuration backup)
+ * |       |   `-- misc            (misc backup)
+ * |       `-- modules (patched modules metatada for the installation)
+ * |           |-- system
+ * |           |   |-- layers
+ * |           |   |   |-- xyz
+ * |           |   |   |   `-- patches
+ * |           |   |   |       |-- cumulative (cumulative link)
+ * |           |   |   |       `-- references
+ * |           |   |   |           `-- patch-xyz-1 (list of one-off patches)
+ * |           |   |   |-- vuw
+ * |           |   |   |   `-- patches
+ * |           |   |   |       |-- cumulative (cumulative link)
+ * |           |   |   |       `-- references
+ * |           |   |   |           `-- patch-vuw-1 (list of one-off patches)
+ * |           |   |   `-- base
+ * |           |   |       `-- patches
+ * |           |   |           |-- cumulative (links to given patchId)
+ * |           |   |           `-- references
+ * |           |   |               `-- patch-base-1 (list of one-off patches)
+ * |           |   `-- add-ons
+ * |           |       `-- def
+ * |           |           `-- patches
+ * |           |               |-- cumulative (links to given patchId)
+ * |           |               `-- references
+ * |           |                   |-- patch-def-1 (list of one-off patches)
+ * |           |                   `-- patch-def-2 (list of one-off patches)
+ * |           `-- bundles (patched bundles metatada for the installation)
+ * |               `-- (same layout that ../modules)
  * `-- jboss-modules.jar
  * </code>
  * </pre>
