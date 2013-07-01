@@ -46,6 +46,8 @@ import org.jboss.msc.value.InjectedValue;
  */
 public class MessageDrivenComponentCreateService extends EJBComponentCreateService {
 
+    private static final String DELIVERY_ACTIVE_PROP = "DeliveryActive";
+
     private final Class<?> messageListenerInterface;
     private final Properties activationProps;
     private final String resourceAdapterName;
@@ -54,6 +56,7 @@ public class MessageDrivenComponentCreateService extends EJBComponentCreateServi
     private final InjectedValue<DefaultResourceAdapterService> defaultResourceAdapterServiceInjectedValue = new InjectedValue<DefaultResourceAdapterService>();
     private final InjectedValue<EJBUtilities> ejbUtilitiesInjectedValue = new InjectedValue<EJBUtilities>();
     private final ClassLoader moduleClassLoader;
+
     /**
      * Construct a new instance.
      *
@@ -86,8 +89,16 @@ public class MessageDrivenComponentCreateService extends EJBComponentCreateServi
         } else {
             activeResourceAdapterName = resourceAdapterName;
         }
+        // WFLY-878 - the DeliveryActive prop is used internally to avoid starting the MDB component when it is deployed
+        boolean deliveryActive = true;
+        if (activationProps.containsKey(DELIVERY_ACTIVE_PROP)) {
+            deliveryActive = Boolean.valueOf(activationProps.getProperty(DELIVERY_ACTIVE_PROP));
+            // do not pass this prop to the RA endpoint
+            activationProps.remove(DELIVERY_ACTIVE_PROP);
+        }
+
         final ActivationSpec activationSpec = getEndpointDeployer().createActivationSpecs(activeResourceAdapterName, messageListenerInterface, activationProps, getDeploymentClassLoader());
-        final MessageDrivenComponent component = new MessageDrivenComponent(this, messageListenerInterface, activationSpec);
+        final MessageDrivenComponent component = new MessageDrivenComponent(this, messageListenerInterface, activationSpec, deliveryActive);
         // set the resource adapter
         final ResourceAdapter resourceAdapter = this.resourceAdapterInjectedValue.getValue();
         component.setResourceAdapter(resourceAdapter);
