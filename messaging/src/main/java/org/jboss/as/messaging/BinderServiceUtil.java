@@ -47,6 +47,8 @@ public class BinderServiceUtil {
     public static void installBinderService(final ServiceTarget serviceTarget,
                                                  final String name,
                                                  final Object obj) {
+
+
         final ContextNames.BindInfo bindInfo = ContextNames.bindInfoFor(name);
         final BinderService binderService = new BinderService(bindInfo.getBindName());
 

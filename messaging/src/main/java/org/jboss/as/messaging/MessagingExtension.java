@@ -220,6 +220,7 @@ public class MessagingExtension implements Extension {
 
             serverModel.registerSubModel(JMSQueueDefinition.newDeployedJMSQueueDefinition());
             serverModel.registerSubModel(JMSTopicDefinition.newDeployedJMSTopicDefinition());
+            serverModel.registerSubModel(new PooledConnectionFactoryDefinition(true));
         }
 
         // JMS Bridges

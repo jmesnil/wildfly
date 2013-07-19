@@ -29,7 +29,6 @@ import static org.jboss.as.messaging.MessagingMessages.MESSAGES;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,10 +44,12 @@ import org.jboss.as.connector.services.resourceadapters.ResourceAdapterActivator
 import org.jboss.as.connector.services.resourceadapters.deployment.registry.ResourceAdapterDeploymentRegistry;
 import org.jboss.as.connector.subsystems.jca.JcaSubsystemConfiguration;
 import org.jboss.as.connector.util.ConnectorServices;
+import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.as.messaging.HornetQActivationService;
 import org.jboss.as.messaging.JGroupsChannelLocator;
+import org.jboss.as.messaging.MessagingServices;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.as.naming.service.NamingService;
-import org.jboss.as.network.SocketBinding;
 import org.jboss.as.security.service.SubjectFactoryService;
 import org.jboss.as.txn.service.TxnServices;
 import org.jboss.jca.common.api.metadata.Defaults;
@@ -99,8 +100,8 @@ import org.jboss.jca.core.api.management.ManagementRepository;
 import org.jboss.jca.core.spi.rar.ResourceAdapterRepository;
 import org.jboss.jca.core.spi.transaction.TransactionIntegration;
 import org.jboss.msc.inject.Injector;
-import org.jboss.msc.inject.MapInjector;
 import org.jboss.msc.service.Service;
+import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceContainer;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
@@ -154,12 +155,12 @@ public class PooledConnectionFactoryService implements Service<Void> {
     public static final String JGROUPS_CHANNEL_REF_NAME = "jgroupsChannelRefName";
 
     private Injector<Object> transactionManager = new InjectedValue<Object>();
+    private InjectedValue<HornetQServer> hornetQService = new InjectedValue<HornetQServer>();
+
     private List<String> connectors;
     private String discoveryGroupName;
     private List<PooledConnectionFactoryConfigProperties> adapterParams;
     private String name;
-    private Map<String, SocketBinding> socketBindings = new HashMap<String, SocketBinding>();
-    private InjectedValue<HornetQServer> hornetQService = new InjectedValue<HornetQServer>();
     private List<String> jndiNames;
     private String txSupport;
     private int minPoolSize;
@@ -167,7 +168,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
     private String hqServerName;
     private final String jgroupsChannelName;
 
-   public PooledConnectionFactoryService(String name, List<String> connectors, String discoveryGroupName, String hqServerName, String jgroupsChannelName, List<PooledConnectionFactoryConfigProperties> adapterParams, List<String> jndiNames, String txSupport, int minPoolSize, int maxPoolSize) {
+   private PooledConnectionFactoryService(String name, List<String> connectors, String discoveryGroupName, String hqServerName, String jgroupsChannelName, List<PooledConnectionFactoryConfigProperties> adapterParams, List<String> jndiNames, String txSupport, int minPoolSize, int maxPoolSize) {
         this.name = name;
         this.connectors = connectors;
         this.discoveryGroupName = discoveryGroupName;
@@ -178,6 +179,43 @@ public class PooledConnectionFactoryService implements Service<Void> {
         this.txSupport = txSupport;
         this.minPoolSize = minPoolSize;
         this.maxPoolSize = maxPoolSize;
+    }
+
+    public static void installService(final ServiceVerificationHandler verificationHandler,
+                                      final List<ServiceController<?>> newControllers,
+                                      ServiceTarget serviceTarget,
+                                      String name,
+                                      String hqServerName,
+                                      List<String> connectors,
+                                      String discoveryGroupName,
+                                      String jgroupsChannelName,
+                                      List<PooledConnectionFactoryConfigProperties> adapterParams,
+                                      List<String> jndiNames,
+                                      String txSupport,
+                                      int minPoolSize,
+                                      int maxPoolSize) {
+
+        ServiceName hqServiceName = MessagingServices.getHornetQServiceName(hqServerName);
+        ServiceName serviceName = JMSServices.getPooledConnectionFactoryBaseServiceName(hqServiceName).append(name);
+        PooledConnectionFactoryService service = new PooledConnectionFactoryService(name,
+                connectors, discoveryGroupName, hqServerName, jgroupsChannelName, adapterParams,
+                jndiNames, txSupport, minPoolSize, maxPoolSize);
+
+        ServiceBuilder serviceBuilder = serviceTarget
+                .addService(serviceName, service)
+                .addDependency(TxnServices.JBOSS_TXN_TRANSACTION_MANAGER, service.transactionManager)
+                .addDependency(hqServiceName, HornetQServer.class, service.hornetQService)
+                .addDependency(HornetQActivationService.getHornetQActivationServiceName(hqServiceName))
+                .addDependency(JMSServices.getJmsManagerBaseServiceName(hqServiceName))
+                .setInitialMode(ServiceController.Mode.PASSIVE);
+        if (verificationHandler != null) {
+            serviceBuilder.addListener(verificationHandler);
+        }
+
+        final ServiceController<Void> controller = serviceBuilder.install();
+        if (newControllers != null) {
+            newControllers.add(controller);
+        }
     }
 
 
@@ -417,17 +455,4 @@ public class PooledConnectionFactoryService implements Service<Void> {
     public void stop(StopContext context) {
         // Service context takes care of this
     }
-
-    public Injector<Object> getTransactionManager() {
-        return transactionManager;
-    }
-
-    Injector<SocketBinding> getSocketBindingInjector(String name) {
-        return new MapInjector<String, SocketBinding>(socketBindings, name);
-    }
-
-    public Injector<HornetQServer> getHornetQService() {
-        return hornetQService;
-    }
-
 }

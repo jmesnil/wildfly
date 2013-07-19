@@ -51,6 +51,8 @@ public abstract class AbstractJMSRuntimeHandler<T> extends AbstractRuntimeOnlyHa
         PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
         final T dataSource = getDestinationConfig(address);
 
+        System.out.println("AbstractJMSRuntimeHandler.executeRuntimeStep");
+        System.out.println("&&&&&&&&&&&& dataSource = " + dataSource);
         boolean includeDefault = operation.hasDefined(INCLUDE_DEFAULTS) ? operation.get(INCLUDE_DEFAULTS).asBoolean() : false;
 
         if (ModelDescriptionConstants.READ_ATTRIBUTE_OPERATION.equals(opName)) {
