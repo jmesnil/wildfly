@@ -22,6 +22,8 @@
 
 package org.jboss.as.test.integration.messaging.jms.definitions;
 
+import javax.jms.JMSConnectionFactoryDefinition;
+import javax.jms.JMSConnectionFactoryDefinitions;
 import javax.jms.JMSDestinationDefinition;
 import javax.jms.JMSDestinationDefinitions;
 
@@ -48,6 +50,18 @@ import javax.jms.JMSDestinationDefinitions;
                 "selector=color = 'red'"
         }
 )
+@JMSConnectionFactoryDefinitions(
+        value = {
+                @JMSConnectionFactoryDefinition(
+                        name="java:module/injectedConnectionFactory1"
+                )
+        }
+)
+/*
+@JMSConnectionFactoryDefinition(
+        name="java:global/injectedConnectionFactory2"
+)
+*/
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */

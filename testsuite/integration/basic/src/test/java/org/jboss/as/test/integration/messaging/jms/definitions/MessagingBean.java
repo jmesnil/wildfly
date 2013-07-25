@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
+import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.jms.Topic;
 
@@ -35,6 +36,20 @@ import javax.jms.Topic;
  */
 @Stateless
 public class MessagingBean {
+
+    // Use a @JMSConnectionFactoryDefinition inside a @JMSConnectionFactoryDefinitions
+    @Resource(lookup = "java:module/injectedConnectionFactory1")
+    private ConnectionFactory factory1;
+
+    /*
+    // Use a @JMSConnectionFactoryDefinition
+    @Resource(lookup = "java:global/injectedConnectionFactory2")
+    private ConnectionFactory factory2;
+
+    // Use a jms-connection-factory from the deployment descriptor
+    @Resource(lookup = "java:app/injectedConnectionFactory3")
+    private ConnectionFactory factory3;
+    */
 
     // Use a @JMSDestinationDefinition inside a @JMSDestinationDefinitions
     @Resource(lookup = "java:module/env/injectedQueue1")
@@ -62,5 +77,10 @@ public class MessagingBean {
         assertNotNull(queue3);
         assertNotNull(topic1);
         assertNotNull(topic2);
+        assertNotNull(factory1);
+        /*
+        assertNotNull(factory2);
+        assertNotNull(factory3);
+        */
     }
 }
