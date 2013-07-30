@@ -2864,7 +2864,7 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.spec.javax.resource</groupId>
-      <artifactId>jboss-connector-api_1.6_spec</artifactId>
+      <artifactId>jboss-connector-api_1.7_spec</artifactId>
       <licenses>
         <license>
           <name>GNU Lesser General Public License, Version 2.1</name>
