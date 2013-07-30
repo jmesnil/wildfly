@@ -214,4 +214,15 @@ public interface ConnectorLogger extends BasicLogger {
     @Message(id = 10418, value = "Stopped Driver service with driver-name = %s")
     void stoppeddDriverService(String driverName);
 
+    @LogMessage(level = WARN)
+    @Message(id = 10419, value = "No ironjacamar.security defined for %s")
+    void noSecurityDefined(String jndiName);
+
+    @LogMessage(level = WARN)
+    @Message(id = 10420, value = "@ConnectionFactoryDefinition will have limited management: %s")
+    void connectionFactoryAnnotation(String jndiName);
+
+    @LogMessage(level = WARN)
+    @Message(id = 10421, value = "@AdministeredObjectDefinition will have limited management: %s")
+    void adminObjectAnnotation(String jndiName);
 }

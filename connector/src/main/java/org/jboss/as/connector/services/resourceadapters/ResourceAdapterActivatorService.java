@@ -35,11 +35,12 @@ import java.util.Set;
 import org.jboss.as.connector.metadata.deployment.ResourceAdapterDeployment;
 import org.jboss.as.connector.services.resourceadapters.deployment.AbstractResourceAdapterDeploymentService;
 import org.jboss.as.connector.util.ConnectorServices;
+import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.jca.common.api.metadata.ironjacamar.IronJacamar;
 import org.jboss.jca.common.api.metadata.ra.AdminObject;
 import org.jboss.jca.common.api.metadata.ra.ConnectionDefinition;
-import org.jboss.jca.common.api.metadata.ra.Connector;
 import org.jboss.jca.common.api.metadata.ra.Connector.Version;
+import org.jboss.jca.common.api.metadata.ra.Connector;
 import org.jboss.jca.common.api.metadata.ra.ResourceAdapter1516;
 import org.jboss.jca.common.api.metadata.ra.ra10.ResourceAdapter10;
 import org.jboss.jca.deployers.DeployersLogger;
@@ -69,6 +70,7 @@ public final class ResourceAdapterActivatorService extends AbstractResourceAdapt
     private final String deploymentName;
 
     private CommonDeployment deploymentMD;
+    private ContextNames.BindInfo bindInfo;
 
     public ResourceAdapterActivatorService(final Connector cmd, final IronJacamar ijmd, ClassLoader cl,
             final String deploymentName) {
@@ -76,6 +78,11 @@ public final class ResourceAdapterActivatorService extends AbstractResourceAdapt
         this.ijmd = ijmd;
         this.cl = cl;
         this.deploymentName = deploymentName;
+        this.bindInfo = null;
+    }
+
+    public void setBindInfo(ContextNames.BindInfo bi) {
+        this.bindInfo = bi;
     }
 
     @Override
@@ -127,6 +134,14 @@ public final class ResourceAdapterActivatorService extends AbstractResourceAdapt
     public void unregisterAll(String deploymentName) {
         super.unregisterAll(deploymentName);
 
+    }
+
+    @Override
+    public ContextNames.BindInfo getBindInfo(String jndi) {
+        if (bindInfo != null)
+            return bindInfo;
+
+        return ContextNames.bindInfoFor(jndi);
     }
 
     public CommonDeployment getDeploymentMD() {

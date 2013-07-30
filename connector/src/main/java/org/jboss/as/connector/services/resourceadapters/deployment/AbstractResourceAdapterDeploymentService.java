@@ -231,6 +231,10 @@ public abstract class AbstractResourceAdapterDeploymentService {
         return ccmValue;
     }
 
+    public ContextNames.BindInfo getBindInfo(String jndi) {
+        return ContextNames.bindInfoFor(jndi);
+    }
+
     protected abstract class AbstractAS7RaDeployer extends AbstractResourceAdapterDeployer {
 
         protected final ServiceTarget serviceTarget;
@@ -284,7 +288,7 @@ public abstract class AbstractResourceAdapterDeploymentService {
                     .addDependency(connectionFactoryServiceName, Object.class, referenceFactoryService.getDataSourceInjector())
                     .setInitialMode(ServiceController.Mode.ACTIVE).install();
 
-            final ContextNames.BindInfo bindInfo = ContextNames.bindInfoFor(jndi);
+            final ContextNames.BindInfo bindInfo = getBindInfo(jndi);
             final BinderService binderService = new BinderService(bindInfo.getBindName());
             serviceTarget
                     .addService(bindInfo.getBinderServiceName(), binderService)
@@ -342,7 +346,7 @@ public abstract class AbstractResourceAdapterDeploymentService {
                     .addDependency(adminObjectServiceName, Object.class, referenceFactoryService.getAdminObjectInjector())
                     .setInitialMode(ServiceController.Mode.ACTIVE).install();
 
-            final ContextNames.BindInfo bindInfo = ContextNames.bindInfoFor(jndi);
+            final ContextNames.BindInfo bindInfo = getBindInfo(jndi);
             final BinderService binderService = new BinderService(bindInfo.getBindName());
             final ServiceName binderServiceName = bindInfo.getBinderServiceName();
             serviceTarget
