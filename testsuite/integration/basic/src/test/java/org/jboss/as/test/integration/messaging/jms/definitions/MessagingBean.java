@@ -23,6 +23,7 @@
 package org.jboss.as.test.integration.messaging.jms.definitions;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
@@ -41,15 +42,13 @@ public class MessagingBean {
     @Resource(lookup = "java:module/injectedConnectionFactory1")
     private ConnectionFactory factory1;
 
-    /*
     // Use a @JMSConnectionFactoryDefinition
-    @Resource(lookup = "java:global/injectedConnectionFactory2")
-    private ConnectionFactory factory2;
+    //@Resource(lookup = "java:global/injectedConnectionFactory2")
+    //private ConnectionFactory factory2;
 
     // Use a jms-connection-factory from the deployment descriptor
-    @Resource(lookup = "java:app/injectedConnectionFactory3")
-    private ConnectionFactory factory3;
-    */
+    //@Resource(lookup = "java:app/injectedConnectionFactory3")
+    //private ConnectionFactory factory3;
 
     // Use a @JMSDestinationDefinition inside a @JMSDestinationDefinitions
     @Resource(lookup = "java:module/env/injectedQueue1")

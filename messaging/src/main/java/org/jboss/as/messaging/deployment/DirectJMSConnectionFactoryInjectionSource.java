@@ -22,7 +22,6 @@
 
 package org.jboss.as.messaging.deployment;
 
-import static java.util.Arrays.asList;
 import static org.jboss.as.messaging.CommonAttributes.DEFAULT;
 import static org.jboss.as.messaging.CommonAttributes.HORNETQ_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.POOLED_CONNECTION_FACTORY;
@@ -40,6 +39,7 @@ import org.jboss.as.messaging.MessagingServices;
 import org.jboss.as.messaging.jms.PooledConnectionFactoryConfigProperties;
 import org.jboss.as.messaging.jms.PooledConnectionFactoryService;
 import org.jboss.as.naming.ManagedReferenceFactory;
+import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
@@ -133,23 +133,23 @@ int minPoolSize() default -1;
         try {
             ServiceName hqServiceName = MessagingServices.getHornetQServiceName(getHornetQServerName());
 
-            startedPooledConnectionFactory(uniqueName, phaseContext.getServiceTarget(), hqServiceName, deploymentUnit);
+            startedPooledConnectionFactory(context, uniqueName, serviceBuilder, phaseContext.getServiceTarget(), hqServiceName, deploymentUnit, injector);
         } catch (Exception e) {
             throw new DeploymentUnitProcessingException(e);
         }
     }
 
-    private void startedPooledConnectionFactory(String pcfName, ServiceTarget serviceTarget, ServiceName hqServiceName, DeploymentUnit deploymentUnit) {
+    private void startedPooledConnectionFactory(ResolutionContext context, String pcfName, ServiceBuilder<?> serviceBuilder, ServiceTarget serviceTarget, ServiceName hqServiceName, DeploymentUnit deploymentUnit, Injector<ManagedReferenceFactory> injector) {
         List<String> connectors = new ArrayList<>();
         String discoveryGroupName = null;
         String jgroupsChannelName = null;
         List<PooledConnectionFactoryConfigProperties> adapterParams  = new ArrayList<>();
-        List<String> jndiNames = asList(name);
         String txSupport = null;
 
+        final ContextNames.BindInfo bindInfo = ContextNames.bindInfoForEnvEntry(context.getApplicationName(), context.getModuleName(), context.getComponentName(), !context.isCompUsesModule(), name);
         PooledConnectionFactoryService.installService(null, null, serviceTarget, pcfName, getHornetQServerName(), connectors,
                 discoveryGroupName, jgroupsChannelName, adapterParams,
-                jndiNames,
+                bindInfo,
                 txSupport, minPoolSize, maxPoolSize);
 
         //create the management registration
@@ -161,14 +161,14 @@ int minPoolSize() default -1;
     }
 
     private String uniqueName(InjectionSource.ResolutionContext context, final String jndiName) {
-        StringBuilder name = new StringBuilder();
-        name.append(context.getApplicationName() + "_");
-        name.append(context.getModuleName() + "_");
+        StringBuilder uniqueName = new StringBuilder();
+        uniqueName.append(context.getApplicationName() + "_");
+        uniqueName.append(context.getModuleName() + "_");
         if (context.getComponentName() != null) {
-            name.append(context.getComponentName() + "_");
+            uniqueName.append(context.getComponentName() + "_");
         }
-        name.append(jndiName.replace(':', '_'));
-        return name.toString();
+        uniqueName.append(jndiName.replace(':', '_'));
+        return uniqueName.toString();
     }
 
 

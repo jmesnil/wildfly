@@ -27,6 +27,18 @@ import javax.jms.JMSConnectionFactoryDefinitions;
 import javax.jms.JMSDestinationDefinition;
 import javax.jms.JMSDestinationDefinitions;
 
+/*
+@JMSConnectionFactoryDefinitions(
+        value = {
+                @JMSConnectionFactoryDefinition(
+                        name="java:module/injectedConnectionFactory1"
+                )
+        }
+)
+*/
+@JMSConnectionFactoryDefinition(
+        name="java:global/injectedConnectionFactory2"
+)
 @JMSDestinationDefinitions(
         value =  {
                 @JMSDestinationDefinition(
