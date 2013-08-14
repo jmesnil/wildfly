@@ -21,13 +21,15 @@
  */
 package org.jboss.as.messaging.deployment;
 
-import static org.jboss.as.messaging.BinderServiceUtil.installAliasBinderService;
+import static org.jboss.as.ee.structure.DeploymentType.EAR;
+import static org.jboss.as.naming.deployment.ContextNames.BindInfo;
 
 import org.jboss.as.ee.component.Attachments;
+import org.jboss.as.ee.component.BindingConfiguration;
 import org.jboss.as.ee.component.ComponentDescription;
 import org.jboss.as.ee.component.ComponentNamingMode;
 import org.jboss.as.ee.component.EEModuleDescription;
-import org.jboss.as.ee.structure.DeploymentType;
+import org.jboss.as.ee.component.ServiceInjectionSource;
 import org.jboss.as.ee.structure.DeploymentTypeMarker;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
@@ -35,7 +37,6 @@ import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.msc.service.ServiceName;
-import org.jboss.msc.service.ServiceTarget;
 
 /**
  * Processor responsible for binding JMS related resources to JNDI.
@@ -44,7 +45,7 @@ import org.jboss.msc.service.ServiceTarget;
  */
 public class MessagingJndiBindingProcessor implements DeploymentUnitProcessor {
 
-    public static final String DEFAULT_JMS_CONNECTION_FACTORY = "DefaultJMSConnectionFactory";
+    public static final String DEFAULT_JMS_CONNECTION_FACTORY = "java:comp/DefaultJMSConnectionFactory";
 
     /* Use a pooled connection factory as the default cf */
     public static final String JBOSS_DEFAULT_JMS_CONNECTION_FACTORY_LOOKUP = "java:/JmsXA";
@@ -58,48 +59,24 @@ public class MessagingJndiBindingProcessor implements DeploymentUnitProcessor {
             return;
         }
 
+        final BindInfo defaultConnectionFactoryBindInfo = ContextNames.bindInfoFor(JBOSS_DEFAULT_JMS_CONNECTION_FACTORY_LOOKUP);
+        final ServiceName serviceName = defaultConnectionFactoryBindInfo.getBinderServiceName();
+
         // do not alias the default JMS connection factory if there is no entry defined by the messaging subsystem
-        if (phaseContext.getServiceRegistry().getService(ContextNames.bindInfoFor(JBOSS_DEFAULT_JMS_CONNECTION_FACTORY_LOOKUP).getBinderServiceName()) == null) {
+        if (phaseContext.getServiceRegistry().getService(serviceName) == null) {
             return;
         }
 
-        final ServiceTarget serviceTarget = phaseContext.getServiceTarget();
-        if(DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
-            final ServiceName moduleContextServiceName = ContextNames.contextServiceNameOfModule(moduleDescription.getApplicationName(),moduleDescription.getModuleName());
-            bindAliasService(deploymentUnit, serviceTarget, moduleContextServiceName, JBOSS_DEFAULT_JMS_CONNECTION_FACTORY_LOOKUP);
+        if (!DeploymentTypeMarker.isType(EAR, deploymentUnit)) {
+            moduleDescription.getBindingConfigurations().add(new BindingConfiguration(DEFAULT_JMS_CONNECTION_FACTORY, new ServiceInjectionSource(serviceName)));
         }
 
         for(ComponentDescription component : moduleDescription.getComponentDescriptions()) {
             if(component.getNamingMode() == ComponentNamingMode.CREATE) {
-                final ServiceName compContextServiceName = ContextNames.contextServiceNameOfComponent(moduleDescription.getApplicationName(),moduleDescription.getModuleName(),component.getComponentName());
-                bindAliasService(deploymentUnit, serviceTarget, compContextServiceName, JBOSS_DEFAULT_JMS_CONNECTION_FACTORY_LOOKUP);
+                component.getBindingConfigurations().add(new BindingConfiguration(DEFAULT_JMS_CONNECTION_FACTORY, new ServiceInjectionSource(serviceName)));
             }
         }
     }
-
-    /**
-     * Binds the java:comp/DefaultJMSConnectionFactory by aliasing the connection factory lookup
-     * flagged as default by the messaging subsystem.
-     *
-     * @param deploymentUnit The deployment unit
-     * @param serviceTarget The service target
-     * @param contextServiceName The service name of the context to bind to
-     * @param connectionFactoryLookup the JNDI lookup of the default connection factory
-     *                                that will be aliased to.
-     *
-     */
-    private void bindAliasService(DeploymentUnit deploymentUnit, ServiceTarget serviceTarget, ServiceName contextServiceName, String connectionFactoryLookup) {
-        final ServiceName defaultJMSConnectionFactoryServiceName = contextServiceName.append(DEFAULT_JMS_CONNECTION_FACTORY);
-
-        installAliasBinderService(serviceTarget,
-                contextServiceName,
-                connectionFactoryLookup,
-                defaultJMSConnectionFactoryServiceName,
-                DEFAULT_JMS_CONNECTION_FACTORY);
-
-        deploymentUnit.addToAttachmentList(org.jboss.as.server.deployment.Attachments.JNDI_DEPENDENCIES, defaultJMSConnectionFactoryServiceName);
-    }
-
 
     @Override
     public void undeploy(DeploymentUnit context) {
