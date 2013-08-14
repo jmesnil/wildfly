@@ -40,7 +40,7 @@ import javax.jms.JMSDestinationDefinitions;
         }
 )
 @JMSDestinationDefinition(
-        name="java:global/injectedQueue2",
+        name="java:global/env/injectedQueue2",
         interfaceName="javax.jms.Queue",
         destinationName="injectedQueue2",
         properties = {

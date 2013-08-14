@@ -41,11 +41,11 @@ public class MessagingBean {
     private Queue queue1;
 
     // Use a @JMSDestinationDefinition
-    @Resource(lookup = "java:global/injectedQueue2")
+    @Resource(lookup = "java:global/env/injectedQueue2")
     private Queue queue2;
 
     // Use a jms-destination from the deployment descriptor
-    @Resource(lookup = "java:app/injectedQueue3")
+    @Resource(lookup = "java:app/env/injectedQueue3")
     private Queue queue3;
 
     // Use a @JMSDestinationDefinition inside a @JMSDestinationDefinitions
@@ -53,7 +53,7 @@ public class MessagingBean {
     private Topic topic1;
 
     // Use a jms-destination from the deployment descriptor
-    @Resource(lookup = "java:app/injectedTopic2")
+    @Resource(lookup = "java:app/env/injectedTopic2")
     private Topic topic2;
 
     public void checkInjectedResources() {

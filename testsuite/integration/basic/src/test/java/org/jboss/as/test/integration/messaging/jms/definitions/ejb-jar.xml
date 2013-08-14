@@ -30,7 +30,7 @@
             <ejb-class>org.jboss.as.test.integration.messaging.jms.definitions.MessagingBean</ejb-class>
             <jms-destination>
                 <description></description>
-                <name>java:app/injectedQueue3</name>
+                <name>java:app/env/injectedQueue3</name>
                 <interface-name>javax.jms.Queue</interface-name>
                 <destination-name>injectedQueue3</destination-name>
                 <property>
@@ -44,7 +44,7 @@
             </jms-destination>
             <jms-destination>
                 <description></description>
-                <name>java:app/injectedTopic2</name>
+                <name>java:app/env/injectedTopic2</name>
                 <interface-name>javax.jms.Topic</interface-name>
                 <destination-name>injectedTopic2</destination-name>
             </jms-destination>
