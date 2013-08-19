@@ -29,6 +29,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.jms.JMSConnectionFactoryDefinition;
+import javax.jms.JMSConnectionFactoryDefinitions;
 import javax.jms.JMSDestinationDefinition;
 import javax.jms.JMSDestinationDefinitions;
 
@@ -49,7 +51,7 @@ import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.DotName;
 
 /**
- * Process {@link JMSDestinationDefinition}(s) annotations.
+ * Process {@link JMSDestinationDefinition}(s) {@link JMSConnectionFactoryDefinition}(s) annotations.
  *
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */
@@ -57,6 +59,8 @@ public class MessagingJMSDefinitionAnnotationParser implements DeploymentUnitPro
 
     private static final DotName JMS_DESTINATION_DEFINITION = DotName.createSimple(JMSDestinationDefinition.class.getName());
     private static final DotName JMS_DESTINATION_DEFINITIONS = DotName.createSimple(JMSDestinationDefinitions.class.getName());
+    private static final DotName JMS_CONNECTION_FACTORY_DEFINITION = DotName.createSimple(JMSConnectionFactoryDefinition.class.getName());
+    private static final DotName JMS_CONNECTION_FACTORY_DEFINITIONS = DotName.createSimple(JMSConnectionFactoryDefinitions.class.getName());
 
     @Override
     public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
@@ -84,6 +88,27 @@ public class MessagingJMSDefinitionAnnotationParser implements DeploymentUnitPro
                 throw MESSAGES.classOnlyAnnotation(JMS_DESTINATION_DEFINITION.toString(), target);
             }
             processJMSDestinationDefinition(eeModuleDescription, definition, (ClassInfo) target, applicationClasses);
+        }
+
+        // @JMSConnectionFactoryDefinitions
+        for (AnnotationInstance annotation : index.getAnnotations(JMS_CONNECTION_FACTORY_DEFINITIONS)) {
+            final AnnotationTarget target = annotation.target();
+            if (!(target instanceof ClassInfo)) {
+                throw MESSAGES.classOnlyAnnotation(JMS_CONNECTION_FACTORY_DEFINITIONS.toString(), target);
+            }
+            List<AnnotationInstance> connectionFactoryDefinitions = getNestedDefinitionAnnotations(annotation);
+            for (AnnotationInstance definition : connectionFactoryDefinitions) {
+                processJMSConnectionFactoryDefinition(eeModuleDescription, definition, (ClassInfo) target, applicationClasses);
+            }
+        }
+
+        // @JMSConnectionFactoryDefinition
+        for (AnnotationInstance definition : index.getAnnotations(JMS_CONNECTION_FACTORY_DEFINITION)) {
+            final AnnotationTarget target = definition.target();
+            if (!(target instanceof ClassInfo)) {
+                throw MESSAGES.classOnlyAnnotation(JMS_CONNECTION_FACTORY_DEFINITION.toString(), target);
+            }
+            processJMSConnectionFactoryDefinition(eeModuleDescription, definition, (ClassInfo) target, applicationClasses);
         }
     }
 
@@ -114,11 +139,22 @@ public class MessagingJMSDefinitionAnnotationParser implements DeploymentUnitPro
         classDescription.getBindingConfigurations().add(config);
     }
 
+    private void processJMSConnectionFactoryDefinition(EEModuleDescription eeModuleDescription, AnnotationInstance connectionFactoryDefinition, ClassInfo target, EEApplicationClasses applicationClasses) {
+        final AnnotationValue nameValue = connectionFactoryDefinition.value(NAME);
+        if (nameValue == null || nameValue.asString().isEmpty()) {
+            throw MESSAGES.annotationAttributeMissing(JMS_CONNECTION_FACTORY_DEFINITION.toString(), NAME);
+        }
+
+        DirectJMSConnectionFactoryInjectionSource source = new DirectJMSConnectionFactoryInjectionSource(nameValue.asString());
+        final BindingConfiguration config = new BindingConfiguration(nameValue.asString(), source);
+        eeModuleDescription.getBindingConfigurations().add(config);
+    }
+
     /**
-     * Returns the nested {@link JMSDestinationDefinition} annotations out
-     * of the outer {@link JMSDestinationDefinitions} annotation
+     * Returns the nested {@link JMSDestinationDefinition} (resp. {@link JMSConnectionFactoryDefinition}) annotations out
+     * of the outer {@link JMSDestinationDefinitions} (resp. {@link JMSConnectionFactoryDefinitions}) annotation
      *
-     * @param definitions The outer {@link JMSDestinationDefinitions} annotation
+     * @param definitions The outer {@link JMSDestinationDefinitions} (resp. {@link JMSConnectionFactoryDefinitions}) annotation
      */
     private static List<AnnotationInstance> getNestedDefinitionAnnotations(AnnotationInstance definitions) {
         if (definitions == null) {
