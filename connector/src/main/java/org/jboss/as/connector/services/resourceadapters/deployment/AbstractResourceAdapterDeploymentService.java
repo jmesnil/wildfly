@@ -235,6 +235,10 @@ public abstract class AbstractResourceAdapterDeploymentService {
         return ContextNames.bindInfoFor(jndi);
     }
 
+    public boolean createBinderService() {
+        return true;
+    }
+
     protected abstract class AbstractAS7RaDeployer extends AbstractResourceAdapterDeployer {
 
         protected final ServiceTarget serviceTarget;
@@ -281,38 +285,46 @@ public abstract class AbstractResourceAdapterDeploymentService {
 
             connectionFactoryBuilder.setInitialMode(ServiceController.Mode.ACTIVE).install();
 
+            // use a BindInfo to build the referenceFactoryService's service name.
+            // if the CF is in a java:app/ or java:module/ namespace, we need the whole bindInfo's binder service name
+            // to distinguish CFs with same name in different application (or module).
+            final ContextNames.BindInfo bindInfo = getBindInfo(jndi);
+
             final ConnectionFactoryReferenceFactoryService referenceFactoryService = new ConnectionFactoryReferenceFactoryService();
             final ServiceName referenceFactoryServiceName = ConnectionFactoryReferenceFactoryService.SERVICE_NAME_BASE
-                    .append(jndi);
+                    .append(bindInfo.getBinderServiceName());
             serviceTarget.addService(referenceFactoryServiceName, referenceFactoryService)
                     .addDependency(connectionFactoryServiceName, Object.class, referenceFactoryService.getDataSourceInjector())
                     .setInitialMode(ServiceController.Mode.ACTIVE).install();
 
-            final ContextNames.BindInfo bindInfo = getBindInfo(jndi);
-            final BinderService binderService = new BinderService(bindInfo.getBindName());
-            serviceTarget
-                    .addService(bindInfo.getBinderServiceName(), binderService)
-                    .addDependency(referenceFactoryServiceName, ManagedReferenceFactory.class,
-                            binderService.getManagedObjectInjector())
-                    .addDependency(bindInfo.getParentContextServiceName(), ServiceBasedNamingStore.class,
-                            binderService.getNamingStoreInjector())
-                    .addListener(new AbstractServiceListener<Object>() {
-                         public void transition(final ServiceController<? extends Object> controller, final ServiceController.Transition transition) {
-                            switch (transition) {
-                                case STARTING_to_UP: {
-                                    DEPLOYMENT_CONNECTOR_LOGGER.boundJca("ConnectionFactory", jndi);
-                                    break;
-                                }
-                                case STOPPING_to_DOWN: {
-                                    DEPLOYMENT_CONNECTOR_LOGGER.unboundJca("ConnectionFactory", jndi);
-                                    break;
-                                }
-                                case REMOVING_to_REMOVED: {
-                                    DEPLOYMENT_CONNECTOR_LOGGER.debugf("Removed JCA ConnectionFactory [%s]", jndi);
+            if (createBinderService()) {
+                final BinderService binderService = new BinderService(bindInfo.getBindName());
+                serviceTarget
+                        .addService(bindInfo.getBinderServiceName(), binderService)
+                        .addDependency(referenceFactoryServiceName, ManagedReferenceFactory.class,
+                                binderService.getManagedObjectInjector())
+                        .addDependency(bindInfo.getParentContextServiceName(), ServiceBasedNamingStore.class,
+                                binderService.getNamingStoreInjector())
+                        .addListener(new AbstractServiceListener<Object>() {
+                            public void transition(final ServiceController<? extends Object> controller, final ServiceController.Transition transition) {
+                                switch (transition) {
+                                    case STARTING_to_UP: {
+                                        DEPLOYMENT_CONNECTOR_LOGGER.boundJca("ConnectionFactory", jndi);
+                                        break;
+                                    }
+                                    case STOPPING_to_DOWN: {
+                                        DEPLOYMENT_CONNECTOR_LOGGER.unboundJca("ConnectionFactory", jndi);
+                                        break;
+                                    }
+                                    case REMOVING_to_REMOVED: {
+                                        DEPLOYMENT_CONNECTOR_LOGGER.debugf("Removed JCA ConnectionFactory [%s]", jndi);
+                                    }
                                 }
                             }
-                        }
-                    }).setInitialMode(ServiceController.Mode.ACTIVE).install();
+                        })
+                        .setInitialMode(ServiceController.Mode.ACTIVE)
+                        .install();
+            }
 
             // AS7-2222: Just hack it
             if (cf instanceof javax.resource.Referenceable) {

@@ -71,6 +71,8 @@ public final class ResourceAdapterActivatorService extends AbstractResourceAdapt
 
     private CommonDeployment deploymentMD;
     private ContextNames.BindInfo bindInfo;
+    private boolean createBinderService = true;
+
 
     public ResourceAdapterActivatorService(final Connector cmd, final IronJacamar ijmd, ClassLoader cl,
             final String deploymentName) {
@@ -83,6 +85,14 @@ public final class ResourceAdapterActivatorService extends AbstractResourceAdapt
 
     public void setBindInfo(ContextNames.BindInfo bi) {
         this.bindInfo = bi;
+    }
+
+    public boolean createBinderService() {
+        return createBinderService;
+    }
+
+    public void setCreateBinderService(boolean createBinderService) {
+        this.createBinderService = createBinderService;
     }
 
     @Override

@@ -102,6 +102,21 @@ public class MessagingJMSDefinitionDeploymentProcessor extends AbstractDeploymen
     private BindingConfiguration processJMSConnectionFactoryDefinition(JMSConnectionFactoryMetaData metadata) {
         String name = metadata.getName();
         DirectJMSConnectionFactoryInjectionSource source = new DirectJMSConnectionFactoryInjectionSource(name);
+        source.setInterfaceName(metadata.getInterfaceName());
+        source.setClassName(metadata.getClassName());
+        source.setResourceAdapter(metadata.getResourceAdapter());
+        source.setUser(metadata.getUser());
+        source.setPassword(metadata.getPassword());
+        source.setClientId(metadata.getClientId());
+        PropertiesMetaData properties = metadata.getProperties();
+        if (properties != null) {
+            for (PropertyMetaData property : properties) {
+                source.addProperty(property.getKey(), property.getValue());
+            }
+        }
+        source.setTransactional(metadata.isTransactional());
+        source.setMaxPoolSize(metadata.getMaxPoolSize());
+        source.setMinPoolSize(metadata.getMinPoolSize());
 
         return new BindingConfiguration(name, source);
     }
