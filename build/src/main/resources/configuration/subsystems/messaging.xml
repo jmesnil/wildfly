@@ -89,7 +89,7 @@
                    </connectors>
                    <entries>
                        <!-- Global JNDI entry used to provide a default JMS Connection factory to EE application -->
-                       <entry name="java:/JmsXA"/>
+                       <entry name="java:jboss/DefaultJMSConnectionFactory"/>
                    </entries>
                </pooled-connection-factory>
            </jms-connection-factories>
