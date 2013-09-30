@@ -26,9 +26,11 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.parsing.ParseUtils.missingRequired;
+import static org.jboss.as.messaging.Attribute.CONNECTOR_REF;
 import static org.jboss.as.messaging.Attribute.HOST;
 import static org.jboss.as.messaging.Attribute.SOCKET_BINDING;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTOR;
+import static org.jboss.as.messaging.CommonAttributes.HTTP_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.SERVLET_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.IN_VM_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.REMOTE_CONNECTOR;
@@ -65,6 +67,7 @@ public class Messaging14SubsystemParser extends Messaging13SubsystemParser {
             String socketBinding = null;
             String serverId = null;
             String host = null;
+            String connectorRef = null;
 
             int count = reader.getAttributeCount();
             for (int i = 0; i < count; i++) {
@@ -85,6 +88,10 @@ public class Messaging14SubsystemParser extends Messaging13SubsystemParser {
                     }
                     case HOST: {
                         host = attrValue;
+                        break;
+                    }
+                    case CONNECTOR_REF: {
+                        connectorRef = attrValue;
                         break;
                     }
                     default: {
@@ -134,6 +141,14 @@ public class Messaging14SubsystemParser extends Messaging13SubsystemParser {
                     if (serverId != null) {
                         InVMTransportDefinition.SERVER_ID.parseAndSetParameter(serverId, operation, reader);
                     }
+                    parseTransportConfiguration(reader, operation, false);
+                    break;
+                } case HTTP_CONNECTOR: {
+                    if (connectorRef == null) {
+                        throw missingRequired(reader, Collections.singleton(CONNECTOR_REF));
+                    }
+                    connectorAddress.add(HTTP_CONNECTOR, name);
+                    HTTPConnectorDefinition.CONNECTOR_REF.parseAndSetParameter(connectorRef, operation, reader);
                     parseTransportConfiguration(reader, operation, false);
                     break;
                 } default: {

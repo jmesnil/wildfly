@@ -66,6 +66,7 @@ import org.jboss.as.messaging.ConnectorServiceParamDefinition;
 import org.jboss.as.messaging.DiscoveryGroupDefinition;
 import org.jboss.as.messaging.DivertDefinition;
 import org.jboss.as.messaging.GroupingHandlerDefinition;
+import org.jboss.as.messaging.HTTPConnectorDefinition;
 import org.jboss.as.messaging.HornetQServerResourceDefinition;
 import org.jboss.as.messaging.ServletConnectorDefinition;
 import org.jboss.as.messaging.InVMTransportDefinition;
@@ -301,6 +302,9 @@ public class MessagingSubsystem14TestCase extends AbstractSubsystemBaseTest {
                                 new RejectExpressionsConfig(TransportParamDefinition.ATTRIBUTES_WITH_EXPRESSION_ALLOWED_IN_1_2_0))
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH).append(ServletConnectorDefinition.PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
+                        .addFailedAttribute(
+                                subsystemAddress.append(HORNETQ_SERVER_PATH).append(HTTPConnectorDefinition.PATH),
                                 FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH).append(pathElement(CommonAttributes.ACCEPTOR)),

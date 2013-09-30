@@ -123,6 +123,7 @@ public class MessagingTransformers {
         }
 
         hornetqServer.rejectChildResource(ServletConnectorDefinition.PATH);
+        hornetqServer.rejectChildResource(HTTPConnectorDefinition.PATH);
 
         hornetqServer.addChildResource(BroadcastGroupDefinition.PATH)
                 .getAttributeBuilder()
@@ -287,6 +288,7 @@ public class MessagingTransformers {
                 .end();
 
         hornetqServer.rejectChildResource(ServletConnectorDefinition.PATH);
+        hornetqServer.rejectChildResource(HTTPConnectorDefinition.PATH);
 
         return subsystemRoot.build();
     }

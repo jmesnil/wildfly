@@ -89,6 +89,7 @@ public enum Element {
    GROUPING_HANDLER(CommonAttributes.GROUPING_HANDLER),
    HORNETQ_SERVER(CommonAttributes.HORNETQ_SERVER),
    SERVLET_CONNECTOR(CommonAttributes.SERVLET_CONNECTOR),
+   HTTP_CONNECTOR(CommonAttributes.HTTP_CONNECTOR),
    ID_CACHE_SIZE(CommonAttributes.ID_CACHE_SIZE),
    INITIAL_WAIT_TIMEOUT(DiscoveryGroupDefinition.INITIAL_WAIT_TIMEOUT),
    IN_VM_ACCEPTOR(CommonAttributes.IN_VM_ACCEPTOR),

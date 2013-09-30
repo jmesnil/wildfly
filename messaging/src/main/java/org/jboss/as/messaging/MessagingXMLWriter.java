@@ -35,6 +35,7 @@ import static org.jboss.as.messaging.CommonAttributes.DIVERT;
 import static org.jboss.as.messaging.CommonAttributes.DURABLE;
 import static org.jboss.as.messaging.CommonAttributes.GROUPING_HANDLER;
 import static org.jboss.as.messaging.CommonAttributes.HORNETQ_SERVER;
+import static org.jboss.as.messaging.CommonAttributes.HTTP_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.SERVLET_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.IN_VM_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.IN_VM_CONNECTOR;
@@ -183,6 +184,15 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
     private static void writeConnectors(final XMLExtendedStreamWriter writer, final ModelNode node) throws XMLStreamException {
         if (node.hasDefined(CONNECTOR) || node.hasDefined(REMOTE_CONNECTOR) || node.hasDefined(IN_VM_CONNECTOR)) {
             writer.writeStartElement(Element.CONNECTORS.getLocalName());
+            if(node.hasDefined(HTTP_CONNECTOR)) {
+                for(final Property property : node.get(HTTP_CONNECTOR).asPropertyList()) {
+                    writer.writeStartElement(Element.HTTP_CONNECTOR.getLocalName());
+                    writer.writeAttribute(Attribute.NAME.getLocalName(), property.getName());
+                    HTTPConnectorDefinition.CONNECTOR_REF.marshallAsAttribute(property.getValue(), writer);
+                    writeTransportParam(writer, property.getValue().get(PARAM));
+                    writer.writeEndElement();
+                }
+            }
             if(node.hasDefined(REMOTE_CONNECTOR)) {
                 for(final Property property : node.get(REMOTE_CONNECTOR).asPropertyList()) {
                     writer.writeStartElement(Element.NETTY_CONNECTOR.getLocalName());

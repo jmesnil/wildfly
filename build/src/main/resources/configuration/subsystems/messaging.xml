@@ -10,6 +10,10 @@
            <journal-min-files>2</journal-min-files>
 
            <connectors>
+               <http-connector name="http" connector-ref="default">
+                   <param key="batch-delay" value="50"/>
+                   <param key="direct-deliver" value="false"/>
+               </http-connector>
                <netty-connector name="netty" socket-binding="messaging"/>
                <netty-connector name="netty-throughput" socket-binding="messaging-throughput">
                    <param key="batch-delay" value="50"/>
