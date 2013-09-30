@@ -210,7 +210,7 @@ public class DirectJMSConnectionFactoryInjectionSource extends InjectionSource {
     private List<String> getConnectors(Map<String, String> props) {
         List<String> connectors = new ArrayList<>();
         if (!props.containsKey(CONNECTOR)) {
-            connectors.add("netty");
+            connectors.add("http");
         } else {
             String connectorsStr = properties.remove(CONNECTOR);
             for (String s : connectorsStr.split(",")) {

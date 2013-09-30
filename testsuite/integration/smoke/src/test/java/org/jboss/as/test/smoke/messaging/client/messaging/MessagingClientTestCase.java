@@ -24,8 +24,10 @@ package org.jboss.as.test.smoke.messaging.client.messaging;
 
 import static org.junit.Assert.assertNotNull;
 
+import javax.naming.Context;
 import javax.resource.spi.IllegalStateException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +46,7 @@ import org.hornetq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.hornetq.core.remoting.impl.netty.TransportConstants;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.as.arquillian.api.ContainerResource;
 import org.jboss.as.arquillian.container.ManagementClient;
 import org.jboss.as.controller.client.ModelControllerClient;
@@ -70,7 +73,7 @@ public class MessagingClientTestCase {
 
         final String queueName = "queue.standalone";
 
-        final ClientSessionFactory sf = createClientSessionFactory(managementClient.getMgmtAddress(), 5445);
+        final ClientSessionFactory sf = createClientSessionFactory(managementClient.getWebUri().getHost(), managementClient.getWebUri().getPort());
         final ModelControllerClient client = managementClient.getControllerClient();
 
         // Check that the queue does not exists
@@ -153,6 +156,7 @@ public class MessagingClientTestCase {
         final Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(TransportConstants.HOST_PROP_NAME, host);
         properties.put(TransportConstants.PORT_PROP_NAME, port);
+        properties.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
         final TransportConfiguration configuration = new TransportConfiguration(NettyConnectorFactory.class.getName(), properties);
         return HornetQClient.createServerLocatorWithoutHA(configuration).createSessionFactory();
     }

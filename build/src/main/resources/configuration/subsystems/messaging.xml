@@ -10,7 +10,7 @@
            <journal-min-files>2</journal-min-files>
 
            <connectors>
-               <netty-connector name="netty" socket-binding="messaging"/>
+               <http-connector name="http" socket-binding="http" />
                <netty-connector name="netty-throughput" socket-binding="messaging-throughput">
                    <param key="batch-delay" value="50"/>
                </netty-connector>
@@ -18,7 +18,7 @@
            </connectors>
 
            <acceptors>
-               <netty-acceptor name="netty" socket-binding="messaging"/>
+               <http-acceptor name="http" http-listener="default" />
                <netty-acceptor name="netty-throughput" socket-binding="messaging-throughput">
                    <param key="batch-delay" value="50"/>
                    <param key="direct-deliver" value="false"/>
@@ -66,7 +66,7 @@
                </connection-factory>
                <connection-factory name="RemoteConnectionFactory">
                    <connectors>
-                       <connector-ref connector-name="netty"/>
+                       <connector-ref connector-name="http"/>
                    </connectors>
                    <entries>
                        <entry name="java:jboss/exported/jms/RemoteConnectionFactory"/>
@@ -96,7 +96,7 @@
                <broadcast-group name="bg-group1">
                    <socket-binding>messaging-group</socket-binding>
                    <broadcast-period>5000</broadcast-period>
-                   <connector-ref>netty</connector-ref>
+                   <connector-ref>http</connector-ref>
                </broadcast-group>
            </broadcast-groups>
        </replacement>
@@ -129,7 +129,6 @@
        </replacement>
    </supplement>
 
-   <socket-binding name="messaging" port="5445"/>
    <socket-binding name="messaging-throughput" port="5455"/>
    <socket-binding name="messaging-group" port="0" multicast-address="${jboss.messaging.group.address:231.7.7.7}" multicast-port="${jboss.messaging.group.port:9876}"/>
  </config>

@@ -110,13 +110,14 @@ public class JmsClientTestCase {
 
             conn = cf.createConnection("guest", "guest");
             conn.start();
-            Session session = conn.createSession(false, AUTO_ACKNOWLEDGE);
+            Session producerSession = conn.createSession(false, AUTO_ACKNOWLEDGE);
+            Session consumerSession = conn.createSession(false, AUTO_ACKNOWLEDGE);
 
             final CountDownLatch latch = new CountDownLatch(10);
             final List<String> result = new ArrayList<String>();
 
             // Set the async listener
-            MessageConsumer consumer = session.createConsumer(destination);
+            MessageConsumer consumer = consumerSession.createConsumer(destination);
             consumer.setMessageListener(new MessageListener() {
 
                 @Override
@@ -131,10 +132,10 @@ public class JmsClientTestCase {
                 }
             });
 
-            MessageProducer producer = session.createProducer(destination);
+            MessageProducer producer = producerSession.createProducer(destination);
             for (int i = 0 ; i < 10 ; i++) {
                 String s = "Test" + i;
-                TextMessage msg = session.createTextMessage(s);
+                TextMessage msg = producerSession.createTextMessage(s);
                 producer.send(msg);
             }
 

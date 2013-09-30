@@ -24,6 +24,7 @@ package org.jboss.as.messaging;
 
 import static org.jboss.logging.annotations.Message.INHERIT;
 
+import java.io.IOException;
 import java.util.Collection;
 
 import javax.jms.IllegalStateRuntimeException;
@@ -566,4 +567,12 @@ public interface MessagingMessages {
      */
     @Message(id = 11681, value = "Attribute (%s) can not been undefined as the resource does not define any alternative to this attribute.")
     String undefineAttributeWithoutAlternative(String name);
+
+    /**
+     * Create an exception when a HTTP Upgrade request does not contain the expected header.
+     *
+     * @param header the name of the header that must be present in the HTTP request
+     */
+    @Message(id = 11682, value = "HTTP Upgrade request is missing the %s header.")
+    IOException missingHTTPUpgradeHeader(String header);
 }
