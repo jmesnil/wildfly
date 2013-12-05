@@ -1236,6 +1236,10 @@
             <maven-resource group="io.netty" artifact="netty"/>
         </module-def>
 
+        <module-def name="org.jboss.netty.xnio-transport">
+            <maven-resource group="org.jboss.netty" artifact="netty-xnio-transport"/>
+        </module-def>
+
         <module-def name="org.jboss.remote-naming">
             <maven-resource group="org.jboss" artifact="jboss-remote-naming"/>
         </module-def>
