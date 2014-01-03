@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--  See src/resources/configuration/ReadMe.txt for how the configuration assembly works -->
+<config>
+    <extension-module>org.jboss.as.connector</extension-module>
+
+    <subsystem xmlns="urn:jboss:domain:resource-adapters:1.1">
+        <resource-adapters>
+            <resource-adapter id="activemq-ra.rar">
+                <module slot="main" id="org.apache.activemq.ra"/>
+                <transaction-support>XATransaction</transaction-support>
+                <config-property name="ServerUrl">
+                    vm://transport
+                </config-property>
+                <connection-definitions>
+                    <connection-definition class-name="org.apache.activemq.ra.ActiveMQManagedConnectionFactory" jndi-name="java:/activemq/ConnectionFactory" enabled="true" use-java-context="true" pool-name="ActiveMQConnectionFactoryPool" use-ccm="true">
+                        <xa-pool>
+                            <min-pool-size>1</min-pool-size>
+                            <max-pool-size>20</max-pool-size>
+                        </xa-pool>
+                    </connection-definition>
+                </connection-definitions>
+                <admin-objects>
+                    <admin-object class-name="org.apache.activemq.command.ActiveMQQueue" jndi-name="java:/activemq/queue_out" enabled="true" use-java-context="true" pool-name="ActiveMQQueue.queue_out">
+                        <config-property name="PhysicalName">
+                            queue.queue_out
+                        </config-property>
+                    </admin-object>
+                    <admin-object class-name="org.apache.activemq.command.ActiveMQQueue" jndi-name="java:/activemq/queue_in" enabled="true" use-java-context="true" pool-name="ActiveMQQueue.queue_in">
+                        <config-property name="PhysicalName">
+                            queue.queue_in
+                        </config-property>
+                    </admin-object>
+                </admin-objects>
+            </resource-adapter>
+        </resource-adapters>
+    </subsystem>
+</config>
