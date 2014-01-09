@@ -210,7 +210,8 @@ public class DirectJMSConnectionFactoryInjectionSource extends InjectionSource {
     private List<String> getConnectors(Map<String, String> props) {
         List<String> connectors = new ArrayList<>();
         if (!props.containsKey(CONNECTOR)) {
-            connectors.add("netty");
+            //FIXME this tied the code to the messaging subsystem configuration. This must not be hard-coded.
+            connectors.add("http-connector");
         } else {
             String connectorsStr = properties.remove(CONNECTOR);
             for (String s : connectorsStr.split(",")) {
