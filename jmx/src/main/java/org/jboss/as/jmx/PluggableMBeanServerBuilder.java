@@ -44,6 +44,7 @@ public class PluggableMBeanServerBuilder extends MBeanServerBuilder {
 
     @Override
     public MBeanServer newMBeanServer(String defaultDomain, MBeanServer outer, MBeanServerDelegate delegate) {
+        System.out.println("defaultDomain = [" + defaultDomain + "], outer = [" + outer + "], delegate = [" + delegate + "]");
         return new PluggableMBeanServerImpl(super.newMBeanServer(defaultDomain, outer, delegate));
     }
 }
