@@ -27,6 +27,7 @@ import static org.jboss.as.controller.ControllerLogger.MGMT_OP_LOGGER;
 import static org.jboss.as.controller.ControllerLogger.ROOT_LOGGER;
 import static org.jboss.as.controller.ControllerMessages.MESSAGES;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ACCESS_MECHANISM;
+import static org.jboss.as.controller.PathAddress.pathAddress;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ALLOW_RESOURCE_SERVICE_RESTART;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.CANCELLED;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DOMAIN_UUID;
@@ -65,6 +66,7 @@ import org.jboss.as.controller.client.OperationAttachments;
 import org.jboss.as.controller.client.OperationMessageHandler;
 import org.jboss.as.controller.extension.ExtensionAddHandler;
 import org.jboss.as.controller.extension.ParallelExtensionAddHandler;
+import org.jboss.as.controller.notification.NotificationSupport;
 import org.jboss.as.controller.operations.common.Util;
 import org.jboss.as.controller.persistence.ConfigurationPersistenceException;
 import org.jboss.as.controller.persistence.ConfigurationPersister;
@@ -106,6 +108,7 @@ class ModelControllerImpl implements ModelController {
 
     private final ConcurrentMap<Integer, AbstractOperationContext> activeOperations = new ConcurrentHashMap<>();
     private final ManagedAuditLogger auditLogger;
+    private final NotificationSupport notificationSupport;
 
     /** Tracks the relationship between domain resources and hosts and server groups */
     private final HostServerGroupTracker hostServerGroupTracker;
@@ -115,7 +118,7 @@ class ModelControllerImpl implements ModelController {
                         final ProcessType processType, final RunningModeControl runningModeControl,
                         final OperationStepHandler prepareStep, final ControlledProcessState processState, final ExecutorService executorService,
                         final ExpressionResolver expressionResolver, final Authorizer authorizer,
-                        final ManagedAuditLogger auditLogger) {
+                        final ManagedAuditLogger auditLogger, final NotificationSupport notificationSupport) {
         this.serviceRegistry = serviceRegistry;
         this.serviceTarget = serviceTarget;
         this.rootRegistration = rootRegistration;
@@ -130,6 +133,7 @@ class ModelControllerImpl implements ModelController {
         this.expressionResolver = expressionResolver;
         this.authorizer = authorizer;
         this.auditLogger = auditLogger;
+        this.notificationSupport = notificationSupport;
         this.hostServerGroupTracker = processType.isManagedDomain() ? new HostServerGroupTracker() : null;
         auditLogger.startBoot();
     }
@@ -629,6 +633,11 @@ class ModelControllerImpl implements ModelController {
         return serviceTarget;
     }
 
+    @Override
+    public NotificationSupport getNotificationSupport() {
+        return notificationSupport;
+    }
+
     ModelNode resolveExpressions(ModelNode node) throws OperationFailedException {
         return expressionResolver.resolveExpressions(node);
     }
@@ -658,7 +667,7 @@ class ModelControllerImpl implements ModelController {
             if (MGMT_OP_LOGGER.isTraceEnabled()) {
                 MGMT_OP_LOGGER.tracef("Executing %s %s", operation.get(OP), operation.get(OP_ADDR));
             }
-            final PathAddress address = PathAddress.pathAddress(operation.get(OP_ADDR));
+            final PathAddress address = pathAddress(operation.get(OP_ADDR));
             final String operationName =  operation.require(OP).asString();
             final OperationStepHandler stepHandler = resolveOperationHandler(address, operationName);
             if(stepHandler != null) {
