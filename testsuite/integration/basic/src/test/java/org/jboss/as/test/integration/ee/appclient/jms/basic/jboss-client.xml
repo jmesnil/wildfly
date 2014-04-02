@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-client>
+    <jndi-name>MessageClient</jndi-name>
+    <resource-env-ref>
+        <resource-env-ref-name>jms/myQueueRef</resource-env-ref-name>
+        <jndi-name>java:global/jms/queue/myQueue</jndi-name>
+    </resource-env-ref>
+</jboss-client>
