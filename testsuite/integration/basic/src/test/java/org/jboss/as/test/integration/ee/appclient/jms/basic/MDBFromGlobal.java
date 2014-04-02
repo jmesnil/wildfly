@@ -22,25 +22,31 @@
 
 package org.jboss.as.test.integration.ee.appclient.jms.basic;
 
-import javax.jms.JMSDestinationDefinition;
-import javax.jms.JMSDestinationDefinitions;
+import static org.jboss.as.test.integration.ee.appclient.jms.basic.MDBFromApp.reply;
 
-/**
- * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2014 Red Hat inc.
- */
-@JMSDestinationDefinitions(
-        value = {
-                @JMSDestinationDefinition(
-                        name = "java:global/jms/queue/queue1",
-                        interfaceName = "javax.jms.Queue",
-                        destinationName = "queueInGlobal"
-                ),
-                @JMSDestinationDefinition(
-                        name = "java:app/jms/queue/queue2",
-                        interfaceName = "javax.jms.Queue",
-                        destinationName = "queueInApp"
-                )
+import javax.ejb.ActivationConfigProperty;
+import javax.ejb.MessageDriven;
+import javax.inject.Inject;
+import javax.jms.JMSContext;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+
+@MessageDriven(
+        name = "MDBFromGlobal",
+        activationConfig = {
+                @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+                @ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "java:global/jms/queue/queue1")
         }
 )
-public class MessagingDefinitions {
+public class MDBFromGlobal implements MessageListener {
+
+    @Inject
+    JMSContext context;
+
+    @Override
+    public void onMessage(Message message) {
+        System.out.println("MDBFromGlobal.onMessage");
+        reply(message, context);
+    }
+
 }

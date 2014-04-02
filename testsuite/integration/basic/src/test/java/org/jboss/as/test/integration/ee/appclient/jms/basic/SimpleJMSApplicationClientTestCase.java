@@ -64,11 +64,11 @@ public class SimpleJMSApplicationClientTestCase {
     public static Archive<?> deploy() {
         final JavaArchive ejb = create(JavaArchive.class, "ejb.jar")
                 .addAsManifestResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"))
-                .addClass(MDB.class);
+                .addClass(MessagingDefinitions.class)
+                .addClasses(MDBFromApp.class, MDBFromGlobal.class);
 
         final JavaArchive appClient = create(JavaArchive.class, APPCLIENT_JAR)
                 .addClass(AppClientMain.class)
-                .addClass(MessagingDefinitions.class)
                 .addAsManifestResource(new StringAsset("Main-Class: " + AppClientMain.class.getName() + "\n"), "MANIFEST.MF")
                 .addAsManifestResource(SimpleJMSApplicationClientTestCase.class.getPackage(), "application-client.xml", "application-client.xml")
                 .addAsManifestResource(SimpleJMSApplicationClientTestCase.class.getPackage(), "jboss-client.xml", "jboss-client.xml");
@@ -81,13 +81,20 @@ public class SimpleJMSApplicationClientTestCase {
         return ear;
     }
 
-    /**
-     * Tests a simple app client that calls an ejb with its command line parameters
-     */
     @Test
-    public void simpleAppClientTest() throws Exception {
+    public void simpleAppClientTestWithQueueInGlobal() throws Exception {
+        runSimpleAppClientTestWithQueue("global");
+    }
+
+    @Test
+    public void simpleAppClientTestWithQueueInApp() throws Exception {
+        runSimpleAppClientTestWithQueue("app");
+    }
+
+    private void runSimpleAppClientTestWithQueue(String namespace) throws Exception {
         String payload = UUID.randomUUID().toString();
-        final AppClientWrapper wrapper = new AppClientWrapper(archive, "--host=" + managementClient.getRemoteEjbURL(), APPCLIENT_JAR, payload);
+        System.out.println("payload = " + payload);
+        final AppClientWrapper wrapper = new AppClientWrapper(archive, "--host=" + managementClient.getRemoteEjbURL(), APPCLIENT_JAR, namespace + " " + payload);
         try {
             String text = wrapper.readAllUnformated(10000);
             assertTrue(text.contains(payload));

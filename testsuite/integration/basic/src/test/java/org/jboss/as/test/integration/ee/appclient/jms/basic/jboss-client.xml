@@ -2,7 +2,11 @@
 <jboss-client>
     <jndi-name>MessageClient</jndi-name>
     <resource-env-ref>
-        <resource-env-ref-name>jms/myQueueRef</resource-env-ref-name>
-        <jndi-name>java:global/jms/queue/myQueue</jndi-name>
+        <resource-env-ref-name>jms/queueInGlobal</resource-env-ref-name>
+        <jndi-name>java:global/jms/queue/queue1</jndi-name>
+    </resource-env-ref>
+    <resource-env-ref>
+        <resource-env-ref-name>jms/queueInApp</resource-env-ref-name>
+        <jndi-name>java:app/jms/queue/queue2</jndi-name>
     </resource-env-ref>
 </jboss-client>

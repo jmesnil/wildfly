@@ -31,24 +31,26 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
-/**
- * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2014 Red Hat inc.
- */
 @MessageDriven(
-        name = "MDB",
+        name = "MDBFromApp",
         activationConfig = {
                 @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-                @ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "java:global/jms/queue/myQueue")
+                @ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "java:app/jms/queue/queue2")
         }
 )
-public class MDB implements MessageListener {
+public class MDBFromApp implements MessageListener {
 
     @Inject
     JMSContext context;
 
     @Override
     public void onMessage(Message message) {
-        System.out.println("MDB.onMessage message = [" + message + "]");
+        System.out.println("MDBFromApp.onMessage");
+        reply(message, context);
+    }
+
+    static void reply(Message message, JMSContext context) {
+        System.out.println("message = " + message);
         TextMessage tm = (TextMessage) message;
         try {
             String text = tm.getText();
@@ -57,5 +59,6 @@ public class MDB implements MessageListener {
         } catch (JMSException e) {
             e.printStackTrace();
         }
+
     }
 }

@@ -37,18 +37,25 @@ import org.jboss.logging.Logger;
 public class AppClientMain {
     private static final Logger logger = Logger.getLogger(AppClientMain.class.getPackage().getName());
 
-    @Resource(lookup = "java:comp/env/jms/myQueueRef")
-    private static Queue queue;
+    @Resource(lookup = "java:comp/env/jms/queueInApp")
+    private static Queue queueInApp;
+
+    @Resource(lookup = "java:comp/env/jms/queueInGlobal")
+    private static Queue queueInGlobal;
 
     public static void main(final String[] params) throws NamingException {
         logger.info("Main method invoked");
 
+        boolean useQueueInApp = "app".equals(params[0]);
+        String text = params[1];
+
         InitialContext ctx = new InitialContext();
         ConnectionFactory cf = (ConnectionFactory) ctx.lookup("java:/ConnectionFactory");
-        logger.info("queue = " + queue);
+
+        Queue queue = useQueueInApp ? queueInApp : queueInGlobal;
+        System.out.println("Using queue = " + queue);
 
         try (JMSContext context = cf.createContext("guest", "guest")) {
-            String text = params[0];
             TemporaryQueue replyTo = context.createTemporaryQueue();
             context.createProducer()
                     .setJMSReplyTo(replyTo)
