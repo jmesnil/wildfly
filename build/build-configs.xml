@@ -133,6 +133,11 @@
            paramTemplateFile="configuration/standalone/template.xml"
            paramSubsystemsFile="configuration/examples/subsystems-genericjms.xml"
            paramOutputFile="${generated.configs.examples}/standalone-genericjms.xml"/>
+      <generate-domain-config
+           paramTemplateFile="configuration/examples/domain-messaging-cluster.xml"
+           paramSubsystemsFile="configuration/examples/subsystems-messaging-cluster.xml"
+           paramOutputFile="${generated.configs.examples}/domain-messaging-cluster.xml"/>
+
     </target>
 
 
