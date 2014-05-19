@@ -93,11 +93,13 @@ class AddressSettingAdd extends AbstractAddStepHandler {
         settings.setDeadLetterAddress(asSimpleString(DEAD_LETTER_ADDRESS.resolveModelAttribute(context, config), null));
         settings.setLastValueQueue(AddressSettingDefinition.LAST_VALUE_QUEUE.resolveModelAttribute(context, config).asBoolean());
         settings.setMaxDeliveryAttempts(AddressSettingDefinition.MAX_DELIVERY_ATTEMPTS.resolveModelAttribute(context, config).asInt());
+        settings.setMaxRedeliveryDelay(AddressSettingDefinition.MAX_REDELIVERY_DELAY.resolveModelAttribute(context, config).asLong());
         settings.setMaxSizeBytes(AddressSettingDefinition.MAX_SIZE_BYTES.resolveModelAttribute(context, config).asLong());
         settings.setMessageCounterHistoryDayLimit(AddressSettingDefinition.MESSAGE_COUNTER_HISTORY_DAY_LIMIT.resolveModelAttribute(context, config).asInt());
         settings.setExpiryAddress(asSimpleString(EXPIRY_ADDRESS.resolveModelAttribute(context, config), null));
         settings.setExpiryDelay(AddressSettingDefinition.EXPIRY_DELAY.resolveModelAttribute(context, config).asLong());
         settings.setRedeliveryDelay(AddressSettingDefinition.REDELIVERY_DELAY.resolveModelAttribute(context, config).asLong());
+        settings.setRedeliveryMultiplier(AddressSettingDefinition.REDELIVERY_MULTIPLIER.resolveModelAttribute(context, config).asDouble());
         settings.setRedistributionDelay(AddressSettingDefinition.REDISTRIBUTION_DELAY.resolveModelAttribute(context, config).asLong());
         settings.setPageSizeBytes(AddressSettingDefinition.PAGE_SIZE_BYTES.resolveModelAttribute(context, config).asLong());
         settings.setPageCacheMaxSize(AddressSettingDefinition.PAGE_MAX_CACHE_SIZE.resolveModelAttribute(context, config).asInt());
