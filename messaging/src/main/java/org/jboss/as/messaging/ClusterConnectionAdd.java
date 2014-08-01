@@ -119,12 +119,12 @@ public class ClusterConnectionAdd extends AbstractAddStepHandler {
             return new ClusterConnectionConfiguration(name, address, connectorName, minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
                     retryInterval, retryIntervalMultiplier, maxRetryInterval, initialConnectAttempts, reconnectAttempts, callTimeout, callFailoverTimeout,
                     duplicateDetection, forwardWhenNoConsumers, maxHops, confirmationWindowSize,
-                    discoveryGroupName, clusterNotificationInterval, clusterNotificationAttempts);
+                    discoveryGroupName, clusterNotificationInterval, clusterNotificationAttempts, null);
         } else {
             return new ClusterConnectionConfiguration(name, address, connectorName, minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
                     retryInterval, retryIntervalMultiplier, maxRetryInterval, initialConnectAttempts, reconnectAttempts, callTimeout, callFailoverTimeout,
                     duplicateDetection, forwardWhenNoConsumers, maxHops, confirmationWindowSize,
-                    staticConnectors, allowDirectOnly,clusterNotificationInterval, clusterNotificationAttempts);
+                    staticConnectors, allowDirectOnly,clusterNotificationInterval, clusterNotificationAttempts, null);
         }
     }
 

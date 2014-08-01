@@ -3850,6 +3850,12 @@
 
             <dependency>
                 <groupId>org.hornetq</groupId>
+                <artifactId>hornetq-selector</artifactId>
+                <version>${version.org.hornetq}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hornetq</groupId>
                 <artifactId>hornetq-jms-server</artifactId>
                 <version>${version.org.hornetq}</version>
                 <exclusions>

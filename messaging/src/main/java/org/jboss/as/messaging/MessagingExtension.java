@@ -205,6 +205,9 @@ public class MessagingExtension implements Extension {
         // Cluster connections
         serverRegistration.registerSubModel(new ClusterConnectionDefinition(registerRuntimeOnly));
 
+        // HA Policy
+        serverRegistration.registerSubModel(new HAPolicyDefinition(registerRuntimeOnly));
+
         // Grouping Handler
         serverRegistration.registerSubModel(new GroupingHandlerDefinition(registerRuntimeOnly));
 

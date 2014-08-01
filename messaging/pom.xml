@@ -61,6 +61,11 @@
 
         <dependency>
             <groupId>org.hornetq</groupId>
+            <artifactId>hornetq-selector</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hornetq</groupId>
             <artifactId>hornetq-server</artifactId>
         </dependency>
 
@@ -92,6 +97,11 @@
         <dependency>
             <groupId>org.hornetq</groupId>
             <artifactId>hornetq-ra</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hornetq</groupId>
+            <artifactId>hornetq-selector</artifactId>
         </dependency>
 
         <dependency>

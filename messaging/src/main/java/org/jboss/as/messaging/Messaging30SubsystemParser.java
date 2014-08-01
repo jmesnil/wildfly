@@ -50,6 +50,9 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
             case OVERRIDE_IN_VM_SECURITY:
                 handleElementText(reader, element, operation);
                 break;
+            case HA_POLICY:
+                handleElementText(reader, element, operation);
+                break;
             default: {
                 super.handleUnknownConfigurationAttribute(reader, element, operation);
             }

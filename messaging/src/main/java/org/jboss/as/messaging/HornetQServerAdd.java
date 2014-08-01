@@ -40,6 +40,7 @@ import static org.jboss.as.messaging.CommonAttributes.CREATE_JOURNAL_DIR;
 import static org.jboss.as.messaging.CommonAttributes.DISCOVERY_GROUP;
 import static org.jboss.as.messaging.CommonAttributes.FAILBACK_DELAY;
 import static org.jboss.as.messaging.CommonAttributes.FAILOVER_ON_SHUTDOWN;
+import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.HTTP_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.ID_CACHE_SIZE;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_CHANNEL;
@@ -444,6 +445,7 @@ class HornetQServerAdd implements OperationStepHandler {
         configuration.setWildcardRoutingEnabled(WILD_CARD_ROUTING_ENABLED.resolveModelAttribute(context, model).asBoolean());
 
         processAddressSettings(context, configuration, model);
+        processHAPolicy(context, configuration, model);
         processSecuritySettings(context, configuration, model);
         //process deprecated interceptors
         processRemotingInterceptors(context, configuration, model);
@@ -484,6 +486,15 @@ class HornetQServerAdd implements OperationStepHandler {
                 final AddressSettings settings = AddressSettingAdd.createSettings(context, config);
                 configuration.getAddressesSettings().put(match, settings);
             }
+        }
+    }
+
+    static void processHAPolicy(final OperationContext context, final Configuration configuration, final ModelNode params) throws OperationFailedException {
+        if (params.hasDefined(HA_POLICY)) {
+            String template = params.get(HA_POLICY).asProperty().getName();
+            HAPolicyAdd.addHAPolicyConfig(context, configuration, params, template);
+        } else {
+            HAPolicyAdd.addHAPolicyConfig(context, configuration, params, null);
         }
     }
 

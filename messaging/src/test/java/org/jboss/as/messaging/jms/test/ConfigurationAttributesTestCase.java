@@ -30,6 +30,7 @@ public class ConfigurationAttributesTestCase extends AttributesTestBase {
         UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("divertConfigurations");
         UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("queueConfigurations");
         UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("groupingHandlerConfiguration");
+        UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("HAPolicy");
 
         //stuff we dont want supported
         UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("fileDeployerScanPeriod");
