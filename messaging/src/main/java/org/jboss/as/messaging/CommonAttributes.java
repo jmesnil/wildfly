@@ -348,6 +348,14 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
+    SimpleAttributeDefinition JOURNAL_LOCK_ACQUISITION_TIMEOUT = create("journal-lock-acquisition-timeout", LONG)
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultJournalFileSize()))
+            .setMeasurementUnit(BYTES)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+
     // no default values, depends on whether NIO or AIO is used.
     SimpleAttributeDefinition JOURNAL_MAX_IO = create("journal-max-io", INT)
             .setAllowNull(true)
@@ -910,7 +918,7 @@ public interface CommonAttributes {
             BACKUP, ALLOW_FAILBACK, FAILBACK_DELAY, FAILOVER_ON_SHUTDOWN, SHARED_STORE, PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY,
             PAGE_MAX_CONCURRENT_IO, CREATE_BINDINGS_DIR, CREATE_JOURNAL_DIR, JOURNAL_TYPE, JOURNAL_BUFFER_TIMEOUT,
             JOURNAL_BUFFER_SIZE, JOURNAL_SYNC_TRANSACTIONAL, JOURNAL_SYNC_NON_TRANSACTIONAL, LOG_JOURNAL_WRITE_RATE,
-            JOURNAL_FILE_SIZE, JOURNAL_MIN_FILES, JOURNAL_COMPACT_PERCENTAGE, JOURNAL_COMPACT_MIN_FILES, JOURNAL_MAX_IO,
+            JOURNAL_FILE_SIZE, JOURNAL_LOCK_ACQUISITION_TIMEOUT, JOURNAL_MIN_FILES, JOURNAL_COMPACT_PERCENTAGE, JOURNAL_COMPACT_MIN_FILES, JOURNAL_MAX_IO,
             MAX_SAVED_REPLICATED_JOURNAL_SIZE, PERF_BLAST_PAGES, RUN_SYNC_SPEED_TEST, SERVER_DUMP_INTERVAL, MEMORY_WARNING_THRESHOLD, MEMORY_MEASURE_INTERVAL,
             CHECK_FOR_LIVE_SERVER, BACKUP_GROUP_NAME, REPLICATION_CLUSTERNAME };
 

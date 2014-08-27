@@ -53,6 +53,7 @@ import static org.jboss.as.messaging.CommonAttributes.JOURNAL_COMPACT_MIN_FILES;
 import static org.jboss.as.messaging.CommonAttributes.JOURNAL_COMPACT_PERCENTAGE;
 import static org.jboss.as.messaging.CommonAttributes.JOURNAL_DIRECTORY;
 import static org.jboss.as.messaging.CommonAttributes.JOURNAL_FILE_SIZE;
+import static org.jboss.as.messaging.CommonAttributes.JOURNAL_LOCK_ACQUISITION_TIMEOUT;
 import static org.jboss.as.messaging.CommonAttributes.JOURNAL_MAX_IO;
 import static org.jboss.as.messaging.CommonAttributes.JOURNAL_MIN_FILES;
 import static org.jboss.as.messaging.CommonAttributes.JOURNAL_SYNC_NON_TRANSACTIONAL;
@@ -406,6 +407,7 @@ class HornetQServerAdd implements OperationStepHandler {
         configuration.setJournalCompactMinFiles(JOURNAL_COMPACT_MIN_FILES.resolveModelAttribute(context, model).asInt());
         configuration.setJournalCompactPercentage(JOURNAL_COMPACT_PERCENTAGE.resolveModelAttribute(context, model).asInt());
         configuration.setJournalFileSize(JOURNAL_FILE_SIZE.resolveModelAttribute(context, model).asInt());
+        configuration.setJournalLockAcquisitionTimeout(JOURNAL_LOCK_ACQUISITION_TIMEOUT.resolveModelAttribute(context, model).asInt());
         configuration.setJournalMinFiles(JOURNAL_MIN_FILES.resolveModelAttribute(context, model).asInt());
         configuration.setJournalSyncNonTransactional(JOURNAL_SYNC_NON_TRANSACTIONAL.resolveModelAttribute(context, model).asBoolean());
         configuration.setJournalSyncTransactional(JOURNAL_SYNC_TRANSACTIONAL.resolveModelAttribute(context, model).asBoolean());

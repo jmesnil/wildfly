@@ -46,6 +46,8 @@ public class ConfigurationAttributesTestCase extends AttributesTestBase {
         UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("journalMaxIO_NIO");
         UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("name");
         UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("maskPassword");
+        UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("scaleDownClustername");
+        UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("backupStrategy");
         // messaging protocols are automatically resolved by HornetQ using a ServiceLoader
         UNSUPPORTED_HORNETQ_CONFIG_PROPERTIES.add("resolveProtocols");
 
