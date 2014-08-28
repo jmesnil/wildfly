@@ -348,8 +348,9 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
+    // FIXME HornetQDefaultConfigureation.
     SimpleAttributeDefinition JOURNAL_LOCK_ACQUISITION_TIMEOUT = create("journal-lock-acquisition-timeout", LONG)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultJournalFileSize()))
+            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultJournalLockAcquisitionTimeout()))
             .setMeasurementUnit(BYTES)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -715,10 +716,12 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
+    @Deprecated
     SimpleAttributeDefinition SHARED_STORE = create("shared-store", BOOLEAN)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultSharedStore()))
             .setAllowNull(true)
             .setAllowExpression(true)
+            .setDeprecated(MessagingExtension.VERSION_3_0_0)
             .setRestartAllServices()
             .build();
 

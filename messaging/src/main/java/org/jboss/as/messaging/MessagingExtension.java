@@ -123,6 +123,7 @@ public class MessagingExtension implements Extension {
     private static final int MANAGEMENT_API_MINOR_VERSION = 0;
     private static final int MANAGEMENT_API_MICRO_VERSION = 0;
 
+    public static final ModelVersion VERSION_3_0_0 = ModelVersion.create(3, 0, 0);
     public static final ModelVersion VERSION_2_1_0 = ModelVersion.create(2, 1, 0);
     public static final ModelVersion VERSION_2_0_0 = ModelVersion.create(2, 0, 0);
     public static final ModelVersion VERSION_1_3_0 = ModelVersion.create(1, 3, 0);
