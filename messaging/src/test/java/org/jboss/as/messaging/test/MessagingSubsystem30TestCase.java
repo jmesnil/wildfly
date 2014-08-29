@@ -79,6 +79,7 @@ import org.jboss.as.messaging.ConnectorServiceParamDefinition;
 import org.jboss.as.messaging.DiscoveryGroupDefinition;
 import org.jboss.as.messaging.DivertDefinition;
 import org.jboss.as.messaging.GroupingHandlerDefinition;
+import org.jboss.as.messaging.HAPolicyDefinition;
 import org.jboss.as.messaging.HTTPAcceptorDefinition;
 import org.jboss.as.messaging.HornetQServerResourceDefinition;
 import org.jboss.as.messaging.InVMTransportDefinition;
@@ -288,6 +289,9 @@ public class MessagingSubsystem30TestCase extends AbstractSubsystemBaseTest {
                                         concat(new AttributeDefinition[]{CommonAttributes.BACKUP_GROUP_NAME, CommonAttributes.REPLICATION_CLUSTERNAME,
                                                 CommonAttributes.REMOTING_INCOMING_INTERCEPTORS, CommonAttributes.REMOTING_OUTGOING_INTERCEPTORS}, MAX_SAVED_REPLICATED_JOURNAL_SIZE, CHECK_FOR_LIVE_SERVER, OVERRIDE_IN_VM_SECURITY)))
                         .addFailedAttribute(
+                                subsystemAddress.append(HORNETQ_SERVER_PATH, HAPolicyDefinition.PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
+                        .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH, pathElement(ModelDescriptionConstants.PATH)),
                                 new RejectExpressionsConfig(ModelDescriptionConstants.PATH))
                         .addFailedAttribute(
@@ -440,6 +444,9 @@ public class MessagingSubsystem30TestCase extends AbstractSubsystemBaseTest {
                                 createChainedConfig(new AttributeDefinition[]{},
                                         new AttributeDefinition[]{MAX_SAVED_REPLICATED_JOURNAL_SIZE, OVERRIDE_IN_VM_SECURITY}))
                         .addFailedAttribute(
+                                subsystemAddress.append(HORNETQ_SERVER_PATH, HAPolicyDefinition.PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
+                        .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH, BridgeDefinition.PATH),
                                 createChainedConfig(new AttributeDefinition[]{},
                                         new AttributeDefinition[]{BridgeDefinition.RECONNECT_ATTEMPTS_ON_SAME_NODE})
@@ -501,6 +508,9 @@ public class MessagingSubsystem30TestCase extends AbstractSubsystemBaseTest {
                                 createChainedConfig(new AttributeDefinition[]{},
                                         new AttributeDefinition[]{BridgeDefinition.RECONNECT_ATTEMPTS_ON_SAME_NODE}))
                         .addFailedAttribute(
+                                subsystemAddress.append(HORNETQ_SERVER_PATH, HAPolicyDefinition.PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
+                        .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH, pathElement(CommonAttributes.HTTP_CONNECTOR)),
                                 FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(
@@ -556,6 +566,9 @@ public class MessagingSubsystem30TestCase extends AbstractSubsystemBaseTest {
                                 subsystemAddress.append(HORNETQ_SERVER_PATH),
                                 createChainedConfig(new AttributeDefinition[]{},
                                         new AttributeDefinition[]{OVERRIDE_IN_VM_SECURITY}))
+                        .addFailedAttribute(
+                                subsystemAddress.append(HORNETQ_SERVER_PATH, HAPolicyDefinition.PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(
                                 subsystemAddress.append(HORNETQ_SERVER_PATH).append(AddressSettingDefinition.PATH),
                                 createChainedConfig(new AttributeDefinition[]{},

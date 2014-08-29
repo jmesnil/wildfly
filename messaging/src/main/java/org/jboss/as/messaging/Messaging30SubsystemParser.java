@@ -22,8 +22,17 @@
 
 package org.jboss.as.messaging;
 
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
+import static org.jboss.as.controller.operations.common.Util.getEmptyOperation;
+import static org.jboss.as.controller.parsing.ParseUtils.requireSingleAttribute;
+
+import java.util.EnumSet;
+import java.util.List;
+
 import javax.xml.stream.XMLStreamException;
 
+import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.parsing.ParseUtils;
 import org.jboss.dmr.ModelNode;
 import org.jboss.staxmapper.XMLExtendedStreamReader;
 
@@ -50,9 +59,6 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
             case OVERRIDE_IN_VM_SECURITY:
                 handleElementText(reader, element, operation);
                 break;
-            case HA_POLICY:
-                handleElementText(reader, element, operation);
-                break;
             default: {
                 super.handleUnknownConfigurationAttribute(reader, element, operation);
             }
@@ -69,5 +75,35 @@ public class Messaging30SubsystemParser extends Messaging20SubsystemParser {
             default:
                 super.handleUnknownAddressSetting(reader, element, addressSettingsAdd);
         }
+    }
+
+    private static final EnumSet<Element> HA_POLICY_ATTRIBUTES = EnumSet.noneOf(Element.class);
+
+    static {
+        for (AttributeDefinition attr : HAPolicyDefinition.ATTRIBUTES) {
+            HA_POLICY_ATTRIBUTES.add(Element.forName(attr.getXmlName()));
+        }
+    }
+
+    @Override
+    protected void processHaPolicy(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+
+        requireSingleAttribute(reader, "type");
+        String type = reader.getAttributeValue(0);
+
+        ModelNode haPolicyAddOperation = getEmptyOperation(ADD, address.clone().add(CommonAttributes.HA_POLICY, type));
+
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            if (HA_POLICY_ATTRIBUTES.contains(element)) {
+                handleElementText(reader, element, haPolicyAddOperation);
+            } else {
+                throw ParseUtils.unexpectedElement(reader);
+            }
+        }
+
+        list.add(haPolicyAddOperation);
     }
 }

@@ -132,6 +132,7 @@ public class MessagingTransformers {
                 }
             }
         }, SHARED_STORE);
+        hornetqServer.rejectChildResource(HAPolicyDefinition.PATH);
 
         ResourceTransformationDescriptionBuilder addressSetting = hornetqServer.addChildResource(AddressSettingDefinition.PATH);
         rejectDefinedAttributeWithDefaultValue(addressSetting, MAX_REDELIVERY_DELAY, REDELIVERY_MULTIPLIER);

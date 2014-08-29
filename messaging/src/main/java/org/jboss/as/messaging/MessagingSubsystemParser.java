@@ -242,9 +242,6 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                 case GROUPING_HANDLER:
                     processGroupingHandler(reader, address, list);
                     break;
-                case HA_POLICY:
-                    processHAPolicy(reader, address, list);
-                    break;
                 case JOURNAL_DIRECTORY:
                     parseDirectory(reader, CommonAttributes.JOURNAL_DIRECTORY, address, list);
                     break;
@@ -280,6 +277,10 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                 }
                 case JMS_DESTINATIONS: {
                     processJmsDestinations(reader, address, list);
+                    break;
+                }
+                case HA_POLICY: {
+                    processHaPolicy(reader, address, list);
                     break;
                 }
                 case SCHEDULED_THREAD_POOL_MAX_SIZE:
@@ -323,6 +324,10 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     }
             }
         } while (reader.hasNext() && localName.equals(elementName) == false);
+    }
+
+    protected void processHaPolicy(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        throw ParseUtils.unexpectedElement(reader);
     }
 
     protected void handleComplexConfigurationAttribute(XMLExtendedStreamReader reader, Element element, ModelNode operation) throws XMLStreamException {
@@ -1205,79 +1210,6 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
     protected void handleUnknownAddressSetting(XMLExtendedStreamReader reader, Element element, ModelNode addressSettingsAdd)
             throws XMLStreamException {
         // do nothing
-    }
-
-    protected void processHAPolicy(final XMLExtendedStreamReader reader, final ModelNode address, final List<ModelNode> operations) throws XMLStreamException {
-        String localName;
-        localName = reader.getLocalName();
-        final Element element = Element.forName(localName);
-        switch (element) {
-            case HA_POLICY:
-                // Add ha policy
-                String template = null;
-                if (reader.getAttributeCount() > 0) {
-                    template = reader.getAttributeValue(0);
-                }
-                final ModelNode operation = parseHAPolicy(reader);
-                if (template != null) {
-                    operation.get(OP).set(ADD);
-                    operation.get(OP_ADDR).set(address);
-                    operation.get(OP_ADDR).add(CommonAttributes.HA_POLICY, template);
-
-                    operations.add(operation);
-                }
-                break;
-        }
-    }
-
-    protected ModelNode parseHAPolicy(final XMLExtendedStreamReader reader) throws XMLStreamException {
-        final ModelNode haPolicySpec = new ModelNode();
-
-        String localName;
-        do {
-            reader.nextTag();
-            if (reader.getEventType() == XMLExtendedStreamReader.END_ELEMENT)
-                return haPolicySpec;
-            localName = reader.getLocalName();
-            final Element element = Element.forName(localName);
-
-            switch (element) {
-                case HA_POLICY:
-                case POLICY_TYPE:
-                case REQUEST_BACKUP:
-                case BACKUP_REQUEST_RETRIES:
-                case BACKUP_REQUEST_RETRY_INTERVAL:
-                case MAX_BACKUPS:
-                case BACKUP_PORT_OFFSET:
-                case BACKUP_STRATEGY_TYPE:
-                case SCALE_DOWN_CONNECTORS:
-                case SCALE_DOWN_DISCOVERY_GROUP:
-                case SCALE_DOWN_GROUP_NAME:
-                case REMOTE_CONNECTORS:
-                case FAILBACK_DELAY:
-                case FAILOVER_ON_SERVER_SHUTDOWN:
-                case REPLICATION_CLUSTERNAME:
-                case SCALE_DOWN_CLUSTERNAME:
-                case MAX_SAVED_REPLICATED_JOURNAL_SIZE:
-                case SCALE_DOWN:
-                case RESTART_BACKUP:
-                case ALLOW_FAILBACK: {
-                    handleElementText(reader, element, haPolicySpec);
-                    break;
-                } default: {
-                    handleUnknownHAPolicy(reader, element, haPolicySpec);
-                    break;
-                }
-            }
-        } while (!reader.getLocalName().equals(Element.HA_POLICY.getLocalName()) && reader.getEventType() == XMLExtendedStreamReader.END_ELEMENT);
-
-        return haPolicySpec;
-    }
-
-
-    protected void handleUnknownHAPolicy(XMLExtendedStreamReader reader, Element element, ModelNode addressSettingsAdd)
-            throws XMLStreamException {
-        throw ParseUtils.unexpectedElement(reader);
     }
 
     void parseTransportConfiguration(final XMLExtendedStreamReader reader, final ModelNode operation, final boolean generic, List<ModelNode> updates) throws XMLStreamException {

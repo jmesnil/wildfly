@@ -470,10 +470,9 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
-    AttributeDefinition MAX_SAVED_REPLICATED_JOURNAL_SIZE = create("max-saved-replicated-journal-size", INT)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize()))
+    @Deprecated
+    AttributeDefinition MAX_SAVED_REPLICATED_JOURNAL_SIZE = create(HAPolicyDefinition.MAX_SAVED_REPLICATED_JOURNAL_SIZE)
             .setAllowNull(true)
-            .setAllowExpression(true)
             .setRestartAllServices()
             .build();
 

@@ -34,6 +34,7 @@ import static org.jboss.as.messaging.CommonAttributes.DISCOVERY_GROUP;
 import static org.jboss.as.messaging.CommonAttributes.DIVERT;
 import static org.jboss.as.messaging.CommonAttributes.DURABLE;
 import static org.jboss.as.messaging.CommonAttributes.GROUPING_HANDLER;
+import static org.jboss.as.messaging.CommonAttributes.HA_POLICY;
 import static org.jboss.as.messaging.CommonAttributes.HORNETQ_SERVER;
 import static org.jboss.as.messaging.CommonAttributes.HTTP_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.HTTP_CONNECTOR;
@@ -138,6 +139,7 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         // New line after the simpler elements
         writeNewLine(writer);
 
+        writeHAPolicy(writer, node);
         writeConnectors(writer, node);
         writeAcceptors(writer, node);
         writeBroadcastGroups(writer, node.get(BROADCAST_GROUP));
@@ -179,6 +181,24 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         }
 
         writer.writeEndElement();
+    }
+
+    private static void writeHAPolicy(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        if (node.hasDefined(HA_POLICY)) {
+            Property haPolicy = node.get(HA_POLICY).asProperty();
+
+            writer.writeStartElement(HA_POLICY);
+            writer.writeAttribute("type", haPolicy.getName());
+
+            for (AttributeDefinition attribute : HAPolicyDefinition.ATTRIBUTES) {
+                if(HAPolicyDefinition.POLICY_TYPE.equals(attribute)) {
+                    continue;
+                }
+                attribute.marshallAsElement(haPolicy.getValue(), writer);
+            }
+
+            writer.writeEndElement();
+        }
     }
 
     private static void writeConnectors(final XMLExtendedStreamWriter writer, final ModelNode node) throws XMLStreamException {

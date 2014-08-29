@@ -1,11 +1,15 @@
 package org.jboss.as.messaging;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
-import static org.jboss.as.messaging.CommonAttributes.*;
+import static org.jboss.as.messaging.CommonAttributes.CONNECTOR_REF_STRING;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.core.config.BackupStrategy;
@@ -42,31 +46,26 @@ public class HAPolicyDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition REQUEST_BACKUP = create("request-backup", BOOLEAN)
-            .setXmlName(CommonAttributes.REQUEST_BACKUP)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultHapolicyRequestBackup()))
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition BACKUP_REQUEST_RETRIES = create("backup-request-retries", INT)
-            .setXmlName(CommonAttributes.BACKUP_REQUEST_RETRIES)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultHapolicyBackupRequestRetries()))
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition BACKUP_REQUEST_RETRY_INTERVAL = create("backup-request-retry-interval", LONG)
-            .setXmlName(CommonAttributes.BACKUP_REQUEST_RETRY_INTERVAL)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultHapolicyBackupRequestRetryInterval()))
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition MAX_BACKUPS = create("max-backups", INT)
-            .setXmlName(CommonAttributes.MAX_BACKUPS)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultHapolicyMaxBackups()))
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition BACKUP_PORT_OFFSET = create("backup-port-offset", INT)
-            .setXmlName(CommonAttributes.BACKUP_PORT_OFFSET)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultHapolicyBackupPortOffset()))
             .setAllowExpression(true)
             .build();
@@ -90,21 +89,18 @@ public class HAPolicyDefinition extends SimpleResourceDefinition {
 
     public static final SimpleAttributeDefinition SCALE_DOWN_DISCOVERY_GROUP = create("scale-down-discovery-group", STRING)
             .setAllowNull(true)
-            .setXmlName(CommonAttributes.SCALE_DOWN_DISCOVERY_GROUP)
             .setDefaultValue(null)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition SCALE_DOWN_GROUP_NAME = create("scale-down-group-name", STRING)
             .setAllowNull(true)
-            .setXmlName(CommonAttributes.SCALE_DOWN_GROUP_NAME)
             .setDefaultValue(null)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition BACKUP_GROUP_NAME = create("backup-group-name", STRING)
             .setAllowNull(true)
-            .setXmlName(CommonAttributes.BACKUP_GROUP_NAME2)
             .setDefaultValue(null)
             .setAllowExpression(true)
             .build();
@@ -119,55 +115,46 @@ public class HAPolicyDefinition extends SimpleResourceDefinition {
             .setRestartAllServices()
             .build();
     public static final SimpleAttributeDefinition CHECK_FOR_LIVE_SERVER = create("check-for-live-server", BOOLEAN)
-            .setXmlName(CommonAttributes.CHECK_FOR_LIVE_SERVER2)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultCheckForLiveServer()))
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition ALLOW_FAILBACK = create("allow-failback", BOOLEAN)
-            .setXmlName(CommonAttributes.ALLOW_FAILBACK2)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultAllowAutoFailback()))
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition FAILBACK_DELAY = create("failback-delay", LONG)
-            .setXmlName(CommonAttributes.FAILBACK_DELAY2)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultFailbackDelay()))
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition FAILOVER_ON_SERVER_SHUTDOWN = create("failover-on-shutdown", BOOLEAN)
-            .setXmlName(CommonAttributes.FAILOVER_ON_SERVER_SHUTDOWN2)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultFailoverOnServerShutdown()))
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition REPLICATION_CLUSTERNAME = create("replication-clustername", STRING)
-            .setXmlName(CommonAttributes.REPLICATION_CLUSTERNAME2)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultFailbackDelay()))
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition SCALE_DOWN_CLUSTERNAME = create("scale-down-clustername", STRING)
-            .setXmlName(CommonAttributes.SCALE_DOWN_CLUSTERNAME)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultFailbackDelay()))
             .setAllowExpression(true)
             .build();
 
-    public static final SimpleAttributeDefinition MAX_SAVED_REPLICATED_JOURNAL_SIZE = create("max-saved-replicated-journals-size", INT)
-            .setXmlName(CommonAttributes.MAX_SAVED_REPLICATED_JOURNAL_SIZE2)
+    public static final SimpleAttributeDefinition MAX_SAVED_REPLICATED_JOURNAL_SIZE = create("max-saved-replicated-journal-size", INT)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize()))
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition SCALE_DOWN = create("scale-down", BOOLEAN)
-            .setXmlName(CommonAttributes.SCALE_DOWN)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultScaleDown()))
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition RESTART_BACKUP = create("restart-backup", BOOLEAN)
-            .setXmlName(CommonAttributes.RESTART_BACKUP)
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultRestartBackup()))
             .setAllowExpression(true)
             .build();
@@ -176,33 +163,38 @@ public class HAPolicyDefinition extends SimpleResourceDefinition {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.HA_POLICY),
                 HAPolicyAdd.INSTANCE,
-                HAPolicyAdd.INSTANCE);
+                HAPolicyRemove.INSTANCE);
         this.registerRuntimeOnly = registerRuntimeOnly;
     }
 
-    public static final AttributeDefinition[] ATTRIBUTES = {
-            TEMPLATE,
-            POLICY_TYPE,
-            REQUEST_BACKUP,
-            BACKUP_REQUEST_RETRIES,
-            BACKUP_REQUEST_RETRY_INTERVAL,
-            MAX_BACKUPS,
-            BACKUP_PORT_OFFSET,
-            BACKUP_STRATEGY_TYPE,
-            SCALEDOWN_CONNECTOR_REFS,
-            SCALE_DOWN_DISCOVERY_GROUP,
-            SCALE_DOWN_GROUP_NAME,
-            BACKUP_GROUP_NAME,
-            REMOTE_CONNECTOR_REFS,
-            CHECK_FOR_LIVE_SERVER,
-            ALLOW_FAILBACK,
-            FAILBACK_DELAY,
-            FAILOVER_ON_SERVER_SHUTDOWN,
-            REPLICATION_CLUSTERNAME,
-            SCALE_DOWN_CLUSTERNAME,
-            MAX_SAVED_REPLICATED_JOURNAL_SIZE,
-            SCALE_DOWN,
-            RESTART_BACKUP
+    public static final List<AttributeDefinition> ATTRIBUTES = new ArrayList<>();
+
+    static{
+        AttributeDefinition[] list = new AttributeDefinition[]{
+                TEMPLATE,
+                POLICY_TYPE,
+                REQUEST_BACKUP,
+                BACKUP_REQUEST_RETRIES,
+                BACKUP_REQUEST_RETRY_INTERVAL,
+                MAX_BACKUPS,
+                BACKUP_PORT_OFFSET,
+                BACKUP_STRATEGY_TYPE,
+                SCALEDOWN_CONNECTOR_REFS,
+                SCALE_DOWN_DISCOVERY_GROUP,
+                SCALE_DOWN_GROUP_NAME,
+                BACKUP_GROUP_NAME,
+                REMOTE_CONNECTOR_REFS,
+                CHECK_FOR_LIVE_SERVER,
+                ALLOW_FAILBACK,
+                FAILBACK_DELAY,
+                FAILOVER_ON_SERVER_SHUTDOWN,
+                REPLICATION_CLUSTERNAME,
+                SCALE_DOWN_CLUSTERNAME,
+                MAX_SAVED_REPLICATED_JOURNAL_SIZE,
+                SCALE_DOWN,
+                RESTART_BACKUP
+        };
+        ATTRIBUTES.addAll(Arrays.asList(list));
     };
 
     @Override
