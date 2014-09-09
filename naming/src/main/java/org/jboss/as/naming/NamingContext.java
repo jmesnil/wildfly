@@ -226,9 +226,12 @@ public class NamingContext implements EventContext {
             }
             final Context namingContext = (Context) context;
             if (namingContext instanceof NamingContext) {
-                return ((NamingContext)namingContext).lookup(resolveResult.getRemainingName(), dereference);
+                return ((NamingContext)namingContext).lookup(resolveResult.getRemainingName().toString(), dereference);
             } else {
-                return namingContext.lookup(resolveResult.getRemainingName());
+                // use the lookup(String) version as it is the most portable one.
+                // some JNDI providers will not work if the Name instance is a CompositeName as they accept only
+                // CompoundName.
+                return namingContext.lookup(resolveResult.getRemainingName().toString());
             }
         } else if (result instanceof LinkRef) {
             result = resolveLink(result,dereference);

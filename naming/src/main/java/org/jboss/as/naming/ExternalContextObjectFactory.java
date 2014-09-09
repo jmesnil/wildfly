@@ -85,10 +85,24 @@ public class ExternalContextObjectFactory implements ObjectFactory {
             final ClassLoader currentClassLoader = WildFlySecurityManager.getCurrentContextClassLoaderPrivileged();
             try {
                 WildFlySecurityManager.setCurrentContextClassLoaderPrivileged(loader);
-                initialContextClass = Class.forName(initialContextClassName, true, loader);
-                Constructor ctor = initialContextClass.getConstructor(Hashtable.class);
-                context = (Context) ctor.newInstance(newEnvironment);
-            } finally {
+                if (initialContextClassName.equals(javax.naming.InitialContext.class.getName()) &&
+                        environment.containsKey(Context.INITIAL_CONTEXT_FACTORY)) {
+                    // in WildFly, the default InitialContextFactory is already set to use the org.jboss.as.naming one.
+                    // any provider using the javax.naming.InitialContext class would not be able to specify
+                    // a custom InitialContextFactory regardless of the present of the property in the environment.
+                    // if the INITIAL_CONTEXT_FACTORY is passed in the environment, we use it to create the context
+                    // directly from it.
+                    String initialContextFactoryClassName = (String) environment.get(Context.INITIAL_CONTEXT_FACTORY);
+                    Class initialContextFactoryClass = Class.forName(initialContextFactoryClassName, true, loader);
+                    Constructor ctor = initialContextFactoryClass.getConstructor();
+                    javax.naming.spi.InitialContextFactory icf = (javax.naming.spi.InitialContextFactory) ctor.newInstance();
+                    context = icf.getInitialContext(environment);
+                } else {
+                    initialContextClass = Class.forName(initialContextClassName, true, loader);
+                    Constructor ctor = initialContextClass.getConstructor();
+                    context = (Context) ctor.newInstance(newEnvironment);
+                }
+            }finally {
                 WildFlySecurityManager.setCurrentContextClassLoaderPrivileged(currentClassLoader);
             }
         }
