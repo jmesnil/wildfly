@@ -867,8 +867,10 @@ public interface CommonAttributes {
     String SECURITY_SETTINGS = "security-settings";
     String SERVLET_PATH = "servlet-path";
     String HORNETQ_SERVER = "hornetq-server";
+    String START = "start";
     String STARTED = "started";
     String STATIC_CONNECTORS = "static-connectors";
+    String STOP = "stop";
     String STRING = "string";
     String SUBSCRIPTION_COUNT = "subscription-count";
     String SUBSYSTEM = "subsystem";
