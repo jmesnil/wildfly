@@ -91,6 +91,7 @@ public class JMSService implements Service<JMSServerManager> {
 
     @Override
     public void start(final StartContext context) throws StartException {
+        System.out.println(">>>>>>>>>>>>>>>>>> JMSService.start");
         final Runnable task = new Runnable() {
             @Override
             public void run() {
@@ -114,6 +115,7 @@ public class JMSService implements Service<JMSServerManager> {
 
     @Override
     public void stop(final StopContext context) {
+        System.out.println(">>>>>>>>>>>>>>>>>> JMSService.stop");
         final Runnable task = new Runnable() {
             @Override
             public void run() {
@@ -143,6 +145,7 @@ public class JMSService implements Service<JMSServerManager> {
                 }
 
                 public void activated() {
+                    System.out.println(">>>>>>>>>>>>>>>>> JMSService.activated");
                     if (overrideInVMSecurity) {
                         hornetQServer.getValue().getRemotingService().allowInvmSecurityOverride(new HornetQPrincipal(HornetQDefaultCredentials.getUsername(), HornetQDefaultCredentials.getPassword()));
                     }
@@ -159,6 +162,7 @@ public class JMSService implements Service<JMSServerManager> {
                 }
 
                 public void deActivate() {
+                    System.out.println(">>>>>>>>>>>>>>>>>> JMSService.deActivate");
                     // passivate the activation service only if the HornetQ server is deactivated when it fails back
                     // and *not* during AS7 service container shutdown or reload (AS7-6840 / AS7-6881)
                     if (hornetqActivationController != null) {
