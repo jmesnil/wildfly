@@ -56,7 +56,7 @@ public class TelnetServer implements TtyCodes {
         this.listener = listener;
         // make sure the socket is open right away
         this.serverSocket = new ServerSocket(port);
-        logger.info("Listening on " + serverSocket.getLocalPort());
+        logger.info("Telnet server listening on " + serverSocket.getLocalPort());
 
         for (Cmd cmd : spec.getCmds()) {
             this.cmds.put(cmd.getName(), cmd);
@@ -76,6 +76,7 @@ public class TelnetServer implements TtyCodes {
 
     public void activate() throws IOException {
         if (running.compareAndSet(false, true)) {
+            logger.info("ready to accept connections on " + serverSocket.getLocalPort());
             while (running.get()) {
                 final Socket accept = serverSocket.accept();
                 final Thread thread = new Thread() {

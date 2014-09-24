@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.logging.Logger;
 
 import static org.jboss.as.test.integration.ejb.mdb.dynamic.impl.TtyCodes.TTY_Bright;
 import static org.jboss.as.test.integration.ejb.mdb.dynamic.impl.TtyCodes.TTY_Reset;
@@ -55,6 +56,8 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Arquillian.class)
 @RunAsClient
 public class DynamicMessageListenerTestCase {
+    private static final Logger logger = Logger.getLogger(DynamicMessageListenerTestCase.class.getName());
+
     private static void assertEmptyLine(final DataInputStream in) throws IOException {
         assertEquals("", in.readLine());
     }
@@ -79,7 +82,10 @@ public class DynamicMessageListenerTestCase {
         // wait a bit to let the telnet server be activated by the RA
         Thread.sleep(TimeoutUtil.adjust(500));
 
-        final Socket socket = new Socket(EJBManagementUtil.getNodeName(), 2020);
+        final String host = EJBManagementUtil.getNodeName();
+        final int port = 2020;
+        logger.info("connecting to " + host + ":" + port);
+        final Socket socket = new Socket(host, port);
         final OutputStream sockOut = socket.getOutputStream();
         final DataInputStream in = new DataInputStream(new TelnetInputStream(socket.getInputStream(), sockOut));
         final PrintStream out = new TelnetPrintStream(sockOut);
