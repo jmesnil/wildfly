@@ -31,6 +31,7 @@ import org.jboss.as.test.integration.ejb.mdb.dynamic.impl.TelnetInputStream;
 import org.jboss.as.test.integration.ejb.mdb.dynamic.impl.TelnetPrintStream;
 import org.jboss.as.test.integration.ejb.mdb.dynamic.impl.TelnetServer;
 import org.jboss.as.test.integration.ejb.remote.common.EJBManagementUtil;
+import org.jboss.as.test.shared.TimeoutUtil;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -75,6 +76,9 @@ public class DynamicMessageListenerTestCase {
 
     @Test
     public void test1() throws Exception {
+        // wait a bit to let the telnet server be activated by the RA
+        Thread.sleep(TimeoutUtil.adjust(500));
+
         final Socket socket = new Socket(EJBManagementUtil.getNodeName(), 2020);
         final OutputStream sockOut = socket.getOutputStream();
         final DataInputStream in = new DataInputStream(new TelnetInputStream(socket.getInputStream(), sockOut));
