@@ -57,8 +57,8 @@ public class BinderServiceUtil {
      * @param obj the object that must be bound
      */
     public static void installBinderService(final ServiceTarget serviceTarget,
-                                                final String name,
-                                                final Object obj) {
+                                                 final String name,
+                                                 final Object obj) {
         final BindInfo bindInfo = ContextNames.bindInfoFor(name);
         final BinderService binderService = new BinderService(bindInfo.getBindName());
 
