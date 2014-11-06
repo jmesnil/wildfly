@@ -24,7 +24,6 @@ package org.jboss.as.messaging.jms;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.jboss.as.messaging.CommonAttributes.STOP;
 import static org.jboss.as.messaging.HornetQActivationService.rollbackOperationIfServerNotActive;
 import static org.jboss.as.messaging.ManagementUtil.reportListOfStrings;
 import static org.jboss.as.messaging.OperationDefinitionHelper.createNonEmptyStringAttribute;
@@ -35,7 +34,6 @@ import static org.jboss.dmr.ModelType.STRING;
 import org.hornetq.api.core.management.ResourceNames;
 import org.hornetq.api.jms.management.JMSServerControl;
 import org.hornetq.core.server.HornetQServer;
-import org.hornetq.jms.server.JMSServerManager;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -85,12 +83,11 @@ public class JMSServerControlHandler extends AbstractRuntimeOnlyHandler {
     @Override
     protected void executeRuntimeStep(OperationContext context, ModelNode operation) throws OperationFailedException {
 
-        final String operationName = operation.require(OP).asString();
-
         if (rollbackOperationIfServerNotActive(context, operation)) {
             return;
         }
 
+        final String operationName = operation.require(OP).asString();
         final JMSServerControl serverControl = getServerControl(context, operation);
         if (serverControl == null) {
             PathAddress address = PathAddress.pathAddress(operation.require(OP_ADDR));
@@ -120,7 +117,7 @@ public class JMSServerControlHandler extends AbstractRuntimeOnlyHandler {
             } else if (GET_SESSION_CREATION_TIME.equals(operationName)) {
                 String sessionID = SESSION_ID.resolveModelAttribute(context, operation).asString();
                 String time = serverControl.getSessionCreationTime(sessionID);
-               context.getResult().set(time);
+                context.getResult().set(time);
             } else if (LIST_SESSIONS_AS_JSON.equals(operationName)) {
                 String connectionID = CONNECTION_ID.resolveModelAttribute(context, operation).asString();
                 String json = serverControl.listSessionsAsJSON(connectionID);
@@ -131,9 +128,6 @@ public class JMSServerControlHandler extends AbstractRuntimeOnlyHandler {
             } else if (LIST_PREPARED_TRANSACTION_JMS_DETAILS_AS_HTML.equals(operationName)) {
                 String html = serverControl.listPreparedTransactionDetailsAsHTML();
                 context.getResult().set(html);
-            } else if (STOP.equals(operationName)) {
-                JMSServerManager manager = getJMSServerManager(context, operation);
-                manager.stop();
             } else {
                 // Bug
                 throw MessagingLogger.ROOT_LOGGER.unsupportedOperation(operationName);
@@ -149,43 +143,43 @@ public class JMSServerControlHandler extends AbstractRuntimeOnlyHandler {
 
     public void registerOperations(final ManagementResourceRegistration registry, ResourceDescriptionResolver resolver) {
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_CONNECTIONS_AS_JSON, resolver)
-                .build(),
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_CONSUMERS_AS_JSON, resolver)
-                .setParameters(CONNECTION_ID)
-                .build(),
+                        .setParameters(CONNECTION_ID)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_ALL_CONSUMERS_AS_JSON, resolver)
-                .build(),
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_TARGET_DESTINATIONS, resolver)
-                .setParameters(SESSION_ID)
-                .setReplyType(LIST)
-                .setReplyValueType(STRING)
-                .build(),
+                        .setParameters(SESSION_ID)
+                        .setReplyType(LIST)
+                        .setReplyValueType(STRING)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(GET_LAST_SENT_MESSAGE_ID, resolver)
-                .setParameters(SESSION_ID, ADDRESS_NAME)
-                .setReplyType(STRING)
-                .build(),
+                        .setParameters(SESSION_ID, ADDRESS_NAME)
+                        .setReplyType(STRING)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(GET_SESSION_CREATION_TIME, resolver)
-                .setParameters(SESSION_ID)
-                .setReplyType(STRING)
-                .build(),
+                        .setParameters(SESSION_ID)
+                        .setReplyType(STRING)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_SESSIONS_AS_JSON, resolver)
-                .setParameters(CONNECTION_ID)
-                .setReplyType(STRING)
-                .build(),
+                        .setParameters(CONNECTION_ID)
+                        .setReplyType(STRING)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_PREPARED_TRANSACTION_JMS_DETAILS_AS_JSON, resolver)
-                .setReplyType(STRING)
-                .build(),
+                        .setReplyType(STRING)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_PREPARED_TRANSACTION_JMS_DETAILS_AS_HTML, resolver)
-                .setReplyType(STRING)
-                .build(),
+                        .setReplyType(STRING)
+                        .build(),
                 this);
     }
 
@@ -195,11 +189,4 @@ public class JMSServerControlHandler extends AbstractRuntimeOnlyHandler {
         HornetQServer hqServer = HornetQServer.class.cast(hqService.getValue());
         return JMSServerControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.JMS_SERVER));
     }
-
-    private JMSServerManager getJMSServerManager(final OperationContext context, final ModelNode operation) {
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
-        final ServiceName jmsServiceName = JMSServices.getJmsManagerBaseServiceName(hqServiceName);
-        ServiceController<?> jmsService = context.getServiceRegistry(false).getService(jmsServiceName);
-        JMSServerManager jmsServerManager = JMSServerManager.class.cast(jmsService.getValue());
-        return jmsServerManager;
-    }}
+}

@@ -247,12 +247,6 @@ public class BasicComponent implements Component {
      * {@inheritDoc}
      */
     public void stop() {
-        System.out.println("BasicComponent.stop");
-        try {
-            throw new Exception();
-        } catch(Exception e) {
-            //e.printStackTrace();
-        }
         if (stopping.compareAndSet(false, true)) {
             synchronized (this) {
                 gate = false;

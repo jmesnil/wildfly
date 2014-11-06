@@ -90,7 +90,6 @@ public class JMSService implements Service<JMSServerManager> {
 
     @Override
     public void start(final StartContext context) throws StartException {
-        System.out.println(">>>>>>>>>>>>>>>>>> JMSService.start");
         final Runnable task = new Runnable() {
             @Override
             public void run() {
@@ -114,7 +113,6 @@ public class JMSService implements Service<JMSServerManager> {
 
     @Override
     public void stop(final StopContext context) {
-        System.out.println(">>>>>>>>>>>>>>>>>> JMSService.stop");
         final Runnable task = new Runnable() {
             @Override
             public void run() {
@@ -136,7 +134,7 @@ public class JMSService implements Service<JMSServerManager> {
         ClassLoader oldTccl = WildFlySecurityManager.setCurrentContextClassLoaderPrivileged(getClass());
         final ServiceName hornetQActivationServiceName = HornetQActivationService.getHornetQActivationServiceName(hqServiceName);
         try {
-            jmsServer = new JMSServerManagerImpl(hornetQServer.getValue(), new AS7BindingRegistry(context.getController().getServiceContainer(), hornetQActivationServiceName));
+            jmsServer = new JMSServerManagerImpl(hornetQServer.getValue(), new AS7BindingRegistry(context.getController().getServiceContainer()));
 
             hornetQServer.getValue().registerActivateCallback(new ActivateCallback() {
                 private volatile ServiceController<Void> hornetqActivationController;
@@ -145,7 +143,6 @@ public class JMSService implements Service<JMSServerManager> {
                 }
 
                 public void activated() {
-                    System.out.println(">>>>>>>>>>>>>>>>> JMSService.activated");
                     if (overrideInVMSecurity) {
                         hornetQServer.getValue().getRemotingService().allowInvmSecurityOverride(new HornetQPrincipal(HornetQDefaultCredentials.getUsername(), HornetQDefaultCredentials.getPassword()));
                     }
@@ -153,13 +150,6 @@ public class JMSService implements Service<JMSServerManager> {
                     // but the JMS service start must not be completed until the JMSServerManager wrappee is indeed started (and has deployed the JMS resources, etc.).
                     // It is possible that the activation service has already been installed but becomes passive when a backup server has failed over (-> ACTIVE) and failed back (-> PASSIVE)
                     ServiceController<?> service = serviceContainer.getService(hornetQActivationServiceName);
-                    System.out.println("service = " + service);
-                    if (service != null) {
-                        ServiceController.State state = service.getState();
-                        System.out.println("state = " + state);
-                        Mode mode = service.getMode();
-                        System.out.println("mode = " + mode);
-                    }
                     if (service != null) {
                         service.setMode(ACTIVE);
                     } else {
@@ -170,16 +160,10 @@ public class JMSService implements Service<JMSServerManager> {
                 }
 
                 public void deActivate() {
-                    System.out.println(">>>>>>>>>>>>>>>>>> JMSService.deActivate");
                     // passivate the activation service only if the HornetQ server is deactivated when it fails back
                     // and *not* during AS7 service container shutdown or reload (AS7-6840 / AS7-6881)
                     if (hornetqActivationController != null) {
-                        ServiceController.State state = hornetqActivationController.getState();
-                        System.out.println("state = " + state);
-                        Mode mode = hornetqActivationController.getMode();
-                        System.out.println("mode = " + mode);
                         if (!hornetqActivationController.getState().in(STOPPING, REMOVED)) {
-                            System.out.println("removed hornetq activation controller");
                             hornetqActivationController.compareAndSetMode(ACTIVE, NEVER);
                             hornetqActivationController = null;
                         }

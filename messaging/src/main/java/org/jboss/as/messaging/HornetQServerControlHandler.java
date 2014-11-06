@@ -130,8 +130,6 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
         final String operationName = operation.require(OP).asString();
 
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
-
-
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
         if (hqService == null || hqService.getState() != ServiceController.State.UP) {
             throw MessagingLogger.ROOT_LOGGER.hornetQServerNotInstalled(hqServiceName.getSimpleName());

@@ -35,7 +35,6 @@ import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.messaging.BinderServiceUtil;
 import org.jboss.as.messaging.CommonAttributes;
-import org.jboss.as.messaging.HornetQActivationService;
 import org.jboss.as.messaging.MessagingServices;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
@@ -71,7 +70,7 @@ public class JMSTopicAdd extends AbstractAddStepHandler {
         final ModelNode entries = CommonAttributes.DESTINATION_ENTRIES.resolveModelAttribute(context, model);
         final String[] jndiBindings = JMSServices.getJndiBindings(entries);
         for (String jndiBinding : jndiBindings) {
-            BinderServiceUtil.installBinderService(serviceTarget, HornetQActivationService.getHornetQActivationServiceName(hqServiceName), jndiBinding, jmsTopicService);
+            BinderServiceUtil.installBinderService(serviceTarget, jndiBinding, jmsTopicService);
         }
     }
 

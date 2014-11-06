@@ -214,7 +214,6 @@ public class MessageDrivenComponent extends EJBComponent implements PooledCompon
 
     @Override
     public void start() {
-        System.out.println("MessageDrivenComponent.start");
         if (endpoint == null) {
             throw EjbLogger.ROOT_LOGGER.endpointUnAvailable(this.getComponentName());
         }

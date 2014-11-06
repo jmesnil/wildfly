@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.as.test.integration.messaging.mgmt.startstop;
+package org.jboss.as.test.integration.messaging.mgmt;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
@@ -63,11 +63,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
+ * Force a hornetq-server to failover and starts it. It should be functioning normally afterwards.
+ *
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */
 @RunWith(Arquillian.class)
 @RunAsClient
-public class HornetQServerStartStopTestCase {
+public class HornetQServerForceFailoverStartTestCase {
 
     private static final ModelNode hornetQServerAddress;
 

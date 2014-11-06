@@ -38,7 +38,6 @@ import org.jboss.as.naming.service.BinderService;
 import org.jboss.msc.service.AbstractServiceListener;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceController;
-import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceTarget;
 import org.jboss.msc.value.ImmediateValue;
 import org.jboss.msc.value.Values;
@@ -52,13 +51,12 @@ public class BinderServiceUtil {
 
     /**
      * Install a binder service to bind the {@code obj} using the binding {@code name}.
+
      * @param serviceTarget
-     * @param hornetQActivationServiceName
      * @param name the binding name
      * @param obj the object that must be bound
      */
     public static void installBinderService(final ServiceTarget serviceTarget,
-                                            final ServiceName hornetQActivationServiceName,
                                             final String name,
                                             final Object obj) {
         final BindInfo bindInfo = ContextNames.bindInfoFor(name);
@@ -66,7 +64,6 @@ public class BinderServiceUtil {
 
         serviceTarget.addService(bindInfo.getBinderServiceName(), binderService)
                 .addDependency(bindInfo.getParentContextServiceName(), ServiceBasedNamingStore.class, binderService.getNamingStoreInjector())
-                //.addDependency(hornetQActivationServiceName)
                 .addInjection(binderService.getManagedObjectInjector(), new ValueManagedReferenceFactory(Values.immediateValue(obj)))
                 .setInitialMode(ServiceController.Mode.ACTIVE)
                 .install();
@@ -80,7 +77,6 @@ public class BinderServiceUtil {
      * @param service the service whose value must be bound
      */
     public static void installBinderService(final ServiceTarget serviceTarget,
-                                            final ServiceName hornetQActivationServiceName,
                                             final String name,
                                             final Service<?> service) {
         final BindInfo bindInfo = ContextNames.bindInfoFor(name);
@@ -88,7 +84,6 @@ public class BinderServiceUtil {
 
         serviceTarget.addService(bindInfo.getBinderServiceName(), binderService)
                 .addDependency(bindInfo.getParentContextServiceName(), ServiceBasedNamingStore.class, binderService.getNamingStoreInjector())
-                //.addDependency(hornetQActivationServiceName)
                 .addInjection(binderService.getManagedObjectInjector(), new ValueManagedReferenceFactory(service))
                 .setInitialMode(ServiceController.Mode.ACTIVE)
                 .install();
