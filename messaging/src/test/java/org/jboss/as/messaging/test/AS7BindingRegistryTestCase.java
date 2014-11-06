@@ -11,6 +11,7 @@ import org.jboss.as.messaging.jms.AS7BindingRegistry;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.msc.service.ServiceContainer;
 import org.jboss.msc.service.ServiceController;
+import org.jboss.msc.service.ServiceName;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class AS7BindingRegistryTestCase {
      */
     @Test
     public void bindUnbindBind() throws Exception {
-        AS7BindingRegistry registry = new AS7BindingRegistry(container);
+        AS7BindingRegistry registry = new AS7BindingRegistry(container, ServiceName.JBOSS.append("test"));
 
         Object obj = new Object();
         String name = UUID.randomUUID().toString();

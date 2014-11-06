@@ -25,26 +25,40 @@ package org.jboss.as.test.integration.messaging.mgmt.startstop;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OUTCOME;
-import static org.jboss.shrinkwrap.api.ArchivePaths.create;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.UUID;
 
-import javax.ejb.EJB;
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TemporaryQueue;
+import javax.jms.TextMessage;
 
-import org.jboss.arquillian.container.test.api.Deployment;
+import org.hornetq.api.core.TransportConfiguration;
+import org.hornetq.api.jms.HornetQJMSClient;
+import org.hornetq.api.jms.JMSFactoryType;
+import org.hornetq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.hornetq.core.remoting.impl.netty.TransportConstants;
+import org.hornetq.jms.client.HornetQConnectionFactory;
+import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.as.arquillian.api.ContainerResource;
 import org.jboss.as.arquillian.container.ManagementClient;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
+import org.jboss.as.test.shared.TestSuiteEnvironment;
 import org.jboss.dmr.ModelNode;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -52,6 +66,7 @@ import org.junit.runner.RunWith;
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */
 @RunWith(Arquillian.class)
+@RunAsClient
 public class HornetQServerStartStopTestCase {
 
     private static final ModelNode hornetQServerAddress;
@@ -62,25 +77,32 @@ public class HornetQServerStartStopTestCase {
         hornetQServerAddress.add("hornetq-server", "default");
     }
 
-    @ArquillianResource
+    @ContainerResource
     private ManagementClient managementClient;
 
-    @EJB
-    private MessagingBean bean;
+    private static HornetQConnectionFactory connectionFactory;
 
-    @Deployment
-    public static JavaArchive createArchive() {
-        JavaArchive archive = ShrinkWrap.create(JavaArchive.class, "JMSResourceDefinitionsTestCase.jar")
-                .addPackage(MessagingBean.class.getPackage())
-                .addAsManifestResource(new StringAsset("Manifest-Version: 1.0\n" +
-                        "Dependencies: org.jboss.dmr,org.jboss.as.controller-client\n"), "MANIFEST.MF")
-                .addAsManifestResource(
-                        EmptyAsset.INSTANCE,
-                        create("beans.xml"));
-        System.out.println("archive = " + archive.toString(true));
-        return archive;
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        map.put("host", TestSuiteEnvironment.getServerAddress());
+        map.put("port", 8080);
+        map.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
+        map.put(TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME, "http-acceptor");
+        TransportConfiguration transportConfiguration =
+                new TransportConfiguration(NettyConnectorFactory.class.getName(), map);
+        connectionFactory = HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
+        connectionFactory.setBlockOnDurableSend(true);
+        connectionFactory.setBlockOnNonDurableSend(true);
     }
 
+    @AfterClass
+    public static void afterClass() throws Exception {
+
+        if (connectionFactory != null) {
+            connectionFactory.close();
+        }
+    }
     private boolean execute(ManagementClient managementClient, final ModelNode address, final String operationName) throws IOException {
         ModelNode operation = new ModelNode();
         operation.get(OP_ADDR).set(address);
@@ -91,28 +113,39 @@ public class HornetQServerStartStopTestCase {
     }
 
     @Test
-    public void testStartStop() throws Exception {
-        String text = UUID.randomUUID().toString();
-        bean.sendMessage(text);
-        String response = bean.receiveResponse();
-        assertEquals(text, response);
+    public void testForceFailoverAndStart() throws Exception {
 
-        assertTrue(execute(managementClient, hornetQServerAddress, "stop"));
+        sendAndReceiveMessage();
 
-        text = UUID.randomUUID().toString();
+        assertFalse(execute(managementClient, hornetQServerAddress, "force-failover"));
+
         try {
-            bean.sendMessage(text);
-            fail("HornetQ server is stopped");
-        } catch (Exception e) {
-            e.printStackTrace();
+            sendAndReceiveMessage();
+            fail("HornetQ server must be stopped after it was forced to fail over");
+        } catch (JMSException e) {
+
         }
 
         assertTrue(execute(managementClient, hornetQServerAddress, "start"));
 
-        text = UUID.randomUUID().toString();
-        bean.sendMessage(text);
-        response = bean.receiveResponse();
-        assertEquals(text, response);
+        sendAndReceiveMessage();
+    }
 
+    private void sendAndReceiveMessage() throws JMSException {
+        try( Connection connection = connectionFactory.createConnection("guest", "guest") ) {
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            TemporaryQueue temporaryQueue = session.createTemporaryQueue();
+            MessageConsumer consumer = session.createConsumer(temporaryQueue);
+            connection.start();
+
+            MessageProducer producer = session.createProducer(temporaryQueue);
+            String text = UUID.randomUUID().toString();
+            producer.send(session.createTextMessage(text));
+
+            Message reply = consumer.receive(2000);
+            assertNotNull(reply);
+            assertTrue(reply instanceof TextMessage);
+            assertEquals(text, ((TextMessage) reply).getText());
+        }
     }
 }

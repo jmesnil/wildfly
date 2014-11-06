@@ -25,6 +25,7 @@ package org.jboss.as.messaging;
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_ATTRIBUTE_OPERATION;
+import static org.jboss.as.messaging.CommonAttributes.START;
 import static org.jboss.as.messaging.HornetQActivationService.rollbackOperationIfServerNotActive;
 import static org.jboss.as.messaging.ManagementUtil.reportListOfStrings;
 import static org.jboss.as.messaging.ManagementUtil.reportRoles;
@@ -129,6 +130,8 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
         final String operationName = operation.require(OP).asString();
 
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+
+
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
         if (hqService == null || hqService.getState() != ServiceController.State.UP) {
             throw MessagingLogger.ROOT_LOGGER.hornetQServerNotInstalled(hqServiceName.getSimpleName());
@@ -139,7 +142,31 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
             handleReadAttribute(context, operation, hqServer);
             context.stepCompleted();
             return;
-        }
+        } else
+            if (START.equals(operationName)) {
+                if (hqServer.isStarted()) {
+                    // do nothing
+                    context.stepCompleted();
+                    return;
+                }
+                // handle the start operation before as it is the only operation that can be done on a server
+                // that has been stopped
+                try {
+                    ClassLoader oldTCCL = Thread.currentThread().getContextClassLoader();
+                    try {
+                        Thread.currentThread().setContextClassLoader(hqServer.getClass().getClassLoader());
+                        hqServer.start();
+                    } finally {
+                        Thread.currentThread().setContextClassLoader(oldTCCL);
+                    }
+                    context.stepCompleted();
+                    return;
+                } catch (Exception e) {
+                    throw new OperationFailedException(e);
+                }
+            }
+
+
 
         if (rollbackOperationIfServerNotActive(context, operation)) {
             return;
@@ -335,7 +362,9 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
         registry.registerOperationHandler(runtimeOnlyOperation(FORCE_FAILOVER, resolver)
                 .build(),
                 this);
-
+        registry.registerOperationHandler(runtimeOnlyOperation(START, resolver)
+                .build(),
+                this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(GET_ROLES, resolver)
                 .setParameters(ADDRESS_MATCH)
                 .setReplyType(LIST)

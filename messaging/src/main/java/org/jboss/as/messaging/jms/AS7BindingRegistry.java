@@ -34,6 +34,7 @@ import org.jboss.as.naming.ManagedReferenceFactory;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.msc.service.ServiceContainer;
 import org.jboss.msc.service.ServiceController;
+import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.StabilityMonitor;
 
 /**
@@ -46,9 +47,11 @@ import org.jboss.msc.service.StabilityMonitor;
 public class AS7BindingRegistry implements BindingRegistry {
 
     private final ServiceContainer container;
+    private final ServiceName hornetQActivationServiceName;
 
-    public AS7BindingRegistry(ServiceContainer container) {
+    public AS7BindingRegistry(ServiceContainer container, ServiceName hornetQActivationServiceName) {
         this.container = container;
+        this.hornetQActivationServiceName = hornetQActivationServiceName;
     }
 
     @Override
@@ -82,7 +85,7 @@ public class AS7BindingRegistry implements BindingRegistry {
         if (name == null || name.isEmpty()) {
             throw MessagingLogger.ROOT_LOGGER.cannotBindJndiName();
         }
-        installBinderService(container, name, obj);
+        installBinderService(container, hornetQActivationServiceName, name, obj);
         ROOT_LOGGER.boundJndiName(name);
         return true;
     }

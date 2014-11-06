@@ -251,7 +251,7 @@ public class BasicComponent implements Component {
         try {
             throw new Exception();
         } catch(Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         if (stopping.compareAndSet(false, true)) {
             synchronized (this) {

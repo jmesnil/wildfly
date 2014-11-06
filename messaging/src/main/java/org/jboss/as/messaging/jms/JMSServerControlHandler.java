@@ -24,12 +24,10 @@ package org.jboss.as.messaging.jms;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.jboss.as.messaging.CommonAttributes.START;
 import static org.jboss.as.messaging.CommonAttributes.STOP;
 import static org.jboss.as.messaging.HornetQActivationService.rollbackOperationIfServerNotActive;
 import static org.jboss.as.messaging.ManagementUtil.reportListOfStrings;
 import static org.jboss.as.messaging.OperationDefinitionHelper.createNonEmptyStringAttribute;
-import static org.jboss.as.messaging.OperationDefinitionHelper.runtimeOnlyOperation;
 import static org.jboss.as.messaging.OperationDefinitionHelper.runtimeReadOnlyOperation;
 import static org.jboss.dmr.ModelType.LIST;
 import static org.jboss.dmr.ModelType.STRING;
@@ -88,25 +86,6 @@ public class JMSServerControlHandler extends AbstractRuntimeOnlyHandler {
     protected void executeRuntimeStep(OperationContext context, ModelNode operation) throws OperationFailedException {
 
         final String operationName = operation.require(OP).asString();
-
-        // handle the start operation before as it is the only operation that can be done on a server
-        // that is stopped
-        if (START.equals(operationName)) {
-            try {
-                JMSServerManager manager = getJMSServerManager(context, operation);
-                ClassLoader oldTCCL = Thread.currentThread().getContextClassLoader();
-                try {
-                    Thread.currentThread().setContextClassLoader(manager.getClass().getClassLoader());
-                    manager.start();
-                } finally {
-                    Thread.currentThread().setContextClassLoader(oldTCCL);
-                }
-                context.stepCompleted();
-                return;
-            } catch (Exception e) {
-                throw new OperationFailedException(e);
-            }
-        }
 
         if (rollbackOperationIfServerNotActive(context, operation)) {
             return;
@@ -208,12 +187,7 @@ public class JMSServerControlHandler extends AbstractRuntimeOnlyHandler {
                 .setReplyType(STRING)
                 .build(),
                 this);
-        registry.registerOperationHandler(runtimeOnlyOperation(START, resolver)
-                .build(),
-                this);
-        registry.registerOperationHandler(runtimeOnlyOperation(STOP, resolver)
-                .build(),
-                this);    }
+    }
 
     private JMSServerControl getServerControl(final OperationContext context, final ModelNode operation) {
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));

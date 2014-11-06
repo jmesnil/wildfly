@@ -22,6 +22,16 @@
 
 package org.jboss.as.messaging.jms;
 
+import static org.jboss.as.messaging.logging.MessagingLogger.MESSAGING_LOGGER;
+import static org.jboss.as.server.Services.addServerExecutorDependency;
+import static org.jboss.msc.service.ServiceController.Mode.ACTIVE;
+import static org.jboss.msc.service.ServiceController.Mode.NEVER;
+import static org.jboss.msc.service.ServiceController.State.REMOVED;
+import static org.jboss.msc.service.ServiceController.State.STOPPING;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+
 import org.hornetq.core.security.HornetQPrincipal;
 import org.hornetq.core.server.ActivateCallback;
 import org.hornetq.core.server.HornetQServer;
@@ -42,17 +52,6 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
-
-import static org.jboss.as.messaging.logging.MessagingLogger.MESSAGING_LOGGER;
-import static org.jboss.as.server.Services.addServerExecutorDependency;
-import static org.jboss.msc.service.ServiceController.Mode.ACTIVE;
-import static org.jboss.msc.service.ServiceController.Mode.REMOVE;
-import static org.jboss.msc.service.ServiceController.State.REMOVED;
-import static org.jboss.msc.service.ServiceController.State.STOPPING;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionException;
-
 import org.wildfly.security.manager.WildFlySecurityManager;
 
 /**
@@ -135,8 +134,9 @@ public class JMSService implements Service<JMSServerManager> {
     private synchronized void doStart(final StartContext context) throws StartException {
         final ServiceContainer serviceContainer = context.getController().getServiceContainer();
         ClassLoader oldTccl = WildFlySecurityManager.setCurrentContextClassLoaderPrivileged(getClass());
+        final ServiceName hornetQActivationServiceName = HornetQActivationService.getHornetQActivationServiceName(hqServiceName);
         try {
-            jmsServer = new JMSServerManagerImpl(hornetQServer.getValue(), new AS7BindingRegistry(context.getController().getServiceContainer()));
+            jmsServer = new JMSServerManagerImpl(hornetQServer.getValue(), new AS7BindingRegistry(context.getController().getServiceContainer(), hornetQActivationServiceName));
 
             hornetQServer.getValue().registerActivateCallback(new ActivateCallback() {
                 private volatile ServiceController<Void> hornetqActivationController;
@@ -152,12 +152,20 @@ public class JMSService implements Service<JMSServerManager> {
                     // HornetQ only provides a callback to be notified when HornetQ core server is activated.
                     // but the JMS service start must not be completed until the JMSServerManager wrappee is indeed started (and has deployed the JMS resources, etc.).
                     // It is possible that the activation service has already been installed but becomes passive when a backup server has failed over (-> ACTIVE) and failed back (-> PASSIVE)
-                    if (hornetqActivationController == null) {
-                        hornetqActivationController = serviceContainer.addService(HornetQActivationService.getHornetQActivationServiceName(hqServiceName), new HornetQActivationService())
+                    ServiceController<?> service = serviceContainer.getService(hornetQActivationServiceName);
+                    System.out.println("service = " + service);
+                    if (service != null) {
+                        ServiceController.State state = service.getState();
+                        System.out.println("state = " + state);
+                        Mode mode = service.getMode();
+                        System.out.println("mode = " + mode);
+                    }
+                    if (service != null) {
+                        service.setMode(ACTIVE);
+                    } else {
+                        hornetqActivationController = serviceContainer.addService(hornetQActivationServiceName, new HornetQActivationService())
                                 .setInitialMode(Mode.ACTIVE)
                                 .install();
-                    } else {
-                        hornetqActivationController.setMode(ACTIVE);
                     }
                 }
 
@@ -166,8 +174,13 @@ public class JMSService implements Service<JMSServerManager> {
                     // passivate the activation service only if the HornetQ server is deactivated when it fails back
                     // and *not* during AS7 service container shutdown or reload (AS7-6840 / AS7-6881)
                     if (hornetqActivationController != null) {
+                        ServiceController.State state = hornetqActivationController.getState();
+                        System.out.println("state = " + state);
+                        Mode mode = hornetqActivationController.getMode();
+                        System.out.println("mode = " + mode);
                         if (!hornetqActivationController.getState().in(STOPPING, REMOVED)) {
-                            hornetqActivationController.compareAndSetMode(ACTIVE, REMOVE);
+                            System.out.println("removed hornetq activation controller");
+                            hornetqActivationController.compareAndSetMode(ACTIVE, NEVER);
                             hornetqActivationController = null;
                         }
                     }
