@@ -22,16 +22,6 @@
 
 package org.jboss.as.messaging.jms;
 
-import static org.jboss.as.messaging.logging.MessagingLogger.MESSAGING_LOGGER;
-import static org.jboss.as.server.Services.addServerExecutorDependency;
-import static org.jboss.msc.service.ServiceController.Mode.ACTIVE;
-import static org.jboss.msc.service.ServiceController.Mode.NEVER;
-import static org.jboss.msc.service.ServiceController.State.REMOVED;
-import static org.jboss.msc.service.ServiceController.State.STOPPING;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionException;
-
 import org.hornetq.core.security.HornetQPrincipal;
 import org.hornetq.core.server.ActivateCallback;
 import org.hornetq.core.server.HornetQServer;
@@ -52,6 +42,17 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
+
+import static org.jboss.as.messaging.logging.MessagingLogger.MESSAGING_LOGGER;
+import static org.jboss.as.server.Services.addServerExecutorDependency;
+import static org.jboss.msc.service.ServiceController.Mode.ACTIVE;
+import static org.jboss.msc.service.ServiceController.Mode.NEVER;
+import static org.jboss.msc.service.ServiceController.State.REMOVED;
+import static org.jboss.msc.service.ServiceController.State.STOPPING;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+
 import org.wildfly.security.manager.WildFlySecurityManager;
 
 /**

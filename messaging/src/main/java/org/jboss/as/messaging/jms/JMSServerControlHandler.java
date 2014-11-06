@@ -117,7 +117,7 @@ public class JMSServerControlHandler extends AbstractRuntimeOnlyHandler {
             } else if (GET_SESSION_CREATION_TIME.equals(operationName)) {
                 String sessionID = SESSION_ID.resolveModelAttribute(context, operation).asString();
                 String time = serverControl.getSessionCreationTime(sessionID);
-                context.getResult().set(time);
+               context.getResult().set(time);
             } else if (LIST_SESSIONS_AS_JSON.equals(operationName)) {
                 String connectionID = CONNECTION_ID.resolveModelAttribute(context, operation).asString();
                 String json = serverControl.listSessionsAsJSON(connectionID);
@@ -143,43 +143,43 @@ public class JMSServerControlHandler extends AbstractRuntimeOnlyHandler {
 
     public void registerOperations(final ManagementResourceRegistration registry, ResourceDescriptionResolver resolver) {
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_CONNECTIONS_AS_JSON, resolver)
-                        .build(),
+                .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_CONSUMERS_AS_JSON, resolver)
-                        .setParameters(CONNECTION_ID)
-                        .build(),
+                .setParameters(CONNECTION_ID)
+                .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_ALL_CONSUMERS_AS_JSON, resolver)
-                        .build(),
+                .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_TARGET_DESTINATIONS, resolver)
-                        .setParameters(SESSION_ID)
-                        .setReplyType(LIST)
-                        .setReplyValueType(STRING)
-                        .build(),
+                .setParameters(SESSION_ID)
+                .setReplyType(LIST)
+                .setReplyValueType(STRING)
+                .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(GET_LAST_SENT_MESSAGE_ID, resolver)
-                        .setParameters(SESSION_ID, ADDRESS_NAME)
-                        .setReplyType(STRING)
-                        .build(),
+                .setParameters(SESSION_ID, ADDRESS_NAME)
+                .setReplyType(STRING)
+                .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(GET_SESSION_CREATION_TIME, resolver)
-                        .setParameters(SESSION_ID)
-                        .setReplyType(STRING)
-                        .build(),
+                .setParameters(SESSION_ID)
+                .setReplyType(STRING)
+                .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_SESSIONS_AS_JSON, resolver)
-                        .setParameters(CONNECTION_ID)
-                        .setReplyType(STRING)
-                        .build(),
+                .setParameters(CONNECTION_ID)
+                .setReplyType(STRING)
+                .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_PREPARED_TRANSACTION_JMS_DETAILS_AS_JSON, resolver)
-                        .setReplyType(STRING)
-                        .build(),
+                .setReplyType(STRING)
+                .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_PREPARED_TRANSACTION_JMS_DETAILS_AS_HTML, resolver)
-                        .setReplyType(STRING)
-                        .build(),
+                .setReplyType(STRING)
+                .build(),
                 this);
     }
 
