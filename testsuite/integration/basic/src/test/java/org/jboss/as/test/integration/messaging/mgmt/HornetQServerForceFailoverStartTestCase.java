@@ -119,13 +119,14 @@ public class HornetQServerForceFailoverStartTestCase {
 
         sendAndReceiveMessage();
 
+        // force-failover operation fails even when the server is successfully stopped
+        // https://issues.jboss.org/browse/HORNETQ-1441
         assertFalse(execute(managementClient, hornetQServerAddress, "force-failover"));
 
         try {
             sendAndReceiveMessage();
             fail("HornetQ server must be stopped after it was forced to fail over");
         } catch (JMSException e) {
-
         }
 
         assertTrue(execute(managementClient, hornetQServerAddress, "start"));
