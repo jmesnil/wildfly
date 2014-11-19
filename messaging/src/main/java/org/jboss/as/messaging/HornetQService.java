@@ -55,6 +55,7 @@ import org.jboss.as.messaging.logging.MessagingLogger;
 import org.jboss.as.network.OutboundSocketBinding;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.as.security.plugins.SecurityDomainContext;
+import org.jboss.as.server.suspend.SuspendController;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.inject.Injector;
 import org.jboss.msc.inject.MapInjector;
@@ -94,6 +95,7 @@ class HornetQService implements Service<HornetQServer> {
     private Map<String, SocketBinding> groupBindings = new HashMap<String, SocketBinding>();
     private final InjectedValue<PathManager> pathManager = new InjectedValue<PathManager>();
     private final InjectedValue<MBeanServer> mbeanServer = new InjectedValue<MBeanServer>();
+    private final InjectedValue<SuspendController> suspendController = new InjectedValue<>();
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
     private final PathConfig pathConfig;
     // mapping between the {broadcast|discovery}-groups and the *names* of the JGroups channel they use
@@ -133,6 +135,10 @@ class HornetQService implements Service<HornetQServer> {
         return mbeanServer;
     }
 
+    InjectedValue<SuspendController> getSuspendController() {
+        return suspendController;
+    }
+
     Map<String, JChannel> getChannels() {
         return channels;
     }
@@ -162,6 +168,8 @@ class HornetQService implements Service<HornetQServer> {
         configuration.setLargeMessagesDirectory(pathConfig.resolveLargeMessagePath(pathManager));
         configuration.setJournalDirectory(pathConfig.resolveJournalPath(pathManager));
         configuration.setPagingDirectory(pathConfig.resolvePagingPath(pathManager));
+
+        GracefulShutdownInterceptor.suspendController = suspendController.getValue();
 
         try {
             // Update the acceptor/connector port/host values from the

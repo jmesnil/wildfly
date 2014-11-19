@@ -130,6 +130,7 @@ import org.jboss.as.network.OutboundSocketBinding;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.security.service.SecurityDomainService;
+import org.jboss.as.server.suspend.SuspendController;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
 import org.jboss.msc.service.ServiceBuilder;
@@ -230,6 +231,8 @@ class HornetQServerAdd implements OperationStepHandler {
                 // Transform the configuration based on the recursive model
                 final ModelNode model = Resource.Tools.readModel(resource);
                 final Configuration configuration = transformConfig(context, serverName, model);
+                configuration.getIncomingInterceptorClassNames().add(GracefulShutdownInterceptor.class.getName());
+                configuration.getOutgoingInterceptorClassNames().add(GracefulShutdownInterceptor.class.getName());
 
                 // Create path services
                 String bindingsPath = PATHS.get(BINDINGS_DIRECTORY).resolveModelAttribute(context, model.get(PATH, BINDINGS_DIRECTORY)).asString();
@@ -248,7 +251,8 @@ class HornetQServerAdd implements OperationStepHandler {
                 // Add the HornetQ Service
                 ServiceName hqServiceName = MessagingServices.getHornetQServiceName(serverName);
                 final ServiceBuilder<HornetQServer> serviceBuilder = serviceTarget.addService(hqServiceName, hqService)
-                        .addDependency(DependencyType.OPTIONAL, ServiceName.JBOSS.append("mbean", "server"), MBeanServer.class, hqService.getMBeanServer());
+                        .addDependency(DependencyType.OPTIONAL, ServiceName.JBOSS.append("mbean", "server"), MBeanServer.class, hqService.getMBeanServer())
+                        .addDependency(SuspendController.SERVICE_NAME, SuspendController.class, hqService.getSuspendController());
 
                 serviceBuilder.addDependency(PathManagerService.SERVICE_NAME, PathManager.class, hqService.getPathManagerInjector());
 
