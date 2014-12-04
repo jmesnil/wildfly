@@ -31,8 +31,6 @@ import static org.jboss.as.controller.client.helpers.MeasurementUnit.DAYS;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.PERCENTAGE;
 import static org.jboss.as.controller.registry.AttributeAccess.Flag.RESTART_ALL_SERVICES;
-import static org.jboss.as.messaging.AttributeMarshallers.NOOP_MARSHALLER;
-import static org.jboss.as.messaging.MessagingExtension.VERSION_1_2_0;
 import static org.jboss.as.messaging.jms.Validators.noDuplicateElements;
 import static org.jboss.dmr.ModelType.BIG_DECIMAL;
 import static org.jboss.dmr.ModelType.BOOLEAN;
@@ -129,13 +127,6 @@ public interface CommonAttributes {
             .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultCheckForLiveServer()))
             .setAllowNull(true)
             .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
-    SimpleAttributeDefinition CLUSTERED = create("clustered", BOOLEAN)
-            .setAllowNull(true)
-            .setDefaultValue(new ModelNode(false))
-            .setDeprecated(VERSION_1_2_0)
             .setRestartAllServices()
             .build();
 
@@ -241,11 +232,6 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
-    SimpleAttributeDefinition FAILOVER_ON_SERVER_SHUTDOWN = create("failover-on-server-shutdown", ModelType.BOOLEAN)
-            .setAllowNull(true)
-            .setDeprecated(VERSION_1_2_0)
-            .build();
-
     SimpleAttributeDefinition FAILOVER_ON_SHUTDOWN = create("failover-on-shutdown", BOOLEAN)
             // TODO should be ConfigurationImpl.DEFAULT_FAILOVER_ON_SERVER_SHUTDOWN but field is private
             .setDefaultValue(new ModelNode(false))
@@ -257,26 +243,6 @@ public interface CommonAttributes {
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
-            .build();
-
-    // do not allow expressions on deprecated attribute
-    @Deprecated
-    SimpleAttributeDefinition GROUP_ADDRESS = create("group-address", ModelType.STRING)
-            .setAllowNull(true)
-            .setAlternatives("socket-binding", "jgroups-stack", "jgroups-channel")
-            .setDeprecated(VERSION_1_2_0)
-            .setFlags(RESTART_ALL_SERVICES)
-            .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.SOCKET_CONFIG)
-            .build();
-
-    // do not allow expressions on deprecated attribute
-    @Deprecated
-    SimpleAttributeDefinition GROUP_PORT = create("group-port", INT)
-            .setAllowNull(true)
-            .setAlternatives("socket-binding", "jgroups-stack", "jgroups-channel")
-            .setDeprecated(VERSION_1_2_0)
-            .setFlags(RESTART_ALL_SERVICES)
-            .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.SOCKET_CONFIG)
             .build();
 
     SimpleAttributeDefinition HA = create("ha", BOOLEAN)
@@ -383,34 +349,6 @@ public interface CommonAttributes {
             .setAllowExpression(true)
             .setValidator(new EnumValidator<JournalType>(JournalType.class, true, true))
             .setRestartAllServices()
-            .build();
-
-    AttributeDefinition LIVE_CONNECTOR_REF = create("live-connector-ref", ModelType.STRING)
-            .setAllowNull(true)
-            .setDeprecated(VERSION_1_2_0)
-            .setRestartAllServices()
-            .setAttributeMarshaller(NOOP_MARSHALLER)
-            .build();
-
-    // do not allow expressions on deprecated attribute
-    @Deprecated
-    SimpleAttributeDefinition LOCAL_BIND_ADDRESS = create("local-bind-address", ModelType.STRING)
-            .setAllowNull(true)
-            .setAlternatives("socket-binding", "jgroups-stack", "jgroups-channel")
-            .setDeprecated(VERSION_1_2_0)
-            .setFlags(RESTART_ALL_SERVICES)
-            .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.SOCKET_CONFIG)
-            .build();
-
-    // do not allow expressions on deprecated attribute
-    @Deprecated
-    SimpleAttributeDefinition LOCAL_BIND_PORT = create("local-bind-port", INT)
-            .setDefaultValue(new ModelNode().set(-1))
-            .setAllowNull(true)
-            .setAlternatives("socket-binding", "jgroups-stack", "jgroups-channel")
-            .setDeprecated(VERSION_1_2_0)
-            .setFlags(RESTART_ALL_SERVICES)
-            .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.SOCKET_CONFIG)
             .build();
 
     SimpleAttributeDefinition JGROUPS_STACK = create("jgroups-stack", ModelType.STRING)
@@ -596,18 +534,6 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
-    @Deprecated
-    PrimitiveListAttributeDefinition REMOTING_INTERCEPTORS = new PrimitiveListAttributeDefinition.Builder("remoting-interceptors", ModelType.STRING)
-            .setDeprecated(VERSION_1_2_0)
-            .setAllowNull(true)
-            .setAllowExpression(false)
-            .setMinSize(1)
-            .setMaxSize(Integer.MAX_VALUE)
-            .setRestartAllServices()
-            .setElementValidator(new StringLengthValidator(1, false, true))
-            .setAttributeMarshaller(AttributeMarshallers.INTERCEPTOR_MARSHALLER)
-            .build();
-
     PrimitiveListAttributeDefinition REMOTING_INCOMING_INTERCEPTORS = new PrimitiveListAttributeDefinition.Builder("remoting-incoming-interceptors", ModelType.STRING)
             .setAllowNull(true)
             .setAllowExpression(false)
@@ -717,11 +643,7 @@ public interface CommonAttributes {
 
     SimpleAttributeDefinition SOCKET_BINDING = create("socket-binding", ModelType.STRING)
             .setAllowNull(true)
-            .setAlternatives(GROUP_ADDRESS.getName(),
-                    GROUP_PORT.getName(),
-                    LOCAL_BIND_ADDRESS.getName(),
-                    LOCAL_BIND_PORT.getName(),
-                    JGROUPS_STACK.getName(),
+            .setAlternatives(JGROUPS_STACK.getName(),
                     JGROUPS_CHANNEL.getName())
             .setRestartAllServices()
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.SOCKET_BINDING_REF)
@@ -880,13 +802,13 @@ public interface CommonAttributes {
     String XA = "xa";
     String XA_TX = "XATransaction";
 
-    AttributeDefinition[] SIMPLE_ROOT_RESOURCE_ATTRIBUTES = { CLUSTERED, PERSISTENCE_ENABLED, SCHEDULED_THREAD_POOL_MAX_SIZE,
+    AttributeDefinition[] SIMPLE_ROOT_RESOURCE_ATTRIBUTES = { PERSISTENCE_ENABLED, SCHEDULED_THREAD_POOL_MAX_SIZE,
             THREAD_POOL_MAX_SIZE, SECURITY_DOMAIN, SECURITY_ENABLED, SECURITY_INVALIDATION_INTERVAL, OVERRIDE_IN_VM_SECURITY, WILD_CARD_ROUTING_ENABLED,
             MANAGEMENT_ADDRESS, MANAGEMENT_NOTIFICATION_ADDRESS, CLUSTER_USER, CLUSTER_PASSWORD, JMX_MANAGEMENT_ENABLED,
             JMX_DOMAIN, STATISTICS_ENABLED, MESSAGE_COUNTER_ENABLED, MESSAGE_COUNTER_SAMPLE_PERIOD, MESSAGE_COUNTER_MAX_DAY_HISTORY,
             CONNECTION_TTL_OVERRIDE, ASYNC_CONNECTION_EXECUTION_ENABLED, TRANSACTION_TIMEOUT, TRANSACTION_TIMEOUT_SCAN_PERIOD,
             MESSAGE_EXPIRY_SCAN_PERIOD, MESSAGE_EXPIRY_THREAD_PRIORITY, ID_CACHE_SIZE, PERSIST_ID_CACHE,
-            REMOTING_INTERCEPTORS, REMOTING_INCOMING_INTERCEPTORS, REMOTING_OUTGOING_INTERCEPTORS,
+            REMOTING_INCOMING_INTERCEPTORS, REMOTING_OUTGOING_INTERCEPTORS,
             BACKUP, ALLOW_FAILBACK, FAILBACK_DELAY, FAILOVER_ON_SHUTDOWN, SHARED_STORE, PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY,
             PAGE_MAX_CONCURRENT_IO, CREATE_BINDINGS_DIR, CREATE_JOURNAL_DIR, JOURNAL_TYPE, JOURNAL_BUFFER_TIMEOUT,
             JOURNAL_BUFFER_SIZE, JOURNAL_SYNC_TRANSACTIONAL, JOURNAL_SYNC_NON_TRANSACTIONAL, LOG_JOURNAL_WRITE_RATE,

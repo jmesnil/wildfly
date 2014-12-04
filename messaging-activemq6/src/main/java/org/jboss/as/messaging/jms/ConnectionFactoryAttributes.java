@@ -27,9 +27,7 @@ import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.BYTES;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.PER_SECOND;
-import static org.jboss.as.messaging.AttributeMarshallers.NOOP_MARSHALLER;
 import static org.jboss.as.messaging.CommonAttributes.MESSAGING_SECURITY_DEF;
-import static org.jboss.as.messaging.MessagingExtension.VERSION_1_1_0;
 import static org.jboss.as.messaging.jms.ConnectionFactoryAttribute.create;
 import static org.jboss.dmr.ModelType.BIG_DECIMAL;
 import static org.jboss.dmr.ModelType.BOOLEAN;
@@ -177,14 +175,6 @@ public interface ConnectionFactoryAttributes {
                 .setRestartAllServices()
                 .build();
 
-        AttributeDefinition DISCOVERY_INITIAL_WAIT_TIMEOUT = SimpleAttributeDefinitionBuilder.create("discovery-initial-wait-timeout", LONG)
-                .setMeasurementUnit(MILLISECONDS)
-                .setAllowNull(true)
-                .setRestartAllServices()
-                .setDeprecated(VERSION_1_1_0)
-                .setAttributeMarshaller(NOOP_MARSHALLER)
-                .build();
-
         AttributeDefinition DUPS_OK_BATCH_SIZE = SimpleAttributeDefinitionBuilder.create("dups-ok-batch-size", INT)
                 .setDefaultValue(new ModelNode().set(HornetQClient.DEFAULT_ACK_BATCH_SIZE))
                 .setAllowNull(true)
@@ -203,12 +193,6 @@ public interface ConnectionFactoryAttributes {
                 .setDefaultValue(new ModelNode().set(HornetQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION))
                 .setAllowNull(true)
                 .setAllowExpression(true)
-                .build();
-
-        AttributeDefinition FAILOVER_ON_SERVER_SHUTDOWN = SimpleAttributeDefinitionBuilder.create("failover-on-server-shutdown", BOOLEAN)
-                .setAllowNull(true)
-                .setRestartAllServices()
-                .setDeprecated(VERSION_1_1_0)
                 .build();
 
         AttributeDefinition GROUP_ID = SimpleAttributeDefinitionBuilder.create("group-id", STRING)
@@ -329,14 +313,11 @@ public interface ConnectionFactoryAttributes {
                 // the specific attribute is replaced when PooledConnectionFactoryDefinition#ATTRIBUTES is defined
                 create(RECONNECT_ATTEMPTS, null, false),
                 create(FAILOVER_ON_INITIAL_CONNECTION, "failoverOnInitialConnection", true),
-                create(FAILOVER_ON_SERVER_SHUTDOWN, "failoverOnServerShutdown", false), // TODO HornetQResourceAdapter does not have this method
                 create(CONNECTION_LOAD_BALANCING_CLASS_NAME, "connectionLoadBalancingPolicyClassName", true),
                 create(USE_GLOBAL_POOLS, "useGlobalPools", true),
                 create(SCHEDULED_THREAD_POOL_MAX_SIZE, "scheduledThreadPoolMaxSize", true),
                 create(THREAD_POOL_MAX_SIZE, "threadPoolMaxSize", true),
                 create(GROUP_ID, "groupID", true),
-
-                create(DISCOVERY_INITIAL_WAIT_TIMEOUT, null, false), // Not used since messaging 1.2, we keep it for compatibility sake
         };
     }
 

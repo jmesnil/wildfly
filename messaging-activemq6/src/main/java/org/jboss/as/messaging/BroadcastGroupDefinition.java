@@ -27,12 +27,8 @@ import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECOND
 import static org.jboss.as.controller.registry.AttributeAccess.Flag.STORAGE_RUNTIME;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTORS;
 import static org.jboss.as.messaging.CommonAttributes.CONNECTOR_REF_STRING;
-import static org.jboss.as.messaging.CommonAttributes.GROUP_ADDRESS;
-import static org.jboss.as.messaging.CommonAttributes.GROUP_PORT;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_CHANNEL;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_STACK;
-import static org.jboss.as.messaging.CommonAttributes.LOCAL_BIND_ADDRESS;
-import static org.jboss.as.messaging.CommonAttributes.LOCAL_BIND_PORT;
 import static org.jboss.as.messaging.CommonAttributes.SOCKET_BINDING;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
@@ -88,8 +84,8 @@ public class BroadcastGroupDefinition extends SimpleResourceDefinition {
             .setRestartAllServices()
             .build();
 
-    public static final AttributeDefinition[] ATTRIBUTES = { JGROUPS_STACK, JGROUPS_CHANNEL, SOCKET_BINDING, LOCAL_BIND_ADDRESS, LOCAL_BIND_PORT,
-        GROUP_ADDRESS, GROUP_PORT, BROADCAST_PERIOD, CONNECTOR_REFS };
+    public static final AttributeDefinition[] ATTRIBUTES = { JGROUPS_STACK, JGROUPS_CHANNEL, SOCKET_BINDING,
+            BROADCAST_PERIOD, CONNECTOR_REFS };
 
     public static final String GET_CONNECTOR_PAIRS_AS_JSON = "get-connector-pairs-as-json";
 
