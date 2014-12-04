@@ -446,8 +446,6 @@ class HornetQServerAdd implements OperationStepHandler {
 
         processAddressSettings(context, configuration, model);
         processSecuritySettings(context, configuration, model);
-        //process deprecated interceptors
-        processRemotingInterceptors(context, configuration, model);
         //process new interceptors
         processRemotingIncomingInterceptors(context, configuration, model);
         processRemotingOutgoingInterceptors(context, configuration, model);
@@ -485,21 +483,6 @@ class HornetQServerAdd implements OperationStepHandler {
                 final AddressSettings settings = AddressSettingAdd.createSettings(context, config);
                 configuration.getAddressesSettings().put(match, settings);
             }
-        }
-    }
-
-       /**
-     * Process the HornetQ server-side old style interceptors.
-     */
-    static void processRemotingInterceptors(final OperationContext context, final Configuration configuration, final ModelNode params) {
-        // TODO preemptively check that the interceptor classes can be loaded
-        ModelNode interceptors = params.get(CommonAttributes.REMOTING_INTERCEPTORS.getName());
-        if (interceptors.isDefined()) {
-            final List<String> interceptorClassNames = new ArrayList<String>();
-            for (ModelNode child : interceptors.asList()) {
-                interceptorClassNames.add(child.asString());
-            }
-            configuration.setIncomingInterceptorClassNames(interceptorClassNames);
         }
     }
 

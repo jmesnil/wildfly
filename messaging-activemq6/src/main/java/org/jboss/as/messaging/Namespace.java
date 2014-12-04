@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * An enumeration of the supported Messaging subsystem namespaces.
+ * An enumeration of the supported messaging-activemq6 subsystem namespaces.
  *
  * @author <a href="mailto:david.lloyd@redhat.com">David M. Lloyd</a>
  * @author scott.stark@jboss.org
@@ -35,19 +35,12 @@ import java.util.Map;
 public enum Namespace {
    // must be first
    UNKNOWN(null),
-
-   MESSAGING_1_0("urn:jboss:domain:messaging:1.0"),
-   MESSAGING_1_1("urn:jboss:domain:messaging:1.1"),
-   MESSAGING_1_2("urn:jboss:domain:messaging:1.2"),
-   MESSAGING_1_3("urn:jboss:domain:messaging:1.3"),
-   MESSAGING_1_4("urn:jboss:domain:messaging:1.4"),
-   MESSAGING_2_0("urn:jboss:domain:messaging:2.0"),
-   MESSAGING_3_0("urn:jboss:domain:messaging:3.0");
+   MESSAGING_ACTIVEMQ6_1_0("urn:jboss:domain:messaging-activemq6:1.0");
 
    /**
     * The current namespace version.
     */
-   public static final Namespace CURRENT = MESSAGING_3_0;
+   public static final Namespace CURRENT = MESSAGING_ACTIVEMQ6_1_0;
 
    private final String name;
 

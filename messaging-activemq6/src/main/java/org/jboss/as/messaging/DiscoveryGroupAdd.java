@@ -26,9 +26,6 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SOCKET_BINDING;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_STACK;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +41,6 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
-import org.jboss.as.controller.interfaces.InetAddressUtil;
-import org.jboss.as.network.NetworkInterfaceBinding;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
@@ -53,7 +48,6 @@ import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
 import org.jboss.msc.service.ServiceTarget;
-import org.jboss.msc.value.ImmediateValue;
 import org.jgroups.JChannel;
 
 /**
@@ -95,32 +89,6 @@ public class DiscoveryGroupAdd extends AbstractAddStepHandler {
                 target.addService(GroupBindingService.getDiscoveryBaseServiceName(hqServiceName).append(name), bindingService)
                         .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(model.get(SOCKET_BINDING).asString()), SocketBinding.class, bindingService.getBindingRef())
                         .install();
-            } else {
-
-                final ModelNode localAddrNode = CommonAttributes.LOCAL_BIND_ADDRESS.resolveModelAttribute(context, model);
-                final String localAddress = localAddrNode.isDefined() ? localAddrNode.asString() : null;
-                final ModelNode groupAddrNode = CommonAttributes.GROUP_ADDRESS.resolveModelAttribute(context, model);
-                final String groupAddress = groupAddrNode.isDefined() ? groupAddrNode.asString() : null;
-                final ModelNode groupPortNode = CommonAttributes.GROUP_PORT.resolveModelAttribute(context, model);
-                final int groupPort = groupPortNode.isDefined() ? groupPortNode.asInt() : -1;
-
-                try {
-
-                    final InetAddress inet = localAddress != null ? InetAddress.getByName(localAddress) : InetAddressUtil.getLocalHost();
-                    final NetworkInterface intf = NetworkInterface.getByInetAddress(inet);
-                    final NetworkInterfaceBinding b = new NetworkInterfaceBinding(Collections.singleton(intf), inet);
-                    final InetAddress group = InetAddress.getByName(groupAddress);
-
-                    final SocketBinding socketBinding = new SocketBinding(name, -1, false, group, groupPort, b, null, null);
-
-                    final GroupBindingService bindingService = new GroupBindingService();
-                    target.addService(GroupBindingService.getDiscoveryBaseServiceName(hqServiceName).append(name), bindingService)
-                            .addInjectionValue(bindingService.getBindingRef(), new ImmediateValue<SocketBinding>(socketBinding))
-                            .install();
-
-                } catch (Exception e) {
-                    throw new OperationFailedException(new ModelNode().set(e.getLocalizedMessage()));
-                }
             }
         }
     }

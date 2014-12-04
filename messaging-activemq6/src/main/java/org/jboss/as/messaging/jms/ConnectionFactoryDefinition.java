@@ -60,7 +60,6 @@ import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.messaging.CommonAttributes;
-import org.jboss.as.messaging.DeprecatedAttributeWriteHandler;
 import org.jboss.as.messaging.MessagingExtension;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Common;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Regular;
@@ -109,14 +108,8 @@ public class ConnectionFactoryDefinition extends SimpleResourceDefinition {
         super.registerAttributes(registry);
 
         for (AttributeDefinition attr : ATTRIBUTES) {
-            // deprecated attributes
-            if (attr == Common.DISCOVERY_INITIAL_WAIT_TIMEOUT ||
-                    attr == Common.FAILOVER_ON_SERVER_SHUTDOWN) {
-                registry.registerReadWriteAttribute(attr, null, DeprecatedAttributeWriteHandler.INSTANCE);
-            } else {
-                if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
-                    registry.registerReadWriteAttribute(attr, null, ConnectionFactoryWriteAttributeHandler.INSTANCE);
-                }
+            if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
+                registry.registerReadWriteAttribute(attr, null, ConnectionFactoryWriteAttributeHandler.INSTANCE);
             }
         }
 

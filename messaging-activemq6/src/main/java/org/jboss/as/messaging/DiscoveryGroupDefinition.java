@@ -24,11 +24,8 @@ package org.jboss.as.messaging;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
-import static org.jboss.as.messaging.CommonAttributes.GROUP_ADDRESS;
-import static org.jboss.as.messaging.CommonAttributes.GROUP_PORT;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_CHANNEL;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_STACK;
-import static org.jboss.as.messaging.CommonAttributes.LOCAL_BIND_ADDRESS;
 import static org.jboss.as.messaging.CommonAttributes.SOCKET_BINDING;
 
 import org.hornetq.api.core.client.HornetQClient;
@@ -68,7 +65,7 @@ public class DiscoveryGroupDefinition extends SimpleResourceDefinition {
             .setRestartAllServices()
             .build();
 
-    public static final AttributeDefinition[] ATTRIBUTES = { JGROUPS_STACK, JGROUPS_CHANNEL, SOCKET_BINDING, LOCAL_BIND_ADDRESS, GROUP_ADDRESS, GROUP_PORT,
+    public static final AttributeDefinition[] ATTRIBUTES = { JGROUPS_STACK, JGROUPS_CHANNEL, SOCKET_BINDING,
             REFRESH_TIMEOUT, INITIAL_WAIT_TIMEOUT
     };
 

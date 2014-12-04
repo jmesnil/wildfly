@@ -27,33 +27,20 @@ import java.io.IOException;
 import org.jboss.as.messaging.MessagingExtension;
 import org.jboss.as.subsystem.test.AbstractSubsystemBaseTest;
 import org.jboss.as.subsystem.test.AdditionalInitialization;
-import org.junit.Test;
 
 /**
- * @author Emanuel Muckenhuber
+ * @author Jeff Mesnil (c) 2012 Red Hat inc
  */
-public class Subsystem11ParsingUnitTestCase extends AbstractSubsystemBaseTest {
+public class JMSBridge_1_0_TestCase extends AbstractSubsystemBaseTest {
 
-    public Subsystem11ParsingUnitTestCase() {
+    public JMSBridge_1_0_TestCase() {
         super(MessagingExtension.SUBSYSTEM_NAME, new MessagingExtension());
     }
 
-    @Test
-    public void testXsd10() throws Exception {
-        standardSubsystemTest("xsd10.xml");
-    }
-
-
     @Override
     protected String getSubsystemXml() throws IOException {
-        return readResource("subsystem_1_1.xml");
+        return readResource("jms-bridge_1_0.xml");
     }
-
-    @Override
-    protected String getSubsystemXml(String configId) throws IOException {
-        return readResource(configId);
-    }
-
 
     @Override
     protected AdditionalInitialization createAdditionalInitialization() {
@@ -62,7 +49,7 @@ public class Subsystem11ParsingUnitTestCase extends AbstractSubsystemBaseTest {
 
     @Override
     protected void compareXml(String configId, String original, String marshalled) throws Exception {
-        // XML from messaging 1.2 does not have the same output than 1.1
+        // XML from messaging 1.4 does not have the same output than 1.3
         return;
     }
 }
