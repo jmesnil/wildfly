@@ -36,7 +36,6 @@ import java.util.Set;
 import javax.xml.stream.XMLStreamException;
 
 import org.jboss.as.controller.parsing.ParseUtils;
-import org.jboss.as.messaging.logging.MessagingLogger;
 import org.jboss.dmr.ModelNode;
 import org.jboss.staxmapper.XMLExtendedStreamReader;
 
@@ -119,11 +118,6 @@ public class Messaging12SubsystemParser extends MessagingSubsystemParser {
                     checkOtherElementIsNotAlreadyDefined(reader, seen, Element.DISCOVERY_GROUP_REF, Element.STATIC_CONNECTORS);
                     final String groupRef = readStringAttributeElement(reader, BridgeDefinition.DISCOVERY_GROUP_NAME.getXmlName());
                     BridgeDefinition.DISCOVERY_GROUP_NAME.parseAndSetParameter(groupRef, bridgeAdd, reader);
-                    break;
-                }
-                case FAILOVER_ON_SERVER_SHUTDOWN: {
-                    MessagingLogger.ROOT_LOGGER.deprecatedXMLElement(element.toString());
-                    handleElementText(reader, element, bridgeAdd);
                     break;
                 }
                 default: {

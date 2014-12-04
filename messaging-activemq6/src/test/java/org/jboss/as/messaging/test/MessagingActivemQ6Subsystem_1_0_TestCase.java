@@ -26,30 +26,18 @@ import java.io.IOException;
 
 import org.jboss.as.messaging.MessagingExtension;
 import org.jboss.as.subsystem.test.AbstractSubsystemBaseTest;
-import org.junit.Test;
 
 /**
  *  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2012 Red Hat inc
  */
-public class MessagingSubsystem13TestCase extends AbstractSubsystemBaseTest {
+public class MessagingActivemQ6Subsystem_1_0_TestCase extends AbstractSubsystemBaseTest {
 
-    public MessagingSubsystem13TestCase() {
+    public MessagingActivemQ6Subsystem_1_0_TestCase() {
         super(MessagingExtension.SUBSYSTEM_NAME, new MessagingExtension());
     }
 
     @Override
     protected String getSubsystemXml() throws IOException {
-        return readResource("subsystem_1_3.xml");
-    }
-
-    @Test
-    public void testExpressions() throws Exception {
-        standardSubsystemTest("subsystem_1_3_expressions.xml");
-    }
-
-    @Override
-    protected void compareXml(String configId, String original, String marshalled) throws Exception {
-        // XML from messaging 2.0 does not have the same output than 1.3
-        return;
+        return readResource("subsystem_1_0.xml");
     }
 }

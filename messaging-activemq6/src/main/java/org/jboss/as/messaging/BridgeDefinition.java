@@ -134,7 +134,6 @@ public class BridgeDefinition extends SimpleResourceDefinition {
             INITIAL_CONNECT_ATTEMPTS,
             RECONNECT_ATTEMPTS,
             RECONNECT_ATTEMPTS_ON_SAME_NODE,
-            CommonAttributes.FAILOVER_ON_SERVER_SHUTDOWN,
             USE_DUPLICATE_DETECTION, CommonAttributes.BRIDGE_CONFIRMATION_WINDOW_SIZE,
             USER, PASSWORD,
             CONNECTOR_REFS, DISCOVERY_GROUP_NAME
@@ -160,11 +159,7 @@ public class BridgeDefinition extends SimpleResourceDefinition {
         super.registerAttributes(registry);
         for (AttributeDefinition attr : ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
-                if (attr == CommonAttributes.FAILOVER_ON_SERVER_SHUTDOWN) {
-                    registry.registerReadWriteAttribute(attr, null, DeprecatedAttributeWriteHandler.INSTANCE);
-                } else {
-                    registry.registerReadWriteAttribute(attr, null, BridgeWriteAttributeHandler.INSTANCE);
-                }
+                registry.registerReadWriteAttribute(attr, null, BridgeWriteAttributeHandler.INSTANCE);
             }
         }
 

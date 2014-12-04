@@ -24,17 +24,10 @@ package org.jboss.as.messaging;
 
 import static org.jboss.as.controller.PathElement.pathElement;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
-import static org.jboss.as.messaging.Namespace.MESSAGING_1_0;
-import static org.jboss.as.messaging.Namespace.MESSAGING_1_1;
-import static org.jboss.as.messaging.Namespace.MESSAGING_1_2;
-import static org.jboss.as.messaging.Namespace.MESSAGING_1_3;
-import static org.jboss.as.messaging.Namespace.MESSAGING_1_4;
-import static org.jboss.as.messaging.Namespace.MESSAGING_2_0;
-import static org.jboss.as.messaging.Namespace.MESSAGING_3_0;
+import static org.jboss.as.messaging.Namespace.MESSAGING_ACTIVEMQ6_1_0;
 
 import org.jboss.as.controller.Extension;
 import org.jboss.as.controller.ExtensionContext;
-import org.jboss.as.controller.ModelVersion;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.ResourceDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
@@ -53,56 +46,14 @@ import org.jboss.as.messaging.jms.PooledConnectionFactoryDefinition;
 import org.jboss.as.messaging.jms.bridge.JMSBridgeDefinition;
 
 /**
- * Domain extension that integrates HornetQ.
+ * Domain extension that integrates Apache ActiveMQ 6.
  *
  * <dl>
- *   <dt><strong>Current</strong> - WildFly 9</dt>
+ *   <dt><strong>Current</strong> - WildFly 10</dt>
  *   <dd>
  *     <ul>
- *       <li>XML namespace: urn:jboss:domain:messaging:3.0
- *       <li>Management model: 3.0.0
- *     </ul>
- *   </dd>
- *   <dt>WildFly 8.1.0</dt>
- *   <dd>
- *     <ul>
- *       <li>XML namespace: urn:jboss:domain:messaging:2.0
- *       <li>Management model: 2.1.0
- *     </ul>
- *   </dd>
- *   <dt>WildFly 8.0.0</dt>
- *   <dd>
- *     <ul>
- *       <li>XML namespace: urn:jboss:domain:messaging:2.0
- *       <li>Management model: 2.0.0
- *     </ul>
- *   </dd>
- *   <dt>AS 7.3.0</dt>
- *   <dd>
- *     <ul>
- *       <li>XML namespace: urn:jboss:domain:messaging:1.4
- *       <li>Management model: 1.3.0
- *     </ul>
- *   </dd>
- *   <dt>AS 7.2.1</dt>
- *   <dd>
- *     <ul>
- *       <li>XML namespace: urn:jboss:domain:messaging:1.3
- *       <li>Management model: 1.2.1
- *     </ul>
- *   </dd>
- *   <dt>AS 7.2.0</dt>
- *   <dd>
- *     <ul>
- *       <li>XML namespace: urn:jboss:domain:messaging:1.3
- *       <li>Management model: 1.2.0
- *     </ul>
- *   </dd>
- *   <dt>AS 7.1.2, 7.1.3<dt>
- *   <dd>
- *     <ul>
- *       <li>XML namespace: urn:jboss:domain:messaging:1.2
- *       <li>Management model: 1.1.0
+ *       <li>XML namespace: urn:jboss:domain:messaging-activemq6:1.0
+ *       <li>Management model: 1.0.0
  *     </ul>
  *   </dd>
  * </dl>
@@ -113,22 +64,15 @@ import org.jboss.as.messaging.jms.bridge.JMSBridgeDefinition;
  */
 public class MessagingExtension implements Extension {
 
-    public static final String SUBSYSTEM_NAME = "messaging";
+    public static final String SUBSYSTEM_NAME = "messaging-activemq6";
 
     static final PathElement SUBSYSTEM_PATH  = pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
 
     static final String RESOURCE_NAME = MessagingExtension.class.getPackage().getName() + ".LocalDescriptions";
 
-    private static final int MANAGEMENT_API_MAJOR_VERSION = 3;
+    private static final int MANAGEMENT_API_MAJOR_VERSION = 1;
     private static final int MANAGEMENT_API_MINOR_VERSION = 0;
     private static final int MANAGEMENT_API_MICRO_VERSION = 0;
-
-    public static final ModelVersion VERSION_2_1_0 = ModelVersion.create(2, 1, 0);
-    public static final ModelVersion VERSION_2_0_0 = ModelVersion.create(2, 0, 0);
-    public static final ModelVersion VERSION_1_3_0 = ModelVersion.create(1, 3, 0);
-    public static final ModelVersion VERSION_1_2_1 = ModelVersion.create(1, 2, 1);
-    public static final ModelVersion VERSION_1_2_0 = ModelVersion.create(1, 2, 0);
-    public static final ModelVersion VERSION_1_1_0 = ModelVersion.create(1, 1, 0);
 
     public static ResourceDescriptionResolver getResourceDescriptionResolver(final String... keyPrefix) {
         return getResourceDescriptionResolver(true, keyPrefix);
@@ -264,12 +208,6 @@ public class MessagingExtension implements Extension {
     }
 
     public void initializeParsers(ExtensionParsingContext context) {
-        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_1_0.getUriString(), MessagingSubsystemParser.getInstance());
-        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_1_1.getUriString(), MessagingSubsystemParser.getInstance());
-        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_1_2.getUriString(), Messaging12SubsystemParser.getInstance());
-        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_1_3.getUriString(), Messaging13SubsystemParser.getInstance());
-        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_1_4.getUriString(), Messaging14SubsystemParser.getInstance());
-        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_2_0.getUriString(), Messaging20SubsystemParser.getInstance());
-        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_3_0.getUriString(), Messaging30SubsystemParser.getInstance());
+        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_ACTIVEMQ6_1_0.getUriString(), Messaging30SubsystemParser.getInstance());
     }
 }

@@ -54,17 +54,17 @@ import org.jboss.msc.service.StartException;
  *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-@MessageLogger(projectCode = "WFLYMSG", length = 4)
+@MessageLogger(projectCode = "WFLYMSGAMQ6", length = 4)
 public interface MessagingLogger extends BasicLogger {
     /**
      * The logger with the category of the package.
      */
-    MessagingLogger ROOT_LOGGER = Logger.getMessageLogger(MessagingLogger.class, "org.jboss.as.messaging");
+    MessagingLogger ROOT_LOGGER = Logger.getMessageLogger(MessagingLogger.class, "org.jboss.as.messaging-activemq6");
 
     /**
-     * A logger with the category {@code org.jboss.messaging}.
+     * A logger with the category {@code org.jboss.messaging-activemq6}.
      */
-    MessagingLogger MESSAGING_LOGGER = Logger.getMessageLogger(MessagingLogger.class, "org.jboss.messaging");
+    MessagingLogger MESSAGING_LOGGER = Logger.getMessageLogger(MessagingLogger.class, "org.jboss.messaging-activemq6");
 
     /**
      * Logs a warning message indicating AIO was not found.

@@ -60,7 +60,7 @@ public class SubsystemDescriptionsUnitTestCase extends AbstractSubsystemTest {
 
     static ModelNode createReadResourceDescriptionOperation() {
         final ModelNode address = new ModelNode();
-        address.add("subsystem", "messaging");
+        address.add("subsystem", "messaging-activemq6");
 
         final ModelNode operation = new ModelNode();
         operation.get(ModelDescriptionConstants.OP).set(ModelDescriptionConstants.READ_RESOURCE_DESCRIPTION_OPERATION);
