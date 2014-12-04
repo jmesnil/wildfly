@@ -279,14 +279,14 @@
         </sequential>
     </macrodef>
 
-    <macrodef name="ts.config-as.add-messaging-failover" description="Make default hornetq-server fails over on shutdown">
+    <macrodef name="ts.config-as.add-messaging-failover" description="Make default messaging aserver fails over on shutdown">
 
         <attribute name="name" default="jbossas"/>
         <attribute name="output.dir" default="${project.build.directory}"/>
         <attribute name="config.dir.name" default="standalone/configuration"/>
 
         <sequential>
-            <echo message="Make default hornetq-server fails over on shutdown"/>
+            <echo message="Make default messagingserver fails over on shutdown"/>
             <copy file="@{output.dir}/@{name}/@{config.dir.name}/standalone-full.xml"
                   tofile="@{output.dir}/@{name}/@{config.dir.name}/standalone-full-backup.xml" />
 

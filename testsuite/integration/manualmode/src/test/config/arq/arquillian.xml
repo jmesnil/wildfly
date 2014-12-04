@@ -86,6 +86,38 @@
             </configuration>
         </container>
 
+        <container qualifier="jbossas-messaging-ha-server1" default="false" mode="manual">
+            <configuration>
+                <property name="jbossHome">${basedir}/target/jbossas-messaging-ha-server1</property>
+                <property name="javaVmArguments">${server.jvm.args} -Djboss.inst=${basedir}/target/jbossas-messaging-ha-server1 -Djboss.node.name=default-jbossas-messaging-ha-server1</property>
+                <property name="serverConfig">standalone-full-ha.xml</property>
+                <property name="jbossArguments">${jboss.args}</property>
+                <property name="allowConnectingToRunningServer">true</property>
+                <property name="managementAddress">${node0:127.0.0.1}</property>
+                <property name="managementPort">${as.managementPort:9990}</property>
+
+                <!-- AS7-4070 -->
+                <property name="waitForPorts">${as.debug.port:8787} ${as.managementPort:9990}</property>
+                <property name="waitForPortsTimeoutInSeconds">8</property>
+            </configuration>
+        </container>
+
+        <container qualifier="jbossas-messaging-ha-server2" default="false" mode="manual">
+            <configuration>
+                <property name="jbossHome">${basedir}/target/jbossas-messaging-ha-server2</property>
+                <property name="javaVmArguments">${server.jvm.args} -Djboss.socket.binding.port-offset=100 -Djboss.inst=${basedir}/target/jbossas-messaging-ha-server2 -Djboss.node.name=default-jbossas-messaging-ha-server2</property>
+                <property name="serverConfig">standalone-full-ha.xml</property>
+                <property name="jbossArguments">${jboss.args}</property>
+                <property name="allowConnectingToRunningServer">true</property>
+                <property name="managementAddress">${node0:127.0.0.1}</property>
+                <property name="managementPort">${as.managementPort:10090}</property>
+
+                <!-- AS7-4070 -->
+                <property name="waitForPorts">${as.debug.port:8987} ${as.managementPort:10090}</property>
+                <property name="waitForPortsTimeoutInSeconds">8</property>
+            </configuration>
+        </container>
+
         <container qualifier="jbossas-admin-only" default="false" mode="manual">
             <configuration>
                 <property name="jbossHome">${basedir}/target/jbossas</property>

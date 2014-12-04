@@ -134,12 +134,11 @@
                                     <includes>
                                         <include>org/jboss/as/test/clustering/messaging/**/*TestCase.java</include>
                                     </includes>
-
                                     <!-- Parameters to test cases. -->
                                     <systemPropertyVariables combine.children="append">
                                         <arquillian.launch>clustered-messaging</arquillian.launch>
                                         <!-- Use combine.children="append" to pick up parent properties automatically. -->
-                                        <jboss.server.config.file.name>standalone-full-ha.xml</jboss.server.config.file.name>
+                                        <jboss.server.config.file.name>standalone-full-ha-activemq.xml</jboss.server.config.file.name>
                                     </systemPropertyVariables>
                                 </configuration>
                             </execution>
