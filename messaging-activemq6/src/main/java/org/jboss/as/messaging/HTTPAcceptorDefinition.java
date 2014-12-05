@@ -28,7 +28,7 @@ import static org.jboss.as.messaging.CommonAttributes.HTTP_ACCEPTOR;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.hornetq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;

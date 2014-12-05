@@ -33,7 +33,7 @@ import static org.jboss.as.messaging.CommonAttributes.STARTED;
 import static org.jboss.as.messaging.jms.bridge.JMSBridgeDefinition.PAUSE;
 import static org.jboss.as.messaging.jms.bridge.JMSBridgeDefinition.RESUME;
 
-import org.hornetq.jms.bridge.JMSBridge;
+import org.apache.activemq.jms.bridge.JMSBridge;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;

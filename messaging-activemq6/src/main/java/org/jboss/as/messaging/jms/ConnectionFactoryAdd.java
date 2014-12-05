@@ -33,11 +33,11 @@ import static org.jboss.as.messaging.CommonAttributes.HA;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hornetq.api.core.client.HornetQClient;
-import org.hornetq.api.jms.JMSFactoryType;
-import org.hornetq.jms.server.JMSServerManager;
-import org.hornetq.jms.server.config.ConnectionFactoryConfiguration;
-import org.hornetq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.api.core.client.ActiveMQClient;
+import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -98,7 +98,10 @@ public class ConnectionFactoryAdd extends AbstractAddStepHandler {
         final ModelNode entries = Common.ENTRIES.resolveModelAttribute(context, model);
         final String[] jndiBindings = JMSServices.getJndiBindings(entries);
 
-        final ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl(name, HornetQClient.DEFAULT_HA, jndiBindings);
+        final ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl()
+                .setName(name)
+                .setHA(ActiveMQClient.DEFAULT_HA)
+                .setBindings(jndiBindings);
 
         config.setHA(HA.resolveModelAttribute(context, model).asBoolean());
         config.setAutoGroup(Common.AUTO_GROUP.resolveModelAttribute(context, model).asBoolean());

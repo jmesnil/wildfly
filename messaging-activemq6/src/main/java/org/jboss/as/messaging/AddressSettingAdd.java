@@ -28,10 +28,10 @@ import static org.jboss.as.messaging.HornetQActivationService.getHornetQServer;
 
 import java.util.List;
 
-import org.hornetq.api.core.SimpleString;
-import org.hornetq.core.server.HornetQServer;
-import org.hornetq.core.settings.impl.AddressFullMessagePolicy;
-import org.hornetq.core.settings.impl.AddressSettings;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -69,7 +69,7 @@ class AddressSettingAdd extends AbstractAddStepHandler {
     protected void performRuntime(final OperationContext context, final ModelNode operation, final ModelNode model,
                                   final ServiceVerificationHandler verificationHandler,
                                   final List<ServiceController<?>> newControllers) throws OperationFailedException {
-        final HornetQServer server = getHornetQServer(context, operation);
+        final ActiveMQServer server = getHornetQServer(context, operation);
         if(server != null) {
             final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
             final AddressSettings settings = createSettings(context, model);

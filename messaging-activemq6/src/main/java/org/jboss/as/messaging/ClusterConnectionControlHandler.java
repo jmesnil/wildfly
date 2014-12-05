@@ -24,16 +24,16 @@ package org.jboss.as.messaging;
 
 import java.util.Map;
 
-import org.hornetq.api.core.management.ClusterConnectionControl;
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.ClusterConnectionControl;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.dmr.ModelNode;
 
 /**
- * Handler for runtime operations that interact with a HornetQ {@link org.hornetq.api.core.management.ClusterConnectionControl}.
+ * Handler for runtime operations that interact with a HornetQ {@link org.apache.activemq.api.core.management.ClusterConnectionControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
@@ -45,7 +45,7 @@ public class ClusterConnectionControlHandler extends AbstractHornetQComponentCon
     }
 
     @Override
-    protected ClusterConnectionControl getHornetQComponentControl(HornetQServer hqServer, PathAddress address) {
+    protected ClusterConnectionControl getHornetQComponentControl(ActiveMQServer hqServer, PathAddress address) {
         final String resourceName = address.getLastElement().getValue();
         return ClusterConnectionControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.CORE_CLUSTER_CONNECTION + resourceName));
     }

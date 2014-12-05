@@ -25,7 +25,7 @@ package org.jboss.as.messaging;
 import static org.jboss.as.controller.PathAddress.pathAddress;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.messaging.logging.MessagingLogger;
@@ -62,7 +62,7 @@ public class HornetQActivationService implements Service<Void> {
     public static boolean isHornetQServerActive(ServiceRegistry serviceRegistry, ServiceName hqServiceName) {
         ServiceController<?> service = serviceRegistry.getService(hqServiceName);
         if (service != null) {
-            HornetQServer server = HornetQServer.class.cast(service.getValue());
+            ActiveMQServer server = ActiveMQServer.class.cast(service.getValue());
             if (server.isStarted() && server.isActive()) {
                 return true;
             }
@@ -90,11 +90,11 @@ public class HornetQActivationService implements Service<Void> {
         return true;
     }
 
-    static HornetQServer getHornetQServer(final OperationContext context, ModelNode operation) {
+    static ActiveMQServer getHornetQServer(final OperationContext context, ModelNode operation) {
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(pathAddress(operation.get(OP_ADDR)));
         final ServiceController<?> controller = context.getServiceRegistry(false).getService(hqServiceName);
         if(controller != null) {
-            return HornetQServer.class.cast(controller.getValue());
+            return ActiveMQServer.class.cast(controller.getValue());
         }
         return null;
     }

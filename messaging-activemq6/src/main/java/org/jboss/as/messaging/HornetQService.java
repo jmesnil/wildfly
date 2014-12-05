@@ -34,16 +34,16 @@ import java.util.Map;
 
 import javax.management.MBeanServer;
 
-import org.hornetq.api.config.HornetQDefaultConfiguration;
-import org.hornetq.api.core.BroadcastGroupConfiguration;
-import org.hornetq.api.core.DiscoveryGroupConfiguration;
-import org.hornetq.api.core.TransportConfiguration;
-import org.hornetq.core.config.Configuration;
-import org.hornetq.core.journal.impl.AIOSequentialFileFactory;
-import org.hornetq.core.remoting.impl.netty.TransportConstants;
-import org.hornetq.core.server.HornetQServer;
-import org.hornetq.core.server.JournalType;
-import org.hornetq.core.server.impl.HornetQServerImpl;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.JournalType;
+import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.jboss.as.clustering.jgroups.ChannelFactory;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.PathAddress;
@@ -75,7 +75,7 @@ import org.wildfly.security.manager.WildFlySecurityManager;
  * @author scott.stark@jboss.org
  * @author Emanuel Muckenhuber
  */
-class HornetQService implements Service<HornetQServer> {
+class HornetQService implements Service<ActiveMQServer> {
 
     /** */
     private static final String HOST = "host";
@@ -89,7 +89,7 @@ class HornetQService implements Service<HornetQServer> {
 
     private Configuration configuration;
 
-    private HornetQServer server;
+    private ActiveMQServer server;
     private Map<String, SocketBinding> socketBindings = new HashMap<String, SocketBinding>();
     private Map<String, OutboundSocketBinding> outboundSocketBindings = new HashMap<String, OutboundSocketBinding>();
     private Map<String, SocketBinding> groupBindings = new HashMap<String, SocketBinding>();
@@ -283,8 +283,8 @@ class HornetQService implements Service<HornetQServer> {
             HornetQSecurityManagerAS7 hornetQSecurityManagerAS7 = new HornetQSecurityManagerAS7(securityDomainContextValue.getValue());
 
             // Now start the server
-            server = new HornetQServerImpl(configuration, mbeanServer.getOptionalValue(), hornetQSecurityManagerAS7);
-            if (HornetQDefaultConfiguration.getDefaultClusterPassword().equals(server.getConfiguration().getClusterPassword())) {
+            server = new ActiveMQServerImpl(configuration, mbeanServer.getOptionalValue(), hornetQSecurityManagerAS7);
+            if (ActiveMQDefaultConfiguration.getDefaultClusterPassword().equals(server.getConfiguration().getClusterPassword())) {
                 server.getConfiguration().setClusterPassword(java.util.UUID.randomUUID().toString());
             }
 
@@ -320,8 +320,8 @@ class HornetQService implements Service<HornetQServer> {
         }
     }
 
-    public synchronized HornetQServer getValue() throws IllegalStateException {
-        final HornetQServer server = this.server;
+    public synchronized ActiveMQServer getValue() throws IllegalStateException {
+        final ActiveMQServer server = this.server;
         if (server == null) {
             throw new IllegalStateException();
         }

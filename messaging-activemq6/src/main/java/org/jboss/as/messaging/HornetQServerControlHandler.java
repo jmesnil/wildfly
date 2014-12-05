@@ -36,8 +36,8 @@ import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.LIST;
 import static org.jboss.dmr.ModelType.STRING;
 
-import org.hornetq.api.core.management.HornetQServerControl;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -57,7 +57,7 @@ import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 
 /**
- * Handles operations and attribute reads supported by a HornetQ {@link org.hornetq.api.core.management.HornetQServerControl}.
+ * Handles operations and attribute reads supported by a HornetQ {@link org.apache.activemq.api.core.management.ActiveMQServerControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
@@ -133,7 +133,7 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
         if (hqService == null || hqService.getState() != ServiceController.State.UP) {
             throw MessagingLogger.ROOT_LOGGER.hornetQServerNotInstalled(hqServiceName.getSimpleName());
         }
-        HornetQServer hqServer = HornetQServer.class.cast(hqService.getValue());
+        ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
 
         if (READ_ATTRIBUTE_OPERATION.equals(operationName)) {
             handleReadAttribute(context, operation, hqServer);
@@ -145,7 +145,7 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
             return;
         }
 
-        final HornetQServerControl serverControl = getServerControl(context, operation);
+        final ActiveMQServerControl serverControl = getServerControl(context, operation);
 
         try {
             if (GET_CONNECTORS_AS_JSON.equals(operationName)) {
@@ -351,7 +351,7 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
                 this);
     }
 
-    private void handleReadAttribute(OperationContext context, ModelNode operation, final HornetQServer server) throws OperationFailedException {
+    private void handleReadAttribute(OperationContext context, ModelNode operation, final ActiveMQServer server) throws OperationFailedException {
         final String name = operation.require(ModelDescriptionConstants.NAME).asString();
 
         if (STARTED.getName().equals(name)) {
@@ -369,13 +369,13 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
         }
     }
 
-    private HornetQServerControl getServerControl(final OperationContext context, ModelNode operation) throws OperationFailedException {
+    private ActiveMQServerControl getServerControl(final OperationContext context, ModelNode operation) throws OperationFailedException {
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
         if (hqService == null || hqService.getState() != ServiceController.State.UP) {
             throw MessagingLogger.ROOT_LOGGER.hornetQServerNotInstalled(hqServiceName.getSimpleName());
         }
-        HornetQServer hqServer = HornetQServer.class.cast(hqService.getValue());
-        return hqServer.getHornetQServerControl();
+        ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
+        return hqServer.getActiveMQServerControl();
     }
 }

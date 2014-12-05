@@ -24,10 +24,10 @@ package org.jboss.as.messaging;
 
 import java.util.List;
 
-import org.hornetq.api.core.management.HornetQServerControl;
-import org.hornetq.core.config.Configuration;
-import org.hornetq.core.config.DivertConfiguration;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.DivertConfiguration;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -72,7 +72,7 @@ public class DivertAdd extends AbstractAddStepHandler {
 
             DivertConfiguration divertConfiguration = createDivertConfiguration(context, name, model);
 
-            HornetQServerControl serverControl = HornetQServer.class.cast(hqService.getValue()).getHornetQServerControl();
+            ActiveMQServerControl serverControl = ActiveMQServer.class.cast(hqService.getValue()).getActiveMQServerControl();
             createDivert(name, divertConfiguration, serverControl);
 
         }
@@ -100,10 +100,17 @@ public class DivertAdd extends AbstractAddStepHandler {
         final String filter = filterNode.isDefined() ? filterNode.asString() : null;
         final ModelNode transformerNode =  CommonAttributes.TRANSFORMER_CLASS_NAME.resolveModelAttribute(context, model);
         final String transformerClassName = transformerNode.isDefined() ? transformerNode.asString() : null;
-        return new DivertConfiguration(name, routingName, address, forwardingAddress, exclusive, filter, transformerClassName);
+        return new DivertConfiguration()
+                .setName(name)
+                .setRoutingName(routingName)
+                .setAddress(address)
+                .setForwardingAddress(forwardingAddress)
+                .setExclusive(exclusive)
+                .setFilterString(filter)
+                .setTransformerClassName(transformerClassName);
     }
 
-    static void createDivert(String name, DivertConfiguration divertConfiguration, HornetQServerControl serverControl) {
+    static void createDivert(String name, DivertConfiguration divertConfiguration, ActiveMQServerControl serverControl) {
         try {
             serverControl.createDivert(name, divertConfiguration.getRoutingName(), divertConfiguration.getAddress(),
                     divertConfiguration.getForwardingAddress(), divertConfiguration.isExclusive(),

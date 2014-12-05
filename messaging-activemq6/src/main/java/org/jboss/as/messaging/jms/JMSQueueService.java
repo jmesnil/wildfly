@@ -31,8 +31,8 @@ import java.util.concurrent.RejectedExecutionException;
 
 import javax.jms.Queue;
 
-import org.hornetq.jms.client.HornetQQueue;
-import org.hornetq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.client.ActiveMQQueue;
+import org.apache.activemq.jms.server.JMSServerManager;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.messaging.HornetQActivationService;
 import org.jboss.as.messaging.logging.MessagingLogger;
@@ -78,7 +78,7 @@ public class JMSQueueService implements Service<Queue> {
             public void run() {
                 try {
                     jmsManager.createQueue(false, queueName, selectorString, durable, jndi);
-                    queue = new HornetQQueue(queueName);
+                    queue = new ActiveMQQueue(queueName);
                     context.complete();
                 } catch (Throwable e) {
                     context.failed(MessagingLogger.ROOT_LOGGER.failedToCreate(e, "queue"));

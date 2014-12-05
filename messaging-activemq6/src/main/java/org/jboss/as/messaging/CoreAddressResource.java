@@ -29,9 +29,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.hornetq.api.core.management.AddressControl;
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.core.server.management.ManagementService;
+import org.apache.activemq.api.core.management.AddressControl;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.core.server.management.ManagementService;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.registry.Resource;

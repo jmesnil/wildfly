@@ -25,9 +25,9 @@ package org.jboss.as.messaging;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.messaging.CommonAttributes.NAME;
 
-import org.hornetq.api.core.management.AddressControl;
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.AddressControl;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.logging.ControllerLogger;
 import org.jboss.as.controller.OperationContext;
@@ -63,7 +63,7 @@ public class SecurityRoleReadAttributeHandler extends AbstractRuntimeOnlyHandler
 
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
-        HornetQServer hqServer = HornetQServer.class.cast(hqService.getValue());
+        ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
         AddressControl control = AddressControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.CORE_ADDRESS + addressName));
 
         if (control == null) {

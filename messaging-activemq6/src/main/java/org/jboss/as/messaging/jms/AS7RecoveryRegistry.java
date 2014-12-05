@@ -22,7 +22,7 @@
 package org.jboss.as.messaging.jms;
 
 
-import org.hornetq.jms.server.recovery.HornetQRegistryBase;
+import org.apache.activemq.jms.server.recovery.ActiveMQRegistryBase;
 import org.jboss.as.txn.service.TxnServices;
 import org.jboss.msc.service.ServiceContainer;
 import org.jboss.msc.service.ServiceController;
@@ -32,7 +32,7 @@ import org.jboss.tm.XAResourceRecoveryRegistry;
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  *         9/22/11
  */
-public class AS7RecoveryRegistry extends HornetQRegistryBase {
+public class AS7RecoveryRegistry extends ActiveMQRegistryBase {
     static volatile ServiceContainer container;
 
     private XAResourceRecoveryRegistry registry;

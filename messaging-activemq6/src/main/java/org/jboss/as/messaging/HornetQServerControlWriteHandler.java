@@ -27,8 +27,8 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_
 import static org.jboss.as.messaging.CommonAttributes.MESSAGE_COUNTER_ENABLED;
 import static org.jboss.as.messaging.HornetQActivationService.isHornetQServerActive;
 
-import org.hornetq.api.core.management.HornetQServerControl;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -125,7 +125,7 @@ public class HornetQServerControlWriteHandler extends AbstractWriteAttributeHand
     }
 
     private void applyOperationToHornetQService(final OperationContext context, ModelNode operation, String attributeName, ServiceController<?> hqService) {
-        HornetQServerControl serverControl = HornetQServer.class.cast(hqService.getValue()).getHornetQServerControl();
+        ActiveMQServerControl serverControl = ActiveMQServer.class.cast(hqService.getValue()).getActiveMQServerControl();
         if (serverControl == null) {
             PathAddress address = PathAddress.pathAddress(operation.require(OP_ADDR));
             throw ControllerLogger.ROOT_LOGGER.managementResourceNotFound(address);

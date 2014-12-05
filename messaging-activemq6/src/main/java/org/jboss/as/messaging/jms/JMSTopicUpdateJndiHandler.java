@@ -22,7 +22,7 @@
 
 package org.jboss.as.messaging.jms;
 
-import org.hornetq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.JMSServerManager;
 import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 

@@ -25,9 +25,9 @@ package org.jboss.as.messaging.jms;
 import static org.jboss.as.controller.OperationContext.Stage.MODEL;
 import static org.jboss.as.messaging.HornetQActivationService.isHornetQServerActive;
 
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.api.jms.management.ConnectionFactoryControl;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -121,7 +121,7 @@ public class ConnectionFactoryWriteAttributeHandler extends AbstractWriteAttribu
             return;
         }
 
-        HornetQServer server =  HornetQServer.class.cast(hqService.getValue());
+        ActiveMQServer server =  ActiveMQServer.class.cast(hqService.getValue());
         ConnectionFactoryControl control = ConnectionFactoryControl.class.cast(server.getManagementService().getResource(ResourceNames.JMS_CONNECTION_FACTORY + name));
         try {
             if (attributeName.equals(CommonAttributes.CLIENT_ID.getName()))  {

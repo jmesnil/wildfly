@@ -24,9 +24,9 @@ package org.jboss.as.messaging;
 
 import static org.jboss.as.messaging.logging.MessagingLogger.MESSAGING_LOGGER;
 
-import org.hornetq.api.core.SimpleString;
-import org.hornetq.core.config.CoreQueueConfiguration;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.config.CoreQueueConfiguration;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.messaging.logging.MessagingLogger;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
@@ -41,7 +41,7 @@ import org.jboss.msc.value.InjectedValue;
  */
 class QueueService implements Service<Void> {
 
-    private final InjectedValue<HornetQServer> hornetQService = new InjectedValue<HornetQServer>();
+    private final InjectedValue<ActiveMQServer> hornetQService = new InjectedValue<ActiveMQServer>();
     private final CoreQueueConfiguration queueConfiguration;
     private final boolean temporary;
 
@@ -57,7 +57,7 @@ class QueueService implements Service<Void> {
     @Override
     public synchronized void start(StartContext context) throws StartException {
         try {
-            final HornetQServer hornetQServer = this.hornetQService.getValue();
+            final ActiveMQServer hornetQServer = this.hornetQService.getValue();
             hornetQServer.deployQueue(new SimpleString(queueConfiguration.getAddress()), new SimpleString(queueConfiguration.getName()),
                     SimpleString.toSimpleString(queueConfiguration.getFilterString()), queueConfiguration.isDurable(),
                     temporary);
@@ -70,7 +70,7 @@ class QueueService implements Service<Void> {
     @Override
     public synchronized void stop(StopContext context) {
         try {
-            final HornetQServer hornetQService = this.hornetQService.getValue();
+            final ActiveMQServer hornetQService = this.hornetQService.getValue();
             hornetQService.destroyQueue(new SimpleString(queueConfiguration.getName()), null, false);
         } catch(Exception e) {
             MESSAGING_LOGGER.failedToDestroy("queue", queueConfiguration.getName());
@@ -83,7 +83,7 @@ class QueueService implements Service<Void> {
         return null;
     }
 
-    InjectedValue<HornetQServer> getHornetQService() {
+    InjectedValue<ActiveMQServer> getHornetQService() {
         return hornetQService;
     }
 

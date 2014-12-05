@@ -28,7 +28,7 @@ import static org.jboss.as.messaging.CommonAttributes.JGROUPS_CHANNEL;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_STACK;
 import static org.jboss.as.messaging.CommonAttributes.SOCKET_BINDING;
 
-import org.hornetq.api.core.client.HornetQClient;
+import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.SimpleAttributeDefinition;
@@ -50,7 +50,7 @@ public class DiscoveryGroupDefinition extends SimpleResourceDefinition {
 
     public static final SimpleAttributeDefinition REFRESH_TIMEOUT = create("refresh-timeout", ModelType.LONG)
             // FIXME the default value should be set to HornetQDefaultConfiguration.DEFAULT_BROADCAST_REFRESH_TIMEOUT,
-            .setDefaultValue(new ModelNode(HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT))
+            .setDefaultValue(new ModelNode(ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT))
             .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -58,7 +58,7 @@ public class DiscoveryGroupDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition INITIAL_WAIT_TIMEOUT = create("initial-wait-timeout", ModelType.LONG)
-            .setDefaultValue(new ModelNode(HornetQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT))
+            .setDefaultValue(new ModelNode(ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT))
             .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)
             .setAllowExpression(true)

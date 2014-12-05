@@ -31,9 +31,9 @@ import static org.jboss.as.messaging.CommonAttributes.FILTER;
 
 import java.util.List;
 
-import org.hornetq.core.config.Configuration;
-import org.hornetq.core.config.CoreQueueConfiguration;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.CoreQueueConfiguration;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -80,7 +80,7 @@ public class QueueAdd extends AbstractAddStepHandler {
             final ServiceName queueServiceName = MessagingServices.getQueueBaseServiceName(hqServiceName).append(queueName);
             newControllers.add(context.getServiceTarget().addService(queueServiceName, service)
                     .addDependency(HornetQActivationService.getHornetQActivationServiceName(hqServiceName))
-                    .addDependency(hqServiceName, HornetQServer.class, service.getHornetQService())
+                    .addDependency(hqServiceName, ActiveMQServer.class, service.getHornetQService())
                     .addListener(verificationHandler)
                     .setInitialMode(Mode.PASSIVE)
                     .install());
@@ -106,7 +106,11 @@ public class QueueAdd extends AbstractAddStepHandler {
         final String filter = filterNode.isDefined() ? filterNode.asString() : null;
         final boolean durable = DURABLE.resolveModelAttribute(context, model).asBoolean();
 
-        return new CoreQueueConfiguration(queueAddress, name, filter, durable);
+        return new CoreQueueConfiguration()
+                .setAddress(queueAddress)
+                .setName(name)
+                .setFilterString(filter)
+                .setDurable(durable);
     }
 
 }

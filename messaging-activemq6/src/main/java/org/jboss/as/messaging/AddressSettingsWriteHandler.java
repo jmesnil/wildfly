@@ -24,9 +24,9 @@ package org.jboss.as.messaging;
 
 import static org.jboss.as.messaging.HornetQActivationService.getHornetQServer;
 
-import org.hornetq.core.server.HornetQServer;
-import org.hornetq.core.settings.HierarchicalRepository;
-import org.hornetq.core.settings.impl.AddressSettings;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.settings.HierarchicalRepository;
+import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -58,7 +58,7 @@ class AddressSettingsWriteHandler extends AbstractWriteAttributeHandler<AddressS
     protected boolean applyUpdateToRuntime(final OperationContext context, final ModelNode operation, final String attributeName, final ModelNode resolvedValue,
                                            final ModelNode currentValue, final HandbackHolder<RevertHandback> handbackHolder) throws OperationFailedException {
         final Resource resource = context.readResource(PathAddress.EMPTY_ADDRESS);
-        final HornetQServer server = getHornetQServer(context, operation);
+        final ActiveMQServer server = getHornetQServer(context, operation);
         if(server != null) {
             final ModelNode model = resource.getModel();
             final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));

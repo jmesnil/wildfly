@@ -35,9 +35,9 @@ import static org.jboss.dmr.ModelType.STRING;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hornetq.api.core.management.QueueControl;
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.QueueControl;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -49,7 +49,7 @@ import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 
 /**
- * Handler for runtime operations that invoke on a HornetQ {@link org.hornetq.api.core.management.QueueControl}.
+ * Handler for runtime operations that invoke on a HornetQ {@link QueueControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
@@ -173,7 +173,7 @@ public class QueueControlHandler extends AbstractQueueControlHandler<QueueContro
     }
 
     @Override
-    protected DelegatingQueueControl<QueueControl> getQueueControl(HornetQServer hqServer, String queueName) {
+    protected DelegatingQueueControl<QueueControl> getQueueControl(ActiveMQServer hqServer, String queueName) {
         final QueueControl control = QueueControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.CORE_QUEUE + queueName));
         if (control == null) {
             return null;

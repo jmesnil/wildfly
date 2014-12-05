@@ -3,7 +3,7 @@ package org.jboss.as.messaging.jms.test;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.hornetq.ra.HornetQResourceAdapter;
+import org.apache.activemq.ra.ActiveMQResourceAdapter;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttribute;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Pooled;
 import org.jboss.as.messaging.jms.PooledConnectionFactoryDefinition;
@@ -54,7 +54,7 @@ public class PooledConnectionFactoryAttributesTestCase extends AttributesTestBas
         SortedSet<String> pooledConnectionFactoryAttributes = findAllResourceAdapterProperties(PooledConnectionFactoryDefinition.ATTRIBUTES);
         pooledConnectionFactoryAttributes.removeAll(KNOWN_ATTRIBUTES);
 
-        SortedSet<String> hornetQRAProperties = findAllPropertyNames(HornetQResourceAdapter.class);
+        SortedSet<String> hornetQRAProperties = findAllPropertyNames(ActiveMQResourceAdapter.class);
         hornetQRAProperties.removeAll(UNSUPPORTED_HORNETQ_RA_PROPERTIES);
 
         compare("AS7 PooledConnectionFactoryAttributes", pooledConnectionFactoryAttributes,
