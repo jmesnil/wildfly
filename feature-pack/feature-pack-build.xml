@@ -36,6 +36,10 @@
                 output-file="standalone/configuration/standalone-full.xml"/>
         <standalone
                 template="configuration/standalone/template.xml"
+                subsystems="configuration/standalone/subsystems-full-activemq6.xml"
+                output-file="standalone/configuration/standalone-full-activemq6.xml"/>
+        <standalone
+                template="configuration/standalone/template.xml"
                 subsystems="configuration/standalone/subsystems-ha.xml"
                 output-file="standalone/configuration/standalone-ha.xml">
             <property name="jgroups.supplement" value="" />
