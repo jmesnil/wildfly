@@ -22,8 +22,9 @@
 
 package org.jboss.as.messaging;
 
-import org.hornetq.core.security.CheckType;
-import org.hornetq.core.security.Role;
+import org.apache.activemq.core.security.CheckType;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.jboss.as.messaging.logging.MessagingLogger;
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.security.SecurityContext;
@@ -38,7 +39,7 @@ import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Set;
 
-public class HornetQSecurityManagerAS7 implements org.hornetq.spi.core.security.HornetQSecurityManager {
+public class HornetQSecurityManagerAS7 implements ActiveMQSecurityManager {
     private SecurityDomainContext securityDomainContext;
     private String defaultUser = null;
     private String defaultPassword = null;

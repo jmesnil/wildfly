@@ -25,8 +25,8 @@ package org.jboss.as.messaging;
 import java.util.HashSet;
 import java.util.List;
 
-import org.hornetq.core.security.Role;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -54,7 +54,7 @@ class SecuritySettingAdd extends AbstractAddStepHandler {
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
 
-        final HornetQServer server = getServer(context, operation);
+        final ActiveMQServer server = getServer(context, operation);
         if(server != null) {
             final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
             final String match = address.getLastElement().getValue();
@@ -62,11 +62,11 @@ class SecuritySettingAdd extends AbstractAddStepHandler {
         }
     }
 
-    static HornetQServer getServer(final OperationContext context, ModelNode operation) {
+    static ActiveMQServer getServer(final OperationContext context, ModelNode operation) {
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         final ServiceController<?> controller = context.getServiceRegistry(true).getService(hqServiceName);
         if(controller != null) {
-            return HornetQServer.class.cast(controller.getValue());
+            return ActiveMQServer.class.cast(controller.getValue());
         }
         return null;
     }

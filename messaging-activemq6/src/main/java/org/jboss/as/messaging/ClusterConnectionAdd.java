@@ -28,8 +28,8 @@ import static org.jboss.as.messaging.ClusterConnectionDefinition.DISCOVERY_GROUP
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hornetq.core.config.ClusterConnectionConfiguration;
-import org.hornetq.core.config.Configuration;
+import org.apache.activemq.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.core.config.Configuration;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -115,6 +115,8 @@ public class ClusterConnectionAdd extends AbstractAddStepHandler {
         final long clusterNotificationInterval = ClusterConnectionDefinition.NOTIFICATION_INTERVAL.resolveModelAttribute(context, model).asLong();
         final int clusterNotificationAttempts = ClusterConnectionDefinition.NOTIFICATION_ATTEMPTS.resolveModelAttribute(context, model).asInt();
 
+        // FIXME!!!
+        /*
         if (discoveryGroupName != null) {
             return new ClusterConnectionConfiguration(name, address, connectorName, minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
                     retryInterval, retryIntervalMultiplier, maxRetryInterval, initialConnectAttempts, reconnectAttempts, callTimeout, callFailoverTimeout,
@@ -126,6 +128,8 @@ public class ClusterConnectionAdd extends AbstractAddStepHandler {
                     duplicateDetection, forwardWhenNoConsumers, maxHops, confirmationWindowSize,
                     staticConnectors, allowDirectOnly,clusterNotificationInterval, clusterNotificationAttempts);
         }
+        */
+        return null;
     }
 
     private static List<String> getStaticConnectors(ModelNode model) {

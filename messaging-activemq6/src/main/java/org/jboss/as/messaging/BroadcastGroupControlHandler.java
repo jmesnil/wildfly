@@ -24,16 +24,16 @@ package org.jboss.as.messaging;
 
 import static org.jboss.as.messaging.BroadcastGroupDefinition.GET_CONNECTOR_PAIRS_AS_JSON;
 
-import org.hornetq.api.core.management.BroadcastGroupControl;
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.BroadcastGroupControl;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.dmr.ModelNode;
 
 /**
- * Handler for runtime operations that interact with a HornetQ {@link BroadcastGroupControl}.
+ * Handler for runtime operations that interact with a HornetQ {@link org.apache.activemq.api.core.management.BroadcastGroupControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
@@ -45,7 +45,7 @@ public class BroadcastGroupControlHandler extends AbstractHornetQComponentContro
     }
 
     @Override
-    protected BroadcastGroupControl getHornetQComponentControl(HornetQServer hqServer, PathAddress address) {
+    protected BroadcastGroupControl getHornetQComponentControl(ActiveMQServer hqServer, PathAddress address) {
         final String resourceName = address.getLastElement().getValue();
         return BroadcastGroupControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.CORE_BROADCAST_GROUP + resourceName));
     }

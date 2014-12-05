@@ -35,7 +35,7 @@ import static org.jboss.dmr.ModelType.STRING;
 
 import java.util.EnumSet;
 
-import org.hornetq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
@@ -85,7 +85,7 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition CHECK_PERIOD = create("check-period", LONG)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultClusterFailureCheckPeriod()))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterFailureCheckPeriod()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setMeasurementUnit(MILLISECONDS)
@@ -93,7 +93,7 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition CONNECTION_TTL = create("connection-ttl", LONG)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultClusterConnectionTtl()))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterConnectionTtl()))
             .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -121,28 +121,28 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition FORWARD_WHEN_NO_CONSUMERS = create("forward-when-no-consumers", BOOLEAN)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultClusterForwardWhenNoConsumers()))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultClusterForwardWhenNoConsumers()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition INITIAL_CONNECT_ATTEMPTS = create("initial-connect-attempts", INT)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultClusterInitialConnectAttempts()))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterInitialConnectAttempts()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition MAX_HOPS = create("max-hops", INT)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultClusterMaxHops()))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterMaxHops()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition MAX_RETRY_INTERVAL = create("max-retry-interval", LONG)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultClusterMaxRetryInterval()))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterMaxRetryInterval()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setMeasurementUnit(MILLISECONDS)
@@ -150,7 +150,7 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition NOTIFICATION_ATTEMPTS = create("notification-attempts",INT)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultClusterNotificationAttempts()))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterNotificationAttempts()))
             .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -158,7 +158,7 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition NOTIFICATION_INTERVAL = create("notification-interval",LONG)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultClusterNotificationInterval()))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterNotificationInterval()))
             .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -166,7 +166,7 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition RETRY_INTERVAL = create("retry-interval", LONG)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultClusterRetryInterval()))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterRetryInterval()))
             .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -174,21 +174,21 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition RECONNECT_ATTEMPTS = create("reconnect-attempts", INT)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultClusterReconnectAttempts()))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterReconnectAttempts()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition RETRY_INTERVAL_MULTIPLIER = create("retry-interval-multiplier", BIG_DECIMAL)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultClusterRetryIntervalMultiplier()))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterRetryIntervalMultiplier()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition USE_DUPLICATE_DETECTION = create("use-duplicate-detection", BOOLEAN)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.isDefaultClusterDuplicateDetection()))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultClusterDuplicateDetection()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()

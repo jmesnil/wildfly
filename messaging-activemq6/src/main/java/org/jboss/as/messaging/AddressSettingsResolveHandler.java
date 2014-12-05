@@ -44,8 +44,8 @@ import static org.jboss.as.messaging.OperationDefinitionHelper.createNonEmptyStr
 
 import java.util.EnumSet;
 
-import org.hornetq.core.server.HornetQServer;
-import org.hornetq.core.settings.impl.AddressSettings;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -96,7 +96,7 @@ public class AddressSettingsResolveHandler extends AbstractRuntimeOnlyHandler {
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(address);
 
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
-        HornetQServer hqServer = HornetQServer.class.cast(hqService.getValue());
+        ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
 
         final String hornetqAddress = HORNETQ_ADDRESS.resolveModelAttribute(context, operation).asString();
         AddressSettings settings = hqServer.getAddressSettingsRepository().getMatch(hornetqAddress);

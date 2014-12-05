@@ -28,7 +28,7 @@ import static org.jboss.as.messaging.logging.MessagingLogger.ROOT_LOGGER;
 
 import java.util.Locale;
 
-import org.hornetq.spi.core.naming.BindingRegistry;
+import org.apache.activemq.spi.core.naming.BindingRegistry;
 import org.jboss.as.messaging.logging.MessagingLogger;
 import org.jboss.as.naming.ManagedReferenceFactory;
 import org.jboss.as.naming.deployment.ContextNames;

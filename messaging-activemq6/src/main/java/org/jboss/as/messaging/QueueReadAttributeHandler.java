@@ -41,9 +41,9 @@ import static org.jboss.as.messaging.QueueDefinition.forwardToRuntimeQueue;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hornetq.api.core.management.QueueControl;
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.QueueControl;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -60,7 +60,7 @@ import org.jboss.msc.service.ServiceName;
 
 /**
  * Implements the {@code read-attribute} operation for runtime attributes exposed by a HornetQ
- * {@link org.hornetq.api.core.management.QueueControl}.
+ * {@link QueueControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
@@ -103,7 +103,7 @@ public class QueueReadAttributeHandler extends AbstractRuntimeOnlyHandler {
 
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(address);
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
-        HornetQServer hqServer = HornetQServer.class.cast(hqService.getValue());
+        ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
         QueueControl control = QueueControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.CORE_QUEUE + queueName));
 
         if (control == null) {

@@ -36,9 +36,9 @@ import static org.jboss.as.messaging.ManagementUtil.reportListOfStrings;
 import static org.jboss.as.messaging.ManagementUtil.reportRoles;
 import static org.jboss.as.messaging.ManagementUtil.reportRolesAsJSON;
 
-import org.hornetq.api.core.management.AddressControl;
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.AddressControl;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -51,7 +51,7 @@ import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 
 /**
- * Handles operations and attribute reads supported by a HornetQ {@link org.hornetq.api.core.management.AddressControl}.
+ * Handles operations and attribute reads supported by a HornetQ {@link org.apache.activemq.api.core.management.AddressControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
@@ -142,7 +142,7 @@ class AddressControlHandler extends AbstractRuntimeOnlyHandler {
         final String addressName = PathAddress.pathAddress(operation.require(OP_ADDR)).getLastElement().getValue();
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
-        HornetQServer hqServer = HornetQServer.class.cast(hqService.getValue());
+        ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
         return AddressControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.CORE_ADDRESS + addressName));
     }
 }

@@ -22,8 +22,8 @@
 
 package org.jboss.as.messaging;
 
-import org.hornetq.core.config.BridgeConfiguration;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.core.config.BridgeConfiguration;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -56,9 +56,9 @@ public class BridgeRemove extends AbstractRemoveStepHandler {
         final ServiceController<?> hqService = registry.getService(hqServiceName);
         if (hqService != null && hqService.getState() == ServiceController.State.UP) {
 
-            HornetQServer server = HornetQServer.class.cast(hqService.getValue());
+            ActiveMQServer server = ActiveMQServer.class.cast(hqService.getValue());
             try {
-                server.getHornetQServerControl().destroyBridge(name);
+                server.getActiveMQServerControl().destroyBridge(name);
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
@@ -78,8 +78,8 @@ public class BridgeRemove extends AbstractRemoveStepHandler {
 
             final String name = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR)).getLastElement().getValue();
             final BridgeConfiguration bridgeConfiguration = BridgeAdd.createBridgeConfiguration(context, name, model);
-            HornetQServer server = HornetQServer.class.cast(hqService.getValue());
-            BridgeAdd.createBridge(name, bridgeConfiguration, server.getHornetQServerControl());
+            ActiveMQServer server = ActiveMQServer.class.cast(hqService.getValue());
+            BridgeAdd.createBridge(name, bridgeConfiguration, server.getActiveMQServerControl());
         }
     }
 }

@@ -30,8 +30,8 @@ import java.util.concurrent.RejectedExecutionException;
 
 import javax.jms.Topic;
 
-import org.hornetq.jms.client.HornetQTopic;
-import org.hornetq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.client.ActiveMQTopic;
+import org.apache.activemq.jms.server.JMSServerManager;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.messaging.HornetQActivationService;
 import org.jboss.as.messaging.logging.MessagingLogger;
@@ -73,7 +73,7 @@ public class JMSTopicService implements Service<Topic> {
             public void run() {
                 try {
                     jmsManager.createTopic(false, name, jndi);
-                    topic = new HornetQTopic(name);
+                    topic = new ActiveMQTopic(name);
                     context.complete();
                 } catch (Throwable e) {
                     context.failed(MessagingLogger.ROOT_LOGGER.failedToCreate(e, "queue"));

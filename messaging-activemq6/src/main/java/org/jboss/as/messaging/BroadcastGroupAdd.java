@@ -32,11 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.hornetq.api.core.BroadcastEndpointFactoryConfiguration;
-import org.hornetq.api.core.BroadcastGroupConfiguration;
-import org.hornetq.api.core.JGroupsBroadcastGroupConfiguration;
-import org.hornetq.api.core.UDPBroadcastGroupConfiguration;
-import org.hornetq.core.config.Configuration;
+import org.apache.activemq.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.core.config.Configuration;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -141,7 +138,9 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
             }
         }
         // Requires runtime service
-        return new BroadcastGroupConfiguration(name, broadcastPeriod, connectorRefs, null);
+        //FIXME!!
+        //return new BroadcastGroupConfiguration(name, broadcastPeriod, connectorRefs, null);
+        return null;
     }
 
     static BroadcastGroupConfiguration createBroadcastGroupConfiguration(final String name, final BroadcastGroupConfiguration config, final SocketBinding socketBinding) throws Exception {
@@ -153,16 +152,24 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
         final long broadcastPeriod = config.getBroadcastPeriod();
         final List<String> connectorRefs = config.getConnectorInfos();
 
+        //FIXME!!!
+        /*
         final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration(groupAddress, groupPort, localAddress, localPort);
         return new BroadcastGroupConfiguration(name, broadcastPeriod, connectorRefs, endpointFactoryConfiguration);
+         */
+
+        return null;
     }
 
     static BroadcastGroupConfiguration createBroadcastGroupConfiguration(final String name, final BroadcastGroupConfiguration config, final JChannel channel, final String channelName) throws Exception {
 
         final long broadcastPeriod = config.getBroadcastPeriod();
         final List<String> connectorRefs = config.getConnectorInfos();
-
+        //FIXME!!
+        /*
         final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = new JGroupsBroadcastGroupConfiguration((JChannel) channel, channelName);
         return new BroadcastGroupConfiguration(name, broadcastPeriod, connectorRefs, endpointFactoryConfiguration);
+        */
+        return null;
     }
 }

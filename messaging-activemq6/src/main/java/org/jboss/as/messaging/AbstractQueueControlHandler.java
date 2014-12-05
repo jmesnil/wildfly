@@ -37,7 +37,7 @@ import static org.jboss.dmr.ModelType.LIST;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
 
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -56,8 +56,8 @@ import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 
 /**
- * Base class for handlers that interact with either a HornetQ {@link org.hornetq.api.core.management.QueueControl}
- * or a {@link org.hornetq.api.jms.management.JMSQueueControl}.
+ * Base class for handlers that interact with either a HornetQ {@link org.apache.activemq.api.core.management.QueueControl}
+ * or a {@link org.apache.activemq.api.jms.management.JMSQueueControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2014 Red Hat Inc.
@@ -224,7 +224,7 @@ public abstract class AbstractQueueControlHandler<T> extends AbstractRuntimeOnly
         final String queueName = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR)).getLastElement().getValue();
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
-        HornetQServer hqServer = HornetQServer.class.cast(hqService.getValue());
+        ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
         final DelegatingQueueControl<T> control = getQueueControl(hqServer, queueName);
 
         if (control == null) {
@@ -349,7 +349,7 @@ public abstract class AbstractQueueControlHandler<T> extends AbstractRuntimeOnly
         context.completeStep(rh);
     }
 
-    protected abstract DelegatingQueueControl<T> getQueueControl(HornetQServer hqServer, String queueName);
+    protected abstract DelegatingQueueControl<T> getQueueControl(ActiveMQServer hqServer, String queueName);
 
     protected abstract Object handleAdditionalOperation(final String operationName, final ModelNode operation,
                                                         final OperationContext context, T queueControl) throws OperationFailedException;
@@ -363,8 +363,8 @@ public abstract class AbstractQueueControlHandler<T> extends AbstractRuntimeOnly
     }
 
     /**
-     * Exposes the method signatures that are common between {@link org.hornetq.api.core.management.QueueControl}
-     * and {@link org.hornetq.api.jms.management.JMSQueueControl}.
+     * Exposes the method signatures that are common between {@link org.apache.activemq.api.core.management.QueueControl}
+     * and {@link org.apache.activemq.api.jms.management.JMSQueueControl}.
      */
     public interface DelegatingQueueControl<T> {
 

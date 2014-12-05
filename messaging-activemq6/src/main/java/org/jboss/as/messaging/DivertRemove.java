@@ -22,8 +22,8 @@
 
 package org.jboss.as.messaging;
 
-import org.hornetq.core.config.DivertConfiguration;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.core.config.DivertConfiguration;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -56,9 +56,9 @@ public class DivertRemove extends AbstractRemoveStepHandler {
         final ServiceController<?> hqService = registry.getService(hqServiceName);
         if (hqService != null && hqService.getState() == ServiceController.State.UP) {
 
-            HornetQServer server = HornetQServer.class.cast(hqService.getValue());
+            ActiveMQServer server = ActiveMQServer.class.cast(hqService.getValue());
             try {
-                server.getHornetQServerControl().destroyDivert(name);
+                server.getActiveMQServerControl().destroyDivert(name);
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
@@ -79,8 +79,8 @@ public class DivertRemove extends AbstractRemoveStepHandler {
             final String name = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR)).getLastElement().getValue();
             final DivertConfiguration divertConfiguration = DivertAdd.createDivertConfiguration(context, name, model);
 
-            HornetQServer server = HornetQServer.class.cast(hqService.getValue());
-            DivertAdd.createDivert(name, divertConfiguration, server.getHornetQServerControl());
+            ActiveMQServer server = ActiveMQServer.class.cast(hqService.getValue());
+            DivertAdd.createDivert(name, divertConfiguration, server.getActiveMQServerControl());
         }
     }
 }

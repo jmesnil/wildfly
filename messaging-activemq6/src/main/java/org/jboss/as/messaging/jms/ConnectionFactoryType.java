@@ -22,14 +22,14 @@
 
 package org.jboss.as.messaging.jms;
 
-import static org.hornetq.api.jms.JMSFactoryType.CF;
-import static org.hornetq.api.jms.JMSFactoryType.QUEUE_CF;
-import static org.hornetq.api.jms.JMSFactoryType.QUEUE_XA_CF;
-import static org.hornetq.api.jms.JMSFactoryType.TOPIC_CF;
-import static org.hornetq.api.jms.JMSFactoryType.TOPIC_XA_CF;
-import static org.hornetq.api.jms.JMSFactoryType.XA_CF;
+import static org.apache.activemq.api.jms.JMSFactoryType.CF;
+import static org.apache.activemq.api.jms.JMSFactoryType.QUEUE_CF;
+import static org.apache.activemq.api.jms.JMSFactoryType.QUEUE_XA_CF;
+import static org.apache.activemq.api.jms.JMSFactoryType.TOPIC_CF;
+import static org.apache.activemq.api.jms.JMSFactoryType.TOPIC_XA_CF;
+import static org.apache.activemq.api.jms.JMSFactoryType.XA_CF;
 
-import org.hornetq.api.jms.JMSFactoryType;
+import org.apache.activemq.api.jms.JMSFactoryType;
 import org.jboss.as.controller.operations.validation.EnumValidator;
 import org.jboss.as.controller.operations.validation.ParameterValidator;
 
@@ -55,5 +55,5 @@ public enum ConnectionFactoryType {
         return type;
     }
 
-    public static final ParameterValidator VALIDATOR = new EnumValidator<ConnectionFactoryType>(ConnectionFactoryType.class, true, false);
+    public static final ParameterValidator VALIDATOR = new EnumValidator<>(ConnectionFactoryType.class, true, false);
 }

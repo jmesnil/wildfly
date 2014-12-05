@@ -22,11 +22,11 @@
 
 package org.jboss.as.messaging.jms;
 
-import org.hornetq.core.security.HornetQPrincipal;
-import org.hornetq.core.server.ActivateCallback;
-import org.hornetq.core.server.HornetQServer;
-import org.hornetq.jms.server.JMSServerManager;
-import org.hornetq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.core.security.ActiveMQPrincipal;
+import org.apache.activemq.core.server.ActivateCallback;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.jboss.as.messaging.HornetQActivationService;
 import org.jboss.as.messaging.HornetQDefaultCredentials;
 import org.jboss.as.messaging.logging.MessagingLogger;
@@ -61,8 +61,8 @@ import org.wildfly.security.manager.WildFlySecurityManager;
  * @author Emanuel Muckenhuber
  */
 public class JMSService implements Service<JMSServerManager> {
-    private final InjectedValue<HornetQServer> hornetQServer = new InjectedValue<HornetQServer>();
-    private final InjectedValue<ExecutorService> serverExecutor = new InjectedValue<ExecutorService>();
+    private final InjectedValue<ActiveMQServer> hornetQServer = new InjectedValue<>();
+    private final InjectedValue<ExecutorService> serverExecutor = new InjectedValue<>();
     private final ServiceName hqServiceName;
     private final boolean overrideInVMSecurity;
     private JMSServerManager jmsServer;
@@ -70,7 +70,7 @@ public class JMSService implements Service<JMSServerManager> {
     public static ServiceController<JMSServerManager> addService(final ServiceTarget target, ServiceName hqServiceName, boolean overrideInVMSecurity, final ServiceListener<Object>... listeners) {
         final JMSService service = new JMSService(hqServiceName, overrideInVMSecurity);
         ServiceBuilder<JMSServerManager> builder = target.addService(JMSServices.getJmsManagerBaseServiceName(hqServiceName), service)
-                .addDependency(hqServiceName, HornetQServer.class, service.hornetQServer)
+                .addDependency(hqServiceName, ActiveMQServer.class, service.hornetQServer)
                 .addListener(listeners)
                 .setInitialMode(Mode.ACTIVE);
         addServerExecutorDependency(builder, service.serverExecutor, false);
@@ -144,7 +144,7 @@ public class JMSService implements Service<JMSServerManager> {
 
                 public void activated() {
                     if (overrideInVMSecurity) {
-                        hornetQServer.getValue().getRemotingService().allowInvmSecurityOverride(new HornetQPrincipal(HornetQDefaultCredentials.getUsername(), HornetQDefaultCredentials.getPassword()));
+                        hornetQServer.getValue().getRemotingService().allowInvmSecurityOverride(new ActiveMQPrincipal(HornetQDefaultCredentials.getUsername(), HornetQDefaultCredentials.getPassword()));
                     }
                     // HornetQ only provides a callback to be notified when HornetQ core server is activated.
                     // but the JMS service start must not be completed until the JMSServerManager wrappee is indeed started (and has deployed the JMS resources, etc.).
@@ -156,6 +156,11 @@ public class JMSService implements Service<JMSServerManager> {
                     } else {
                         hornetqActivationController.setMode(ACTIVE);
                     }
+                }
+
+                @Override
+                public void activationComplete() {
+
                 }
 
                 public void deActivate() {

@@ -22,11 +22,11 @@
 
 package org.jboss.as.messaging;
 
-import static org.hornetq.core.remoting.impl.netty.NettyConnector.HORNETQ_REMOTING;
-import static org.hornetq.core.remoting.impl.netty.NettyConnector.MAGIC_NUMBER;
-import static org.hornetq.core.remoting.impl.netty.NettyConnector.SEC_HORNETQ_REMOTING_ACCEPT;
-import static org.hornetq.core.remoting.impl.netty.NettyConnector.SEC_HORNETQ_REMOTING_KEY;
-import static org.hornetq.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME;
+import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.ACTIVEMQ_REMOTING;
+import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.MAGIC_NUMBER;
+import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_ACCEPT;
+import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_KEY;
+import static org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME;
 import static org.jboss.as.messaging.CommonAttributes.CORE;
 import static org.jboss.as.messaging.logging.MessagingLogger.MESSAGING_LOGGER;
 
@@ -37,9 +37,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.ListenerRegistry;
 import io.undertow.server.handlers.ChannelUpgradeHandler;
-import org.hornetq.core.remoting.impl.netty.NettyAcceptor;
-import org.hornetq.core.remoting.server.RemotingService;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.core.remoting.impl.netty.NettyAcceptor;
+import org.apache.activemq.core.remoting.server.RemotingService;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.remoting.HttpListenerRegistryService;
 import org.jboss.as.remoting.SimpleHttpUpgradeHandshake;
@@ -105,16 +105,16 @@ public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
     public void start(StartContext context) throws StartException {
         ListenerRegistry.Listener listenerInfo = listenerRegistry.getValue().getListener(httpListenerName);
         assert listenerInfo != null;
-        httpUpgradeMetadata = new ListenerRegistry.HttpUpgradeMetadata(HORNETQ_REMOTING, CORE);
+        httpUpgradeMetadata = new ListenerRegistry.HttpUpgradeMetadata(ACTIVEMQ_REMOTING, CORE);
         listenerInfo.addHttpUpgradeMetadata(httpUpgradeMetadata);
 
-        MESSAGING_LOGGER.registeredHTTPUpgradeHandler(HORNETQ_REMOTING, acceptorName);
+        MESSAGING_LOGGER.registeredHTTPUpgradeHandler(ACTIVEMQ_REMOTING, acceptorName);
         ServiceController<?> hornetqService = context.getController().getServiceContainer().getService(MessagingServices.getHornetQServiceName(hornetQServerName));
-        HornetQServer hornetQServer = HornetQServer.class.cast(hornetqService.getValue());
+        ActiveMQServer hornetQServer = ActiveMQServer.class.cast(hornetqService.getValue());
 
-        injectedRegistry.getValue().addProtocol(HORNETQ_REMOTING,
+        injectedRegistry.getValue().addProtocol(ACTIVEMQ_REMOTING,
                 switchToHornetQProtocol(hornetQServer, acceptorName),
-                new SimpleHttpUpgradeHandshake(MAGIC_NUMBER, SEC_HORNETQ_REMOTING_KEY, SEC_HORNETQ_REMOTING_ACCEPT) {
+                new SimpleHttpUpgradeHandshake(MAGIC_NUMBER, SEC_ACTIVEMQ_REMOTING_KEY, SEC_ACTIVEMQ_REMOTING_ACCEPT) {
                     /**
                      * override the default upgrade handshake to take into account the {@code TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME} header
                      * to select the correct acceptors among all that are configured in HornetQ.
@@ -141,7 +141,7 @@ public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
     public void stop(StopContext context) {
         listenerRegistry.getValue().getListener(httpListenerName).removeHttpUpgradeMetadata(httpUpgradeMetadata);
         httpUpgradeMetadata = null;
-        injectedRegistry.getValue().removeProtocol(HORNETQ_REMOTING);
+        injectedRegistry.getValue().removeProtocol(ACTIVEMQ_REMOTING);
     }
 
     @Override
@@ -149,11 +149,11 @@ public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
         return this;
     }
 
-    private static ChannelListener<StreamConnection> switchToHornetQProtocol(final HornetQServer hornetqServer, final String acceptorName) {
+    private static ChannelListener<StreamConnection> switchToHornetQProtocol(final ActiveMQServer hornetqServer, final String acceptorName) {
         return new ChannelListener<StreamConnection>() {
             @Override
             public void handleEvent(final StreamConnection connection) {
-                MESSAGING_LOGGER.debugf("Switching to %s protocol for %s http-acceptor", HORNETQ_REMOTING, acceptorName);
+                MESSAGING_LOGGER.debugf("Switching to %s protocol for %s http-acceptor", ACTIVEMQ_REMOTING, acceptorName);
                 SocketChannel channel = new WrappingXnioSocketChannel(connection);
                 RemotingService remotingService = hornetqServer.getRemotingService();
 

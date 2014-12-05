@@ -38,7 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.hornetq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -77,7 +77,7 @@ public class BroadcastGroupDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition BROADCAST_PERIOD = create("broadcast-period", LONG)
-            .setDefaultValue(new ModelNode(HornetQDefaultConfiguration.getDefaultBroadcastPeriod()))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultBroadcastPeriod()))
             .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)
             .setAllowExpression(true)

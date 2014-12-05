@@ -30,7 +30,7 @@ import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
 
-import org.hornetq.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PropertiesAttributeDefinition;

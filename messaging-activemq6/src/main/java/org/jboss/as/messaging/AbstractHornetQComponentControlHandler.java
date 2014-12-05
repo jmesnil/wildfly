@@ -32,10 +32,9 @@ import static org.jboss.as.messaging.CommonAttributes.NAME;
 import static org.jboss.as.messaging.logging.MessagingLogger.ROOT_LOGGER;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 
-import org.hornetq.api.core.management.HornetQComponentControl;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.ActiveMQComponentControl;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
-import org.jboss.as.controller.logging.ControllerLogger;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationDefinition;
 import org.jboss.as.controller.OperationFailedException;
@@ -44,6 +43,7 @@ import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleOperationDefinitionBuilder;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
+import org.jboss.as.controller.logging.ControllerLogger;
 import org.jboss.as.controller.operations.validation.ParametersValidator;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.as.controller.registry.AttributeAccess;
@@ -55,12 +55,12 @@ import org.jboss.msc.service.ServiceName;
 
 /**
  * Base class for {@link org.jboss.as.controller.OperationStepHandler} implementations for handlers that interact
- * with an implementation of a {@link HornetQComponentControl} subinterface to perform their function.  This base class
+ * with an implementation of a {@link ActiveMQComponentControl} subinterface to perform their function.  This base class
  * handles a "start" and "stop" operation as well as a "read-attribute" call reading runtime attribute "started".
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public abstract class AbstractHornetQComponentControlHandler<T extends HornetQComponentControl> extends AbstractRuntimeOnlyHandler {
+public abstract class AbstractHornetQComponentControlHandler<T extends ActiveMQComponentControl> extends AbstractRuntimeOnlyHandler {
 
     private static final SimpleAttributeDefinition STARTED = create(CommonAttributes.STARTED, BOOLEAN)
             .setFlags(AttributeAccess.Flag.STORAGE_RUNTIME)
@@ -84,7 +84,7 @@ public abstract class AbstractHornetQComponentControlHandler<T extends HornetQCo
             readAttributeValidator.validate(operation);
             final String name = operation.require(NAME).asString();
             if (STARTED.getName().equals(name)) {
-                HornetQComponentControl control = getHornetQComponentControl(context, operation, false);
+                ActiveMQComponentControl control = getHornetQComponentControl(context, operation, false);
                 context.getResult().set(control.isStarted());
             } else {
                 handleReadAttribute(name, context, operation);
@@ -97,7 +97,7 @@ public abstract class AbstractHornetQComponentControlHandler<T extends HornetQCo
             return;
         }
 
-        HornetQComponentControl control = null;
+        ActiveMQComponentControl control = null;
         boolean appliedToRuntime = false;
         Object handback = null;
         if (START.equals(operationName)) {
@@ -128,7 +128,7 @@ public abstract class AbstractHornetQComponentControlHandler<T extends HornetQCo
         OperationContext.RollbackHandler rh;
 
         if (appliedToRuntime)  {
-            final HornetQComponentControl rhControl = control;
+            final ActiveMQComponentControl rhControl = control;
             final Object rhHandback = handback;
             rh = new OperationContext.RollbackHandler() {
                 @Override
@@ -169,13 +169,13 @@ public abstract class AbstractHornetQComponentControlHandler<T extends HornetQCo
     }
 
     /**
-     * Gets the {@link HornetQComponentControl} implementation used by this handler.
+     * Gets the {@link ActiveMQComponentControl} implementation used by this handler.
      *
      * @param hqServer the HornetQServer installed in the runtime
      * @param address the address being invoked
      * @return the runtime HornetQ control object associated with the given address
      */
-    protected abstract T getHornetQComponentControl(HornetQServer hqServer, PathAddress address);
+    protected abstract T getHornetQComponentControl(ActiveMQServer hqServer, PathAddress address);
 
     protected abstract String getDescriptionPrefix();
 
@@ -275,7 +275,7 @@ public abstract class AbstractHornetQComponentControlHandler<T extends HornetQCo
     protected final T getHornetQComponentControl(final OperationContext context, final ModelNode operation, final boolean forWrite) throws OperationFailedException {
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = context.getServiceRegistry(forWrite).getService(hqServiceName);
-        HornetQServer server = HornetQServer.class.cast(hqService.getValue());
+        ActiveMQServer server = ActiveMQServer.class.cast(hqService.getValue());
         PathAddress address = PathAddress.pathAddress(operation.require(OP_ADDR));
          T control = getHornetQComponentControl(server, address);
          if (control == null) {
