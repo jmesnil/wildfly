@@ -22,9 +22,9 @@
 
 package org.jboss.as.messaging.jms;
 
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.api.jms.management.JMSServerControl;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.api.jms.management.JMSServerControl;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -55,7 +55,7 @@ public class ConnectionFactoryRemove extends AbstractRemoveStepHandler {
         context.removeService(JMSServices.getConnectionFactoryBaseServiceName(hqServiceName).append(name));
 
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
-        HornetQServer hqServer = HornetQServer.class.cast(hqService.getValue());
+        ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
         JMSServerControl control = JMSServerControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.JMS_SERVER));
         if (control != null) {
             try {

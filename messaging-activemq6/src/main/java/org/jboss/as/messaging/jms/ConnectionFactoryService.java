@@ -22,8 +22,8 @@
 
 package org.jboss.as.messaging.jms;
 
-import org.hornetq.jms.server.JMSServerManager;
-import org.hornetq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.jboss.as.messaging.logging.MessagingLogger;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
@@ -45,8 +45,8 @@ class ConnectionFactoryService implements Service<Void> {
 
     private final String name;
     private final ConnectionFactoryConfiguration configuration;
-    private final InjectedValue<JMSServerManager> jmsServer = new InjectedValue<JMSServerManager>();
-    private final InjectedValue<ExecutorService> executorInjector = new InjectedValue<ExecutorService>();
+    private final InjectedValue<JMSServerManager> jmsServer = new InjectedValue<>();
+    private final InjectedValue<ExecutorService> executorInjector = new InjectedValue<>();
 
     public ConnectionFactoryService(final ConnectionFactoryConfiguration configuration) {
         name = configuration.getName();

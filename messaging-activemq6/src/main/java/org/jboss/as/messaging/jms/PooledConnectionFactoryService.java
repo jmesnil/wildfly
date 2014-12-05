@@ -35,12 +35,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hornetq.api.core.BroadcastEndpointFactoryConfiguration;
-import org.hornetq.api.core.DiscoveryGroupConfiguration;
-import org.hornetq.api.core.JGroupsBroadcastGroupConfiguration;
-import org.hornetq.api.core.TransportConfiguration;
-import org.hornetq.api.core.UDPBroadcastGroupConfiguration;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.connector.metadata.deployment.ResourceAdapterDeployment;
 import org.jboss.as.connector.services.mdr.AS7MetadataRepository;
 import org.jboss.as.connector.services.resourceadapters.ResourceAdapterActivatorService;
@@ -169,7 +169,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
     private List<PooledConnectionFactoryConfigProperties> adapterParams;
     private String name;
     private Map<String, SocketBinding> socketBindings = new HashMap<String, SocketBinding>();
-    private InjectedValue<HornetQServer> hornetQService = new InjectedValue<HornetQServer>();
+    private InjectedValue<ActiveMQServer> hornetQService = new InjectedValue<>();
     private BindInfo bindInfo;
     private final boolean pickAnyConnectors;
     private List<String> jndiAliases;
@@ -289,7 +289,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
         ServiceBuilder serviceBuilder = serviceTarget
                 .addService(serviceName, service)
                 .addDependency(TxnServices.JBOSS_TXN_TRANSACTION_MANAGER, service.transactionManager)
-                .addDependency(hqServiceName, HornetQServer.class, service.hornetQService)
+                .addDependency(hqServiceName, ActiveMQServer.class, service.hornetQService)
                 .addDependency(HornetQActivationService.getHornetQActivationServiceName(hqServiceName))
                 .addDependency(JMSServices.getJmsManagerBaseServiceName(hqServiceName))
                 .setInitialMode(ServiceController.Mode.PASSIVE);
@@ -556,7 +556,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
         return new MapInjector<String, SocketBinding>(socketBindings, name);
     }
 
-    public Injector<HornetQServer> getHornetQService() {
+    public Injector<ActiveMQServer> getHornetQService() {
         return hornetQService;
     }
 

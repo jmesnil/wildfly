@@ -25,8 +25,8 @@ package org.jboss.as.messaging;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.hornetq.core.security.Role;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -48,13 +48,13 @@ class SecurityRoleRemove extends AbstractRemoveStepHandler {
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
         final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
-        final HornetQServer server = getServer(context, operation);
+        final ActiveMQServer server = getServer(context, operation);
         final String match = address.getElement(address.size() - 2).getValue();
         final String roleName = address.getLastElement().getValue();
         removeRole(server, match, roleName);
     }
 
-    static void removeRole(HornetQServer server, String match, String roleName) {
+    static void removeRole(ActiveMQServer server, String match, String roleName) {
         if (server != null) {
             final Set<Role> roles = server.getSecurityRepository().getMatch(match);
             final Set<Role> newRoles = new HashSet<Role>();
@@ -67,11 +67,11 @@ class SecurityRoleRemove extends AbstractRemoveStepHandler {
         }
     }
 
-    static HornetQServer getServer(final OperationContext context, ModelNode operation) {
+    static ActiveMQServer getServer(final OperationContext context, ModelNode operation) {
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         final ServiceController<?> controller = context.getServiceRegistry(true).getService(hqServiceName);
         if(controller != null) {
-            return HornetQServer.class.cast(controller.getValue());
+            return ActiveMQServer.class.cast(controller.getValue());
         }
         return null;
     }

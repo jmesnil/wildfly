@@ -22,13 +22,13 @@
 
 package org.jboss.as.messaging;
 
-import org.hornetq.api.core.management.AcceptorControl;
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.AcceptorControl;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.PathAddress;
 
 /**
- * Handler for runtime operations that interact with a HornetQ {@link AcceptorControl}.
+ * Handler for runtime operations that interact with a HornetQ {@link org.apache.activemq.api.core.management.AcceptorControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
@@ -37,7 +37,7 @@ public class AcceptorControlHandler extends AbstractHornetQComponentControlHandl
     public static final AcceptorControlHandler INSTANCE = new AcceptorControlHandler();
 
     @Override
-    protected AcceptorControl getHornetQComponentControl(HornetQServer hqServer, PathAddress address) {
+    protected AcceptorControl getHornetQComponentControl(ActiveMQServer hqServer, PathAddress address) {
         final String resourceName = address.getLastElement().getValue();
         return AcceptorControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.CORE_ACCEPTOR + resourceName));
     }

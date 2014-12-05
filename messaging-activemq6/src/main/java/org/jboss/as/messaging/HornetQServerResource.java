@@ -30,11 +30,11 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.hornetq.api.core.management.AddressControl;
-import org.hornetq.api.core.management.QueueControl;
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.core.server.HornetQServer;
-import org.hornetq.core.server.management.ManagementService;
+import org.apache.activemq.api.core.management.AddressControl;
+import org.apache.activemq.api.core.management.QueueControl;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.management.ManagementService;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.registry.PlaceholderResource;
@@ -51,7 +51,7 @@ import org.jboss.msc.service.ServiceController;
 public class HornetQServerResource implements Resource {
 
     private final Resource delegate;
-    private volatile ServiceController<HornetQServer> hornetQServerServiceController;
+    private volatile ServiceController<ActiveMQServer> hornetQServerServiceController;
 
     public HornetQServerResource() {
         this(Resource.Factory.create());
@@ -61,11 +61,11 @@ public class HornetQServerResource implements Resource {
         this.delegate = delegate;
     }
 
-    public ServiceController<HornetQServer> getHornetQServerServiceController() {
+    public ServiceController<ActiveMQServer> getHornetQServerServiceController() {
         return hornetQServerServiceController;
     }
 
-    public void setHornetQServerServiceController(ServiceController<HornetQServer> hornetQServerServiceController) {
+    public void setHornetQServerServiceController(ServiceController<ActiveMQServer> hornetQServerServiceController) {
         this.hornetQServerServiceController = hornetQServerServiceController;
     }
 

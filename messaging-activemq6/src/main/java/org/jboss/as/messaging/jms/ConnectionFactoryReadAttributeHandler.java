@@ -27,9 +27,9 @@ import static org.jboss.as.messaging.CommonAttributes.HA;
 import static org.jboss.as.messaging.CommonAttributes.NAME;
 import static org.jboss.as.messaging.HornetQActivationService.ignoreOperationIfServerNotActive;
 
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.api.jms.management.ConnectionFactoryControl;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.logging.ControllerLogger;
 import org.jboss.as.controller.OperationContext;
@@ -46,7 +46,7 @@ import org.jboss.msc.service.ServiceName;
 
 /**
  * Implements the {@code read-attribute} operation for runtime attributes exposed by a HornetQ
- * {@link org.hornetq.api.jms.management.ConnectionFactoryControl}.
+ * {@link ConnectionFactoryControl}.
  *
  * <strong>THIS SHOULD NOT INCLUDE ATTRIBUTES THAT ARE PART OF THE PERSISTENT CONFIGURATION. Those are
  * handled by {@link ConnectionFactoryWriteAttributeHandler}, since <i>all</i> persistent attributes
@@ -78,7 +78,7 @@ public class ConnectionFactoryReadAttributeHandler extends AbstractRuntimeOnlyHa
 
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
-        HornetQServer hqServer = HornetQServer.class.cast(hqService.getValue());
+        ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
         ConnectionFactoryControl control = ConnectionFactoryControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.JMS_CONNECTION_FACTORY + factoryName));
 
         if (control == null) {

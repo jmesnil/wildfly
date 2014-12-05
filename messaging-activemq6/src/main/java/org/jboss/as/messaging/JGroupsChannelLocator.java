@@ -1,12 +1,12 @@
 package org.jboss.as.messaging;
 
-import org.hornetq.core.server.HornetQServer;
+import java.security.AccessController;
+
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.server.CurrentServiceContainer;
 import org.jboss.msc.service.ServiceContainer;
 import org.jboss.msc.service.ServiceController;
 import org.jgroups.JChannel;
-
-import java.security.AccessController;
 
 
 public class JGroupsChannelLocator {
@@ -18,7 +18,7 @@ public class JGroupsChannelLocator {
         String[] split = channelRefName.split("/");
         String hornetQServerName = split[0];
         String channelName = split[1];
-        ServiceController<HornetQServer> controller = (ServiceController<HornetQServer>) currentServiceContainer().getService(MessagingServices.getHornetQServiceName(hornetQServerName));
+        ServiceController<ActiveMQServer> controller = (ServiceController<ActiveMQServer>) currentServiceContainer().getService(MessagingServices.getHornetQServiceName(hornetQServerName));
         HornetQService service = (HornetQService) controller.getService();
         return service.getChannels().get(channelName);
     }

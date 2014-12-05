@@ -25,7 +25,6 @@ package org.jboss.as.messaging;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PATH;
 import static org.jboss.as.messaging.CommonAttributes.ADDRESS_SETTING;
-import static org.jboss.as.messaging.CommonAttributes.ALLOW_FAILBACK;
 import static org.jboss.as.messaging.CommonAttributes.ASYNC_CONNECTION_EXECUTION_ENABLED;
 import static org.jboss.as.messaging.CommonAttributes.BACKUP;
 import static org.jboss.as.messaging.CommonAttributes.BACKUP_GROUP_NAME;
@@ -101,16 +100,16 @@ import java.util.Set;
 
 import javax.management.MBeanServer;
 
-import org.hornetq.api.config.HornetQDefaultConfiguration;
-import org.hornetq.api.core.BroadcastGroupConfiguration;
-import org.hornetq.api.core.DiscoveryGroupConfiguration;
-import org.hornetq.api.core.SimpleString;
-import org.hornetq.core.config.Configuration;
-import org.hornetq.core.config.impl.ConfigurationImpl;
-import org.hornetq.core.security.Role;
-import org.hornetq.core.server.HornetQServer;
-import org.hornetq.core.server.JournalType;
-import org.hornetq.core.settings.impl.AddressSettings;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.JournalType;
+import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.jboss.as.clustering.jgroups.ChannelFactory;
 import org.jboss.as.clustering.jgroups.subsystem.ChannelFactoryService;
 import org.jboss.as.controller.AttributeDefinition;
@@ -247,7 +246,7 @@ class HornetQServerAdd implements OperationStepHandler {
 
                 // Add the HornetQ Service
                 ServiceName hqServiceName = MessagingServices.getHornetQServiceName(serverName);
-                final ServiceBuilder<HornetQServer> serviceBuilder = serviceTarget.addService(hqServiceName, hqService)
+                final ServiceBuilder<ActiveMQServer> serviceBuilder = serviceTarget.addService(hqServiceName, hqService)
                         .addDependency(DependencyType.OPTIONAL, ServiceName.JBOSS.append("mbean", "server"), MBeanServer.class, hqService.getMBeanServer());
 
                 serviceBuilder.addDependency(PathManagerService.SERVICE_NAME, PathManager.class, hqService.getPathManagerInjector());
@@ -337,7 +336,7 @@ class HornetQServerAdd implements OperationStepHandler {
                 serviceBuilder.addListener(verificationHandler);
 
                 // Install the HornetQ Service
-                ServiceController<HornetQServer> hqServerServiceController = serviceBuilder.install();
+                ServiceController<ActiveMQServer> hqServerServiceController = serviceBuilder.install();
                 // Provide our custom Resource impl a ref to the HornetQServer so it can create child runtime resources
                 resource.setHornetQServerServiceController(hqServerServiceController);
 
@@ -364,8 +363,8 @@ class HornetQServerAdd implements OperationStepHandler {
 
         configuration.setName(serverName);
 
-        // --
-        configuration.setAllowAutoFailBack(ALLOW_FAILBACK.resolveModelAttribute(context, model).asBoolean());
+        //FIXME!!
+        //configuration.setAllowAutoFailBack(ALLOW_FAILBACK.resolveModelAttribute(context, model).asBoolean());
         configuration.setEnabledAsyncConnectionExecution(ASYNC_CONNECTION_EXECUTION_ENABLED.resolveModelAttribute(context, model).asBoolean());
 
         ModelNode backupGroupName = BACKUP_GROUP_NAME.resolveModelAttribute(context, model);
@@ -395,13 +394,13 @@ class HornetQServerAdd implements OperationStepHandler {
         configuration.setJournalType(journalType);
 
         // AIO Journal
-        configuration.setJournalBufferSize_AIO(JOURNAL_BUFFER_SIZE.resolveModelAttribute(context, model).asInt(HornetQDefaultConfiguration.getDefaultJournalBufferSizeAio()));
-        configuration.setJournalBufferTimeout_AIO(JOURNAL_BUFFER_TIMEOUT.resolveModelAttribute(context, model).asInt(HornetQDefaultConfiguration.getDefaultJournalBufferTimeoutAio()));
-        configuration.setJournalMaxIO_AIO(JOURNAL_MAX_IO.resolveModelAttribute(context, model).asInt(HornetQDefaultConfiguration.getDefaultJournalMaxIoAio()));
+        configuration.setJournalBufferSize_AIO(JOURNAL_BUFFER_SIZE.resolveModelAttribute(context, model).asInt(ActiveMQDefaultConfiguration.getDefaultJournalBufferSizeAio()));
+        configuration.setJournalBufferTimeout_AIO(JOURNAL_BUFFER_TIMEOUT.resolveModelAttribute(context, model).asInt(ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutAio()));
+        configuration.setJournalMaxIO_AIO(JOURNAL_MAX_IO.resolveModelAttribute(context, model).asInt(ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio()));
         // NIO Journal
-        configuration.setJournalBufferSize_NIO(JOURNAL_BUFFER_SIZE.resolveModelAttribute(context, model).asInt(HornetQDefaultConfiguration.getDefaultJournalBufferSizeNio()));
-        configuration.setJournalBufferTimeout_NIO(JOURNAL_BUFFER_TIMEOUT.resolveModelAttribute(context, model).asInt(HornetQDefaultConfiguration.getDefaultJournalBufferTimeoutNio()));
-        configuration.setJournalMaxIO_NIO(JOURNAL_MAX_IO.resolveModelAttribute(context, model).asInt(HornetQDefaultConfiguration.getDefaultJournalMaxIoNio()));
+        configuration.setJournalBufferSize_NIO(JOURNAL_BUFFER_SIZE.resolveModelAttribute(context, model).asInt(ActiveMQDefaultConfiguration.getDefaultJournalBufferSizeNio()));
+        configuration.setJournalBufferTimeout_NIO(JOURNAL_BUFFER_TIMEOUT.resolveModelAttribute(context, model).asInt(ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio()));
+        configuration.setJournalMaxIO_NIO(JOURNAL_MAX_IO.resolveModelAttribute(context, model).asInt(ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio()));
         //
         configuration.setJournalCompactMinFiles(JOURNAL_COMPACT_MIN_FILES.resolveModelAttribute(context, model).asInt());
         configuration.setJournalCompactPercentage(JOURNAL_COMPACT_PERCENTAGE.resolveModelAttribute(context, model).asInt());

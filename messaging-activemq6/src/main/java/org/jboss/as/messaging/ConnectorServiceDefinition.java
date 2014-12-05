@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hornetq.core.config.Configuration;
-import org.hornetq.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.config.ConnectorServiceConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -81,7 +81,10 @@ public class ConnectorServiceDefinition extends SimpleResourceDefinition {
                 params.put(property.getName(), value);
             }
         }
-        return new ConnectorServiceConfiguration(factoryClass, params, name);
+        return new ConnectorServiceConfiguration()
+                .setFactoryClassName(factoryClass)
+                .setParams(params)
+                .setName(name);
     }
 
     @Override

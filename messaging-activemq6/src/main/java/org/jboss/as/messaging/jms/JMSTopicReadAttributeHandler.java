@@ -32,9 +32,9 @@ import static org.jboss.as.messaging.jms.JMSTopicDefinition.NON_DURABLE_SUBSCRIP
 import static org.jboss.as.messaging.jms.JMSTopicDefinition.SUBSCRIPTION_COUNT;
 import static org.jboss.as.messaging.jms.JMSTopicDefinition.TOPIC_ADDRESS;
 
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.api.jms.management.TopicControl;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.api.jms.management.TopicControl;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.logging.ControllerLogger;
 import org.jboss.as.controller.OperationContext;
@@ -52,7 +52,7 @@ import org.jboss.msc.service.ServiceName;
 
 /**
  * Implements the {@code read-attribute} operation for runtime attributes exposed by a HornetQ
- * {@link org.hornetq.api.jms.management.TopicControl}.
+ * {@link TopicControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
@@ -81,7 +81,7 @@ public class JMSTopicReadAttributeHandler extends AbstractRuntimeOnlyHandler {
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
 
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
-        HornetQServer hqServer = HornetQServer.class.cast(hqService.getValue());
+        ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
         TopicControl control = TopicControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.JMS_TOPIC + topicName));
 
         if (control == null) {

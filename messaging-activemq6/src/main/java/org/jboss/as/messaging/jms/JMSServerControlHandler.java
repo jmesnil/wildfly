@@ -31,9 +31,9 @@ import static org.jboss.as.messaging.OperationDefinitionHelper.runtimeReadOnlyOp
 import static org.jboss.dmr.ModelType.LIST;
 import static org.jboss.dmr.ModelType.STRING;
 
-import org.hornetq.api.core.management.ResourceNames;
-import org.hornetq.api.jms.management.JMSServerControl;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.ResourceNames;
+import org.apache.activemq.api.jms.management.JMSServerControl;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -50,7 +50,7 @@ import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 
 /**
- * Handles operations and attribute reads supported by a HornetQ {@link org.hornetq.api.jms.management.JMSServerControl}.
+ * Handles operations and attribute reads supported by a HornetQ {@link JMSServerControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
@@ -186,7 +186,7 @@ public class JMSServerControlHandler extends AbstractRuntimeOnlyHandler {
     private JMSServerControl getServerControl(final OperationContext context, final ModelNode operation) {
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
-        HornetQServer hqServer = HornetQServer.class.cast(hqService.getValue());
+        ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
         return JMSServerControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.JMS_SERVER));
     }
 }

@@ -29,7 +29,8 @@ import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
 
-import org.hornetq.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.SimpleAttributeDefinition;
@@ -56,7 +57,7 @@ public class GroupingHandlerDefinition extends SimpleResourceDefinition {
     // FIXME GroupingHanderConfiguration timeout is an int (instead of a long). Use an int until HornetQ conf is fixed
     // [HORNETQ-885]
     public static final SimpleAttributeDefinition TIMEOUT = create("timeout", INT)
-            .setDefaultValue(new ModelNode(GroupingHandlerConfiguration.DEFAULT_TIMEOUT))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultGroupingHandlerTimeout()))
             .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -65,7 +66,7 @@ public class GroupingHandlerDefinition extends SimpleResourceDefinition {
 
     public static final SimpleAttributeDefinition GROUP_TIMEOUT = create("group-timeout", LONG)
             // FIXME GroupingHanderConfiguration.DEFAULT_GROUP_TIMEOUT is an int (instead of a long). Cast to a long until HornetQ conf is fixed
-            .setDefaultValue(new ModelNode(1L * GroupingHandlerConfiguration.DEFAULT_GROUP_TIMEOUT))
+            .setDefaultValue(new ModelNode(1L * ActiveMQDefaultConfiguration.getDefaultGroupingHandlerGroupTimeout()))
             .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -73,7 +74,7 @@ public class GroupingHandlerDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition REAPER_PERIOD = create("reaper-period", LONG)
-            .setDefaultValue(new ModelNode(GroupingHandlerConfiguration.DEFAULT_REAPER_PERIOD))
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod()))
             .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -82,7 +83,7 @@ public class GroupingHandlerDefinition extends SimpleResourceDefinition {
 
     public static final SimpleAttributeDefinition TYPE = create("type", STRING)
             .setAllowExpression(true)
-            .setValidator(new EnumValidator<GroupingHandlerConfiguration.TYPE>(GroupingHandlerConfiguration.TYPE.class, false, true))
+            .setValidator(new EnumValidator<>(GroupingHandlerConfiguration.TYPE.class, false, true))
             .setRestartAllServices()
             .build();
 

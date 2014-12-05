@@ -29,10 +29,10 @@ import static org.jboss.as.messaging.GroupingHandlerDefinition.TIMEOUT;
 
 import java.util.List;
 
-import org.hornetq.api.core.SimpleString;
-import org.hornetq.core.config.Configuration;
-import org.hornetq.core.server.HornetQServer;
-import org.hornetq.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -77,7 +77,7 @@ public class GroupingHandlerAdd extends AbstractAddStepHandler {
         final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = registry.getService(hqServiceName);
         if (hqService != null) {
-            final HornetQServer hqServer = HornetQServer.class.cast(hqService.getValue());
+            final ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
             if (hqServer.getGroupingHandler() != null) {
                 throw new OperationFailedException(new ModelNode().set(MessagingLogger.ROOT_LOGGER.childResourceAlreadyExists(CommonAttributes.GROUPING_HANDLER)));
             }
@@ -106,12 +106,13 @@ public class GroupingHandlerAdd extends AbstractAddStepHandler {
             final int timeout = TIMEOUT.resolveModelAttribute(context, node).asInt();
             final long groupTimeout = GROUP_TIMEOUT.resolveModelAttribute(context, node).asLong();
             final long reaperPeriod = REAPER_PERIOD.resolveModelAttribute(context, node).asLong();
-            final GroupingHandlerConfiguration conf = new GroupingHandlerConfiguration(SimpleString.toSimpleString(name),
-                    type,
-                    SimpleString.toSimpleString(address),
-                    timeout,
-                    groupTimeout,
-                    reaperPeriod);
+            final GroupingHandlerConfiguration conf = new GroupingHandlerConfiguration()
+                    .setName(SimpleString.toSimpleString(name))
+                    .setType(type)
+                    .setAddress(SimpleString.toSimpleString(address))
+                    .setTimeout(timeout)
+                    .setGroupTimeout(groupTimeout)
+                    .setReaperPeriod(reaperPeriod);
             configuration.setGroupingHandlerConfiguration(conf);
         }
     }

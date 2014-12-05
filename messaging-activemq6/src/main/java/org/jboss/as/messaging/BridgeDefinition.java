@@ -30,7 +30,7 @@ import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.STRING;
 
-import org.hornetq.api.config.HornetQDefaultConfiguration;
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
@@ -71,7 +71,7 @@ public class BridgeDefinition extends SimpleResourceDefinition {
 
     public static final SimpleAttributeDefinition INITIAL_CONNECT_ATTEMPTS = create("initial-connect-attempts", INT)
             .setAllowNull(true)
-            .setDefaultValue(new ModelNode().set(HornetQDefaultConfiguration.getDefaultBridgeInitialConnectAttempts()))
+            .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.getDefaultBridgeInitialConnectAttempts()))
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
@@ -84,7 +84,7 @@ public class BridgeDefinition extends SimpleResourceDefinition {
     public static final SimpleAttributeDefinition PASSWORD = create("password", STRING)
             .setAllowNull(true)
             .setAllowExpression(true)
-            .setDefaultValue(new ModelNode().set(HornetQDefaultConfiguration.getDefaultClusterPassword()))
+            .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.getDefaultClusterPassword()))
             .setRestartAllServices()
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
             .addAccessConstraint(MESSAGING_SECURITY_DEF)
@@ -93,7 +93,7 @@ public class BridgeDefinition extends SimpleResourceDefinition {
     public static final SimpleAttributeDefinition USER = create("user", STRING)
             .setAllowNull(true)
             .setAllowExpression(true)
-            .setDefaultValue(new ModelNode().set(HornetQDefaultConfiguration.getDefaultClusterUser()))
+            .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.getDefaultClusterUser()))
             .setRestartAllServices()
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
             .addAccessConstraint(MESSAGING_SECURITY_DEF)
@@ -101,21 +101,21 @@ public class BridgeDefinition extends SimpleResourceDefinition {
 
     public static final SimpleAttributeDefinition USE_DUPLICATE_DETECTION = create("use-duplicate-detection", BOOLEAN)
             .setAllowNull(true)
-            .setDefaultValue(new ModelNode().set(HornetQDefaultConfiguration.isDefaultBridgeDuplicateDetection()))
+            .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.isDefaultBridgeDuplicateDetection()))
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition RECONNECT_ATTEMPTS = create("reconnect-attempts", INT)
             .setAllowNull(true)
-            .setDefaultValue(new ModelNode().set(HornetQDefaultConfiguration.getDefaultBridgeReconnectAttempts()))
+            .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.getDefaultBridgeReconnectAttempts()))
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition RECONNECT_ATTEMPTS_ON_SAME_NODE = create("reconnect-attempts-on-same-node", INT)
             .setAllowNull(true)
-            .setDefaultValue(new ModelNode().set(HornetQDefaultConfiguration.getDefaultBridgeConnectSameNode()))
+            .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.getDefaultBridgeConnectSameNode()))
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();

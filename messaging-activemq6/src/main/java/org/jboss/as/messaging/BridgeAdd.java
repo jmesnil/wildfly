@@ -28,10 +28,10 @@ import static org.jboss.as.messaging.BridgeDefinition.DISCOVERY_GROUP_NAME;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hornetq.api.core.management.HornetQServerControl;
-import org.hornetq.core.config.BridgeConfiguration;
-import org.hornetq.core.config.Configuration;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.core.config.BridgeConfiguration;
+import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -86,7 +86,7 @@ public class BridgeAdd extends AbstractAddStepHandler {
 
             BridgeConfiguration bridgeConfig = createBridgeConfiguration(context, name, model);
 
-            HornetQServerControl serverControl = HornetQServer.class.cast(hqService.getValue()).getHornetQServerControl();
+            ActiveMQServerControl serverControl = ActiveMQServer.class.cast(hqService.getValue()).getActiveMQServerControl();
             createBridge(name, bridgeConfig, serverControl);
 
         }
@@ -131,6 +131,8 @@ public class BridgeAdd extends AbstractAddStepHandler {
         final String user = BridgeDefinition.USER.resolveModelAttribute(context, model).asString();
         final String password = BridgeDefinition.PASSWORD.resolveModelAttribute(context, model).asString();
 
+        // FIXME!!!
+        /*
         if (discoveryGroupName != null) {
             return new BridgeConfiguration(name, queueName, forwardingAddress, filterString, transformerClassName,
                               minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
@@ -149,7 +151,8 @@ public class BridgeAdd extends AbstractAddStepHandler {
                               staticConnectors,
                               ha,
                               user, password);
-        }
+        }*/
+        return null;
     }
 
     private static List<String> getStaticConnectors(ModelNode model) {
@@ -160,7 +163,7 @@ public class BridgeAdd extends AbstractAddStepHandler {
         return result;
     }
 
-    static void createBridge(String name, BridgeConfiguration bridgeConfig, HornetQServerControl serverControl) {
+    static void createBridge(String name, BridgeConfiguration bridgeConfig, ActiveMQServerControl serverControl) {
         try {
             if (bridgeConfig.getDiscoveryGroupName() != null) {
                 serverControl.createBridge(name, bridgeConfig.getQueueName(), bridgeConfig.getForwardingAddress(),

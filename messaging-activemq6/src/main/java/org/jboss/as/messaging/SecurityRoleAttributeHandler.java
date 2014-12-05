@@ -27,8 +27,8 @@ import static org.jboss.as.messaging.HornetQActivationService.getHornetQServer;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.hornetq.core.security.Role;
-import org.hornetq.core.server.HornetQServer;
+import org.apache.activemq.core.security.Role;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -53,7 +53,7 @@ class SecurityRoleAttributeHandler extends AbstractWriteAttributeHandler<Set<Rol
                                            ModelNode newValue, ModelNode currentValue,
                                            HandbackHolder<Set<Role>> handbackHolder) throws OperationFailedException {
 
-        final HornetQServer server = getHornetQServer(context, operation);
+        final ActiveMQServer server = getHornetQServer(context, operation);
         if(server != null) {
             final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
             final String match = address.getElement(address.size() - 2).getValue();
@@ -78,7 +78,7 @@ class SecurityRoleAttributeHandler extends AbstractWriteAttributeHandler<Set<Rol
     @Override
     protected void revertUpdateToRuntime(OperationContext context, ModelNode operation, String attributeName, ModelNode valueToRestore, ModelNode valueToRevert, Set<Role> handback) throws OperationFailedException {
         if (handback != null) {
-            final HornetQServer server = getHornetQServer(context, operation);
+            final ActiveMQServer server = getHornetQServer(context, operation);
             if(server != null) {
                 final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
                 final String match = address.getElement(address.size() - 2).getValue();

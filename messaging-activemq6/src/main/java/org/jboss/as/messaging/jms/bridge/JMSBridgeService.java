@@ -29,7 +29,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import javax.transaction.TransactionManager;
 
-import org.hornetq.jms.bridge.JMSBridge;
+import org.apache.activemq.jms.bridge.JMSBridge;
 import org.jboss.as.messaging.logging.MessagingLogger;
 import org.jboss.as.txn.service.TxnServices;
 import org.jboss.modules.Module;
