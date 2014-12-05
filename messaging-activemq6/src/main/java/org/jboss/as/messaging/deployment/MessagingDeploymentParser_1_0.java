@@ -78,7 +78,7 @@ class MessagingDeploymentParser_1_0 implements XMLStreamConstants, XMLElementRea
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             final Element element = Element.forName(reader.getLocalName());
             switch (element) {
-                case HORNETQ_SERVER:
+                case ACTIVEMQ_SERVER:
                     processHornetQ(reader, result);
                     break;
                 default:

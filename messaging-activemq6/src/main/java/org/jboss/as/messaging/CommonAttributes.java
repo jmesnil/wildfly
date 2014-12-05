@@ -785,7 +785,7 @@ public interface CommonAttributes {
     String SECURITY_SETTING = "security-setting";
     String SECURITY_SETTINGS = "security-settings";
     String SERVLET_PATH = "servlet-path";
-    String HORNETQ_SERVER = "hornetq-server";
+    String ACTIVEMQ_SERVER = "activemq-server";
     String STARTED = "started";
     String STATIC_CONNECTORS = "static-connectors";
     String STRING = "string";

@@ -58,7 +58,7 @@ public class MessagingServices {
    public static PathAddress getHornetQServerPathAddress(PathAddress pathAddress) {
        for (int i = pathAddress.size() - 1; i >=0; i--) {
            PathElement pe = pathAddress.getElement(i);
-           if (CommonAttributes.HORNETQ_SERVER.equals(pe.getKey())) {
+           if (CommonAttributes.ACTIVEMQ_SERVER.equals(pe.getKey())) {
                return pathAddress.subAddress(0, i + 1);
            }
        }
