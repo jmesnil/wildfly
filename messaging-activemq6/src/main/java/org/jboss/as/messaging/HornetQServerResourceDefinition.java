@@ -89,7 +89,7 @@ import org.jboss.dmr.ModelNode;
  */
 public class HornetQServerResourceDefinition extends SimpleResourceDefinition {
 
-    public static final PathElement HORNETQ_SERVER_PATH = PathElement.pathElement(CommonAttributes.HORNETQ_SERVER);
+    public static final PathElement HORNETQ_SERVER_PATH = PathElement.pathElement(CommonAttributes.ACTIVEMQ_SERVER);
 
     public static final AttributeDefinition[] ATTRIBUTES_WITH_EXPRESSION_ALLOWED_IN_1_2_0 = { ASYNC_CONNECTION_EXECUTION_ENABLED, PERSISTENCE_ENABLED, SECURITY_ENABLED, SECURITY_INVALIDATION_INTERVAL,
             WILD_CARD_ROUTING_ENABLED, MANAGEMENT_ADDRESS, MANAGEMENT_NOTIFICATION_ADDRESS, JMX_MANAGEMENT_ENABLED, JMX_DOMAIN,
@@ -107,7 +107,7 @@ public class HornetQServerResourceDefinition extends SimpleResourceDefinition {
 
     HornetQServerResourceDefinition(boolean registerRuntimeOnly) {
         super(HORNETQ_SERVER_PATH,
-                MessagingExtension.getResourceDescriptionResolver(CommonAttributes.HORNETQ_SERVER),
+                MessagingExtension.getResourceDescriptionResolver(CommonAttributes.ACTIVEMQ_SERVER),
                 HornetQServerAdd.INSTANCE,
                 HornetQServerRemove.INSTANCE);
         this.registerRuntimeOnly = registerRuntimeOnly;

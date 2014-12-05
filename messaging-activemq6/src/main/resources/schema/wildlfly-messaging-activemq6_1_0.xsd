@@ -40,13 +40,13 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element maxOccurs="unbounded" minOccurs="0" name="hornetq-server" type="hornetq-serverType" />
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="activemq-server" type="activemq-serverType" />
                 <xs:element maxOccurs="unbounded" minOccurs="0" name="jms-bridge" type="jms-bridgeType" />
             </xs:sequence>
         </xs:complexType>
     </xs:element>
 
-    <xs:complexType name="hornetq-serverType">
+    <xs:complexType name="activemq-serverType">
       <xs:annotation>
           <xs:documentation>
             <![CDATA[

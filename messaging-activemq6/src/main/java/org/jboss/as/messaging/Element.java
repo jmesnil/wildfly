@@ -83,7 +83,7 @@ public enum Element {
    FORWARD_WHEN_NO_CONSUMERS(ClusterConnectionDefinition.FORWARD_WHEN_NO_CONSUMERS),
    GROUPING_HANDLER(CommonAttributes.GROUPING_HANDLER),
    GROUP_TIMEOUT(GroupingHandlerDefinition.GROUP_TIMEOUT),
-   HORNETQ_SERVER(CommonAttributes.HORNETQ_SERVER),
+   ACTIVEMQ_SERVER(CommonAttributes.ACTIVEMQ_SERVER),
    HTTP_ACCEPTOR(CommonAttributes.HTTP_ACCEPTOR),
    HTTP_CONNECTOR(CommonAttributes.HTTP_CONNECTOR),
    ID_CACHE_SIZE(CommonAttributes.ID_CACHE_SIZE),
