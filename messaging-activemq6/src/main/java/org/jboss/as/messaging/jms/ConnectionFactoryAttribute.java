@@ -71,6 +71,7 @@ public class ConnectionFactoryAttribute {
             case INT:
                 return Integer.class.getName();
             case STRING:
+            case  LIST:
                 return String.class.getName();
             default:
                 throw MessagingLogger.ROOT_LOGGER.invalidAttributeType(attributeDefinition.getName(), attributeDefinition.getType());

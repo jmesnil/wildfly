@@ -1446,6 +1446,11 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-proton-plug</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-ra</artifactId>
             <exclusions>
                 <exclusion>
@@ -1541,17 +1546,12 @@
 
         <dependency>
             <groupId>org.apache.qpid</groupId>
-            <artifactId>proton-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.qpid</groupId>
             <artifactId>proton-jms</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.qpid</groupId>
-            <artifactId>proton-j-impl</artifactId>
+            <artifactId>proton-j</artifactId>
         </dependency>
 
         <dependency>

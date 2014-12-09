@@ -113,6 +113,10 @@
             <filter pattern="lib/*" include="true" />
             <filter pattern="*" include="false"/>
         </copy-artifact>
+        <copy-artifact artifact="org.apache.activemq:activemq-native" to-location="modules/system/layers/base/org/apache/activemq/main" extract="true" >
+            <filter pattern="lib/*" include="true" />
+            <filter pattern="*" include="false"/>
+        </copy-artifact>
     </copy-artifacts>
     <mkdirs>
         <dir name="domain/data/content"/>

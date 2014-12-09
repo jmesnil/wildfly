@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!--  See src/resources/configuration/ReadMe.txt for how the configuration assembly works -->
 <config>
-   <extension-module>org.jboss.as.messaging</extension-module>
+   <extension-module>org.wildfly.extension.messaging-activemq6</extension-module>
    <subsystem xmlns="urn:jboss:domain:messaging-activemq6:1.0">
        <activemq-server>
            <?CLUSTERED?>
