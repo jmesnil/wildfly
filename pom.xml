@@ -1996,6 +1996,12 @@
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-selector</artifactId>
+                <version>${version.org.apache.activemq6}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-server</artifactId>
                 <version>${version.org.apache.activemq6}</version>
             </dependency>

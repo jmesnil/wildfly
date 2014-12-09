@@ -28,6 +28,7 @@
         <resource-root path="lib"/>
         -->
         <artifact name="${org.apache.activemq:activemq-core-client}"/>
+        <artifact name="${org.apache.activemq:activemq-selector}"/>
         <artifact name="${org.apache.activemq:activemq-server}"/>
         <artifact name="${org.apache.activemq:activemq-commons}"/>
         <artifact name="${org.apache.activemq:activemq-tools}"/>
