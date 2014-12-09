@@ -1462,6 +1462,17 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-selector</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-server</artifactId>
             <exclusions>
                 <exclusion>
