@@ -40,7 +40,7 @@ import static org.jboss.as.messaging.CommonAttributes.CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.DEFAULT;
 import static org.jboss.as.messaging.CommonAttributes.DURABLE;
 import static org.jboss.as.messaging.CommonAttributes.FILTER;
-import static org.jboss.as.messaging.CommonAttributes.ACTIVEMQ_SERVER;
+import static org.jboss.as.messaging.CommonAttributes.SERVER;
 import static org.jboss.as.messaging.CommonAttributes.IN_VM_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.IN_VM_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.JMS_BRIDGE;
@@ -142,7 +142,7 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                 default: {
                     final Element element = Element.forName(reader.getLocalName());
                     switch (element) {
-                        case ACTIVEMQ_SERVER:
+                        case SERVER:
                             processHornetQServer(reader, subsystemAddress, list, schemaVer);
                             break;
                         case JMS_BRIDGE:
@@ -166,14 +166,14 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
             requireSingleAttribute(reader, Attribute.NAME.getLocalName());
             hqServerName = reader.getAttributeValue(0).trim();
         }
-        elementName = CommonAttributes.ACTIVEMQ_SERVER;
+        elementName = CommonAttributes.SERVER;
 
         if (hqServerName == null || hqServerName.length() == 0) {
             hqServerName = DEFAULT;
         }
 
         final ModelNode address = subsystemAddress.clone();
-        address.add(ACTIVEMQ_SERVER, hqServerName);
+        address.add(SERVER, hqServerName);
         address.protect();
 
         final ModelNode operation = new ModelNode();
