@@ -2008,6 +2008,12 @@
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-service-extensions</artifactId>
+                <version>${version.org.apache.activemq6}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-commons</artifactId>
                 <version>${version.org.apache.activemq6}</version>
             </dependency>
