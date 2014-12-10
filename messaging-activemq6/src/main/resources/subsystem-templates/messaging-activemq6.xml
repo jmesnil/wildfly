@@ -3,7 +3,7 @@
 <config>
    <extension-module>org.wildfly.extension.messaging-activemq6</extension-module>
    <subsystem xmlns="urn:jboss:domain:messaging-activemq6:1.0">
-       <activemq-server>
+       <server>
            <?CLUSTERED?>
            <journal-file-size>102400</journal-file-size>
 
@@ -92,7 +92,7 @@
                    <entry name="java:/jms/queue/DLQ"/>
                </jms-queue>
            </jms-destinations>
-       </activemq-server>
+       </server>
    </subsystem>
    <supplement name="ha">
        <replacement placeholder="CLUSTERED">

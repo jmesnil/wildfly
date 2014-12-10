@@ -1,6 +1,6 @@
 
 <subsystem xmlns="urn:jboss:domain:messaging-activemq6:1.0">
-    <activemq-server>
+    <server>
         <!-- disable messaging persistence -->
         <persistence-enabled>${persistence.enabled:false}</persistence-enabled>
         <scheduled-thread-pool-max-size>${messaging.scheduled.thread.pool.max.size:6}</scheduled-thread-pool-max-size>
@@ -417,9 +417,9 @@
                 <entry name="${jms-topic.entry:topic/test}"/>
             </jms-topic>
         </jms-destinations>
-    </activemq-server>
+    </server>
 
-    <activemq-server name="empty"/>
+    <server name="empty"/>
 
     <jms-bridge>
         <source>

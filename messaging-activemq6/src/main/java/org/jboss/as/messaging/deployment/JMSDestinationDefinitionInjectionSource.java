@@ -53,7 +53,7 @@ import javax.jms.Topic;
 import static org.jboss.as.messaging.CommonAttributes.DEFAULT;
 import static org.jboss.as.messaging.CommonAttributes.DURABLE;
 import static org.jboss.as.messaging.CommonAttributes.ENTRIES;
-import static org.jboss.as.messaging.CommonAttributes.ACTIVEMQ_SERVER;
+import static org.jboss.as.messaging.CommonAttributes.SERVER;
 import static org.jboss.as.messaging.CommonAttributes.JMS_QUEUE;
 import static org.jboss.as.messaging.CommonAttributes.JMS_TOPIC;
 import static org.jboss.as.messaging.CommonAttributes.NAME;
@@ -158,7 +158,7 @@ public class JMSDestinationDefinitionInjectionSource extends ResourceDefinitionI
         inject(serviceBuilder, injector, queueService);
 
         //create the management registration
-        final PathElement serverElement = PathElement.pathElement(ACTIVEMQ_SERVER, getHornetQServerName());
+        final PathElement serverElement = PathElement.pathElement(SERVER, getHornetQServerName());
         final PathElement dest = PathElement.pathElement(JMS_QUEUE, queueName);
         deploymentUnit.createDeploymentSubModel(MessagingExtension.SUBSYSTEM_NAME, serverElement);
         PathAddress registration = PathAddress.pathAddress(serverElement, dest);
@@ -180,7 +180,7 @@ public class JMSDestinationDefinitionInjectionSource extends ResourceDefinitionI
         inject(serviceBuilder, injector, topicService);
 
         //create the management registration
-        final PathElement serverElement = PathElement.pathElement(ACTIVEMQ_SERVER, getHornetQServerName());
+        final PathElement serverElement = PathElement.pathElement(SERVER, getHornetQServerName());
         final PathElement dest = PathElement.pathElement(JMS_TOPIC, topicName);
         deploymentUnit.createDeploymentSubModel(MessagingExtension.SUBSYSTEM_NAME, serverElement);
         PathAddress registration = PathAddress.pathAddress(serverElement, dest);
@@ -216,7 +216,7 @@ public class JMSDestinationDefinitionInjectionSource extends ResourceDefinitionI
      * by passing a property hornetq-server=&lt;name of the server>. Otherwise, "default" is used by default.
      */
     private String getHornetQServerName() {
-        return properties.containsKey(ACTIVEMQ_SERVER) ? properties.get(ACTIVEMQ_SERVER) : DEFAULT;
+        return properties.containsKey(SERVER) ? properties.get(SERVER) : DEFAULT;
     }
 
     @Override
