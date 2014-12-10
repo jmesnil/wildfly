@@ -4,6 +4,8 @@ The goal of this guide is to help migration from messaging (with HornetQ) subsys
 
 # Domain Model
 
+* management model starts at `1.0.0`
+  * there is __no__ resource transformation from the `messaging-activemq6` resources to the legacy `messaging` resources.
 * extension module: `org.jboss.as.messaging` -> `org.wildfly.extension.messaging-activemq6`
 * server address: `/subsystem=messaging/hornetq-server=<name>` -> `/subsystem=messaging-activemq6/server=<name>`
 
