@@ -107,7 +107,12 @@ public class StandardConfigsXMLValidationUnitTestCase extends AbstractValidation
         parseXml("standalone/configuration/standalone-full.xml");
     }
 
-  //TODO Leave commented out until domain-jts.xml is definitely removed from the configuration
+    @Test
+    public void testStandaloneFullActiveMQ6() throws Exception {
+        parseXml("standalone/configuration/standalone-full-activemq6.xml");
+    }
+
+    //TODO Leave commented out until domain-jts.xml is definitely removed from the configuration
 //    @Test
 //    public void testDomainJTS() throws Exception {
 //        parseXml("docs/examples/configs/domain-jts.xml");

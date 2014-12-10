@@ -1484,6 +1484,17 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-service-extensions</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-stomp-protocol</artifactId>
             <exclusions>
                 <exclusion>
