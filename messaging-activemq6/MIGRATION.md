@@ -18,3 +18,11 @@ The goal of this guide is to help migration from messaging (with HornetQ) subsys
 # Logging
 
 * prefix: `WFLYMSG` -> `WFLYMSGAMQ6`
+
+# Build Process
+
+run the smoke test suite:
+
+    cd testsuite/integration/smoke
+    mvn test -Djmsoperations.implementation.class=org.jboss.as.test.integration.common.jms.DefaultActiveMQ6ProviderJMSOperations \
+         -Djboss.server.config.file.name=standalone-full-activemq6.xml
