@@ -34,7 +34,7 @@ import static org.jboss.as.messaging.CommonAttributes.DISCOVERY_GROUP;
 import static org.jboss.as.messaging.CommonAttributes.DIVERT;
 import static org.jboss.as.messaging.CommonAttributes.DURABLE;
 import static org.jboss.as.messaging.CommonAttributes.GROUPING_HANDLER;
-import static org.jboss.as.messaging.CommonAttributes.ACTIVEMQ_SERVER;
+import static org.jboss.as.messaging.CommonAttributes.SERVER;
 import static org.jboss.as.messaging.CommonAttributes.HTTP_ACCEPTOR;
 import static org.jboss.as.messaging.CommonAttributes.HTTP_CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.IN_VM_ACCEPTOR;
@@ -89,8 +89,8 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         context.startSubsystemElement(CURRENT.getUriString(), false);
         final ModelNode node = context.getModelNode();
 
-        if (node.hasDefined(ACTIVEMQ_SERVER)) {
-            final ModelNode servers = node.get(ACTIVEMQ_SERVER);
+        if (node.hasDefined(SERVER)) {
+            final ModelNode servers = node.get(SERVER);
             boolean first = true;
             for (Property prop : servers.asPropertyList()) {
                 writeHornetQServer(writer, prop.getName(), prop.getValue());
@@ -119,7 +119,7 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
 
     private static void writeHornetQServer(final XMLExtendedStreamWriter writer, final String serverName, final ModelNode node) throws XMLStreamException {
 
-        writer.writeStartElement(Element.ACTIVEMQ_SERVER.getLocalName());
+        writer.writeStartElement(Element.SERVER.getLocalName());
 
         if (!DEFAULT.equals(serverName)) {
             writer.writeAttribute(Attribute.NAME.getLocalName(), serverName);

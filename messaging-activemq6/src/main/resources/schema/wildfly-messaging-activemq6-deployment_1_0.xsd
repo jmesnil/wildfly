@@ -23,8 +23,8 @@
   -->
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns="urn:jboss:messaging-deployment:1.0"
-           targetNamespace="urn:jboss:messaging-deployment:1.0"
+           xmlns="urn:jboss:messaging-activemq6-deployment:1.0"
+           targetNamespace="urn:jboss:messaging-activemq6-deployment:1.0"
            elementFormDefault="qualified"
            attributeFormDefault="unqualified"
            version="1.0">
@@ -39,16 +39,16 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element maxOccurs="unbounded" minOccurs="0" name="hornetq-server" type="hornetq-serverType"/>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="server" type="serverType"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
 
-    <xs:complexType name="hornetq-serverType">
+    <xs:complexType name="serverType">
         <xs:annotation>
             <xs:documentation>
                 <![CDATA[
-                The configuration of entries for a HornetQ server.
+                The configuration of entries for a ActiveMQ server.
             ]]>
             </xs:documentation>
         </xs:annotation>
@@ -65,7 +65,7 @@
         <xs:attribute name="name" type="xs:string" use="optional" default="default">
             <xs:annotation>
                 <xs:documentation>
-                    The name to use for this HornetQ Server. Must correspond to a HornetQ server installed in
+                    The name to use for this ActiveMQ Server. Must correspond to a ActiveMQ server installed in
                     the main configuration.
                 </xs:documentation>
             </xs:annotation>

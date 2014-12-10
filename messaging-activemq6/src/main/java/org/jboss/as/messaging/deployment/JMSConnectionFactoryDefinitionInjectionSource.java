@@ -24,7 +24,7 @@ package org.jboss.as.messaging.deployment;
 
 import static org.jboss.as.messaging.CommonAttributes.CONNECTOR;
 import static org.jboss.as.messaging.CommonAttributes.DEFAULT;
-import static org.jboss.as.messaging.CommonAttributes.ACTIVEMQ_SERVER;
+import static org.jboss.as.messaging.CommonAttributes.SERVER;
 import static org.jboss.as.messaging.CommonAttributes.JGROUPS_CHANNEL;
 import static org.jboss.as.messaging.CommonAttributes.NO_TX;
 import static org.jboss.as.messaging.CommonAttributes.POOLED_CONNECTION_FACTORY;
@@ -200,7 +200,7 @@ public class JMSConnectionFactoryDefinitionInjectionSource extends ResourceDefin
 
         //create the management registration
         String managementName = managementName(context, name);
-        final PathElement serverElement = PathElement.pathElement(ACTIVEMQ_SERVER, getHornetQServerName());
+        final PathElement serverElement = PathElement.pathElement(SERVER, getHornetQServerName());
         deploymentUnit.createDeploymentSubModel(MessagingExtension.SUBSYSTEM_NAME, serverElement);
         final PathElement pcfPath = PathElement.pathElement(POOLED_CONNECTION_FACTORY, managementName);
         PathAddress registration = PathAddress.pathAddress(serverElement, pcfPath);
@@ -278,7 +278,7 @@ public class JMSConnectionFactoryDefinitionInjectionSource extends ResourceDefin
      * by passing a property hornetq-server=&lt;name of the server>. Otherwise, "default" is used by default.
      */
     private String getHornetQServerName() {
-        return properties.containsKey(ACTIVEMQ_SERVER) ? properties.get(ACTIVEMQ_SERVER) : DEFAULT;
+        return properties.containsKey(SERVER) ? properties.get(SERVER) : DEFAULT;
     }
 
     @Override

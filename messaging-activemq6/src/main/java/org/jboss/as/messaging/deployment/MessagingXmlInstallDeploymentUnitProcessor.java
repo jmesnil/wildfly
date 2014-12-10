@@ -23,7 +23,7 @@
 package org.jboss.as.messaging.deployment;
 
 import static org.jboss.as.messaging.CommonAttributes.DURABLE;
-import static org.jboss.as.messaging.CommonAttributes.ACTIVEMQ_SERVER;
+import static org.jboss.as.messaging.CommonAttributes.SERVER;
 import static org.jboss.as.messaging.CommonAttributes.JMS_QUEUE;
 import static org.jboss.as.messaging.CommonAttributes.JMS_TOPIC;
 import static org.jboss.as.messaging.CommonAttributes.SELECTOR;
@@ -75,7 +75,7 @@ public class MessagingXmlInstallDeploymentUnitProcessor implements DeploymentUni
                 JMSTopicService.installService(null, null, topic.getName(), hqServiceName, phaseContext.getServiceTarget(), jndiBindings);
 
                 //create the management registration
-                final PathElement serverElement = PathElement.pathElement(ACTIVEMQ_SERVER, topic.getServer());
+                final PathElement serverElement = PathElement.pathElement(SERVER, topic.getServer());
                 final PathElement destination = PathElement.pathElement(JMS_TOPIC, topic.getName());
                 deploymentUnit.createDeploymentSubModel(MessagingExtension.SUBSYSTEM_NAME, serverElement);
                 PathAddress registration = PathAddress.pathAddress(serverElement, destination);
@@ -99,7 +99,7 @@ public class MessagingXmlInstallDeploymentUnitProcessor implements DeploymentUni
                 JMSQueueService.installService(null, null, queue.getName(), phaseContext.getServiceTarget(), hqServiceName, selector, durable, jndiBindings);
 
                 //create the management registration
-                final PathElement serverElement = PathElement.pathElement(ACTIVEMQ_SERVER, queue.getServer());
+                final PathElement serverElement = PathElement.pathElement(SERVER, queue.getServer());
                 final PathElement dest = PathElement.pathElement(JMS_QUEUE, queue.getName());
                 deploymentUnit.createDeploymentSubModel(MessagingExtension.SUBSYSTEM_NAME, serverElement);
                 PathAddress registration = PathAddress.pathAddress(serverElement, dest);
