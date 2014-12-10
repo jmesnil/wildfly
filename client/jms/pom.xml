@@ -45,6 +45,16 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-core-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-jms-client</artifactId>
+        </dependency>
+
         <!-- required until HORNETQ-1053 is fixed -->
         <dependency>
             <groupId>org.hornetq</groupId>
