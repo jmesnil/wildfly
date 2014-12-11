@@ -22,6 +22,7 @@
 package org.jboss.as.test.smoke.messaging;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.jboss.as.controller.client.helpers.ClientConstants.OP;
 import static org.jboss.as.controller.client.helpers.ClientConstants.OP_ADDR;
 import static org.jboss.as.controller.client.helpers.ClientConstants.OUTCOME;
 import static org.jboss.as.controller.client.helpers.ClientConstants.READ_RESOURCE_OPERATION;
@@ -29,6 +30,7 @@ import static org.jboss.as.controller.client.helpers.ClientConstants.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -64,10 +66,10 @@ import org.junit.runner.RunWith;
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  */
 @RunWith(Arquillian.class)
-public class MessagingTestCase {
+public class HornetQMessagingTestCase {
     private static final String QUEUE_EXAMPLE_QUEUE = "queue.exampleQueue";
 
-    static final Logger log = Logger.getLogger(MessagingTestCase.class);
+    static final Logger log = Logger.getLogger(HornetQMessagingTestCase.class);
 
     private static final String BODY = "msg.body";
 
@@ -83,7 +85,7 @@ public class MessagingTestCase {
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class, "messaging-example.jar");
         jar.addAsManifestResource(new StringAsset("Manifest-Version: 1.0\n" +
                 "Dependencies: org.hornetq, org.jboss.dmr, org.jboss.as.controller-client\n"), "MANIFEST.MF");
-        jar.addClass(MessagingTestCase.class);
+        jar.addClass(HornetQMessagingTestCase.class);
         return jar;
     }
 
@@ -91,15 +93,7 @@ public class MessagingTestCase {
     public void start() throws Exception {
         System.out.println("managementClient = " + managementClient);
 
-        ModelNode readHornetQServer = new ModelNode();
-        readHornetQServer.get(READ_RESOURCE_OPERATION);
-        readHornetQServer.get(OP_ADDR).add("subsystem", "messaging");
-        readHornetQServer.get(OP_ADDR).add("hornetq-server", "default");
-        ModelNode result = managementClient.getControllerClient().execute(readHornetQServer);
-        System.out.println("result = " + result);
-        boolean hornetQServerResourceFound = result.hasDefined(OUTCOME) && SUCCESS.equals(result.get(OUTCOME).asString());
-        Assume.assumeTrue("Test is relevant only when the messaging subsystem with HornetQ is setup",
-                hornetQServerResourceFound);
+        Assume.assumeTrue("Test is relevant only when the messaging subsystem with HornetQ is setup", isHornetQServerFound());
 
         //Not using JNDI so we use the core services directly
         sf = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName())).createSessionFactory();
@@ -159,5 +153,15 @@ public class MessagingTestCase {
         message.putStringProperty(BODY, text);
         log.info("-----> Sending message");
         producer.send(message);
+    }
+
+    private boolean isHornetQServerFound() throws IOException {
+        ModelNode readHornetQServer = new ModelNode();
+        readHornetQServer.get(OP).set(READ_RESOURCE_OPERATION);
+        readHornetQServer.get(OP_ADDR).add("subsystem", "messaging");
+        readHornetQServer.get(OP_ADDR).add("hornetq-server", "default");
+        ModelNode result = managementClient.getControllerClient().execute(readHornetQServer);
+        System.out.println("result = " + result);
+        return  result.hasDefined(OUTCOME) && SUCCESS.equals(result.get(OUTCOME).asString());
     }
 }
