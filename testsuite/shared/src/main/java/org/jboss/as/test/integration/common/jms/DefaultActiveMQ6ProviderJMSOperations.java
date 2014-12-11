@@ -22,23 +22,21 @@
 
 package org.jboss.as.test.integration.common.jms;
 
+import static org.jboss.as.controller.PathAddress.pathAddress;
 import static org.jboss.as.controller.client.helpers.ClientConstants.ADD;
-import static org.jboss.as.controller.client.helpers.ClientConstants.FAILURE_DESCRIPTION;
-import static org.jboss.as.controller.client.helpers.ClientConstants.OUTCOME;
-import static org.jboss.as.controller.client.helpers.ClientConstants.SUCCESS;
+import static org.jboss.as.controller.client.helpers.ClientConstants.REMOVE_OPERATION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.VALUE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRITE_ATTRIBUTE_OPERATION;
-
-import java.io.IOException;
+import static org.jboss.as.test.integration.common.jms.JMSOperationsProvider.execute;
 
 import org.jboss.as.arquillian.container.ManagementClient;
-import org.jboss.as.controller.client.ModelControllerClient;
+import org.jboss.as.controller.PathAddress;
 import org.jboss.dmr.ModelNode;
-import org.jboss.logging.Logger;
+import org.jboss.dmr.Property;
 
 /**
  * A default implementation of JMSOperations for Apache ActiveMQ 6.
@@ -48,30 +46,75 @@ import org.jboss.logging.Logger;
 public class DefaultActiveMQ6ProviderJMSOperations implements JMSOperations {
     private final ManagementClient client;
 
-    private static final Logger logger = Logger.getLogger(DefaultActiveMQ6ProviderJMSOperations.class);
-
     public DefaultActiveMQ6ProviderJMSOperations(ManagementClient client) {
         this.client = client;
     }
 
     @Override
     public void createJmsQueue(String queueName, String jndiName) {
-        createJmsDestination("jms-queue", queueName, jndiName);
+        PathAddress address = pathAddress("subsystem", "messaging-activemq6")
+                .append("server", "default")
+                .append("jms-queue", queueName);
+        ModelNode attributes = new ModelNode();
+        attributes.get("entries").add(jndiName);
+        executeOperation(address, ADD, attributes);
     }
 
     @Override
     public void createJmsTopic(String topicName, String jndiName) {
-        createJmsDestination("jms-topic", topicName, jndiName);
+        PathAddress address = pathAddress("subsystem", "messaging-activemq6")
+                .append("server", "default")
+                .append("jms-topic", topicName);
+        ModelNode attributes = new ModelNode();
+        attributes.get("entries").add(jndiName);
+        executeOperation(address, ADD, attributes);
     }
 
     @Override
     public void removeJmsQueue(String queueName) {
-        removeJmsDestination("jms-queue", queueName);
+        PathAddress address = pathAddress("subsystem", "messaging-activemq6")
+                .append("server", "default")
+                .append("jms-queue", queueName);
+        executeOperation(address, REMOVE_OPERATION, null);
     }
 
     @Override
     public void removeJmsTopic(String topicName) {
-        removeJmsDestination("jms-topic", topicName);
+        PathAddress address = pathAddress("subsystem", "messaging-activemq6")
+                .append("server", "default")
+                .append("jms-topic", topicName);
+        executeOperation(address, REMOVE_OPERATION, null);
+    }
+
+    @Override
+    public void addJmsConnectionFactory(String name, String jndiName, ModelNode attributes) {
+        PathAddress address = pathAddress("subsystem", "messaging-activemq6")
+                .append("server", "default")
+                .append("connection-factory", name);
+        attributes.get("entries").add(jndiName);
+        executeOperation(address, ADD, attributes);
+    }
+
+    @Override
+    public void removeJmsConnectionFactory(String name) {
+        PathAddress address = PathAddress.pathAddress("subsystem", "messaging-activemq6")
+                .append("server", "default")
+                .append("connection-factory", name);
+        executeOperation(address, REMOVE_OPERATION, null);
+    }
+
+    @Override
+    public void addJmsBridge(String name, ModelNode attributes) {
+        PathAddress address = PathAddress.pathAddress("subsystem", "messaging-activemq6")
+                .append("jms-bridge", name);
+        executeOperation(address, ADD, attributes);
+    }
+
+    @Override
+    public void removeJmsBridge(String name) {
+        PathAddress address = PathAddress.pathAddress("subsystem", "messaging-activemq6")
+                .append("jms-bridge", name);
+        executeOperation(address, REMOVE_OPERATION, null);
     }
 
     @Override
@@ -80,46 +123,19 @@ public class DefaultActiveMQ6ProviderJMSOperations implements JMSOperations {
         // DO NOT close the management client. Whoever passed it into the constructor should close it
     }
 
-    private ModelControllerClient getModelControllerClient() {
-        return client.getControllerClient();
-    }
-
-    private void createJmsDestination(final String destinationType, final String destinationName, final String jndiName) {
+    private void executeOperation(final PathAddress address, final String opName, ModelNode attributes) {
         final ModelNode operation = new ModelNode();
-        operation.get(OP).set(ADD);
-        operation.get(OP_ADDR).add("subsystem", "messaging-activemq6");
-        operation.get(OP_ADDR).add("server", "default");
-        operation.get(OP_ADDR).add(destinationType, destinationName);
-        operation.get("entries").add(jndiName);
+        operation.get(OP).set(opName);
+        operation.get(OP_ADDR).set(address.toModelNode());
+        if (attributes != null) {
+            for (Property property : attributes.asPropertyList()) {
+                operation.get(property.getName()).set(property.getValue());
+            }
+        }
         try {
-            this.execute(operation);
+            execute(client, operation);
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private void removeJmsDestination(final String destinationType, final String destinationName) {
-        final ModelNode operation = new ModelNode();
-        operation.get(OP).set("remove");
-        operation.get(OP_ADDR).add("subsystem", "messaging-activemq6");
-        operation.get(OP_ADDR).add("server", "default");
-        operation.get(OP_ADDR).add(destinationType, destinationName);
-        try {
-            this.execute(operation);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void execute(final ModelNode operation) throws IOException, JMSOperationsException {
-        ModelNode result = this.getModelControllerClient().execute(operation);
-        if (result.hasDefined(OUTCOME) && SUCCESS.equals(result.get(OUTCOME).asString())) {
-            logger.info("Operation successful for operation = " + operation.toString());
-        } else if (result.hasDefined(FAILURE_DESCRIPTION)) {
-            final String failure = result.get(FAILURE_DESCRIPTION).toString();
-            throw new JMSOperationsException(failure);
-        } else {
-            throw new JMSOperationsException("Operation not successful; outcome = " + result.get(OUTCOME));
         }
     }
 
@@ -141,9 +157,9 @@ public class DefaultActiveMQ6ProviderJMSOperations implements JMSOperations {
         setResourceAdapterOp.get("value").set(resourceAdapter);
 
         try {
-            execute(enableSubstitutionOp);
-            execute(setDestinationOp);
-            execute(setResourceAdapterOp);
+            execute(client, enableSubstitutionOp);
+            execute(client, setDestinationOp);
+            execute(client, setResourceAdapterOp);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -165,9 +181,9 @@ public class DefaultActiveMQ6ProviderJMSOperations implements JMSOperations {
         disableSubstitutionOp.get(VALUE).set(false);
 
         try {
-            execute(removeDestinationOp);
-            execute(removeResourceAdapterOp);
-            execute(disableSubstitutionOp);
+            execute(client, removeDestinationOp);
+            execute(client, removeResourceAdapterOp);
+            execute(client, disableSubstitutionOp);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
