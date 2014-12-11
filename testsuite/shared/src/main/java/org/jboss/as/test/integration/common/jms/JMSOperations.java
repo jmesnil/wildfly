@@ -22,6 +22,8 @@
 
 package org.jboss.as.test.integration.common.jms;
 
+import org.jboss.dmr.ModelNode;
+
 /**
  * Utility to administrate JMS-related resources on the server. An separate implementation should be created for
  * every possible JMS provider to be tested.
@@ -39,6 +41,14 @@ public interface JMSOperations {
     void removeJmsQueue(final String queueName);
 
     void removeJmsTopic(final String topicName);
+
+    void addJmsConnectionFactory(final String name, final String jndiName, ModelNode attributes);
+
+    void removeJmsConnectionFactory(final String name);
+
+    void addJmsBridge(String name, ModelNode attributes);
+
+    void removeJmsBridge(String name);
 
     void close();
 

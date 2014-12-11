@@ -22,20 +22,23 @@
 
 package org.jboss.as.test.integration.common.jms;
 
+import static org.jboss.as.controller.PathAddress.pathAddress;
+import static org.jboss.as.controller.client.helpers.ClientConstants.ADD;
+import static org.jboss.as.controller.client.helpers.ClientConstants.REMOVE_OPERATION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.VALUE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRITE_ATTRIBUTE_OPERATION;
+import static org.jboss.as.test.integration.common.jms.JMSOperationsProvider.execute;
 
 import org.jboss.as.arquillian.container.ManagementClient;
+import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.client.ModelControllerClient;
-import org.jboss.as.controller.client.helpers.ClientConstants;
 import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.Property;
 import org.jboss.logging.Logger;
-
-import java.io.IOException;
 
 /**
  * A default implementation of JMSOperations used with hornetq
@@ -55,72 +58,96 @@ public class DefaultHornetQProviderJMSOperations implements JMSOperations {
         this.client = client;
     }
 
-    @Override
-    public void createJmsQueue(String queueName, String jndiName) {
-        createJmsDestination("jms-queue", queueName, jndiName);
-    }
-
-    @Override
-    public void createJmsTopic(String topicName, String jndiName) {
-        createJmsDestination("jms-topic", topicName, jndiName);
-    }
-
-    @Override
-    public void removeJmsQueue(String queueName) {
-        removeJmsDestination("jms-queue", queueName);
-    }
-
-    @Override
-    public void removeJmsTopic(String topicName) {
-        removeJmsDestination("jms-topic", topicName);
-    }
-
-    @Override
-     public void close() {
-        // no-op
-        // DO NOT close the management client. Whoever passed it into the constructor should close it
-    }
-
     private ModelControllerClient getModelControllerClient() {
         return client;
     }
 
-    private void createJmsDestination(final String destinationType, final String destinationName, final String jndiName) {
-        final ModelNode createJmsQueueOperation = new ModelNode();
-        createJmsQueueOperation.get(ClientConstants.OP).set(ClientConstants.ADD);
-        createJmsQueueOperation.get(ClientConstants.OP_ADDR).add("subsystem", "messaging");
-        createJmsQueueOperation.get(ClientConstants.OP_ADDR).add("hornetq-server", "default");
-        createJmsQueueOperation.get(ClientConstants.OP_ADDR).add(destinationType, destinationName);
-        createJmsQueueOperation.get("entries").add(jndiName);
-        try {
-            this.applyUpdate(createJmsQueueOperation);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    @Override
+    public void createJmsQueue(String queueName, String jndiName) {
+        PathAddress address = pathAddress("subsystem", "messaging")
+                .append("hornetq-server", "default")
+                .append("jms-queue", queueName);
+        ModelNode attributes = new ModelNode();
+        attributes.get("entries").add(jndiName);
+        executeOperation(address, ADD, attributes);
     }
 
-    private void removeJmsDestination(final String destinationType, final String destinationName) {
-        final ModelNode removeJmsQueue = new ModelNode();
-        removeJmsQueue.get(ClientConstants.OP).set("remove");
-        removeJmsQueue.get(ClientConstants.OP_ADDR).add("subsystem", "messaging");
-        removeJmsQueue.get(ClientConstants.OP_ADDR).add("hornetq-server", "default");
-        removeJmsQueue.get(ClientConstants.OP_ADDR).add(destinationType, destinationName);
-        try {
-            this.applyUpdate(removeJmsQueue);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    @Override
+    public void createJmsTopic(String topicName, String jndiName) {
+        PathAddress address = pathAddress("subsystem", "messaging")
+                .append("hornetq-server", "default")
+                .append("jms-topic", topicName);
+        ModelNode attributes = new ModelNode();
+        attributes.get("entries").add(jndiName);
+        executeOperation(address, ADD, attributes);
     }
 
-    private void applyUpdate(final ModelNode update) throws IOException, JMSOperationsException {
-        ModelNode result = this.getModelControllerClient().execute(update);
-        if (result.hasDefined(ClientConstants.OUTCOME) && ClientConstants.SUCCESS.equals(result.get(ClientConstants.OUTCOME).asString())) {
-            logger.info("Operation successful for update = " + update.toString());
-        } else if (result.hasDefined(ClientConstants.FAILURE_DESCRIPTION)) {
-            final String failureDesc = result.get(ClientConstants.FAILURE_DESCRIPTION).toString();
-            throw new JMSOperationsException(failureDesc);
-        } else {
-            throw new JMSOperationsException("Operation not successful; outcome = " + result.get(ClientConstants.OUTCOME));
+    @Override
+    public void removeJmsQueue(String queueName) {
+        PathAddress address = pathAddress("subsystem", "messaging")
+                .append("hornetq-server", "default")
+                .append("jms-queue", queueName);
+        executeOperation(address, REMOVE_OPERATION, null);
+    }
+
+    @Override
+    public void removeJmsTopic(String topicName) {
+        PathAddress address = pathAddress("subsystem", "messaging")
+                .append("hornetq-server", "default")
+                .append("jms-topic", topicName);
+        executeOperation(address, REMOVE_OPERATION, null);
+    }
+
+    @Override
+    public void addJmsConnectionFactory(String name, String jndiName, ModelNode attributes) {
+        PathAddress address = pathAddress("subsystem", "messaging")
+                .append("hornetq-server", "default")
+                .append("connection-factory", name);
+        attributes.get("entries").add(jndiName);
+        executeOperation(address, ADD, attributes);
+    }
+
+    @Override
+    public void removeJmsConnectionFactory(String name) {
+        PathAddress address = pathAddress("subsystem", "messaging")
+                .append("hornetq-server", "default")
+                .append("connection-factory", name);
+        executeOperation(address, REMOVE_OPERATION, null);
+    }
+
+    @Override
+    public void addJmsBridge (String name, ModelNode attributes) {
+        PathAddress address = pathAddress("subsystem", "messaging")
+                .append("jms-bridge", name);
+        executeOperation(address, ADD, attributes);
+    }
+
+    @Override
+            public void removeJmsBridge(String name) {
+        PathAddress address = pathAddress("subsystem", "messaging")
+                .append("jms-bridge", name);
+        executeOperation(address, REMOVE_OPERATION, null);
+    }
+
+    @Override
+    public void close() {
+        // no-op
+        // DO NOT close the management client. Whoever passed it into the constructor should close it
+    }
+
+    private void executeOperation(final PathAddress address, final String opName, ModelNode attributes) {
+        final ModelNode operation = new ModelNode();
+        operation.get(OP).set(opName);
+        operation.get(OP_ADDR).set(address.toModelNode());
+        if (attributes != null) {
+            for (Property property : attributes.asPropertyList()) {
+                operation.get(property.getName()).set(property.getValue());
+            }
+        }
+        try {
+            execute(client, operation);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -133,18 +160,18 @@ public class DefaultHornetQProviderJMSOperations implements JMSOperations {
         enableSubstitutionOp.get(VALUE).set(true);
 
         final ModelNode setDestinationOp = new ModelNode();
-        setDestinationOp.get(ClientConstants.OP).set(ClientConstants.ADD);
-        setDestinationOp.get(ClientConstants.OP_ADDR).add("system-property", "destination");
+        setDestinationOp.get(OP).set(ADD);
+        setDestinationOp.get(OP_ADDR).add("system-property", "destination");
         setDestinationOp.get("value").set(destination);
         final ModelNode setResourceAdapterOp = new ModelNode();
-        setResourceAdapterOp.get(ClientConstants.OP).set(ClientConstants.ADD);
-        setResourceAdapterOp.get(ClientConstants.OP_ADDR).add("system-property", "resource.adapter");
+        setResourceAdapterOp.get(OP).set(ADD);
+        setResourceAdapterOp.get(OP_ADDR).add("system-property", "resource.adapter");
         setResourceAdapterOp.get("value").set(resourceAdapter);
 
         try {
-            applyUpdate(enableSubstitutionOp);
-            applyUpdate(setDestinationOp);
-            applyUpdate(setResourceAdapterOp);
+            execute(client, enableSubstitutionOp);
+            execute(client, setDestinationOp);
+            execute(client, setResourceAdapterOp);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -153,11 +180,11 @@ public class DefaultHornetQProviderJMSOperations implements JMSOperations {
     @Override
     public void removeSystemProperties() {
         final ModelNode removeDestinationOp = new ModelNode();
-        removeDestinationOp.get(ClientConstants.OP).set("remove");
-        removeDestinationOp.get(ClientConstants.OP_ADDR).add("system-property", "destination");
+        removeDestinationOp.get(OP).set("remove");
+        removeDestinationOp.get(OP_ADDR).add("system-property", "destination");
         final ModelNode removeResourceAdapterOp = new ModelNode();
-        removeResourceAdapterOp.get(ClientConstants.OP).set("remove");
-        removeResourceAdapterOp.get(ClientConstants.OP_ADDR).add("system-property", "resource.adapter");
+        removeResourceAdapterOp.get(OP).set("remove");
+        removeResourceAdapterOp.get(OP_ADDR).add("system-property", "resource.adapter");
 
         final ModelNode disableSubstitutionOp = new ModelNode();
         disableSubstitutionOp.get(OP_ADDR).set(SUBSYSTEM, "ee");
@@ -166,9 +193,9 @@ public class DefaultHornetQProviderJMSOperations implements JMSOperations {
         disableSubstitutionOp.get(VALUE).set(false);
 
         try {
-            applyUpdate(removeDestinationOp);
-            applyUpdate(removeResourceAdapterOp);
-            applyUpdate(disableSubstitutionOp);
+            execute(client, removeDestinationOp);
+            execute(client, removeResourceAdapterOp);
+            execute(client, disableSubstitutionOp);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
