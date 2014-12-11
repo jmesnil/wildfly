@@ -106,30 +106,44 @@ public class ClusterConnectionAdd extends AbstractAddStepHandler {
         final int maxHops = ClusterConnectionDefinition.MAX_HOPS.resolveModelAttribute(context, model).asInt();
         final int confirmationWindowSize = CommonAttributes.BRIDGE_CONFIRMATION_WINDOW_SIZE.resolveModelAttribute(context, model).asInt();
         final ModelNode discoveryNode = ClusterConnectionDefinition.DISCOVERY_GROUP_NAME.resolveModelAttribute(context, model);
-        final String discoveryGroupName = discoveryNode.isDefined() ? discoveryNode.asString() : null;
-        final List<String> staticConnectors = discoveryGroupName == null ? getStaticConnectors(model) : null;
-        final boolean allowDirectOnly = ClusterConnectionDefinition.ALLOW_DIRECT_CONNECTIONS_ONLY.resolveModelAttribute(context, model).asBoolean();
         final int minLargeMessageSize = CommonAttributes.MIN_LARGE_MESSAGE_SIZE.resolveModelAttribute(context, model).asInt();
         final long callTimeout = CommonAttributes.CALL_TIMEOUT.resolveModelAttribute(context, model).asLong();
         final long callFailoverTimeout = CommonAttributes.CALL_FAILOVER_TIMEOUT.resolveModelAttribute(context, model).asLong();
         final long clusterNotificationInterval = ClusterConnectionDefinition.NOTIFICATION_INTERVAL.resolveModelAttribute(context, model).asLong();
         final int clusterNotificationAttempts = ClusterConnectionDefinition.NOTIFICATION_ATTEMPTS.resolveModelAttribute(context, model).asInt();
 
-        // FIXME!!!
-        /*
+        ClusterConnectionConfiguration config = new ClusterConnectionConfiguration()
+                .setName(name)
+                .setAddress(address)
+                .setConnectorName(connectorName)
+                .setMinLargeMessageSize(minLargeMessageSize)
+                .setClientFailureCheckPeriod(clientFailureCheckPeriod)
+                .setConnectionTTL(connectionTTL)
+                .setRetryInterval(retryInterval)
+                .setRetryIntervalMultiplier(retryIntervalMultiplier)
+                .setMaxRetryInterval(maxRetryInterval)
+                .setInitialConnectAttempts(initialConnectAttempts)
+                .setReconnectAttempts(reconnectAttempts)
+                .setCallTimeout(callTimeout)
+                .setCallFailoverTimeout(callFailoverTimeout)
+                .setDuplicateDetection(duplicateDetection)
+                .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+                .setMaxHops(maxHops)
+                .setConfirmationWindowSize(confirmationWindowSize)
+                .setClusterNotificationInterval(clusterNotificationInterval)
+                .setClusterNotificationAttempts(clusterNotificationAttempts);
+
+        final String discoveryGroupName = discoveryNode.isDefined() ? discoveryNode.asString() : null;
+        final List<String> staticConnectors = discoveryGroupName == null ? getStaticConnectors(model) : null;
+        final boolean allowDirectOnly = ClusterConnectionDefinition.ALLOW_DIRECT_CONNECTIONS_ONLY.resolveModelAttribute(context, model).asBoolean();
+
         if (discoveryGroupName != null) {
-            return new ClusterConnectionConfiguration(name, address, connectorName, minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
-                    retryInterval, retryIntervalMultiplier, maxRetryInterval, initialConnectAttempts, reconnectAttempts, callTimeout, callFailoverTimeout,
-                    duplicateDetection, forwardWhenNoConsumers, maxHops, confirmationWindowSize,
-                    discoveryGroupName, clusterNotificationInterval, clusterNotificationAttempts);
+            config.setDiscoveryGroupName(discoveryGroupName);
         } else {
-            return new ClusterConnectionConfiguration(name, address, connectorName, minLargeMessageSize, clientFailureCheckPeriod, connectionTTL,
-                    retryInterval, retryIntervalMultiplier, maxRetryInterval, initialConnectAttempts, reconnectAttempts, callTimeout, callFailoverTimeout,
-                    duplicateDetection, forwardWhenNoConsumers, maxHops, confirmationWindowSize,
-                    staticConnectors, allowDirectOnly,clusterNotificationInterval, clusterNotificationAttempts);
+            config.setStaticConnectors(staticConnectors)
+                    .setAllowDirectConnectionsOnly(allowDirectOnly);
         }
-        */
-        return null;
+        return config;
     }
 
     private static List<String> getStaticConnectors(ModelNode model) {
