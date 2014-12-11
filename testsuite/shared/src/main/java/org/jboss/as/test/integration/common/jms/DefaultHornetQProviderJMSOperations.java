@@ -54,6 +54,11 @@ public class DefaultHornetQProviderJMSOperations implements JMSOperations {
     }
 
     @Override
+    public String getProviderName() {
+        return "hornetq";
+    }
+
+    @Override
     public void createJmsQueue(String queueName, String jndiName) {
         PathAddress address = pathAddress("subsystem", "messaging")
                 .append("hornetq-server", "default")

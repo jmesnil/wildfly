@@ -22,6 +22,10 @@
 package org.jboss.as.test.smoke.messaging;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.jboss.as.controller.client.helpers.ClientConstants.OP_ADDR;
+import static org.jboss.as.controller.client.helpers.ClientConstants.OUTCOME;
+import static org.jboss.as.controller.client.helpers.ClientConstants.READ_RESOURCE_OPERATION;
+import static org.jboss.as.controller.client.helpers.ClientConstants.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -41,13 +45,15 @@ import org.hornetq.api.core.client.MessageHandler;
 import org.hornetq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.as.arquillian.container.ManagementClient;
+import org.jboss.dmr.ModelNode;
 import org.jboss.logging.Logger;
-import org.jboss.modules.ModuleClassLoader;
-import org.jboss.modules.ModuleIdentifier;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,21 +74,32 @@ public class MessagingTestCase {
     private ClientSessionFactory sf;
     private ClientSession session;
 
+
+    @ArquillianResource
+    private ManagementClient managementClient;
+
     @Deployment
     public static JavaArchive createDeployment() throws Exception {
-
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class, "messaging-example.jar");
         jar.addAsManifestResource(new StringAsset("Manifest-Version: 1.0\n" +
-                "Dependencies: org.hornetq, org.jboss.dmr\n"), "MANIFEST.MF");
+                "Dependencies: org.hornetq, org.jboss.dmr, org.jboss.as.controller-client\n"), "MANIFEST.MF");
         jar.addClass(MessagingTestCase.class);
         return jar;
     }
 
     @Before
     public void start() throws Exception {
-        //FIXME Arquillian Alpha bug - it also wants to execute this on the client despite this test being IN_CONTAINER
-        // JFM: I'm not sure this bug is still relevant. I leave it to test it on our CI
-        assertTrue("Test is not run inside the container", isInContainer());
+        System.out.println("managementClient = " + managementClient);
+
+        ModelNode readHornetQServer = new ModelNode();
+        readHornetQServer.get(READ_RESOURCE_OPERATION);
+        readHornetQServer.get(OP_ADDR).add("subsystem", "messaging");
+        readHornetQServer.get(OP_ADDR).add("hornetq-server", "default");
+        ModelNode result = managementClient.getControllerClient().execute(readHornetQServer);
+        System.out.println("result = " + result);
+        boolean hornetQServerResourceFound = result.hasDefined(OUTCOME) && SUCCESS.equals(result.get(OUTCOME).asString());
+        Assume.assumeTrue("Test is relevant only when the messaging subsystem with HornetQ is setup",
+                hornetQServerResourceFound);
 
         //Not using JNDI so we use the core services directly
         sf = HornetQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName())).createSessionFactory();
@@ -142,18 +159,5 @@ public class MessagingTestCase {
         message.putStringProperty(BODY, text);
         log.info("-----> Sending message");
         producer.send(message);
-    }
-
-    private boolean isInContainer() {
-        ClassLoader cl = this.getClass().getClassLoader();
-        if (cl instanceof ModuleClassLoader == false) {
-            return false;
-        }
-        ModuleClassLoader mcl = (ModuleClassLoader)cl;
-        ModuleIdentifier surefireModule = ModuleIdentifier.fromString("jboss.surefire.module");
-        if (surefireModule.equals(mcl.getModule().getIdentifier())) {
-            return false;
-        }
-        return true;
     }
 }
