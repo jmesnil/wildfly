@@ -32,7 +32,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration;
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
 import org.apache.activemq.core.config.Configuration;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
@@ -137,10 +140,11 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
                 connectorRefs.add(refName);
             }
         }
-        // Requires runtime service
-        //FIXME!!
-        //return new BroadcastGroupConfiguration(name, broadcastPeriod, connectorRefs, null);
-        return null;
+
+        return new BroadcastGroupConfiguration()
+                .setName(name)
+                .setBroadcastPeriod(broadcastPeriod)
+                .setConnectorInfos(connectorRefs);
     }
 
     static BroadcastGroupConfiguration createBroadcastGroupConfiguration(final String name, final BroadcastGroupConfiguration config, final SocketBinding socketBinding) throws Exception {
@@ -152,24 +156,30 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
         final long broadcastPeriod = config.getBroadcastPeriod();
         final List<String> connectorRefs = config.getConnectorInfos();
 
-        //FIXME!!!
-        /*
-        final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration(groupAddress, groupPort, localAddress, localPort);
-        return new BroadcastGroupConfiguration(name, broadcastPeriod, connectorRefs, endpointFactoryConfiguration);
-         */
+        final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration()
+                .setGroupAddress(groupAddress)
+                .setGroupPort(groupPort)
+                .setLocalBindAddress(localAddress)
+                .setLocalBindPort(localPort);
 
-        return null;
+        return new BroadcastGroupConfiguration()
+                .setName(name)
+                .setBroadcastPeriod(broadcastPeriod)
+                .setConnectorInfos(connectorRefs)
+                .setEndpointFactoryConfiguration(endpointFactoryConfiguration);
     }
 
     static BroadcastGroupConfiguration createBroadcastGroupConfiguration(final String name, final BroadcastGroupConfiguration config, final JChannel channel, final String channelName) throws Exception {
 
         final long broadcastPeriod = config.getBroadcastPeriod();
         final List<String> connectorRefs = config.getConnectorInfos();
-        //FIXME!!
-        /*
-        final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = new JGroupsBroadcastGroupConfiguration((JChannel) channel, channelName);
-        return new BroadcastGroupConfiguration(name, broadcastPeriod, connectorRefs, endpointFactoryConfiguration);
-        */
-        return null;
+
+        final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = new JGroupsBroadcastGroupConfiguration(channel, channelName);
+
+        return new BroadcastGroupConfiguration()
+                .setName(name)
+                .setBroadcastPeriod(broadcastPeriod)
+                .setConnectorInfos(connectorRefs)
+                .setEndpointFactoryConfiguration(endpointFactoryConfiguration);
     }
 }
