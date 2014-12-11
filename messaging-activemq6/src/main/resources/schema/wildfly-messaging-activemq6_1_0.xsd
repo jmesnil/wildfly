@@ -790,7 +790,7 @@
        <xs:annotation>
           <xs:documentation>
             <![CDATA[
-              Remoting incoming interceptors must be placed into a JBoss module and added as a dependency to org.jboss.as.messaging:main module.
+              Remoting incoming interceptors must be placed into a JBoss module and added as a dependency to org.wildfly.extension.messaging.activemq6:main module.
             ]]>
             </xs:documentation>
        </xs:annotation>
@@ -809,7 +809,7 @@
        <xs:annotation>
           <xs:documentation>
             <![CDATA[
-              Remoting outgoing interceptors must be placed into a JBoss module and added as a dependency to org.jboss.as.messaging:main module.
+              Remoting outgoing interceptors must be placed into a JBoss module and added as a dependency to org.wildfly.extension.messaging.activemq6:main module.
             ]]>
             </xs:documentation>
        </xs:annotation>
