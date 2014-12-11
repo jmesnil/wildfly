@@ -52,6 +52,11 @@ public class DefaultActiveMQ6ProviderJMSOperations implements JMSOperations {
     }
 
     @Override
+    public String getProviderName() {
+        return "activemq6";
+    }
+
+    @Override
     public void createJmsQueue(String queueName, String jndiName) {
         PathAddress address = pathAddress("subsystem", "messaging-activemq6")
                 .append("server", "default")
