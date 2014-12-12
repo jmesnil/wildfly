@@ -34,6 +34,8 @@ import org.jboss.dmr.ModelNode;
  */
 public interface JMSOperations {
 
+    ModelNode getServerAddress();
+
     String getProviderName();
 
     void createJmsQueue(final String queueName, final String jndiName);
