@@ -22,7 +22,6 @@
 
 package org.jboss.as.test.integration.common.jms;
 
-import static org.jboss.as.controller.PathAddress.pathAddress;
 import static org.jboss.as.controller.client.helpers.ClientConstants.ADD;
 import static org.jboss.as.controller.client.helpers.ClientConstants.REMOVE_OPERATION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
@@ -34,7 +33,6 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRI
 import static org.jboss.as.test.integration.common.jms.JMSOperationsProvider.execute;
 
 import org.jboss.as.arquillian.container.ManagementClient;
-import org.jboss.as.controller.PathAddress;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
 import org.jboss.logging.Logger;
@@ -53,6 +51,17 @@ public class DefaultHornetQProviderJMSOperations implements JMSOperations {
         this.client = client;
     }
 
+    private static final ModelNode serverAddress = new ModelNode();
+    static {
+        serverAddress.add("subsystem", "messaging");
+        serverAddress.add("hornetq-server", "default");
+    }
+
+    @Override
+    public ModelNode getServerAddress() {
+        return serverAddress.clone();
+    }
+
     @Override
     public String getProviderName() {
         return "hornetq";
@@ -60,9 +69,8 @@ public class DefaultHornetQProviderJMSOperations implements JMSOperations {
 
     @Override
     public void createJmsQueue(String queueName, String jndiName) {
-        PathAddress address = pathAddress("subsystem", "messaging")
-                .append("hornetq-server", "default")
-                .append("jms-queue", queueName);
+        ModelNode address = getServerAddress()
+                .add("jms-queue", queueName);
         ModelNode attributes = new ModelNode();
         attributes.get("entries").add(jndiName);
         executeOperation(address, ADD, attributes);
@@ -70,9 +78,8 @@ public class DefaultHornetQProviderJMSOperations implements JMSOperations {
 
     @Override
     public void createJmsTopic(String topicName, String jndiName) {
-        PathAddress address = pathAddress("subsystem", "messaging")
-                .append("hornetq-server", "default")
-                .append("jms-topic", topicName);
+        ModelNode address = getServerAddress()
+                .add("jms-topic", topicName);
         ModelNode attributes = new ModelNode();
         attributes.get("entries").add(jndiName);
         executeOperation(address, ADD, attributes);
@@ -80,48 +87,46 @@ public class DefaultHornetQProviderJMSOperations implements JMSOperations {
 
     @Override
     public void removeJmsQueue(String queueName) {
-        PathAddress address = pathAddress("subsystem", "messaging")
-                .append("hornetq-server", "default")
-                .append("jms-queue", queueName);
+        ModelNode address = getServerAddress()
+                .add("jms-queue", queueName);
         executeOperation(address, REMOVE_OPERATION, null);
     }
 
     @Override
     public void removeJmsTopic(String topicName) {
-        PathAddress address = pathAddress("subsystem", "messaging")
-                .append("hornetq-server", "default")
-                .append("jms-topic", topicName);
+        ModelNode address = getServerAddress()
+                .add("jms-topic", topicName);
         executeOperation(address, REMOVE_OPERATION, null);
     }
 
     @Override
     public void addJmsConnectionFactory(String name, String jndiName, ModelNode attributes) {
-        PathAddress address = pathAddress("subsystem", "messaging")
-                .append("hornetq-server", "default")
-                .append("connection-factory", name);
+        ModelNode address = getServerAddress()
+                .add("connection-factory", name);
         attributes.get("entries").add(jndiName);
         executeOperation(address, ADD, attributes);
     }
 
     @Override
     public void removeJmsConnectionFactory(String name) {
-        PathAddress address = pathAddress("subsystem", "messaging")
-                .append("hornetq-server", "default")
-                .append("connection-factory", name);
+        ModelNode address = getServerAddress()
+                .add("connection-factory", name);
         executeOperation(address, REMOVE_OPERATION, null);
     }
 
     @Override
     public void addJmsBridge(String name, ModelNode attributes) {
-        PathAddress address = pathAddress("subsystem", "messaging")
-                .append("jms-bridge", name);
+        ModelNode address = new ModelNode();
+        address.add("subsystem", "messaging");
+        address.add("jms-bridge", name);
         executeOperation(address, ADD, attributes);
     }
 
     @Override
     public void removeJmsBridge(String name) {
-        PathAddress address = pathAddress("subsystem", "messaging")
-                .append("jms-bridge", name);
+        ModelNode address = new ModelNode();
+        address.add("subsystem", "messaging");
+        address.add("jms-bridge", name);
         executeOperation(address, REMOVE_OPERATION, null);
     }
 
@@ -131,10 +136,10 @@ public class DefaultHornetQProviderJMSOperations implements JMSOperations {
         // DO NOT close the management client. Whoever passed it into the constructor should close it
     }
 
-    private void executeOperation(final PathAddress address, final String opName, ModelNode attributes) {
+    private void executeOperation(final ModelNode address, final String opName, ModelNode attributes) {
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(opName);
-        operation.get(OP_ADDR).set(address.toModelNode());
+        operation.get(OP_ADDR).set(address);
         if (attributes != null) {
             for (Property property : attributes.asPropertyList()) {
                 operation.get(property.getName()).set(property.getValue());
