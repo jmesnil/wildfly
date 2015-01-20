@@ -101,7 +101,7 @@ public class JMSQueueService implements Service<Queue> {
             @Override
             public void run() {
                 try {
-                    jmsManager.removeQueueFromJNDI(queueName);
+                    jmsManager.removeQueueFromBindingRegistry(queueName);
                     queue = null;
                 } catch (Throwable e) {
                     MESSAGING_LOGGER.failedToDestroy(e, "queue", queueName);

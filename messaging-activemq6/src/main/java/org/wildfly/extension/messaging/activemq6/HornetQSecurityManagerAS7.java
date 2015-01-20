@@ -114,38 +114,4 @@ public class HornetQSecurityManagerAS7 implements ActiveMQSecurityManager {
 
         return authenticated;
     }
-
-
-    @Override
-    public void addUser(String s, String s1) {
-    }
-
-    @Override
-    public void removeUser(String s) {
-    }
-
-    @Override
-    public void addRole(String s, String s1) {
-    }
-
-    @Override
-    public void removeRole(String s, String s1) {
-    }
-
-    @Override
-    public void setDefaultUser(String s) {
-    }
-
-    @Override
-    public void start() throws Exception {
-    }
-
-    @Override
-    public void stop() throws Exception {
-    }
-
-    @Override
-    public boolean isStarted() {
-        return false;
-    }
 }
