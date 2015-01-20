@@ -51,17 +51,6 @@ public class AS7BindingRegistry implements BindingRegistry {
         this.container = container;
     }
 
-    @Override
-    public Object getContext() {
-        // NOOP
-        return null;
-    }
-
-    @Override
-    public void setContext(Object ctx) {
-        // NOOP
-    }
-
     // This method is called by HornetQ when JNDI entries for its resources
     // are updated using its own management API. We advise against using it in
     // WildFly (and use WildFly own management API) but we must still respect the

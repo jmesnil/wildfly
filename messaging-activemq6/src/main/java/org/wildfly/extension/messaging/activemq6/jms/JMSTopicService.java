@@ -96,7 +96,7 @@ public class JMSTopicService implements Service<Topic> {
             @Override
             public void run() {
                 try {
-                    jmsManager.removeTopicFromJNDI(name);
+                    jmsManager.removeTopicFromBindingRegistry(name);
                     topic = null;
                 } catch (Throwable e) {
                     MESSAGING_LOGGER.failedToDestroy(e, "jms topic", name);

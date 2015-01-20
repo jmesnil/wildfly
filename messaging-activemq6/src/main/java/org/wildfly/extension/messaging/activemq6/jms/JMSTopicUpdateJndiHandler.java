@@ -39,12 +39,12 @@ public class JMSTopicUpdateJndiHandler extends AbstractUpdateJndiHandler {
 
     @Override
     protected void addJndiName(JMSServerManager jmsServerManager, String resourceName, String jndiName) throws Exception {
-        jmsServerManager.addTopicToJndi(resourceName, jndiName);
+        jmsServerManager.addTopicToBindingRegistry(resourceName, jndiName);
     }
 
     @Override
     protected void removeJndiName(JMSServerManager jmsServerManager, String resourceName, String jndiName) throws Exception {
-        jmsServerManager.removeTopicFromJNDI(resourceName, jndiName);
+        jmsServerManager.removeTopicFromBindingRegistry(resourceName, jndiName);
     }
 
     static void registerOperations(ManagementResourceRegistration registry, ResourceDescriptionResolver resolver) {

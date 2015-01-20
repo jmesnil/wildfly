@@ -22,7 +22,6 @@
 package org.wildfly.extension.messaging.activemq6.jms;
 
 
-import org.apache.activemq.jms.server.recovery.ActiveMQRegistryBase;
 import org.jboss.as.txn.service.TxnServices;
 import org.jboss.msc.service.ServiceContainer;
 import org.jboss.msc.service.ServiceController;
@@ -32,7 +31,8 @@ import org.jboss.tm.XAResourceRecoveryRegistry;
  * @author <a href="mailto:andy.taylor@jboss.org">Andy Taylor</a>
  *         9/22/11
  */
-public class AS7RecoveryRegistry extends ActiveMQRegistryBase {
+// FIXME: how to plug this into ActiveMQ 6?
+public class AS7RecoveryRegistry { // extends ActiveMQRegistryBase {
     static volatile ServiceContainer container;
 
     private XAResourceRecoveryRegistry registry;

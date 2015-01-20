@@ -397,8 +397,9 @@ public class PooledConnectionFactoryService implements Service<Void> {
 
             TransactionManagerLocator.container = container;
             AS7RecoveryRegistry.container = container;
-            properties.add(simpleProperty15(TRANSACTION_MANAGER_LOCATOR_CLASS, STRING_TYPE, TransactionManagerLocator.class.getName()));
-            properties.add(simpleProperty15(TRANSACTION_MANAGER_LOCATOR_METHOD, STRING_TYPE, "getTransactionManager"));
+            // FIXME: how to pass the TM to ActiveMQ 6 RA?
+            // properties.add(simpleProperty15(TRANSACTION_MANAGER_LOCATOR_CLASS, STRING_TYPE, TransactionManagerLocator.class.getName()));
+            //properties.add(simpleProperty15(TRANSACTION_MANAGER_LOCATOR_METHOD, STRING_TYPE, "getTransactionManager"));
 
             OutboundResourceAdapter outbound = createOutbound();
             InboundResourceAdapter inbound = createInbound();

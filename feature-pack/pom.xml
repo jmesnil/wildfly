@@ -1389,8 +1389,8 @@
             <artifactId>activemq-tools</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.jboss.logging</groupId>
-                    <artifactId>jboss-logging</artifactId>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -1433,8 +1433,8 @@
             <artifactId>activemq-journal</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.jboss.logging</groupId>
-                    <artifactId>jboss-logging</artifactId>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -1447,6 +1447,12 @@
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-proton-plug</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -1476,8 +1482,8 @@
             <artifactId>activemq-server</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.jboss.logging</groupId>
-                    <artifactId>jboss-logging</artifactId>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -1487,8 +1493,8 @@
             <artifactId>activemq-service-extensions</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.jboss.logging</groupId>
-                    <artifactId>jboss-logging</artifactId>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -1498,8 +1504,8 @@
             <artifactId>activemq-stomp-protocol</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.jboss.logging</groupId>
-                    <artifactId>jboss-logging</artifactId>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

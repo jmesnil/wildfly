@@ -44,7 +44,6 @@ import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.jboss.as.clustering.jgroups.ChannelFactory;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
@@ -67,6 +66,7 @@ import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
 import org.jgroups.JChannel;
+import org.wildfly.clustering.jgroups.spi.ChannelFactory;
 import org.wildfly.security.manager.WildFlySecurityManager;
 
 /**
@@ -156,7 +156,8 @@ class HornetQService implements Service<ActiveMQServer> {
         }
 
         // Disable file deployment
-        configuration.setFileDeploymentEnabled(false);
+        // FIXME: Why is the method no longer available?
+        //configuration.setFileDeploymentEnabled(false);
         // Setup paths
         PathManager pathManager = this.pathManager.getValue();
         configuration.setBindingsDirectory(pathConfig.resolveBindingsPath(pathManager));
