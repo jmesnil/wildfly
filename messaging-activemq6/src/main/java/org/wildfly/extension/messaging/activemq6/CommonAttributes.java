@@ -87,7 +87,9 @@ public interface CommonAttributes {
             .build();
 
     SimpleAttributeDefinition BACKUP = create("backup", BOOLEAN)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultBackup()))
+            // FIXME: new HA configuration
+            .setDefaultValue(new ModelNode(false))
+            //.setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultBackup()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
@@ -632,7 +634,9 @@ public interface CommonAttributes {
             .build();
 
     SimpleAttributeDefinition SHARED_STORE = create("shared-store", BOOLEAN)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultSharedStore()))
+            //FIXME: new HA configuration
+            .setDefaultValue(new ModelNode(false))
+            //.setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultSharedStore()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
