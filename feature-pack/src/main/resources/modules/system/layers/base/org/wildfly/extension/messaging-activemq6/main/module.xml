@@ -29,6 +29,7 @@
 
     <resources>
         <artifact name="${org.wildfly:wildfly-messaging-activemq6}"/>
+        <artifact name="${org.apache.activemq.integration.wildfly:activemq-wildfly-integration}"/>
     </resources>
 
     <dependencies>

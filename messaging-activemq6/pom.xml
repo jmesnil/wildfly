@@ -55,6 +55,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.activemq.integration.wildfly</groupId>
+            <artifactId>activemq-wildfly-integration</artifactId>
+        </dependency>
+
+        <dependency>
               <groupId>org.apache.activemq</groupId>
               <artifactId>activemq-core-client</artifactId>
         </dependency>
