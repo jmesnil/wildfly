@@ -111,6 +111,7 @@
         <version.jsoup>1.8.1</version.jsoup>
         <version.net.jcip>1.0</version.net.jcip>
         <version.org.antlr-34>3.4</version.org.antlr-34>
+        <version.org.apache.activemq.integration.wildfly>0.1.0-SNAPSHOT</version.org.apache.activemq.integration.wildfly>
         <version.org.apache.activemq6>6.0.0-SNAPSHOT</version.org.apache.activemq6>
 	<version.org.apache.avro>1.7.6</version.org.apache.avro>
         <version.org.apache.cxf>3.0.4</version.org.apache.cxf>
@@ -1980,6 +1981,19 @@
                 <groupId>net.jcip</groupId>
                 <artifactId>jcip-annotations</artifactId>
                 <version>${version.net.jcip}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.activemq.integration.wildfly</groupId>
+                <artifactId>activemq-wildfly-integration</artifactId>
+                <version>${version.org.apache.activemq.integration.wildfly}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+
             </dependency>
 
             <dependency>
