@@ -19,6 +19,14 @@ The goal of this guide is to help migration from messaging (with HornetQ) subsys
 
 * prefix: `WFLYMSG` -> `WFLYMSGAMQ6`
 
+# Data
+
+* relative to `jboss.server.data.dir`
+  * `messagingbindings/` -> `activemq6/bindings/`
+  * `messagingjournal/` -> `activemq6/journal/`
+  * `messaginglargemessages/` -> `activemq6/largemessages/`
+  * `messagingpaging/` -> `activemq6/paging/`
+
 # Build Process
 
 run the smoke test suite:
