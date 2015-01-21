@@ -29,6 +29,7 @@ import static org.wildfly.extension.messaging.activemq6.CommonAttributes.JOURNAL
 import static org.wildfly.extension.messaging.activemq6.CommonAttributes.LARGE_MESSAGES_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq6.CommonAttributes.PAGING_DIRECTORY;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,15 +74,11 @@ public class PathDefinition extends SimpleResourceDefinition {
 
     public static final Map<String, SimpleAttributeDefinition> PATHS = new HashMap<String, SimpleAttributeDefinition>();
 
-    private static final String DEFAULT_PATH = "messaging";
-    // all default paths dir are prepended with messaging
-    // I am not sure this was not a typo and that they should have been put inside a messaging/ dir instead (as it
-    // was stated in LocalDescriptions.properties)
-    // For compatibility sake, we keep the messaging prefix.
-    static final String DEFAULT_BINDINGS_DIR = DEFAULT_PATH + "bindings";
-    static final String DEFAULT_JOURNAL_DIR = DEFAULT_PATH + "journal";
-    static final String DEFAULT_LARGE_MESSAGE_DIR = DEFAULT_PATH + "largemessages";
-    static final String DEFAULT_PAGING_DIR = DEFAULT_PATH + "paging";
+    private static final String DEFAULT_PATH = "activemq6";
+    static final String DEFAULT_BINDINGS_DIR = DEFAULT_PATH + File.separator + "bindings";
+    static final String DEFAULT_JOURNAL_DIR = DEFAULT_PATH + File.separator + "journal";
+    static final String DEFAULT_LARGE_MESSAGE_DIR = DEFAULT_PATH + File.separator + "largemessages";
+    static final String DEFAULT_PAGING_DIR = DEFAULT_PATH + File.separator + "paging";
 
     static {
         PATHS.put(BINDINGS_DIRECTORY, create(PATH_BASE).setDefaultValue(new ModelNode(DEFAULT_BINDINGS_DIR)).build());
