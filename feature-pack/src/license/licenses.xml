@@ -1991,7 +1991,7 @@
     </dependency>
     <dependency>
       <groupId>org.wildfly</groupId>
-      <artifactId>wildfly-messaging-activemq6</artifactId>
+      <artifactId>wildfly-messaging-activemq</artifactId>
       <licenses>
         <license>
           <name>GNU Lesser General Public License, Version 2.1</name>

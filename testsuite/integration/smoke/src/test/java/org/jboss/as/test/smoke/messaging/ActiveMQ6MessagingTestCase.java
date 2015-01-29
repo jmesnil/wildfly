@@ -93,7 +93,7 @@ public class ActiveMQ6MessagingTestCase {
     public void start() throws Exception {
         System.out.println("managementClient = " + managementClient);
 
-        Assume.assumeTrue("Test is relevant only when the messaging-activemq6 subsystem is setup", isActiveMQServerFound());
+        Assume.assumeTrue("Test is relevant only when the messaging-activemq subsystem is setup", isActiveMQServerFound());
 
         //Not using JNDI so we use the core services directly
         sf = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName())).createSessionFactory();
@@ -158,7 +158,7 @@ public class ActiveMQ6MessagingTestCase {
     private boolean isActiveMQServerFound() throws IOException {
         ModelNode readHornetQServer = new ModelNode();
         readHornetQServer.get(OP).set(READ_RESOURCE_OPERATION);
-        readHornetQServer.get(OP_ADDR).add("subsystem", "messaging-activemq6");
+        readHornetQServer.get(OP_ADDR).add("subsystem", "messaging-activemq");
         readHornetQServer.get(OP_ADDR).add("server", "default");
         System.out.println("readHornetQServer = " + readHornetQServer);
         ModelNode result = managementClient.getControllerClient().execute(readHornetQServer);

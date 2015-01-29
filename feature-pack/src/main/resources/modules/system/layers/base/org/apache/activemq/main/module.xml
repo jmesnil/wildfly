@@ -48,7 +48,7 @@
         <module name="javax.resource.api"/>
         <module name="org.jboss.jboss-transaction-spi"/>
         <!--this reverse dependency is here so integration classes in the AS code base can be instantiated by HornetQ-->
-        <module name="org.wildfly.extension.messaging-activemq6"/>
+        <module name="org.wildfly.extension.messaging-activemq"/>
         <module name="org.jboss.as.security"/>
         <module name="org.picketbox"/>
         <!-- this optional dependency is required to be able to use this module from a jms-bridge to connect to a remote

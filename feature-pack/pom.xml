@@ -2473,7 +2473,7 @@
 
         <dependency>
             <groupId>org.wildfly</groupId>
-            <artifactId>wildfly-messaging-activemq6</artifactId>
+            <artifactId>wildfly-messaging-activemq</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
