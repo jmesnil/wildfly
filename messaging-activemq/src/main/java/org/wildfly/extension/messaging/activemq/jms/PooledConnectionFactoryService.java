@@ -157,8 +157,6 @@ public class PooledConnectionFactoryService implements Service<Void> {
     public static final String GROUP_PORT = "discoveryPort";
     public static final String REFRESH_TIMEOUT = "discoveryRefreshTimeout";
     public static final String DISCOVERY_LOCAL_BIND_ADDRESS = "discoveryLocalBindAddress";
-    public static final String TRANSACTION_MANAGER_LOCATOR_METHOD = "transactionManagerLocatorMethod";
-    public static final String TRANSACTION_MANAGER_LOCATOR_CLASS = "transactionManagerLocatorClass";
     public static final String JGROUPS_CHANNEL_LOCATOR_CLASS = "jgroupsChannelLocatorClass";
     public static final String JGROUPS_CHANNEL_NAME = "jgroupsChannelName";
     public static final String JGROUPS_CHANNEL_REF_NAME = "jgroupsChannelRefName";
@@ -395,11 +393,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
                 properties.add(simpleProperty15(reconnectName, Integer.class.getName(), DEFAULT_MAX_RECONNECTS));
             }
 
-            TransactionManagerLocator.container = container;
             AS7RecoveryRegistry.container = container;
-            // FIXME: how to pass the TM to ActiveMQ 6 RA?
-            // properties.add(simpleProperty15(TRANSACTION_MANAGER_LOCATOR_CLASS, STRING_TYPE, TransactionManagerLocator.class.getName()));
-            //properties.add(simpleProperty15(TRANSACTION_MANAGER_LOCATOR_METHOD, STRING_TYPE, "getTransactionManager"));
 
             OutboundResourceAdapter outbound = createOutbound();
             InboundResourceAdapter inbound = createInbound();

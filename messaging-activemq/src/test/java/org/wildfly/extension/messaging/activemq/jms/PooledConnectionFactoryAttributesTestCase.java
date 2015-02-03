@@ -24,8 +24,6 @@ public class PooledConnectionFactoryAttributesTestCase extends AttributesTestBas
         // these properties must not be exposed by the AS7 messaging subsystem
         UNSUPPORTED_HORNETQ_RA_PROPERTIES.add(PooledConnectionFactoryService.CONNECTION_PARAMETERS);
         UNSUPPORTED_HORNETQ_RA_PROPERTIES.add(PooledConnectionFactoryService.CONNECTOR_CLASSNAME);
-        UNSUPPORTED_HORNETQ_RA_PROPERTIES.add(PooledConnectionFactoryService.TRANSACTION_MANAGER_LOCATOR_CLASS);
-        UNSUPPORTED_HORNETQ_RA_PROPERTIES.add(PooledConnectionFactoryService.TRANSACTION_MANAGER_LOCATOR_METHOD);
         UNSUPPORTED_HORNETQ_RA_PROPERTIES.add("managedConnectionFactory");
         UNSUPPORTED_HORNETQ_RA_PROPERTIES.add(PooledConnectionFactoryService.JGROUPS_CHANNEL_LOCATOR_CLASS);
         UNSUPPORTED_HORNETQ_RA_PROPERTIES.add(PooledConnectionFactoryService.JGROUPS_CHANNEL_REF_NAME);
