@@ -35,11 +35,16 @@ import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.as.arquillian.api.ContainerResource;
 import org.jboss.as.arquillian.container.ManagementClient;
+import org.jboss.as.test.integration.common.jms.JMSOperations;
+import org.jboss.as.test.integration.common.jms.JMSOperationsProvider;
 import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.Property;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -52,6 +57,13 @@ public class JMSResourceManagementTestCase {
 
     @ContainerResource
     private ManagementClient managementClient;
+
+    private JMSOperations jmsOperations;
+
+    @Before
+    public void setUp() {
+        jmsOperations = JMSOperationsProvider.getInstance(managementClient);
+    }
 
     @Deployment
     public static JavaArchive createArchive() {
@@ -161,8 +173,9 @@ public class JMSResourceManagementTestCase {
     private ModelNode getOperation(String resourceType, String resourceName, String operationName) {
         final ModelNode address = new ModelNode();
         address.add("deployment", "JMSResourceDefinitionsTestCase.jar");
-        address.add("subsystem", "messaging");
-        address.add("hornetq-server", "default");
+        for (Property prop: jmsOperations.getServerAddress().asPropertyList()) {
+            address.add(prop.getName(), prop.getValue().asString());
+        }
         address.add(resourceType, resourceName);
         return getEmptyOperation(operationName, address);
     }
