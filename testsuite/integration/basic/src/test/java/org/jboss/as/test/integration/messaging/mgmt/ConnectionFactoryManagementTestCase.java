@@ -88,7 +88,7 @@ public class ConnectionFactoryManagementTestCase extends ContainerResourceMgmtTe
             if ("hornetq".equals(jmsOperations.getProviderName())) {
                 errorCode = "WFLYMSG0019";
             } else {
-                errorCode = "WFLYMSGAMQ60019";
+                errorCode = "WFLYMSGAMQ0019";
             }
             assertTrue(e.getResult().get(FAILURE_DESCRIPTION).asString().contains(errorCode));
         }
