@@ -34,12 +34,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import javax.jms.ConnectionFactory;
+
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.as.arquillian.api.ContainerResource;
+import org.jboss.as.arquillian.container.ManagementClient;
+import org.jboss.as.test.integration.common.jms.JMSOperations;
+import org.jboss.as.test.integration.common.jms.JMSOperationsProvider;
 import org.jboss.as.test.integration.management.base.ContainerResourceMgmtTestBase;
 import org.jboss.as.test.integration.management.util.MgmtOperationException;
 import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.Property;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,12 +58,19 @@ import org.junit.runner.RunWith;
 @RunAsClient
 public class TransportConfigurationTestCase extends ContainerResourceMgmtTestBase {
 
+    @ContainerResource
+    private ManagementClient managementClient;
+
+    private JMSOperations jmsOperations;
+
+    @Before
+    public void before() throws Exception {
+        jmsOperations = JMSOperationsProvider.getInstance(managementClient);
+    }
+
     @Test
     public void testTransportParamWithInvalidKey() throws Exception {
-        // /subsystem=messaging/hornetq-server=default/http-connector=http-connector/param=foo:add(value=bar)
-        ModelNode address = new ModelNode();
-        address.add("subsystem", "messaging");
-        address.add("hornetq-server", "default");
+        ModelNode address = jmsOperations.getServerAddress().clone();
         address.add("http-connector", "http-connector");
         address.add("param", "foo");
 
@@ -70,7 +85,11 @@ public class TransportConfigurationTestCase extends ContainerResourceMgmtTestBas
         } catch (MgmtOperationException e) {
             ModelNode result = e.getResult();
             assertEquals(FAILED, result.get(OUTCOME).asString());
-            assertTrue(result.get(FAILURE_DESCRIPTION).asString().startsWith("WFLYMSG0074"));
+            if ("hornetq".equals(jmsOperations.getProviderName())) {
+                assertTrue(result.get(FAILURE_DESCRIPTION).asString().startsWith("WFLYMSG0074"));
+            } else {
+                assertTrue(result.get(FAILURE_DESCRIPTION).asString().startsWith("WFLYMSGAMQ0074"));
+            }
             assertEquals(true, result.get(ROLLED_BACK).asBoolean());
         }
     }
