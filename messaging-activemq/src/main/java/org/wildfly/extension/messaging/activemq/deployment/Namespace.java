@@ -34,7 +34,7 @@ public enum Namespace {
    // must be first
    UNKNOWN(null),
 
-   MESSAGING_DEPLOYMENT_1_0("urn:jboss:messaging-deployment:1.0"),
+   MESSAGING_DEPLOYMENT_1_0("urn:jboss:messaging-activemq-deployment:1.0"),
    ;
 
 
