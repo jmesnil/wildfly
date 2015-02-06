@@ -46,14 +46,19 @@ import org.jboss.dmr.Property;
 public class ActiveMQProviderJMSOperations implements JMSOperations {
     private final ModelControllerClient client;
 
-    public ActiveMQProviderJMSOperations(ManagementClient client) {
-        this.client = client.getControllerClient();
+    public ActiveMQProviderJMSOperations(ModelControllerClient client) {
+        this.client = client;
     }
 
     private static final ModelNode serverAddress = new ModelNode();
     static {
         serverAddress.add("subsystem", "messaging-activemq");
         serverAddress.add("server", "default");
+    }
+
+    @Override
+    public ModelControllerClient getControllerClient() {
+        return client;
     }
 
     @Override
@@ -126,6 +131,23 @@ public class ActiveMQProviderJMSOperations implements JMSOperations {
         ModelNode address = new ModelNode();
         address.add("subsystem", "messaging-activemq");
         address.add("jms-bridge", name);
+        executeOperation(address, REMOVE_OPERATION, null);
+    }
+
+    @Override
+    public void addCoreQueue(String queueName, String queueAddress, boolean durable) {
+        ModelNode address = getServerAddress()
+                .add("queue", queueName);
+        ModelNode attributes = new ModelNode();
+        attributes.get("queue-address").set(queueAddress);
+        attributes.get("durable").set(durable);
+        executeOperation(address, ADD, attributes);
+    }
+
+    @Override
+    public void removeCoreQueue(String queueName) {
+        ModelNode address = getServerAddress()
+                .add("queue", queueName);
         executeOperation(address, REMOVE_OPERATION, null);
     }
 
