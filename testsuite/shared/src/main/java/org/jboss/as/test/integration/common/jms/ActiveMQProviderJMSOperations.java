@@ -33,6 +33,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRI
 import static org.jboss.as.test.integration.common.jms.JMSOperationsProvider.execute;
 
 import org.jboss.as.arquillian.container.ManagementClient;
+import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
 
@@ -42,9 +43,13 @@ import org.jboss.dmr.Property;
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2014 Red Hat inc.
  */
 public class ActiveMQProviderJMSOperations implements JMSOperations {
-    private final ManagementClient client;
+    private final ModelControllerClient client;
 
     public ActiveMQProviderJMSOperations(ManagementClient client) {
+        this.client = client.getControllerClient();
+    }
+
+    public ActiveMQProviderJMSOperations(ModelControllerClient client) {
         this.client = client;
     }
 
@@ -52,6 +57,11 @@ public class ActiveMQProviderJMSOperations implements JMSOperations {
     static {
         serverAddress.add("subsystem", "messaging-activemq");
         serverAddress.add("server", "default");
+    }
+
+    @Override
+    public ModelControllerClient getControllerClient() {
+        return client;
     }
 
     @Override
@@ -124,6 +134,23 @@ public class ActiveMQProviderJMSOperations implements JMSOperations {
         ModelNode address = new ModelNode();
         address.add("subsystem", "messaging-activemq");
         address.add("jms-bridge", name);
+        executeOperation(address, REMOVE_OPERATION, null);
+    }
+
+    @Override
+    public void addCoreQueue(String queueName, String queueAddress, boolean durable) {
+        ModelNode address = getServerAddress()
+                .add("queue", queueName);
+        ModelNode attributes = new ModelNode();
+        attributes.get("queue-address").set(queueAddress);
+        attributes.get("durable").set(durable);
+        executeOperation(address, ADD, attributes);
+    }
+
+    @Override
+    public void removeCoreQueue(String queueName) {
+        ModelNode address = getServerAddress()
+                .add("queue", queueName);
         executeOperation(address, REMOVE_OPERATION, null);
     }
 

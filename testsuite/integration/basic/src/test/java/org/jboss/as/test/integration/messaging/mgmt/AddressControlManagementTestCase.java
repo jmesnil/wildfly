@@ -61,38 +61,19 @@ public class AddressControlManagementTestCase {
 
     @Before
     public void setup() throws Exception {
-        jmsOperations = JMSOperationsProvider.getInstance(managementClient);
+        jmsOperations = JMSOperationsProvider.getInstance(managementClient.getControllerClient());
 
         count++;
 
-        addCoreQueue(getAddress(), getQueueName(), false);
-        addCoreQueue(getAddress(), getOtherQueueName(), false);
+        jmsOperations.addCoreQueue(getQueueName(), getAddress(), false);
+        jmsOperations.addCoreQueue(getOtherQueueName(), getAddress(), false);
     }
 
     @After
     public void cleanup() throws Exception {
-        removeCoreQueue(getQueueName());
-        removeCoreQueue(getOtherQueueName());
+        jmsOperations.removeCoreQueue(getQueueName());
+        jmsOperations.removeCoreQueue(getOtherQueueName());
     }
-
-    private void addCoreQueue(String queueAddress, String queueName, boolean durable) throws IOException {
-        ModelNode address = jmsOperations.getServerAddress().clone();
-        address.add("queue", queueName);
-
-        ModelNode addOperation = getEmptyOperation(ADD, address);
-        addOperation.get("queue-address").set(queueAddress);
-        addOperation.get("durable").set(durable);
-        execute(addOperation, true);
-    }
-
-    private void removeCoreQueue(String queueName) throws IOException {
-        ModelNode address = jmsOperations.getServerAddress().clone();
-        address.add("queue", queueName);
-
-        ModelNode removeOperation = getEmptyOperation(REMOVE, address);
-        execute(removeOperation, true);
-    }
-
 
     @Test
     public void testSubsystemRootOperations() throws Exception {

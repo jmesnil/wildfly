@@ -22,17 +22,20 @@
 
 package org.jboss.as.test.integration.common.jms;
 
+import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.dmr.ModelNode;
 
 /**
  * Utility to administrate JMS-related resources on the server. An separate implementation should be created for
  * every possible JMS provider to be tested.
  * Use JMSOperationsProvider to get instances of implementing classes.
- * An implementing class must have a default constructor.
+ *
  * Specify the fully qualified name of the activated implementation class in resources/jmsoperations.properties file.
  * @author <a href="jmartisk@redhat.com">Jan Martiska</a>
  */
 public interface JMSOperations {
+
+    ModelControllerClient getControllerClient();
 
     ModelNode getServerAddress();
 
@@ -53,6 +56,10 @@ public interface JMSOperations {
     void addJmsBridge(String name, ModelNode attributes);
 
     void removeJmsBridge(String name);
+
+    void addCoreQueue(final String queueName, final String queueAddress, boolean durable);
+
+    void removeCoreQueue(final String queueName);
 
     void close();
 

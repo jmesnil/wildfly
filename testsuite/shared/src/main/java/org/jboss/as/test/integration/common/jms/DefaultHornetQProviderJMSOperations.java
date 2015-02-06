@@ -33,6 +33,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRI
 import static org.jboss.as.test.integration.common.jms.JMSOperationsProvider.execute;
 
 import org.jboss.as.arquillian.container.ManagementClient;
+import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
 import org.jboss.logging.Logger;
@@ -43,18 +44,27 @@ import org.jboss.logging.Logger;
  */
 public class DefaultHornetQProviderJMSOperations implements JMSOperations {
 
-    private final ManagementClient client;
+    private final ModelControllerClient client;
 
     private static final Logger logger = Logger.getLogger(DefaultHornetQProviderJMSOperations.class);
 
-    public DefaultHornetQProviderJMSOperations(ManagementClient client) {
+    public DefaultHornetQProviderJMSOperations(ModelControllerClient client) {
         this.client = client;
+    }
+
+    public DefaultHornetQProviderJMSOperations(ManagementClient client) {
+        this.client = client.getControllerClient();
     }
 
     private static final ModelNode serverAddress = new ModelNode();
     static {
         serverAddress.add("subsystem", "messaging");
         serverAddress.add("hornetq-server", "default");
+    }
+
+    @Override
+    public ModelControllerClient getControllerClient() {
+        return client;
     }
 
     @Override
@@ -127,6 +137,23 @@ public class DefaultHornetQProviderJMSOperations implements JMSOperations {
         ModelNode address = new ModelNode();
         address.add("subsystem", "messaging");
         address.add("jms-bridge", name);
+        executeOperation(address, REMOVE_OPERATION, null);
+    }
+
+    @Override
+    public void addCoreQueue(String queueName, String queueAddress, boolean durable) {
+        ModelNode address = getServerAddress()
+                .add("queue", queueName);
+        ModelNode attributes = new ModelNode();
+        attributes.get("queue-address").set(queueAddress);
+        attributes.get("durable").set(durable);
+        executeOperation(address, ADD, attributes);
+    }
+
+    @Override
+    public void removeCoreQueue(String queueName) {
+        ModelNode address = getServerAddress()
+                .add("queue", queueName);
         executeOperation(address, REMOVE_OPERATION, null);
     }
 
