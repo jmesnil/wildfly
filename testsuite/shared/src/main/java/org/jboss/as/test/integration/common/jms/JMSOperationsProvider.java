@@ -52,7 +52,10 @@ public class JMSOperationsProvider {
      * @param client {@link ManagementClient} to pass to the JMSOperations implementation class' constructor
      *
      * @return a JMSOperations implementation that is JMS-provider-dependent
+     *
+     * @deprecated use {@link #getInstance(org.jboss.as.controller.client.ModelControllerClient)} instead
      */
+    @Deprecated
     public static JMSOperations getInstance(ManagementClient client) {
         String className;
         // first try to get the property from system properties
@@ -108,11 +111,11 @@ public class JMSOperationsProvider {
             try {
                 propsFromFile.load(stream);
                 className = propsFromFile.getProperty(PROPERTY_NAME);
-            } catch (IOException ex) {
+            } catch(IOException ex) {
                 throw new RuntimeException(ex);
             }
         }
-        if (className == null) {
+        if(className == null) {
             throw new JMSOperationsException("Please specify a property " + PROPERTY_NAME + " in " + FILE_NAME);
         }
         System.out.println("Creating instance of class: " + className);
@@ -126,7 +129,11 @@ public class JMSOperationsProvider {
         if (!(jmsOperationsInstance instanceof JMSOperations)) {
             throw new JMSOperationsException("Class " + className + " does not implement interface JMSOperations");
         }
-        return (JMSOperations) jmsOperationsInstance;
+        return (JMSOperations)jmsOperationsInstance;
+    }
+
+    static void execute(ManagementClient managementClient, final ModelNode operation) throws IOException, JMSOperationsException {
+        execute(managementClient.getControllerClient(), operation);
     }
 
     static void execute(ModelControllerClient client, final ModelNode operation) throws IOException, JMSOperationsException {
