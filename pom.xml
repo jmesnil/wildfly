@@ -2075,6 +2075,12 @@
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-commons</artifactId>
                 <version>${version.org.apache.activemq6}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -2093,6 +2099,12 @@
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core-client</artifactId>
                 <version>${version.org.apache.activemq6}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>

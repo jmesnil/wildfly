@@ -61,7 +61,7 @@ public class TransportParamDefinition extends SimpleResourceDefinition {
                     @Override
                     protected void populateModel(OperationContext context, ModelNode operation, Resource resource) throws OperationFailedException {
                         super.populateModel(context, operation, resource);
-                        context.addStep(new CheckParameterStep(allowedKeys), OperationContext.Stage.MODEL);
+                        //context.addStep(new CheckParameterStep(allowedKeys), OperationContext.Stage.MODEL);
                     }
                 },
                 new HornetQReloadRequiredHandlers.RemoveStepHandler());
