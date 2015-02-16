@@ -23,9 +23,9 @@
 package org.wildfly.extension.messaging.activemq.jms;
 
 import static java.util.Collections.EMPTY_LIST;
+import static org.jboss.as.naming.deployment.ContextNames.BindInfo;
 import static org.wildfly.extension.messaging.activemq.BinderServiceUtil.installAliasBinderService;
 import static org.wildfly.extension.messaging.activemq.MessagingServices.getHornetQServiceName;
-import static org.jboss.as.naming.deployment.ContextNames.BindInfo;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -35,11 +35,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration;
+import org.apache.activemq.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.api.core.ChannelBroadcastEndpointFactory;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.connector.metadata.deployment.ResourceAdapterDeployment;
 import org.jboss.as.connector.services.mdr.AS7MetadataRepository;
@@ -48,10 +48,6 @@ import org.jboss.as.connector.services.resourceadapters.deployment.registry.Reso
 import org.jboss.as.connector.subsystems.jca.JcaSubsystemConfiguration;
 import org.jboss.as.connector.util.ConnectorServices;
 import org.jboss.as.controller.ServiceVerificationHandler;
-import org.wildfly.extension.messaging.activemq.HornetQActivationService;
-import org.wildfly.extension.messaging.activemq.JGroupsChannelLocator;
-import org.wildfly.extension.messaging.activemq.MessagingServices;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.as.naming.service.NamingService;
 import org.jboss.as.network.SocketBinding;
@@ -120,6 +116,10 @@ import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
 import org.jboss.security.SubjectFactory;
+import org.wildfly.extension.messaging.activemq.HornetQActivationService;
+import org.wildfly.extension.messaging.activemq.JGroupsChannelLocator;
+import org.wildfly.extension.messaging.activemq.MessagingServices;
+import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
  * A service which translates a pooled connection factory into a resource adapter driven connection pool
@@ -364,13 +364,13 @@ public class PooledConnectionFactoryService implements Service<Void> {
 
             if(discoveryGroupName != null) {
                 DiscoveryGroupConfiguration discoveryGroupConfiguration = hornetQService.getValue().getConfiguration().getDiscoveryGroupConfigurations().get(discoveryGroupName);
-                BroadcastEndpointFactoryConfiguration bgCfg = discoveryGroupConfiguration.getBroadcastEndpointFactoryConfiguration();
-                if (bgCfg instanceof UDPBroadcastGroupConfiguration) {
-                    UDPBroadcastGroupConfiguration udpCfg = (UDPBroadcastGroupConfiguration) bgCfg;
+                BroadcastEndpointFactory bgCfg = discoveryGroupConfiguration.getBroadcastEndpointFactory();
+                if (bgCfg instanceof UDPBroadcastEndpointFactory) {
+                    UDPBroadcastEndpointFactory udpCfg = (UDPBroadcastEndpointFactory) bgCfg;
                     properties.add(simpleProperty15(GROUP_ADDRESS, STRING_TYPE, udpCfg.getGroupAddress()));
                     properties.add(simpleProperty15(GROUP_PORT, INTEGER_TYPE, "" + udpCfg.getGroupPort()));
                     properties.add(simpleProperty15(DISCOVERY_LOCAL_BIND_ADDRESS, STRING_TYPE, "" + udpCfg.getLocalBindAddress()));
-                } else if (bgCfg instanceof JGroupsBroadcastGroupConfiguration) {
+                } else if (bgCfg instanceof ChannelBroadcastEndpointFactory) {
                     properties.add(simpleProperty15(JGROUPS_CHANNEL_LOCATOR_CLASS, STRING_TYPE, JGroupsChannelLocator.class.getName()));
                     properties.add(simpleProperty15(JGROUPS_CHANNEL_NAME, STRING_TYPE, jgroupsChannelName));
                     properties.add(simpleProperty15(JGROUPS_CHANNEL_REF_NAME, STRING_TYPE, hqServerName + '/' + jgroupsChannelName));

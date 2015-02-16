@@ -110,13 +110,17 @@ public class HornetQMessagingTestCase {
 
     @After
     public void stop() throws Exception {
-        session.close();
+        if (session != null) {
+            session.close();
+        }
 
-        ClientSession coreSession = sf.createSession();
-        coreSession.deleteQueue(QUEUE_EXAMPLE_QUEUE);
-        coreSession.close();
+        if (sf != null) {
+            ClientSession coreSession = sf.createSession();
+            coreSession.deleteQueue(QUEUE_EXAMPLE_QUEUE);
+            coreSession.close();
 
-        sf.close();
+            sf.close();
+        }
     }
 
     @Test

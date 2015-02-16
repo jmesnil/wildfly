@@ -32,10 +32,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration;
+import org.apache.activemq.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.ChannelBroadcastEndpointFactory;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.core.config.Configuration;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
@@ -156,7 +156,7 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
         final long broadcastPeriod = config.getBroadcastPeriod();
         final List<String> connectorRefs = config.getConnectorInfos();
 
-        final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration()
+        final BroadcastEndpointFactory endpointFactory = new UDPBroadcastEndpointFactory()
                 .setGroupAddress(groupAddress)
                 .setGroupPort(groupPort)
                 .setLocalBindAddress(localAddress)
@@ -166,7 +166,7 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
                 .setName(name)
                 .setBroadcastPeriod(broadcastPeriod)
                 .setConnectorInfos(connectorRefs)
-                .setEndpointFactoryConfiguration(endpointFactoryConfiguration);
+                .setEndpointFactory(endpointFactory);
     }
 
     static BroadcastGroupConfiguration createBroadcastGroupConfiguration(final String name, final BroadcastGroupConfiguration config, final JChannel channel, final String channelName) throws Exception {
@@ -174,12 +174,12 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
         final long broadcastPeriod = config.getBroadcastPeriod();
         final List<String> connectorRefs = config.getConnectorInfos();
 
-        final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = new JGroupsBroadcastGroupConfiguration(channel, channelName);
+        final BroadcastEndpointFactory endpointFactory = new ChannelBroadcastEndpointFactory(channel, channelName);
 
         return new BroadcastGroupConfiguration()
                 .setName(name)
                 .setBroadcastPeriod(broadcastPeriod)
                 .setConnectorInfos(connectorRefs)
-                .setEndpointFactoryConfiguration(endpointFactoryConfiguration);
+                .setEndpointFactory(endpointFactory);
     }
 }

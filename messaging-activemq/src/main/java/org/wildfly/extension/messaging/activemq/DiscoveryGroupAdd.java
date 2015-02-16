@@ -30,10 +30,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.BroadcastEndpointFactoryConfiguration;
+import org.apache.activemq.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.api.core.ChannelBroadcastEndpointFactory;
 import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.JGroupsBroadcastGroupConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastGroupConfiguration;
+import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.core.config.Configuration;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
@@ -126,7 +126,7 @@ public class DiscoveryGroupAdd extends AbstractAddStepHandler {
         final long refreshTimeout = config.getRefreshTimeout();
         final long initialWaitTimeout = config.getDiscoveryInitialWaitTimeout();
 
-        final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = new UDPBroadcastGroupConfiguration()
+        final BroadcastEndpointFactory endpointFactory = new UDPBroadcastEndpointFactory()
                 .setGroupAddress(groupAddress)
                 .setGroupPort(groupPort)
                 .setLocalBindAddress(localAddress)
@@ -136,7 +136,7 @@ public class DiscoveryGroupAdd extends AbstractAddStepHandler {
                 .setName(name)
                 .setRefreshTimeout(refreshTimeout)
                 .setDiscoveryInitialWaitTimeout(initialWaitTimeout)
-                .setBroadcastEndpointFactoryConfiguration(endpointFactoryConfiguration);
+                .setBroadcastEndpointFactory(endpointFactory);
     }
 
 
@@ -144,13 +144,13 @@ public class DiscoveryGroupAdd extends AbstractAddStepHandler {
         final long refreshTimeout = config.getRefreshTimeout();
         final long initialWaitTimeout = config.getDiscoveryInitialWaitTimeout();
 
-        final BroadcastEndpointFactoryConfiguration endpointFactoryConfiguration = new JGroupsBroadcastGroupConfiguration(channel, channelName);
+        final BroadcastEndpointFactory endpointFactory = new ChannelBroadcastEndpointFactory(channel, channelName);
 
         return new DiscoveryGroupConfiguration()
                 .setName(name)
                 .setRefreshTimeout(refreshTimeout)
                 .setDiscoveryInitialWaitTimeout(initialWaitTimeout)
-                .setBroadcastEndpointFactoryConfiguration(endpointFactoryConfiguration);
+                .setBroadcastEndpointFactory(endpointFactory);
     }
 
 }
