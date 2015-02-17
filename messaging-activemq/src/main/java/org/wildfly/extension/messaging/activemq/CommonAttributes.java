@@ -711,6 +711,7 @@ public interface CommonAttributes {
     String CLUSTER_CONNECTION = "cluster-connection";
     String CLUSTER_CONNECTIONS = "cluster-connections";
     String CLUSTER_NAME = "cluster-name";
+    String COLOCATED = "colocated";
     String CONFIGURATION = "configuration";
     String CONNECTION_FACTORY = "connection-factory";
     String CONNECTOR = "connector";
@@ -734,6 +735,7 @@ public interface CommonAttributes {
     String DURABLE_SUBSCRIPTION_COUNT = "durable-subscription-count";
     String ENABLED = "enabled";
     String ENTRY = "entry";
+    String EXCLUDES = "excludes";
     String FILE_DEPLOYMENT_ENABLED = "file-deployment-enabled";
     String GROUP_NAME = "group-name";
     String GROUPING_HANDLER = "grouping-handler";
