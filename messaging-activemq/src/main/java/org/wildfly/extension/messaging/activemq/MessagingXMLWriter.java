@@ -27,6 +27,7 @@ import static org.wildfly.extension.messaging.activemq.ClusterConnectionDefiniti
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ACCEPTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ADDRESS_SETTING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BROADCAST_GROUP;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONFIGURATION;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTION_FACTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DEFAULT;
@@ -49,6 +50,13 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.REMOTE_A
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.REMOTE_CONNECTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ROLE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SERVER;
+import static org.wildfly.extension.messaging.activemq.Element.COLOCATED;
+import static org.wildfly.extension.messaging.activemq.Element.EXCLUDES;
+import static org.wildfly.extension.messaging.activemq.Element.LIVE_ONLY;
+import static org.wildfly.extension.messaging.activemq.Element.MASTER;
+import static org.wildfly.extension.messaging.activemq.Element.REPLICATION;
+import static org.wildfly.extension.messaging.activemq.Element.SHARED_STORE;
+import static org.wildfly.extension.messaging.activemq.Element.SLAVE;
 import static org.wildfly.extension.messaging.activemq.Element.SOURCE;
 import static org.wildfly.extension.messaging.activemq.Element.TARGET;
 import static org.wildfly.extension.messaging.activemq.Namespace.CURRENT;
@@ -63,15 +71,23 @@ import javax.xml.stream.XMLStreamException;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
+import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.Property;
+import org.jboss.staxmapper.XMLElementWriter;
+import org.jboss.staxmapper.XMLExtendedStreamWriter;
+import org.wildfly.extension.messaging.activemq.ha.HAAttributes;
+import org.wildfly.extension.messaging.activemq.ha.ReplicationColocatedDefinition;
+import org.wildfly.extension.messaging.activemq.ha.ReplicationMasterDefinition;
+import org.wildfly.extension.messaging.activemq.ha.ReplicationSlaveDefinition;
+import org.wildfly.extension.messaging.activemq.ha.ScaleDownAttributes;
+import org.wildfly.extension.messaging.activemq.ha.SharedStoreColocatedDefinition;
+import org.wildfly.extension.messaging.activemq.ha.SharedStoreMasterDefinition;
+import org.wildfly.extension.messaging.activemq.ha.SharedStoreSlaveDefinition;
 import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttribute;
 import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryDefinition;
 import org.wildfly.extension.messaging.activemq.jms.JMSQueueDefinition;
 import org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition;
 import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryDefinition;
-import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.Property;
-import org.jboss.staxmapper.XMLElementWriter;
-import org.jboss.staxmapper.XMLExtendedStreamWriter;
 import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
@@ -138,6 +154,7 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
         // New line after the simpler elements
         writeNewLine(writer);
 
+        writeHAPolicy(writer, node);
         writeConnectors(writer, node);
         writeAcceptors(writer, node);
         writeBroadcastGroups(writer, node.get(BROADCAST_GROUP));
@@ -177,6 +194,176 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
                 writer.writeEndElement();
             }
         }
+
+        writer.writeEndElement();
+    }
+
+    private static void writeHAPolicy(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        if (node.hasDefined(CommonAttributes.HA_POLICY)) {
+
+            writer.writeStartElement(CommonAttributes.HA_POLICY);
+
+            Property prop = node.get(CommonAttributes.HA_POLICY).asProperty();
+            String type = prop.getName();
+
+            switch (type) {
+                case CommonAttributes.LIVE_ONLY:
+                    writeHAPolicyLiveOnly(writer, prop.getValue());
+                    break;
+                case CommonAttributes.REPLICATION_MASTER:
+                    writer.writeStartElement(REPLICATION.getLocalName());
+                    writeHAPolicyReplicationMaster(writer, prop.getValue());
+                    writer.writeEndElement();
+                    break;
+                case CommonAttributes.REPLICATION_SLAVE:
+                    writer.writeStartElement(REPLICATION.getLocalName());
+                    writeHAPolicyReplicationSlave(writer, prop.getValue());
+                    writer.writeEndElement();
+                    break;
+                case CommonAttributes.REPLICATION_COLOCATED:
+                    writer.writeStartElement(REPLICATION.getLocalName());
+                    writeHAPolicyReplicationColocated(writer, prop.getValue());
+                    writer.writeEndElement();
+                    break;
+                case CommonAttributes.SHARED_STORE_MASTER:
+                    writer.writeStartElement(SHARED_STORE.getLocalName());
+                    writeHAPolicySharedStoreMaster(writer, prop.getValue());
+                    writer.writeEndElement();
+                    break;
+                case CommonAttributes.SHARED_STORE_SLAVE:
+                    writer.writeStartElement(SHARED_STORE.getLocalName());
+                    writeHAPolicySharedStoreSlave(writer, prop.getValue());
+                    writer.writeEndElement();
+                    break;
+                case CommonAttributes.SHARED_STORE_COLOCATED:
+                    writer.writeStartElement(SHARED_STORE.getLocalName());
+                    writeHAPolicySharedStoreColocated(writer, prop.getValue());
+                    writer.writeEndElement();
+            }
+
+            writer.writeEndElement();
+        }
+    }
+
+    private static void writeHAPolicySharedStoreMaster(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(MASTER.getLocalName());
+
+        for (AttributeDefinition attribute : SharedStoreMasterDefinition.ATTRIBUTES) {
+            attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
+        }
+
+        writer.writeEndElement();
+    }
+
+    private static void writeHAPolicySharedStoreSlave(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(SLAVE.getLocalName());
+
+        for (AttributeDefinition attribute : SharedStoreSlaveDefinition.ATTRIBUTES) {
+            // skip scale-down attributes as they are written in the scale-down element
+            if (ScaleDownAttributes.SCALE_DOWN_ATTRIBUTES.contains(attribute)) {
+                continue;
+            }
+            attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
+        }
+
+        writeScaleDown(writer, node);
+
+        writer.writeEndElement();
+    }
+
+    private static void writeHAPolicyLiveOnly(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(LIVE_ONLY.getLocalName());
+
+        writeScaleDown(writer, node);
+
+        writer.writeEndElement();
+    }
+
+    private static void writeHAPolicyReplicationMaster(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(MASTER.getLocalName());
+
+        for (AttributeDefinition attribute : ReplicationMasterDefinition.ATTRIBUTES) {
+            attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
+        }
+
+        writer.writeEndElement();
+    }
+
+    private static void writeHAPolicyReplicationSlave(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(SLAVE.getLocalName());
+
+        for (AttributeDefinition attribute : ReplicationSlaveDefinition.ATTRIBUTES) {
+            // skip scale-down attributes as they are written in the scale-down element
+            if (ScaleDownAttributes.SCALE_DOWN_ATTRIBUTES.contains(attribute)) {
+                continue;
+            }
+            attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
+        }
+
+        writeScaleDown(writer, node);
+
+        writer.writeEndElement();
+    }
+
+    private static void writeHAPolicyReplicationColocated(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(COLOCATED.getLocalName());
+
+        for (AttributeDefinition attribute : ReplicationColocatedDefinition.ATTRIBUTES) {
+            if (attribute == HAAttributes.EXCLUDED_CONNECTORS) {
+                continue;
+            }
+            attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
+        }
+
+        if (node.hasDefined(HAAttributes.EXCLUDED_CONNECTORS.getName())) {
+            writer.writeStartElement(EXCLUDES.getLocalName());
+            HAAttributes.EXCLUDED_CONNECTORS.marshallAsElement(node, writer);
+            writer.writeEndElement();
+        }
+
+        if (node.get(CONFIGURATION).hasDefined(CommonAttributes.MASTER)) {
+            writeHAPolicyReplicationMaster(writer, node.get(CONFIGURATION, CommonAttributes.MASTER));
+        }
+        if (node.get(CONFIGURATION).hasDefined(CommonAttributes.SLAVE)) {
+            writeHAPolicyReplicationSlave(writer, node.get(CONFIGURATION, CommonAttributes.SLAVE));
+        }
+
+        writer.writeEndElement();
+    }
+
+    private static void writeHAPolicySharedStoreColocated(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+        writer.writeStartElement(COLOCATED.getLocalName());
+
+        for (AttributeDefinition attribute : SharedStoreColocatedDefinition.ATTRIBUTES) {
+            attribute.getAttributeMarshaller().marshallAsAttribute(attribute, node, false, writer);
+        }
+
+        if (node.get(CONFIGURATION).hasDefined(CommonAttributes.MASTER)) {
+            writeHAPolicySharedStoreMaster(writer, node.get(CONFIGURATION, CommonAttributes.MASTER));
+        }
+        if (node.get(CONFIGURATION).hasDefined(CommonAttributes.SLAVE)) {
+            writeHAPolicySharedStoreSlave(writer, node.get(CONFIGURATION, CommonAttributes.SLAVE));
+        }
+
+        writer.writeEndElement();
+    }
+    private static void writeScaleDown(XMLExtendedStreamWriter writer, ModelNode node) throws XMLStreamException {
+
+        if (!node.hasDefined(ScaleDownAttributes.SCALE_DOWN.getName())) {
+            return;
+        }
+
+        writer.writeStartElement(CommonAttributes.SCALE_DOWN);
+        ScaleDownAttributes.SCALE_DOWN.marshallAsAttribute(node, false, writer);
+        ScaleDownAttributes.SCALE_DOWN_CLUSTER_NAME.marshallAsAttribute(node, false, writer);
+        ScaleDownAttributes.SCALE_DOWN_GROUP_NAME.marshallAsAttribute(node, false, writer);
+
+        if (node.hasDefined(ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP_NAME.getName())) {
+            writer.writeStartElement(CommonAttributes.DISCOVERY_GROUP_REF);
+            ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP_NAME.marshallAsAttribute(node, false, writer);
+            writer.writeEndElement();
+        }
+        ScaleDownAttributes.SCALE_DOWN_CONNECTORS.marshallAsElement(node, writer);
 
         writer.writeEndElement();
     }

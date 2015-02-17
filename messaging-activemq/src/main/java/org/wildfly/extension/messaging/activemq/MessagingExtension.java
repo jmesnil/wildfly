@@ -24,6 +24,11 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.PathElement.pathElement;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.HA_POLICY;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_MASTER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_SLAVE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_MASTER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_SLAVE;
 import static org.wildfly.extension.messaging.activemq.Namespace.MESSAGING_ACTIVEMQ6_1_0;
 
 import org.jboss.as.controller.Extension;
@@ -39,6 +44,13 @@ import org.jboss.as.controller.operations.common.GenericSubsystemDescribeHandler
 import org.jboss.as.controller.parsing.ExtensionParsingContext;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.services.path.ResolvePathHandler;
+import org.wildfly.extension.messaging.activemq.ha.LiveOnlyDefinition;
+import org.wildfly.extension.messaging.activemq.ha.ReplicationColocatedDefinition;
+import org.wildfly.extension.messaging.activemq.ha.ReplicationMasterDefinition;
+import org.wildfly.extension.messaging.activemq.ha.ReplicationSlaveDefinition;
+import org.wildfly.extension.messaging.activemq.ha.SharedStoreColocatedDefinition;
+import org.wildfly.extension.messaging.activemq.ha.SharedStoreMasterDefinition;
+import org.wildfly.extension.messaging.activemq.ha.SharedStoreSlaveDefinition;
 import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryDefinition;
 import org.wildfly.extension.messaging.activemq.jms.JMSQueueDefinition;
 import org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition;
@@ -148,6 +160,17 @@ public class MessagingExtension implements Extension {
 
         // Cluster connections
         serverRegistration.registerSubModel(new ClusterConnectionDefinition(registerRuntimeOnly));
+
+        // HA Policy
+        // only 1 ha-policy child is allowed among all of the registered models
+        // @see org.jboss.as.messaging.ha.ManagementHelper.checkNoOtherSibling() usage
+        serverRegistration.registerSubModel(LiveOnlyDefinition.INSTANCE);
+        serverRegistration.registerSubModel(new ReplicationMasterDefinition(pathElement(HA_POLICY, REPLICATION_MASTER), false));
+        serverRegistration.registerSubModel(new ReplicationSlaveDefinition(pathElement(HA_POLICY, REPLICATION_SLAVE), false));
+        serverRegistration.registerSubModel(ReplicationColocatedDefinition.INSTANCE);
+        serverRegistration.registerSubModel(new SharedStoreMasterDefinition(pathElement(HA_POLICY, SHARED_STORE_MASTER), false));
+        serverRegistration.registerSubModel(new SharedStoreSlaveDefinition(pathElement(HA_POLICY, SHARED_STORE_SLAVE), false));
+        serverRegistration.registerSubModel(SharedStoreColocatedDefinition.INSTANCE);
 
         // Grouping Handler
         serverRegistration.registerSubModel(new GroupingHandlerDefinition(registerRuntimeOnly));
