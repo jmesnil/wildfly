@@ -23,8 +23,10 @@
 package org.wildfly.extension.messaging.activemq;
 
 import java.io.IOException;
+import java.util.Properties;
 
 import org.jboss.as.subsystem.test.AbstractSubsystemBaseTest;
+import org.junit.Test;
 
 /**
  *  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2012 Red Hat inc
@@ -38,5 +40,35 @@ public class MessagingActivemQ6Subsystem_1_0_TestCase extends AbstractSubsystemB
     @Override
     protected String getSubsystemXml() throws IOException {
         return readResource("subsystem_1_0.xml");
+    }
+
+    @Override
+    protected String getSubsystemXsdPath() throws IOException {
+        return "schema/wildfly-messaging-activemq_1_0.xsd";
+    }
+
+    @Override
+    protected String[] getSubsystemTemplatePaths() throws IOException {
+        return new String[] {
+                "/subsystem-templates/messaging-activemq.xml"
+        };
+    }
+
+    @Override
+    protected Properties getResolvedProperties() {
+        Properties properties = new Properties();
+        properties.put("messaging.cluster.user.name", "myClusterUser");
+        properties.put("messaging.cluster.user.password", "myClusterPassword");
+        return properties;
+    }
+
+
+    /////////////////////////////////////////
+    //  Tests for HA Policy Configuration  //
+    /////////////////////////////////////////
+
+    @Test
+    public void testHAPolicyConfiguration() throws Exception {
+        standardSubsystemTest("subsystem_1_0_ha-policy.xml");
     }
 }

@@ -239,6 +239,10 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                 case SECURITY_DOMAIN:
                     handleElementText(reader, element, null, operation);
                     break;
+                case HA_POLICY: {
+                    processHaPolicy(reader, address, list);
+                    break;
+                }
                 case SECURITY_SETTINGS: {
                     // process security settings
                     processSecuritySettings(reader, address, list);
@@ -1767,6 +1771,10 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     throw ParseUtils.unexpectedElement(reader);
             }
         }
+    }
+
+    protected void processHaPolicy(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        throw ParseUtils.unexpectedElement(reader);
     }
 
     static void handleSingleAttribute(final XMLExtendedStreamReader reader, final Element element, final String modelName, String attributeName, final ModelNode node) throws XMLStreamException {
