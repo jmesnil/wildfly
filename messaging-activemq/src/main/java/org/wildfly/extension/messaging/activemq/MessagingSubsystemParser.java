@@ -390,6 +390,9 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
             switch (element) {
                 case FORWARD_WHEN_NO_CONSUMERS:
                 case MAX_HOPS:
+                case CALL_FAILOVER_TIMEOUT:
+                case NOTIFICATION_ATTEMPTS:
+                case NOTIFICATION_INTERVAL:
                     handleElementText(reader, element, clusterConnectionAdd);
                     break;
                 case ADDRESS:  {
@@ -406,6 +409,7 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     break;
                 case USE_DUPLICATE_DETECTION:
                 case RETRY_INTERVAL:
+                case INITIAL_CONNECT_ATTEMPTS:
                     // Use the "cluster" variant
                     handleElementText(reader, element, "cluster", clusterConnectionAdd);
                     break;
