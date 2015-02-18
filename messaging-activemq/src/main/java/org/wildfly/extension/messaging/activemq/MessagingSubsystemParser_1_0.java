@@ -22,9 +22,11 @@
 
 package org.wildfly.extension.messaging.activemq;
 
+import static java.util.Arrays.asList;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
+import static org.jboss.as.controller.operations.common.Util.getEmptyOperation;
 import static org.jboss.as.controller.parsing.ParseUtils.missingRequired;
 import static org.jboss.as.controller.parsing.ParseUtils.parsePossibleExpression;
 import static org.jboss.as.controller.parsing.ParseUtils.readStringAttributeElement;
@@ -34,12 +36,23 @@ import static org.jboss.as.controller.parsing.ParseUtils.requireNoNamespaceAttri
 import static org.jboss.as.controller.parsing.ParseUtils.requireSingleAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
+import static org.wildfly.extension.messaging.activemq.Attribute.HTTP_LISTENER;
+import static org.wildfly.extension.messaging.activemq.Attribute.SOCKET_BINDING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ACCEPTOR;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONFIGURATION;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTION_FACTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DEFAULT;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DURABLE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.FILTER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.HA_POLICY;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_ACCEPTOR;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_CONNECTOR;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.LIVE_ONLY;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.MASTER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_COLOCATED;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_MASTER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_SLAVE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SERVER;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.IN_VM_ACCEPTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.IN_VM_CONNECTOR;
@@ -54,7 +67,15 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.REMOTING
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ROLE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_SETTING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SELECTOR;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_COLOCATED;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_MASTER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_SLAVE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SLAVE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SUBSYSTEM;
+import static org.wildfly.extension.messaging.activemq.Element.DISCOVERY_GROUP_REF;
+import static org.wildfly.extension.messaging.activemq.Element.STATIC_CONNECTORS;
+import static org.wildfly.extension.messaging.activemq.ha.ScaleDownAttributes.SCALE_DOWN_CONNECTORS;
+import static org.wildfly.extension.messaging.activemq.ha.ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP_NAME;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -74,6 +95,8 @@ import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.logging.ControllerLogger;
 import org.jboss.as.controller.parsing.ParseUtils;
+import org.wildfly.extension.messaging.activemq.ha.HAAttributes;
+import org.wildfly.extension.messaging.activemq.ha.ScaleDownAttributes;
 import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Common;
 import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Pooled;
 import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
@@ -91,11 +114,11 @@ import org.jboss.staxmapper.XMLExtendedStreamReader;
  * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementReader<List<ModelNode>> {
+public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElementReader<List<ModelNode>> {
 
-    private static final MessagingSubsystemParser INSTANCE = new MessagingSubsystemParser();
+    private static final MessagingSubsystemParser_1_0 INSTANCE = new MessagingSubsystemParser_1_0();
 
-    public static MessagingSubsystemParser getInstance() {
+    public static MessagingSubsystemParser_1_0 getInstance() {
         return INSTANCE;
     }
 
@@ -107,7 +130,7 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
         }
     }
 
-    protected MessagingSubsystemParser() {
+    protected MessagingSubsystemParser_1_0() {
         //
     }
 
@@ -252,6 +275,12 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     parseQueues(reader, address, list);
                     break;
                 }
+                case REMOTING_INCOMING_INTERCEPTORS:
+                    processRemotingIncomingInterceptors(reader, operation);
+                    break;
+                case REMOTING_OUTGOING_INTERCEPTORS:
+                    processRemotingOutgoingInterceptors(reader, operation);
+                    break;
                 case CONNECTION_FACTORIES: {
                     processConnectionFactories(reader, address, list);
                     break;
@@ -456,9 +485,14 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
 
     protected void checkClusterConnectionConstraints(XMLExtendedStreamReader reader, Set<Element> seen) throws XMLStreamException {
         checkOnlyOneOfElements(reader, seen, Element.STATIC_CONNECTORS, Element.DISCOVERY_GROUP_REF);
+        // AS7-5598 relax constraints on the cluster-connection to accept one without static-connectors or discovery-group-ref
+        // however it is still not valid to have both
+        checkNotBothElements(reader, seen, STATIC_CONNECTORS, DISCOVERY_GROUP_REF);
+
     }
 
     protected void checkBroadcastGroupConstraints(XMLExtendedStreamReader reader, Set<Element> seen) throws XMLStreamException {
+        checkNotBothElements(reader, seen, Element.SOCKET_BINDING, Element.JGROUPS_STACK);
     }
 
     private void processBridges(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> updates) throws XMLStreamException {
@@ -602,7 +636,10 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
             required.remove(element);
             switch (element) {
                 case TYPE:
-                case TIMEOUT: {
+                case TIMEOUT:
+                case GROUP_TIMEOUT:
+                case REAPER_PERIOD:
+                {
                     handleElementText(reader, element, groupingHandlerAdd);
                     break;
                 }
@@ -674,6 +711,8 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
             switch (element) {
                 case SOCKET_BINDING:
                 case BROADCAST_PERIOD:
+                case JGROUPS_STACK:
+                case JGROUPS_CHANNEL:
                     handleElementText(reader, element, broadcastGroupAdd);
                     break;
                 case CONNECTOR_REF:
@@ -742,6 +781,8 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                 case REFRESH_TIMEOUT:
                 case SOCKET_BINDING:
                 case INITIAL_WAIT_TIMEOUT:
+                case JGROUPS_STACK:
+                case JGROUPS_CHANNEL:
                     handleElementText(reader, element, discoveryGroup);
                     break;
                 default: {
@@ -761,6 +802,7 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
     }
 
     protected void checkDiscoveryGroupConstraints(XMLExtendedStreamReader reader, Set<Element> seen) throws XMLStreamException {
+        checkNotBothElements(reader, seen, Element.SOCKET_BINDING, Element.JGROUPS_STACK);
     }
 
     void processConnectionFactories(final XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> updates) throws XMLStreamException {
@@ -795,11 +837,12 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
        }
     }
 
-   void processAcceptors(final XMLExtendedStreamReader reader, final ModelNode address, final List<ModelNode> updates) throws XMLStreamException {
+    void processAcceptors(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> updates) throws XMLStreamException {
         while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             String name = null;
             String socketBinding = null;
             String serverId = null;
+            String httpListener = null;
 
             int count = reader.getAttributeCount();
             for (int i = 0; i < count; i++) {
@@ -809,16 +852,16 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     case NAME: {
                         name = attrValue;
                         break;
-                    }
-                    case SOCKET_BINDING: {
+                    } case SOCKET_BINDING: {
                         socketBinding = attrValue;
                         break;
-                    }
-                    case SERVER_ID: {
+                    } case SERVER_ID: {
                         serverId = attrValue;
                         break;
-                    }
-                    default: {
+                    } case HTTP_LISTENER: {
+                        httpListener = attrValue;
+                        break;
+                    } default: {
                         throw ParseUtils.unexpectedAttribute(reader, i);
                     }
                 }
@@ -831,8 +874,8 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
             final ModelNode operation = new ModelNode();
             operation.get(OP).set(ADD);
 
-            boolean generic = false;
             final Element element = Element.forName(reader.getLocalName());
+            boolean generic = false;
             switch (element) {
                 case ACCEPTOR: {
                     operation.get(OP_ADDR).set(acceptorAddress.add(ACCEPTOR, name));
@@ -854,8 +897,15 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                         InVMTransportDefinition.SERVER_ID.parseAndSetParameter(serverId, operation, reader);
                     }
                     break;
+                } case HTTP_ACCEPTOR: {
+                    if (httpListener == null) {
+                        throw missingRequired(reader, Collections.singleton(HTTP_LISTENER));
+                    }
+                    operation.get(OP_ADDR).set(acceptorAddress.add(HTTP_ACCEPTOR, name));
+                    HTTPAcceptorDefinition.HTTP_LISTENER.parseAndSetParameter(httpListener, operation, reader);
+                    break;
                 } default: {
-                    throw ParseUtils.unexpectedElement(reader);
+                    throw unexpectedElement(reader);
                 }
             }
 
@@ -1021,10 +1071,11 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
     }
 
     protected List<String> parseRolesAttribute(final XMLExtendedStreamReader reader, int index) throws XMLStreamException {
-        return reader.getListAttributeValue(index);
+        String roles = reader.getAttributeValue(index);
+        return asList(roles.split("[,\\s]+"));
     }
 
-     void processConnectors(final XMLExtendedStreamReader reader, final ModelNode address, final List<ModelNode> updates) throws XMLStreamException {
+    void processConnectors(final XMLExtendedStreamReader reader, final ModelNode address, final List<ModelNode> updates) throws XMLStreamException {
         while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             String name = null;
             String socketBinding = null;
@@ -1038,16 +1089,13 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     case NAME: {
                         name = attrValue;
                         break;
-                    }
-                    case SOCKET_BINDING: {
+                    } case SOCKET_BINDING: {
                         socketBinding = attrValue;
                         break;
-                    }
-                    case SERVER_ID: {
+                    } case SERVER_ID: {
                         serverId = attrValue;
                         break;
-                    }
-                    default: {
+                    } default: {
                         throw ParseUtils.unexpectedAttribute(reader, i);
                     }
                 }
@@ -1065,14 +1113,14 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
             switch (element) {
                 case CONNECTOR: {
                     operation.get(OP_ADDR).set(connectorAddress.add(CONNECTOR, name));
-                    if(socketBinding != null) {
+                    if (socketBinding != null) {
                         operation.get(RemoteTransportDefinition.SOCKET_BINDING.getName()).set(socketBinding);
                     }
                     generic = true;
                     break;
                 } case NETTY_CONNECTOR: {
                     operation.get(OP_ADDR).set(connectorAddress.add(REMOTE_CONNECTOR, name));
-                    if(socketBinding == null) {
+                    if (socketBinding == null) {
                         throw missingRequired(reader, Collections.singleton(Attribute.SOCKET_BINDING));
                     }
                     operation.get(RemoteTransportDefinition.SOCKET_BINDING.getName()).set(socketBinding);
@@ -1083,8 +1131,15 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                         InVMTransportDefinition.SERVER_ID.parseAndSetParameter(serverId, operation, reader);
                     }
                     break;
+                } case HTTP_CONNECTOR: {
+                    if (socketBinding == null) {
+                        throw missingRequired(reader, Collections.singleton(SOCKET_BINDING));
+                    }
+                    operation.get(OP_ADDR).set(connectorAddress.add(HTTP_CONNECTOR, name));
+                    HTTPConnectorDefinition.SOCKET_BINDING.parseAndSetParameter(socketBinding, operation, reader);
+                    break;
                 } default: {
-                    throw ParseUtils.unexpectedElement(reader);
+                    throw unexpectedElement(reader);
                 }
             }
 
@@ -1135,6 +1190,9 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                 case LVQ:
                 case MAX_DELIVERY_ATTEMPTS:
                 case REDISTRIBUTION_DELAY:
+                case EXPIRY_DELAY:
+                case MAX_REDELIVERY_DELAY:
+                case REDELIVERY_MULTIPLIER:
                 case SEND_TO_DLA_ON_NO_ROUTE: {
                     handleElementText(reader, element, addressSettingsSpec);
                     break;
@@ -1546,6 +1604,8 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                 case LOAD_BALANCING_CLASS_NAME:
                 case USE_GLOBAL_POOLS:
                 case GROUP_ID:
+                case CALL_FAILOVER_TIMEOUT:
+                case COMPRESS_LARGE_MESSAGES:
                     handleElementText(reader, element, connectionFactory);
                     break;
                 case CONFIRMATION_WINDOW_SIZE:
@@ -1596,6 +1656,14 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     }
                     break;
                 }
+                case INITIAL_CONNECT_ATTEMPTS:
+                    if (!pooled) {
+                        throw unexpectedElement(reader);
+                    }
+                    handleElementText(reader, element, "pooled", connectionFactory);
+                    break;
+                case USE_AUTO_RECOVERY:
+                case INITIAL_MESSAGE_PACKET_SIZE:
                 case MAX_POOL_SIZE:
                 case MIN_POOL_SIZE: {
                     if (!pooled) {
@@ -1802,7 +1870,25 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
     }
 
     protected void processHaPolicy(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
-        throw ParseUtils.unexpectedElement(reader);
+
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case LIVE_ONLY:
+                    procesHaPolicyLiveOnly(reader, address, list);
+                    break;
+                case REPLICATION:
+                    procesHaPolicyReplication(reader, address, list);
+                    break;
+                case SHARED_STORE:
+                    processHAPolicySharedStore(reader, address, list);
+                    break;
+                default:
+                    throw unexpectedElement(reader);
+            }
+        }
     }
 
     static void handleSingleAttribute(final XMLExtendedStreamReader reader, final Element element, final String modelName, String attributeName, final ModelNode node) throws XMLStreamException {
@@ -1822,6 +1908,404 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
         if (!seen.contains(element1) && !seen.contains(element2)) {
             throw new XMLStreamException(MessagingLogger.ROOT_LOGGER.required(element1.getLocalName(), element2.getLocalName()), reader.getLocation());
         }
+        if (seen.contains(element1) && seen.contains(element2)) {
+            throw new XMLStreamException(MessagingLogger.ROOT_LOGGER.onlyOneRequired(element1.getLocalName(), element2.getLocalName()), reader.getLocation());
+        }
+    }
+
+    protected void processHAPolicySharedStore(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case MASTER:
+                    processHAPolicySharedStoreMaster(reader, address.clone().add(HA_POLICY, SHARED_STORE_MASTER), list);
+                    break;
+                case SLAVE:
+                    processHAPolicySharedStoreSlave(reader, address.clone().add(HA_POLICY, SHARED_STORE_SLAVE), list);
+                    break;
+                case COLOCATED:
+                    processHAPolicySharedStoreColocated(reader, address.clone().add(HA_POLICY, SHARED_STORE_COLOCATED), list);
+                    break;
+                default:
+                    throw unexpectedElement(reader);
+            }
+        }
+    }
+
+    private void processHAPolicySharedStoreMaster(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode operation = getEmptyOperation(ADD, address);
+
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case FAILBACK_DELAY: {
+                    HAAttributes.FAILBACK_DELAY.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case FAILOVER_ON_SERVER_SHUTDOWN: {
+                    HAAttributes.FAILOVER_ON_SERVER_SHUTDOWN.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                default: {
+                    throw unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        requireNoContent(reader);
+
+        list.add(operation);
+    }
+
+    private void processHAPolicySharedStoreSlave(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode operation = getEmptyOperation(ADD, address);
+
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case ALLOW_FAILBACK: {
+                    HAAttributes.ALLOW_FAILBACK.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case FAILBACK_DELAY: {
+                    HAAttributes.FAILBACK_DELAY.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case FAILOVER_ON_SERVER_SHUTDOWN: {
+                    HAAttributes.FAILOVER_ON_SERVER_SHUTDOWN.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case RESTART_BACKUP: {
+                    HAAttributes.RESTART_BACKUP.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                default: {
+                    throw unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case SCALE_DOWN:
+                    processScaleDown(reader, operation);
+                    break;
+                default:
+                    throw unexpectedElement(reader);
+            }
+        }
+
+        list.add(operation);
+    }
+
+    protected void procesHaPolicyLiveOnly(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode haPolicyAdd = getEmptyOperation(ADD, address.clone().add(HA_POLICY, LIVE_ONLY));
+
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case SCALE_DOWN:
+                    processScaleDown(reader, haPolicyAdd);
+                    break;
+                default:
+                    throw unexpectedElement(reader);
+            }
+        }
+
+        list.add(haPolicyAdd);
+
+    }
+
+    protected void procesHaPolicyReplication(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case MASTER:
+                    procesHaPolicyReplicationMaster(reader, address.clone().add(HA_POLICY, REPLICATION_MASTER), list);
+                    break;
+                case SLAVE:
+                    procesHaPolicyReplicationSlave(reader, address.clone().add(HA_POLICY, REPLICATION_SLAVE), list);
+                    break;
+                case COLOCATED:
+                    procesHaPolicyReplicationColocation(reader, address.clone().add(HA_POLICY, REPLICATION_COLOCATED), list);
+                    break;
+                default:
+                    throw unexpectedElement(reader);
+            }
+        }
+    }
+
+    private void procesHaPolicyReplicationMaster(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode operation = getEmptyOperation(ADD, address);
+
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case GROUP_NAME: {
+                    HAAttributes.GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case CLUSTER_NAME: {
+                    HAAttributes.CLUSTER_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;                }
+                case CHECK_FOR_LIVE_SERVER: {
+                    HAAttributes.CHECK_FOR_LIVE_SERVER.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                } default: {
+                    throw unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        requireNoContent(reader);
+
+        list.add(operation);
+    }
+
+    private void procesHaPolicyReplicationSlave(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode operation = getEmptyOperation(ADD, address);
+
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case GROUP_NAME: {
+                    HAAttributes.GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case CLUSTER_NAME: {
+                    HAAttributes.CLUSTER_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case ALLOW_FAILBACK: {
+                    HAAttributes.ALLOW_FAILBACK.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case RESTART_BACKUP: {
+                    HAAttributes.RESTART_BACKUP.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case FAILBACK_DELAY: {
+                    HAAttributes.FAILBACK_DELAY.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case MAX_SAVED_REPLICATED_JOURNAL_SIZE: {
+                    HAAttributes.MAX_SAVED_REPLICATED_JOURNAL_SIZE.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                } default: {
+                    throw unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case SCALE_DOWN:
+                    processScaleDown(reader, operation);
+                    break;
+                default:
+                    throw unexpectedElement(reader);
+            }
+        }
+
+        list.add(operation);
+    }
+
+    private void procesHaPolicyReplicationColocation(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode operation = getEmptyOperation(ADD, address);
+
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case REQUEST_BACKUP: {
+                    HAAttributes.REQUEST_BACKUP.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case BACKUP_PORT_OFFSET: {
+                    HAAttributes.BACKUP_PORT_OFFSET.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case BACKUP_REQUEST_RETRIES: {
+                    HAAttributes.BACKUP_REQUEST_RETRIES.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case BACKUP_REQUEST_RETRY_INTERVAL: {
+                    HAAttributes.BACKUP_REQUEST_RETRY_INTERVAL.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case MAX_BACKUPS: {
+                    HAAttributes.MAX_BACKUPS.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                } default: {
+                    throw unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        list.add(operation);
+
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case EXCLUDES:
+                    processExcludedConnectors(reader, operation);
+                    break;
+                case MASTER:
+                    procesHaPolicyReplicationMaster(reader, address.clone().add(CONFIGURATION, MASTER), list);
+                    break;
+                case SLAVE:
+                    procesHaPolicyReplicationSlave(reader, address.clone().add(CONFIGURATION, SLAVE), list);
+                    break;
+                default:
+                    throw unexpectedElement(reader);
+            }
+        }
+    }
+
+    private void processHAPolicySharedStoreColocated(XMLExtendedStreamReader reader, ModelNode address, List<ModelNode> list) throws XMLStreamException {
+        ModelNode operation = getEmptyOperation(ADD, address);
+
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+
+                case REQUEST_BACKUP: {
+                    HAAttributes.REQUEST_BACKUP.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case BACKUP_PORT_OFFSET: {
+                    HAAttributes.BACKUP_PORT_OFFSET.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case BACKUP_REQUEST_RETRIES: {
+                    HAAttributes.BACKUP_REQUEST_RETRIES.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case BACKUP_REQUEST_RETRY_INTERVAL: {
+                    HAAttributes.BACKUP_REQUEST_RETRY_INTERVAL.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case MAX_BACKUPS: {
+                    HAAttributes.MAX_BACKUPS.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                } default: {
+                    throw unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        list.add(operation);
+
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case MASTER:
+                    processHAPolicySharedStoreMaster(reader, address.clone().add(CONFIGURATION, MASTER), list);
+                    break;
+                case SLAVE:
+                    processHAPolicySharedStoreSlave(reader, address.clone().add(CONFIGURATION, SLAVE), list);
+                    break;
+                default:
+                    throw unexpectedElement(reader);
+            }
+        }
+    }
+
+    private void processExcludedConnectors(XMLExtendedStreamReader reader, ModelNode operation) throws XMLStreamException {
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+
+            switch (element) {
+                case CONNECTORS:
+                    operation.get(HAAttributes.EXCLUDED_CONNECTORS.getName()).set(processJmsConnectors(reader));
+                    break;
+                default:
+                    throw unexpectedElement(reader);
+            }
+        }
+    }
+
+    private void processScaleDown(XMLExtendedStreamReader reader, ModelNode operation) throws XMLStreamException {
+        int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String attrValue = reader.getAttributeValue(i);
+            final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case ENABLED: {
+                    ScaleDownAttributes.SCALE_DOWN.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case GROUP_NAME: {
+                    ScaleDownAttributes.SCALE_DOWN_GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                }
+                case CLUSTER_NAME: {
+                    ScaleDownAttributes.SCALE_DOWN_CLUSTER_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                } default: {
+                    throw unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            Set<Element> seen = EnumSet.noneOf(Element.class);
+
+            String localName = reader.getLocalName();
+            final Element element = Element.forName(localName);
+            if (!seen.add(element)) {
+                throw ParseUtils.duplicateNamedElement(reader, element.getLocalName());
+            }
+
+            switch (element) {
+                case DISCOVERY_GROUP_REF: {
+                    checkOtherElementIsNotAlreadyDefined(reader, seen, DISCOVERY_GROUP_REF, Element.CONNECTORS);
+                    final String attrValue = readStringAttributeElement(reader, SCALE_DOWN_DISCOVERY_GROUP_NAME.getXmlName());
+                    SCALE_DOWN_DISCOVERY_GROUP_NAME.parseAndSetParameter(attrValue, operation, reader);
+                    break;
+                } case CONNECTORS: {
+                    checkOtherElementIsNotAlreadyDefined(reader, seen, Element.CONNECTORS, DISCOVERY_GROUP_REF);
+                    operation.get(SCALE_DOWN_CONNECTORS.getName()).set(processJmsConnectors(reader));
+                    break;
+                }
+                default:
+                    throw unexpectedElement(reader);
+            }
+        }
+    }
+
+    /**
+     * Check that not both elements have been defined
+     */
+    protected static void checkNotBothElements(XMLExtendedStreamReader reader, Set<Element> seen, Element element1, Element element2) throws XMLStreamException {
         if (seen.contains(element1) && seen.contains(element2)) {
             throw new XMLStreamException(MessagingLogger.ROOT_LOGGER.onlyOneRequired(element1.getLocalName(), element2.getLocalName()), reader.getLocation());
         }
