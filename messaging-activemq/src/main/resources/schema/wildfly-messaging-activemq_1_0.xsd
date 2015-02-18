@@ -272,41 +272,6 @@
                   </xs:documentation>
               </xs:annotation>
           </xs:element>
-          <xs:element maxOccurs="1" minOccurs="0" name="backup" type="xs:boolean">
-              <xs:annotation>
-                  <xs:documentation>
-                      Whether this server is a backup server.
-                  </xs:documentation>
-              </xs:annotation>
-          </xs:element>
-          <xs:element maxOccurs="1" minOccurs="0" name="allow-failback" type="xs:boolean">
-              <xs:annotation>
-                  <xs:documentation>
-                      Whether this server will automatically shutdown if the original live server comes back up.
-                  </xs:documentation>
-              </xs:annotation>
-          </xs:element>
-          <xs:element maxOccurs="1" minOccurs="0" name="failback-delay" type="xs:long">
-              <xs:annotation>
-                  <xs:documentation>
-                      How long to wait before failback occurs on live server restart.
-                  </xs:documentation>
-              </xs:annotation>
-          </xs:element>
-          <xs:element maxOccurs="1" minOccurs="0" name="failover-on-shutdown" type="xs:boolean">
-              <xs:annotation>
-                  <xs:documentation>
-                      Whether this backup server (if it is a backup server) should come live on a normal server shutdown.
-                  </xs:documentation>
-              </xs:annotation>
-          </xs:element>
-          <xs:element maxOccurs="1" minOccurs="0" name="shared-store" type="xs:boolean">
-              <xs:annotation>
-                  <xs:documentation>
-                      Whether this server is using a shared store for failover.
-                  </xs:documentation>
-              </xs:annotation>
-          </xs:element>
           <xs:element maxOccurs="1" minOccurs="0" name="persist-delivery-count-before-delivery" type="xs:boolean">
               <xs:annotation>
                   <xs:documentation>
@@ -419,13 +384,6 @@
                   </xs:documentation>
               </xs:annotation>
           </xs:element>
-          <xs:element maxOccurs="1" minOccurs="0" name="max-saved-replicated-journal-size" type="xs:int">
-              <xs:annotation>
-                  <xs:documentation>
-                      The maximum number of backup journals to keep after failback occurs.
-                  </xs:documentation>
-              </xs:annotation>
-          </xs:element>
           <xs:element maxOccurs="1" minOccurs="0" name="perf-blast-pages" type="xs:int" />
           <xs:element maxOccurs="1" minOccurs="0" name="run-sync-speed-test" type="xs:boolean">
               <xs:annotation>
@@ -452,27 +410,6 @@
               <xs:annotation>
                   <xs:documentation>
                       Frequency to sample JVM memory in ms (or -1 to disable memory sampling)
-                  </xs:documentation>
-              </xs:annotation>
-          </xs:element>
-          <xs:element maxOccurs="1" minOccurs="0" name="check-for-live-server" type="xs:boolean">
-              <xs:annotation>
-                  <xs:documentation>
-                      If a replicated live server should check the current cluster to see if there is already a live server with the same node id
-                  </xs:documentation>
-              </xs:annotation>
-          </xs:element>
-          <xs:element maxOccurs="1" minOccurs="0" name="backup-group-name" type="xs:string">
-              <xs:annotation>
-                  <xs:documentation>
-                      The name of a set of live/backups that should replicate with each other
-                  </xs:documentation>
-              </xs:annotation>
-          </xs:element>
-          <xs:element maxOccurs="1" minOccurs="0" name="replication-clustername" type="xs:string">
-              <xs:annotation>
-                  <xs:documentation>
-                      The name of the cluster connection to replicate from if more than one cluster connection is configured
                   </xs:documentation>
               </xs:annotation>
           </xs:element>

@@ -26,23 +26,14 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PATH;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ADDRESS_SETTING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ASYNC_CONNECTION_EXECUTION_ENABLED;
-// FIXME
-//import static org.wildfly.extension.messaging.activemq.CommonAttributes.BACKUP;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.BACKUP_GROUP_NAME;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BINDINGS_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BROADCAST_GROUP;
-// FIXME
-//import static org.wildfly.extension.messaging.activemq.CommonAttributes.CHECK_FOR_LIVE_SERVER;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CLUSTER_PASSWORD;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CLUSTER_USER;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTION_TTL_OVERRIDE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CREATE_BINDINGS_DIR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CREATE_JOURNAL_DIR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DISCOVERY_GROUP;
-// FIXME
-//import static org.wildfly.extension.messaging.activemq.CommonAttributes.FAILBACK_DELAY;
-// FIXME
-//import static org.wildfly.extension.messaging.activemq.CommonAttributes.FAILOVER_ON_SHUTDOWN;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_ACCEPTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ID_CACHE_SIZE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
@@ -64,8 +55,6 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.LARGE_ME
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.LOG_JOURNAL_WRITE_RATE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.MANAGEMENT_ADDRESS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.MANAGEMENT_NOTIFICATION_ADDRESS;
-// FIXME
-//import static org.wildfly.extension.messaging.activemq.CommonAttributes.MAX_SAVED_REPLICATED_JOURNAL_SIZE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.MEMORY_MEASURE_INTERVAL;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.MEMORY_WARNING_THRESHOLD;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGE_COUNTER_ENABLED;
@@ -80,7 +69,6 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.PERF_BLA
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.PERSISTENCE_ENABLED;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.PERSIST_ID_CACHE;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_CLUSTERNAME;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.RUN_SYNC_SPEED_TEST;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SCHEDULED_THREAD_POOL_MAX_SIZE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_DOMAIN;
@@ -88,8 +76,6 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_INVALIDATION_INTERVAL;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_SETTING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SERVER_DUMP_INTERVAL;
-// FIXME
-//import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.STATISTICS_ENABLED;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.THREAD_POOL_MAX_SIZE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.TRANSACTION_TIMEOUT;
@@ -97,6 +83,7 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.TRANSACT
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.WILD_CARD_ROUTING_ENABLED;
 import static org.wildfly.extension.messaging.activemq.PathDefinition.PATHS;
 import static org.wildfly.extension.messaging.activemq.PathDefinition.RELATIVE_TO;
+import static org.wildfly.extension.messaging.activemq.ha.HAPolicyConfigurationBuilder.addHAPolicyConfiguration;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -127,10 +114,6 @@ import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.controller.services.path.PathManager;
 import org.jboss.as.controller.services.path.PathManagerService;
-import org.wildfly.clustering.jgroups.spi.ChannelFactory;
-import org.wildfly.clustering.jgroups.spi.service.ProtocolStackServiceName;
-import org.wildfly.extension.messaging.activemq.jms.JMSService;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.as.network.OutboundSocketBinding;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.as.security.plugins.SecurityDomainContext;
@@ -142,6 +125,11 @@ import org.jboss.msc.service.ServiceBuilder.DependencyType;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceTarget;
+import org.wildfly.clustering.jgroups.spi.ChannelFactory;
+import org.wildfly.clustering.jgroups.spi.service.ProtocolStackServiceName;
+import org.wildfly.extension.messaging.activemq.jms.JMSService;
+import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
+
 
 /**
  * Add handler for a HornetQ server instance.
@@ -369,33 +357,13 @@ class HornetQServerAdd implements OperationStepHandler {
 
         configuration.setName(serverName);
 
-        //FIXME!!
-        //configuration.setAllowAutoFailBack(ALLOW_FAILBACK.resolveModelAttribute(context, model).asBoolean());
         configuration.setEnabledAsyncConnectionExecution(ASYNC_CONNECTION_EXECUTION_ENABLED.resolveModelAttribute(context, model).asBoolean());
 
-        ModelNode backupGroupName = BACKUP_GROUP_NAME.resolveModelAttribute(context, model);
-        if (backupGroupName.isDefined()) {
-            // FIXME: new HA configuration
-            //configuration.setBackupGroupName(backupGroupName.asString());
-        }
-        ModelNode replicationClusterName = REPLICATION_CLUSTERNAME.resolveModelAttribute(context, model);
-        if (replicationClusterName.isDefined()) {
-            // FIXME: new HA configuration
-            //configuration.setReplicationClustername(replicationClusterName.asString());
-        }
-        // FIXME: new HA configuration
-        //configuration.setCheckForLiveServer(CHECK_FOR_LIVE_SERVER.resolveModelAttribute(context, model).asBoolean());
-        // FIXME: new HA configuration
-        //configuration.setBackup(BACKUP.resolveModelAttribute(context, model).asBoolean());
         configuration.setClusterPassword(CLUSTER_PASSWORD.resolveModelAttribute(context, model).asString());
         configuration.setClusterUser(CLUSTER_USER.resolveModelAttribute(context, model).asString());
         configuration.setConnectionTTLOverride(CONNECTION_TTL_OVERRIDE.resolveModelAttribute(context, model).asInt());
         configuration.setCreateBindingsDir(CREATE_BINDINGS_DIR.resolveModelAttribute(context, model).asBoolean());
         configuration.setCreateJournalDir(CREATE_JOURNAL_DIR.resolveModelAttribute(context, model).asBoolean());
-        // FIXME: new HA configuration
-        //configuration.setFailbackDelay(FAILBACK_DELAY.resolveModelAttribute(context, model).asLong());
-        // FIXME: new HA configuration
-        //configuration.setFailoverOnServerShutdown(FAILOVER_ON_SHUTDOWN.resolveModelAttribute(context, model).asBoolean());
 
         configuration.setIDCacheSize(ID_CACHE_SIZE.resolveModelAttribute(context, model).asInt());
         // TODO do we want to allow the jmx configuration ?
@@ -421,8 +389,6 @@ class HornetQServerAdd implements OperationStepHandler {
         configuration.setJournalSyncNonTransactional(JOURNAL_SYNC_NON_TRANSACTIONAL.resolveModelAttribute(context, model).asBoolean());
         configuration.setJournalSyncTransactional(JOURNAL_SYNC_TRANSACTIONAL.resolveModelAttribute(context, model).asBoolean());
         configuration.setLogJournalWriteRate(LOG_JOURNAL_WRITE_RATE.resolveModelAttribute(context, model).asBoolean());
-        // FIXME: new HA configuration
-        //configuration.setMaxSavedReplicatedJournalSize(MAX_SAVED_REPLICATED_JOURNAL_SIZE.resolveModelAttribute(context, model).asInt());
 
         configuration.setManagementAddress(SimpleString.toSimpleString(MANAGEMENT_ADDRESS.resolveModelAttribute(context, model).asString()));
         configuration.setManagementNotificationAddress(SimpleString.toSimpleString(MANAGEMENT_NOTIFICATION_ADDRESS.resolveModelAttribute(context, model).asString()));
@@ -450,12 +416,12 @@ class HornetQServerAdd implements OperationStepHandler {
         configuration.setSecurityEnabled(SECURITY_ENABLED.resolveModelAttribute(context, model).asBoolean());
         configuration.setSecurityInvalidationInterval(SECURITY_INVALIDATION_INTERVAL.resolveModelAttribute(context, model).asLong());
         configuration.setServerDumpInterval(SERVER_DUMP_INTERVAL.resolveModelAttribute(context, model).asLong());
-        // FIXME: new HA configuration
-        //configuration.setSharedStore(SHARED_STORE.resolveModelAttribute(context, model).asBoolean());
         configuration.setThreadPoolMaxSize(THREAD_POOL_MAX_SIZE.resolveModelAttribute(context, model).asInt());
         configuration.setTransactionTimeout(TRANSACTION_TIMEOUT.resolveModelAttribute(context, model).asLong());
         configuration.setTransactionTimeoutScanPeriod(TRANSACTION_TIMEOUT_SCAN_PERIOD.resolveModelAttribute(context, model).asLong());
         configuration.setWildcardRoutingEnabled(WILD_CARD_ROUTING_ENABLED.resolveModelAttribute(context, model).asBoolean());
+
+        addHAPolicyConfiguration(context, configuration, model);
 
         processAddressSettings(context, configuration, model);
         processSecuritySettings(context, configuration, model);

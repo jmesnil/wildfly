@@ -26,14 +26,10 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.CHI
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MAX_OCCURS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MIN_OCCURS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PATH;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.ALLOW_FAILBACK;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ASYNC_CONNECTION_EXECUTION_ENABLED;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.BACKUP;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTION_TTL_OVERRIDE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CREATE_BINDINGS_DIR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CREATE_JOURNAL_DIR;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.FAILBACK_DELAY;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.FAILOVER_ON_SHUTDOWN;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ID_CACHE_SIZE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JMX_DOMAIN;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JMX_MANAGEMENT_ENABLED;
@@ -64,7 +60,6 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.RUN_SYNC
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_ENABLED;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_INVALIDATION_INTERVAL;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SERVER_DUMP_INTERVAL;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.STATISTICS_ENABLED;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.TRANSACTION_TIMEOUT;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.TRANSACTION_TIMEOUT_SCAN_PERIOD;
@@ -79,8 +74,8 @@ import org.jboss.as.controller.descriptions.DefaultResourceDescriptionProvider;
 import org.jboss.as.controller.descriptions.DescriptionProvider;
 import org.jboss.as.controller.registry.ImmutableManagementResourceRegistration;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
-import org.wildfly.extension.messaging.activemq.jms.JMSServerControlHandler;
 import org.jboss.dmr.ModelNode;
+import org.wildfly.extension.messaging.activemq.jms.JMSServerControlHandler;
 
 /**
  * {@link org.jboss.as.controller.ResourceDefinition} for the messaging subsystem HornetQServer resource.
@@ -96,8 +91,7 @@ public class HornetQServerResourceDefinition extends SimpleResourceDefinition {
             STATISTICS_ENABLED, MESSAGE_COUNTER_ENABLED, MESSAGE_COUNTER_SAMPLE_PERIOD, MESSAGE_COUNTER_MAX_DAY_HISTORY,
             CONNECTION_TTL_OVERRIDE, TRANSACTION_TIMEOUT, TRANSACTION_TIMEOUT_SCAN_PERIOD,
             MESSAGE_EXPIRY_SCAN_PERIOD, MESSAGE_EXPIRY_THREAD_PRIORITY, ID_CACHE_SIZE, PERSIST_ID_CACHE,
-            BACKUP, ALLOW_FAILBACK, FAILBACK_DELAY, FAILOVER_ON_SHUTDOWN,
-            SHARED_STORE, PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY, PAGE_MAX_CONCURRENT_IO,
+            PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY, PAGE_MAX_CONCURRENT_IO,
             CREATE_BINDINGS_DIR, CREATE_JOURNAL_DIR, JOURNAL_TYPE, JOURNAL_BUFFER_TIMEOUT, JOURNAL_BUFFER_SIZE,
             JOURNAL_SYNC_TRANSACTIONAL, JOURNAL_SYNC_NON_TRANSACTIONAL, LOG_JOURNAL_WRITE_RATE,
             JOURNAL_FILE_SIZE, JOURNAL_MIN_FILES, JOURNAL_COMPACT_PERCENTAGE, JOURNAL_COMPACT_MIN_FILES, JOURNAL_MAX_IO,

@@ -46,18 +46,6 @@ public class Messaging14SubsystemParser extends Messaging13SubsystemParser {
     }
 
     @Override
-    protected void handleUnknownConfigurationAttribute(XMLExtendedStreamReader reader, Element element, ModelNode operation) throws XMLStreamException {
-        switch (element) {
-            case MAX_SAVED_REPLICATED_JOURNAL_SIZE:
-                handleElementText(reader, element, operation);
-                break;
-            default: {
-                super.handleUnknownConfigurationAttribute(reader, element, operation);
-            }
-        }
-    }
-
-    @Override
     protected void handleUnknownGroupingHandlerAttribute(XMLExtendedStreamReader reader, Element element, ModelNode operation) throws XMLStreamException {
         switch(element) {
             case GROUP_TIMEOUT:

@@ -72,24 +72,8 @@ public interface CommonAttributes {
 
     SensitiveTargetAccessConstraintDefinition MESSAGING_SECURITY_DEF = new SensitiveTargetAccessConstraintDefinition(MESSAGING_SECURITY);
 
-    SimpleAttributeDefinition ALLOW_FAILBACK = create("allow-failback", BOOLEAN)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultAllowAutoFailback()))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
-    SimpleAttributeDefinition ASYNC_CONNECTION_EXECUTION_ENABLED = create( "async-connection-execution-enabled", BOOLEAN)
+    SimpleAttributeDefinition ASYNC_CONNECTION_EXECUTION_ENABLED = create("async-connection-execution-enabled", BOOLEAN)
             .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultAsyncConnectionExecutionEnabled()))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
-    SimpleAttributeDefinition BACKUP = create("backup", BOOLEAN)
-            // FIXME: new HA configuration
-            .setDefaultValue(new ModelNode(false))
-            //.setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultBackup()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
@@ -102,7 +86,7 @@ public interface CommonAttributes {
             .setAllowExpression(true)
             .build();
 
-    SimpleAttributeDefinition CALL_FAILOVER_TIMEOUT = create("call-failover-timeout",LONG)
+    SimpleAttributeDefinition CALL_FAILOVER_TIMEOUT = create("call-failover-timeout", LONG)
             .setDefaultValue(new ModelNode(ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT))
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -120,13 +104,6 @@ public interface CommonAttributes {
     SimpleAttributeDefinition CLIENT_ID = create("client-id", ModelType.STRING)
             .setAllowNull(true)
             .setAllowExpression(true)
-            .build();
-
-    SimpleAttributeDefinition CHECK_FOR_LIVE_SERVER = create("check-for-live-server", BOOLEAN)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultCheckForLiveServer()))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
             .build();
 
     SimpleAttributeDefinition CLUSTER_PASSWORD = create("cluster-password", ModelType.STRING)
@@ -223,21 +200,6 @@ public interface CommonAttributes {
             .setAllowExpression(true)
             .build();
 
-    SimpleAttributeDefinition FAILBACK_DELAY = create("failback-delay", LONG)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultFailbackDelay()))
-            .setMeasurementUnit(MILLISECONDS)
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
-    SimpleAttributeDefinition FAILOVER_ON_SHUTDOWN = create("failover-on-shutdown", BOOLEAN)
-            // TODO should be ConfigurationImpl.DEFAULT_FAILOVER_ON_SERVER_SHUTDOWN but field is private
-            .setDefaultValue(new ModelNode(false))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .build();
-
     SimpleAttributeDefinition FILTER = create("filter", ModelType.STRING)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -246,7 +208,7 @@ public interface CommonAttributes {
 
     SimpleAttributeDefinition HA = create("ha", BOOLEAN)
             .setDefaultValue(new ModelNode()
-            .set(ActiveMQClient.DEFAULT_HA))
+                    .set(ActiveMQClient.DEFAULT_HA))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
@@ -399,13 +361,6 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
-    AttributeDefinition MAX_SAVED_REPLICATED_JOURNAL_SIZE = create("max-saved-replicated-journal-size", INT)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize()))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
     SimpleAttributeDefinition MEMORY_MEASURE_INTERVAL = create("memory-measure-interval", LONG)
             .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultMemoryMeasureInterval()))
             .setMeasurementUnit(MILLISECONDS)
@@ -481,12 +436,6 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
-    AttributeDefinition BACKUP_GROUP_NAME = create("backup-group-name", ModelType.STRING)
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
     SimpleAttributeDefinition OVERRIDE_IN_VM_SECURITY = create("override-in-vm-security", BOOLEAN)
             .setDefaultValue(new ModelNode(true))
             .setAllowNull(true)
@@ -551,12 +500,6 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .setElementValidator(new StringLengthValidator(1, false, true))
             .setAttributeMarshaller(AttributeMarshallers.INTERCEPTOR_MARSHALLER)
-            .build();
-
-    SimpleAttributeDefinition REPLICATION_CLUSTERNAME = create("replication-clustername", ModelType.STRING)
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
             .build();
 
     AttributeDefinition RETRY_INTERVAL = create("retry-interval", LONG)
@@ -628,15 +571,6 @@ public interface CommonAttributes {
     SimpleAttributeDefinition SERVER_DUMP_INTERVAL = create("server-dump-interval", LONG)
             .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultServerDumpInterval()))
             .setMeasurementUnit(MILLISECONDS)
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
-    SimpleAttributeDefinition SHARED_STORE = create("shared-store", BOOLEAN)
-            //FIXME: new HA configuration
-            .setDefaultValue(new ModelNode(false))
-            //.setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultSharedStore()))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
@@ -804,6 +738,7 @@ public interface CommonAttributes {
     String SECURITY_SETTINGS = "security-settings";
     String SERVER = "server";
     String SERVLET_PATH = "servlet-path";
+    String SHARED_STORE = "shared-store";
     String SHARED_STORE_COLOCATED = "shared-store-colocated";
     String SHARED_STORE_MASTER = "shared-store-master";
     String SHARED_STORE_SLAVE = "shared-store-slave";
@@ -828,13 +763,13 @@ public interface CommonAttributes {
             CONNECTION_TTL_OVERRIDE, ASYNC_CONNECTION_EXECUTION_ENABLED, TRANSACTION_TIMEOUT, TRANSACTION_TIMEOUT_SCAN_PERIOD,
             MESSAGE_EXPIRY_SCAN_PERIOD, MESSAGE_EXPIRY_THREAD_PRIORITY, ID_CACHE_SIZE, PERSIST_ID_CACHE,
             REMOTING_INCOMING_INTERCEPTORS, REMOTING_OUTGOING_INTERCEPTORS,
-            BACKUP, ALLOW_FAILBACK, FAILBACK_DELAY, FAILOVER_ON_SHUTDOWN, SHARED_STORE, PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY,
+            PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY,
             PAGE_MAX_CONCURRENT_IO, CREATE_BINDINGS_DIR, CREATE_JOURNAL_DIR, JOURNAL_TYPE, JOURNAL_BUFFER_TIMEOUT,
             JOURNAL_BUFFER_SIZE, JOURNAL_SYNC_TRANSACTIONAL, JOURNAL_SYNC_NON_TRANSACTIONAL, LOG_JOURNAL_WRITE_RATE,
             JOURNAL_FILE_SIZE, JOURNAL_MIN_FILES, JOURNAL_COMPACT_PERCENTAGE, JOURNAL_COMPACT_MIN_FILES, JOURNAL_MAX_IO,
-            MAX_SAVED_REPLICATED_JOURNAL_SIZE, PERF_BLAST_PAGES, RUN_SYNC_SPEED_TEST, SERVER_DUMP_INTERVAL, MEMORY_WARNING_THRESHOLD, MEMORY_MEASURE_INTERVAL,
-            CHECK_FOR_LIVE_SERVER, BACKUP_GROUP_NAME, REPLICATION_CLUSTERNAME };
+            PERF_BLAST_PAGES, RUN_SYNC_SPEED_TEST, SERVER_DUMP_INTERVAL, MEMORY_WARNING_THRESHOLD, MEMORY_MEASURE_INTERVAL,
+    };
 
-    AttributeDefinition[] SIMPLE_ROOT_RESOURCE_WRITE_ATTRIBUTES = { FAILOVER_ON_SHUTDOWN, MESSAGE_COUNTER_ENABLED,
+    AttributeDefinition[] SIMPLE_ROOT_RESOURCE_WRITE_ATTRIBUTES = { MESSAGE_COUNTER_ENABLED,
             MESSAGE_COUNTER_MAX_DAY_HISTORY, MESSAGE_COUNTER_SAMPLE_PERIOD };
 }

@@ -113,20 +113,6 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
     }
 
     @Override
-    protected void handleUnknownConfigurationAttribute(XMLExtendedStreamReader reader, Element element, ModelNode operation) throws XMLStreamException {
-        switch (element) {
-            case CHECK_FOR_LIVE_SERVER:
-            case BACKUP_GROUP_NAME:
-            case REPLICATION_CLUSTERNAME:
-                handleElementText(reader, element, operation);
-                break;
-            default: {
-                super.handleUnknownConfigurationAttribute(reader, element, operation);
-            }
-        }
-    }
-
-    @Override
     protected void handleComplexConfigurationAttribute(XMLExtendedStreamReader reader, Element element, ModelNode operation) throws XMLStreamException {
         switch (element) {
             case REMOTING_INCOMING_INTERCEPTORS:
