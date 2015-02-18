@@ -231,6 +231,6 @@ public class MessagingExtension implements Extension {
     }
 
     public void initializeParsers(ExtensionParsingContext context) {
-        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_ACTIVEMQ6_1_0.getUriString(), Messaging30SubsystemParser.getInstance());
+        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_ACTIVEMQ6_1_0.getUriString(), Messaging20SubsystemParser.getInstance());
     }
 }
