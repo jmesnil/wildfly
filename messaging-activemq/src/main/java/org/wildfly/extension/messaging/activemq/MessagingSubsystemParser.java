@@ -393,6 +393,7 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                 case CALL_FAILOVER_TIMEOUT:
                 case NOTIFICATION_ATTEMPTS:
                 case NOTIFICATION_INTERVAL:
+                case CALL_TIMEOUT:
                     handleElementText(reader, element, clusterConnectionAdd);
                     break;
                 case ADDRESS:  {
@@ -410,6 +411,12 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                 case USE_DUPLICATE_DETECTION:
                 case RETRY_INTERVAL:
                 case INITIAL_CONNECT_ATTEMPTS:
+                case CHECK_PERIOD:
+                case CONNECTION_TTL:
+                case MAX_RETRY_INTERVAL:
+                case RECONNECT_ATTEMPTS:
+                case RETRY_INTERVAL_MULTIPLIER:
+
                     // Use the "cluster" variant
                     handleElementText(reader, element, "cluster", clusterConnectionAdd);
                     break;
@@ -423,6 +430,10 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                     ClusterConnectionDefinition.DISCOVERY_GROUP_NAME.parseAndSetParameter(groupRef, clusterConnectionAdd, reader);
                     break;
                 }
+                case MIN_LARGE_MESSAGE_SIZE:
+                    handleElementText(reader, element, "default", clusterConnectionAdd);
+                    break;
+
                 default: {
                     handleUnknownClusterConnectionAttribute(reader, element, clusterConnectionAdd);
                 }
@@ -444,6 +455,7 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
     }
 
     protected void checkClusterConnectionConstraints(XMLExtendedStreamReader reader, Set<Element> seen) throws XMLStreamException {
+        checkOnlyOneOfElements(reader, seen, Element.STATIC_CONNECTORS, Element.DISCOVERY_GROUP_REF);
     }
 
     protected void checkBroadcastGroupConstraints(XMLExtendedStreamReader reader, Set<Element> seen) throws XMLStreamException {
@@ -485,24 +497,28 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                 case TRANSFORMER_CLASS_NAME:
                 case USER:
                 case PASSWORD:
+                case RECONNECT_ATTEMPTS_ON_SAME_NODE:
                     handleElementText(reader, element, bridgeAdd);
-                    break;
-                case CONFIRMATION_WINDOW_SIZE:
-                    handleElementText(reader, element, "bridge", bridgeAdd);
                     break;
                 case FILTER:  {
                     String string = readStringAttributeElement(reader, CommonAttributes.STRING);
                     FILTER.parseAndSetParameter(string, bridgeAdd, reader);
                     break;
                 }
-                case RETRY_INTERVAL_MULTIPLIER:
+                case CHECK_PERIOD:
+                case CONNECTION_TTL:
+                case MAX_RETRY_INTERVAL:
+                case MIN_LARGE_MESSAGE_SIZE:
                 case RETRY_INTERVAL:
+                case RETRY_INTERVAL_MULTIPLIER:
                     // Use the "default" variant
-                    handleElementText(reader, element, DEFAULT, bridgeAdd);
+                    handleElementText(reader, element, "default", bridgeAdd);
                     break;
+                case CONFIRMATION_WINDOW_SIZE:
                 case FORWARDING_ADDRESS:
                 case RECONNECT_ATTEMPTS:
                 case USE_DUPLICATE_DETECTION:
+                case INITIAL_CONNECT_ATTEMPTS:
                     handleElementText(reader, element, "bridge", bridgeAdd);
                     break;
                 case STATIC_CONNECTORS:
@@ -1561,10 +1577,10 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                 // =========================================================
                 // elements specific to pooled connection factories
                 case INBOUND_CONFIG: {
-                    if(!pooled) {
+                    if (!pooled) {
                         throw unexpectedElement(reader);
                     }
-                    while(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+                    while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
                         final Element local = Element.forName(reader.getLocalName());
                         switch (local) {
                             case USE_JNDI:
@@ -1578,6 +1594,14 @@ public class MessagingSubsystemParser implements XMLStreamConstants, XMLElementR
                                 throw unexpectedElement(reader);
                         }
                     }
+                    break;
+                }
+                case MAX_POOL_SIZE:
+                case MIN_POOL_SIZE: {
+                    if (!pooled) {
+                        throw unexpectedElement(reader);
+                    }
+                    handleElementText(reader, element, connectionFactory);
                     break;
                 } case TRANSACTION: {
                     if(!pooled) {

@@ -78,7 +78,7 @@ import org.jboss.staxmapper.XMLExtendedStreamReader;
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a>
  *
  */
-public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
+public class Messaging13SubsystemParser extends MessagingSubsystemParser {
 
     private static final Messaging13SubsystemParser INSTANCE = new Messaging13SubsystemParser();
 
@@ -360,19 +360,6 @@ public class Messaging13SubsystemParser extends Messaging12SubsystemParser {
         }
     }
 
-    @Override
-    protected void handleUnknownBridgeAttribute(XMLExtendedStreamReader reader, Element element, ModelNode bridgeAdd) throws XMLStreamException {
-        switch (element) {
-            case RECONNECT_ATTEMPTS_ON_SAME_NODE:
-                handleElementText(reader, element, bridgeAdd);
-                break;
-            case INITIAL_CONNECT_ATTEMPTS:
-                handleElementText(reader, element, "bridge", bridgeAdd);
-                break;
-            default:
-                super.handleUnknownBridgeAttribute(reader, element, bridgeAdd);
-        }
-    }
 
     @Override
     protected void handleUnknownAddressSetting(XMLExtendedStreamReader reader, Element element, ModelNode addressSettingsAdd) throws XMLStreamException {
