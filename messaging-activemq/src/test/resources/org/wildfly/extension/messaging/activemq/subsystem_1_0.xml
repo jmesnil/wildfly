@@ -1,4 +1,3 @@
-
 <subsystem xmlns="urn:jboss:domain:messaging-activemq:1.0">
     <server>
         <!-- disable messaging persistence -->

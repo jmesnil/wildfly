@@ -22,15 +22,19 @@
 
 package org.wildfly.extension.messaging.activemq;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
-import org.jboss.as.controller.SimpleResourceDefinition;
 
 /**
  * {@link org.jboss.as.controller.ResourceDefinition} for the messaging subsystem root resource.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class MessagingSubsystemRootResourceDefinition extends SimpleResourceDefinition {
+public class MessagingSubsystemRootResourceDefinition extends PersistentResourceDefinition {
 
     public static final MessagingSubsystemRootResourceDefinition INSTANCE = new MessagingSubsystemRootResourceDefinition();
 
@@ -39,5 +43,10 @@ public class MessagingSubsystemRootResourceDefinition extends SimpleResourceDefi
                 MessagingExtension.getResourceDescriptionResolver(MessagingExtension.SUBSYSTEM_NAME),
                 MessagingSubsystemAdd.INSTANCE,
                 ReloadRequiredRemoveStepHandler.INSTANCE);
+    }
+
+    @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Collections.emptyList();
     }
 }

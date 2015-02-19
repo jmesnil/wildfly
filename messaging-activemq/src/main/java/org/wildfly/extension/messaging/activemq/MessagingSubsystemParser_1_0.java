@@ -116,11 +116,7 @@ import org.jboss.staxmapper.XMLExtendedStreamReader;
  */
 public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElementReader<List<ModelNode>> {
 
-    private static final MessagingSubsystemParser_1_0 INSTANCE = new MessagingSubsystemParser_1_0();
-
-    public static MessagingSubsystemParser_1_0 getInstance() {
-        return INSTANCE;
-    }
+    protected static final MessagingSubsystemParser_1_0 INSTANCE = new MessagingSubsystemParser_1_0();
 
     private static final EnumSet<Element> SIMPLE_ROOT_RESOURCE_ELEMENTS = EnumSet.noneOf(Element.class);
 
@@ -130,7 +126,7 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
         }
     }
 
-    protected MessagingSubsystemParser_1_0() {
+    private MessagingSubsystemParser_1_0() {
         //
     }
 
