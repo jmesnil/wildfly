@@ -65,11 +65,13 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.TRANSACT
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.TRANSACTION_TIMEOUT_SCAN_PERIOD;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.WILD_CARD_ROUTING_ENABLED;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Locale;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
-import org.jboss.as.controller.SimpleResourceDefinition;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.descriptions.DefaultResourceDescriptionProvider;
 import org.jboss.as.controller.descriptions.DescriptionProvider;
 import org.jboss.as.controller.registry.ImmutableManagementResourceRegistration;
@@ -82,9 +84,11 @@ import org.wildfly.extension.messaging.activemq.jms.JMSServerControlHandler;
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class HornetQServerResourceDefinition extends SimpleResourceDefinition {
+public class HornetQServerResourceDefinition extends PersistentResourceDefinition {
 
     public static final PathElement HORNETQ_SERVER_PATH = PathElement.pathElement(CommonAttributes.SERVER);
+
+    protected static final PersistentResourceDefinition INSTANCE = new HornetQServerResourceDefinition(false);
 
     public static final AttributeDefinition[] ATTRIBUTES_WITH_EXPRESSION_ALLOWED_IN_1_2_0 = { ASYNC_CONNECTION_EXECUTION_ENABLED, PERSISTENCE_ENABLED, SECURITY_ENABLED, SECURITY_INVALIDATION_INTERVAL,
             WILD_CARD_ROUTING_ENABLED, MANAGEMENT_ADDRESS, MANAGEMENT_NOTIFICATION_ADDRESS, JMX_MANAGEMENT_ENABLED, JMX_DOMAIN,
@@ -131,6 +135,11 @@ public class HornetQServerResourceDefinition extends SimpleResourceDefinition {
         // getConnectors, getAddressNames, getQueueNames, getDivertNames, getBridgeNames,
         // unsupported JMSServerControlHandler READ-ATTRIBUTES
         // getTopicNames, getQueueNames, getConnectionFactoryNames,
+    }
+
+    @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(CommonAttributes.SIMPLE_ROOT_RESOURCE_ATTRIBUTES);
     }
 
     /**
