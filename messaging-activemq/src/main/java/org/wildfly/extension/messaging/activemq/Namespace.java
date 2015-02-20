@@ -35,12 +35,14 @@ import java.util.Map;
 public enum Namespace {
    // must be first
    UNKNOWN(null),
-   MESSAGING_ACTIVEMQ6_1_0("urn:jboss:domain:messaging-activemq:1.0");
+   MESSAGING_ACTIVEMQ6_1_0("urn:jboss:domain:messaging-activemq:1.0"),
+   MESSAGING_ACTIVEMQ6_1_1("urn:jboss:domain:messaging-activemq:1.1");
 
-   /**
+
+    /**
     * The current namespace version.
     */
-   public static final Namespace CURRENT = MESSAGING_ACTIVEMQ6_1_0;
+   public static final Namespace CURRENT = MESSAGING_ACTIVEMQ6_1_1;
 
    private final String name;
 

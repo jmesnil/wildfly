@@ -52,7 +52,19 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
         xmlDescription = builder(MessagingSubsystemRootResourceDefinition.INSTANCE)
                 .addChild(
                         builder(HornetQServerResourceDefinition.INSTANCE)
-                                .addAttribute(CommonAttributes.PERSISTENCE_ENABLED)
+                                .addAttributes(CommonAttributes.PERSISTENCE_ENABLED,
+                                        CommonAttributes.SCHEDULED_THREAD_POOL_MAX_SIZE,
+                                        CommonAttributes.THREAD_POOL_MAX_SIZE,
+                                        // security
+                                        CommonAttributes.SECURITY_DOMAIN,
+                                        CommonAttributes.SECURITY_ENABLED,
+                                        CommonAttributes.SECURITY_INVALIDATION_INTERVAL,
+                                        CommonAttributes.OVERRIDE_IN_VM_SECURITY,
+                                        // cluster
+                                        CommonAttributes.CLUSTER_USER,
+                                        CommonAttributes.CLUSTER_PASSWORD
+
+                                )
                 )
                 .build();
     }
