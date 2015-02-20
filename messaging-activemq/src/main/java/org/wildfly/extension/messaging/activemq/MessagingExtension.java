@@ -30,6 +30,7 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICAT
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_MASTER;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_SLAVE;
 import static org.wildfly.extension.messaging.activemq.Namespace.MESSAGING_ACTIVEMQ6_1_0;
+import static org.wildfly.extension.messaging.activemq.Namespace.MESSAGING_ACTIVEMQ6_1_1;
 
 import org.jboss.as.controller.Extension;
 import org.jboss.as.controller.ExtensionContext;
@@ -106,7 +107,7 @@ public class MessagingExtension implements Extension {
                 MANAGEMENT_API_MAJOR_VERSION,
                 MANAGEMENT_API_MINOR_VERSION,
                 MANAGEMENT_API_MICRO_VERSION);
-        subsystem.registerXMLElementWriter(MessagingXMLWriter.INSTANCE);
+        subsystem.registerXMLElementWriter(MessagingSubsystemParser_1_1.INSTANCE);
 
         boolean registerRuntimeOnly = context.isRuntimeOnlyRegistrationValid();
 
@@ -232,5 +233,6 @@ public class MessagingExtension implements Extension {
 
     public void initializeParsers(ExtensionParsingContext context) {
         context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_ACTIVEMQ6_1_0.getUriString(), MessagingSubsystemParser_1_0.INSTANCE);
+        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_ACTIVEMQ6_1_1.getUriString(), MessagingSubsystemParser_1_1.INSTANCE);
     }
 }

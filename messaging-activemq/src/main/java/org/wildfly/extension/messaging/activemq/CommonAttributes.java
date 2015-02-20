@@ -40,6 +40,7 @@ import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.config.impl.FileConfiguration;
 import org.apache.activemq.core.server.JournalType;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.AttributeMarshaller;
 import org.jboss.as.controller.ModelVersion;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
@@ -107,6 +108,8 @@ public interface CommonAttributes {
             .build();
 
     SimpleAttributeDefinition CLUSTER_PASSWORD = create("cluster-password", ModelType.STRING)
+            .setAttributeGroup("cluster")
+            .setXmlName("password")
             .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterPassword()))
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -116,6 +119,8 @@ public interface CommonAttributes {
             .build();
 
     SimpleAttributeDefinition CLUSTER_USER = create("cluster-user", ModelType.STRING)
+            .setAttributeGroup("cluster")
+            .setXmlName("user")
             .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterUser()))
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -437,6 +442,7 @@ public interface CommonAttributes {
             .build();
 
     SimpleAttributeDefinition OVERRIDE_IN_VM_SECURITY = create("override-in-vm-security", BOOLEAN)
+            .setAttributeGroup("security")
             .setDefaultValue(new ModelNode(true))
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -536,6 +542,8 @@ public interface CommonAttributes {
             .build();
 
     SimpleAttributeDefinition SECURITY_DOMAIN = create("security-domain", ModelType.STRING)
+            .setAttributeGroup("security")
+            .setXmlName("domain")
             .setDefaultValue(new ModelNode("other"))
             .setAllowNull(true)
             .setAllowExpression(false) // references the security domain service name
@@ -545,6 +553,8 @@ public interface CommonAttributes {
             .build();
 
     SimpleAttributeDefinition SECURITY_ENABLED = create("security-enabled", BOOLEAN)
+            .setAttributeGroup("security")
+            .setXmlName("enabled")
             .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultSecurityEnabled()))
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -553,6 +563,8 @@ public interface CommonAttributes {
             .build();
 
     SimpleAttributeDefinition SECURITY_INVALIDATION_INTERVAL = create("security-invalidation-interval", LONG)
+            .setAttributeGroup("security")
+            .setXmlName("invalidation-interval")
             .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultSecurityInvalidationInterval()))
             .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)
