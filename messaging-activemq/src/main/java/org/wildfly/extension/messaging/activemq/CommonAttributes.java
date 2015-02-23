@@ -25,7 +25,6 @@ package org.wildfly.extension.messaging.activemq;
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.BYTES;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
-import static org.jboss.as.controller.client.helpers.MeasurementUnit.PERCENTAGE;
 import static org.jboss.as.controller.registry.AttributeAccess.Flag.RESTART_ALL_SERVICES;
 import static org.jboss.dmr.ModelType.BIG_DECIMAL;
 import static org.jboss.dmr.ModelType.BOOLEAN;
@@ -37,12 +36,11 @@ import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.config.impl.FileConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.ModelVersion;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
+import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.as.controller.access.constraint.SensitivityClassification;
 import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
-import org.jboss.as.controller.operations.validation.IntRangeValidator;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
@@ -114,20 +112,6 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
-    SimpleAttributeDefinition CREATE_BINDINGS_DIR = create("create-bindings-dir", BOOLEAN)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultCreateBindingsDir()))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
-    SimpleAttributeDefinition CREATE_JOURNAL_DIR = create("create-journal-dir", BOOLEAN)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultCreateJournalDir()))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
     SimpleAttributeDefinition DEAD_LETTER_ADDRESS = create("dead-letter-address", ModelType.STRING)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -176,13 +160,6 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
-    SimpleAttributeDefinition ID_CACHE_SIZE = create("id-cache-size", INT)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultIdCacheSize()))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
     SimpleAttributeDefinition JGROUPS_STACK = create("jgroups-stack", ModelType.STRING)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -209,47 +186,8 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
-    SimpleAttributeDefinition MEMORY_MEASURE_INTERVAL = create("memory-measure-interval", LONG)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultMemoryMeasureInterval()))
-            .setMeasurementUnit(MILLISECONDS)
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
-    SimpleAttributeDefinition MEMORY_WARNING_THRESHOLD = create("memory-warning-threshold", INT)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultMemoryWarningThreshold()))
-            .setMeasurementUnit(PERCENTAGE)
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
     AttributeDefinition MESSAGE_COUNT = create("message-count", LONG)
             .setStorageRuntime()
-            .build();
-
-    SimpleAttributeDefinition MESSAGE_COUNTER_ENABLED = create("message-counter-enabled", BOOLEAN)
-            .setDefaultValue(new ModelNode(false))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setDeprecated(ModelVersion.create(2))
-            .build();
-
-    SimpleAttributeDefinition MESSAGE_EXPIRY_SCAN_PERIOD = create("message-expiry-scan-period", LONG)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultMessageExpiryScanPeriod()))
-            .setMeasurementUnit(MILLISECONDS)
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
-    SimpleAttributeDefinition MESSAGE_EXPIRY_THREAD_PRIORITY = create("message-expiry-thread-priority", INT)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultMessageExpiryThreadPriority()))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setValidator(new IntRangeValidator(Thread.MIN_PRIORITY, Thread.MAX_PRIORITY, true, true))
-            .setRestartAllServices()
             .build();
 
     AttributeDefinition MESSAGES_ADDED = create("messages-added", LONG)
@@ -264,56 +202,26 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
-    SimpleAttributeDefinition PAGE_MAX_CONCURRENT_IO = create("page-max-concurrent-io", INT)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultMaxConcurrentPageIo()))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
     AttributeDefinition PAUSED = create("paused", BOOLEAN)
             .setStorageRuntime()
             .build();
 
-    SimpleAttributeDefinition PERF_BLAST_PAGES = create("perf-blast-pages", INT)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultJournalPerfBlastPages()))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
-    SimpleAttributeDefinition PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY = create("persist-delivery-count-before-delivery", BOOLEAN)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultPersistDeliveryCountBeforeDelivery()))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
-    SimpleAttributeDefinition PERSIST_ID_CACHE = create("persist-id-cache", BOOLEAN)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultPersistIdCache()))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
-    PrimitiveListAttributeDefinition REMOTING_INCOMING_INTERCEPTORS = new PrimitiveListAttributeDefinition.Builder("remoting-incoming-interceptors", ModelType.STRING)
+    StringListAttributeDefinition REMOTING_INCOMING_INTERCEPTORS = new StringListAttributeDefinition.Builder("remoting-incoming-interceptors")
             .setAllowNull(true)
             .setAllowExpression(false)
             .setMinSize(1)
             .setMaxSize(Integer.MAX_VALUE)
             .setRestartAllServices()
             .setElementValidator(new StringLengthValidator(1, false, true))
-            .setAttributeMarshaller(AttributeMarshallers.INTERCEPTOR_MARSHALLER)
             .build();
 
-    PrimitiveListAttributeDefinition REMOTING_OUTGOING_INTERCEPTORS = new PrimitiveListAttributeDefinition.Builder("remoting-outgoing-interceptors", ModelType.STRING)
+    StringListAttributeDefinition REMOTING_OUTGOING_INTERCEPTORS = new StringListAttributeDefinition.Builder("remoting-outgoing-interceptors")
             .setAllowNull(true)
             .setAllowExpression(false)
             .setMinSize(1)
             .setMaxSize(Integer.MAX_VALUE)
             .setRestartAllServices()
             .setElementValidator(new StringLengthValidator(1, false, true))
-            .setAttributeMarshaller(AttributeMarshallers.INTERCEPTOR_MARSHALLER)
             .build();
 
     AttributeDefinition RETRY_INTERVAL = create("retry-interval", LONG)
@@ -331,13 +239,6 @@ public interface CommonAttributes {
             .setRestartAllServices()
             .build();
 
-    SimpleAttributeDefinition RUN_SYNC_SPEED_TEST = create("run-sync-speed-test", BOOLEAN)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultRunSyncSpeedTest()))
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
     AttributeDefinition SCHEDULED_COUNT = create("scheduled-count", LONG)
             .setStorageRuntime()
             .build();
@@ -346,14 +247,6 @@ public interface CommonAttributes {
             .setAllowNull(true)
             .setAllowExpression(true)
             .setAttributeMarshaller(AttributeMarshallers.SELECTOR_MARSHALLER)
-            .setRestartAllServices()
-            .build();
-
-    SimpleAttributeDefinition SERVER_DUMP_INTERVAL = create("server-dump-interval", LONG)
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultServerDumpInterval()))
-            .setMeasurementUnit(MILLISECONDS)
-            .setAllowNull(true)
-            .setAllowExpression(true)
             .setRestartAllServices()
             .build();
 
@@ -506,21 +399,4 @@ public interface CommonAttributes {
     String VERSION = "version";
     String XA = "xa";
     String XA_TX = "XATransaction";
-
-    AttributeDefinition[] SIMPLE_ROOT_RESOURCE_ATTRIBUTES = { HornetQServerResourceDefinition.PERSISTENCE_ENABLED, HornetQServerResourceDefinition.SCHEDULED_THREAD_POOL_MAX_SIZE,
-            HornetQServerResourceDefinition.THREAD_POOL_MAX_SIZE, HornetQServerResourceDefinition.SECURITY_DOMAIN, HornetQServerResourceDefinition.SECURITY_ENABLED, HornetQServerResourceDefinition.SECURITY_INVALIDATION_INTERVAL, HornetQServerResourceDefinition.OVERRIDE_IN_VM_SECURITY, HornetQServerResourceDefinition.WILD_CARD_ROUTING_ENABLED,
-            HornetQServerResourceDefinition.MANAGEMENT_ADDRESS, HornetQServerResourceDefinition.MANAGEMENT_NOTIFICATION_ADDRESS, HornetQServerResourceDefinition.CLUSTER_USER, HornetQServerResourceDefinition.CLUSTER_PASSWORD, HornetQServerResourceDefinition.JMX_MANAGEMENT_ENABLED,
-            HornetQServerResourceDefinition.JMX_DOMAIN, HornetQServerResourceDefinition.STATISTICS_ENABLED, MESSAGE_COUNTER_ENABLED, HornetQServerResourceDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD, HornetQServerResourceDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY,
-            HornetQServerResourceDefinition.CONNECTION_TTL_OVERRIDE, HornetQServerResourceDefinition.ASYNC_CONNECTION_EXECUTION_ENABLED, HornetQServerResourceDefinition.TRANSACTION_TIMEOUT, HornetQServerResourceDefinition.TRANSACTION_TIMEOUT_SCAN_PERIOD,
-            MESSAGE_EXPIRY_SCAN_PERIOD, MESSAGE_EXPIRY_THREAD_PRIORITY, ID_CACHE_SIZE, PERSIST_ID_CACHE,
-            REMOTING_INCOMING_INTERCEPTORS, REMOTING_OUTGOING_INTERCEPTORS,
-            PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY,
-            PAGE_MAX_CONCURRENT_IO, CREATE_BINDINGS_DIR, CREATE_JOURNAL_DIR, HornetQServerResourceDefinition.JOURNAL_TYPE, HornetQServerResourceDefinition.JOURNAL_BUFFER_TIMEOUT,
-            HornetQServerResourceDefinition.JOURNAL_BUFFER_SIZE, HornetQServerResourceDefinition.JOURNAL_SYNC_TRANSACTIONAL, HornetQServerResourceDefinition.JOURNAL_SYNC_NON_TRANSACTIONAL, HornetQServerResourceDefinition.LOG_JOURNAL_WRITE_RATE,
-            HornetQServerResourceDefinition.JOURNAL_FILE_SIZE, HornetQServerResourceDefinition.JOURNAL_MIN_FILES, HornetQServerResourceDefinition.JOURNAL_COMPACT_PERCENTAGE, HornetQServerResourceDefinition.JOURNAL_COMPACT_MIN_FILES, HornetQServerResourceDefinition.JOURNAL_MAX_IO,
-            PERF_BLAST_PAGES, RUN_SYNC_SPEED_TEST, SERVER_DUMP_INTERVAL, MEMORY_WARNING_THRESHOLD, MEMORY_MEASURE_INTERVAL,
-    };
-
-    AttributeDefinition[] SIMPLE_ROOT_RESOURCE_WRITE_ATTRIBUTES = { MESSAGE_COUNTER_ENABLED,
-            HornetQServerResourceDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY, HornetQServerResourceDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD };
 }

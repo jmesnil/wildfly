@@ -1,61 +1,85 @@
 <subsystem xmlns="urn:jboss:domain:messaging-activemq:1.1">
     <server name="default"
             persistence-enabled="${persistence.enabled:false}"
+            persist-id-cache="${persist.id.cache:false}"
+            persist-delivery-count-before-delivery="${persist.delivery.count.before.delivery:true}"
+            id-cache-size="${id.cache.size:102030}"
+            page-max-concurrent-io="${page.max.concurrent.io:10}"
             scheduled-thread-pool-max-size="${messaging.scheduled.thread.pool.max.size:6}"
             thread-pool-max-size="${messaging.thread.pool.max.size:5}"
             wild-card-routing-enabled="${wild.card.routing.enabled:false}"
             connection-ttl-override="${connection.ttl.override:5432}"
             async-connection-execution-enabled="${async.connection.execution.enabled:false}"
 
-    >
-        <security domain="someDomain"
-            enabled="${security.enabled:false}"
-            invalidation-interval="${security.invalidation.interval:1234}"
-            override-in-vm-security="${override.in-vm.security:false}" />
-        <cluster user="${messaging.cluster.user.name}"
-                 password="${messaging.cluster.user.password}" />
+            >
+        <security
+                domain="someDomain"
+                enabled="${security.enabled:false}"
+                invalidation-interval="${security.invalidation.interval:1234}"
+                override-in-vm-security="${override.in-vm.security:false}"/>
+        <cluster
+                user="${messaging.cluster.user.name}"
+                password="${messaging.cluster.user.password}"/>
         <management
-            address="${management.address:my.management.address}"
-            notification-address="${management.notification.address:my.management.notif.address}"
-            jmx-enabled="${jmx.management.enabled:false}"
-            jmx-domain="${jmx.domain:my.jmx.domain}" />
+                address="${management.address:my.management.address}"
+                notification-address="${management.notification.address:my.management.notif.address}"
+                jmx-enabled="${jmx.management.enabled:false}"
+                jmx-domain="${jmx.domain:my.jmx.domain}"/>
         <journal
-            type="${journal.type:NIO}"
-            buffer-timeout="${journal.buffer.timeout:1357}"
-            buffer-size="${journal.buffer.size:2468}"
-            sync-transactional="${journal.sync.transactional:false}"
-            sync-non-transactional="${journal.sync.non.transactional:true}"
-            log-write-rate="${log.journal.write.rate:true}"
-            file-size="${journal.file.size:102400}"
-            min-files="${journal.min.files:2}"
-            compact-percentage="${journal.compact.percentage:83}"
-            compact-min-files="${journal.compact.min.files:2}"
-            max-io="${journal.max.io:50}"
-            />
+                type="${journal.type:NIO}"
+                buffer-timeout="${journal.buffer.timeout:1357}"
+                buffer-size="${journal.buffer.size:2468}"
+                sync-transactional="${journal.sync.transactional:false}"
+                sync-non-transactional="${journal.sync.non.transactional:true}"
+                log-write-rate="${log.journal.write.rate:true}"
+                file-size="${journal.file.size:102400}"
+                min-files="${journal.min.files:2}"
+                compact-percentage="${journal.compact.percentage:83}"
+                compact-min-files="${journal.compact.min.files:2}"
+                max-io="${journal.max.io:50}"
+                create-bindings-dir="${create.bindings.dir:false}"
+                create-journal-dir="${create.journal.dir:true}"
+                />
         <statistics
-            enabled="${statistics.enabled:true}"
-            message-counter-sample-period="${message.counter.sample.period:7654}"
-            message-counter-max-day-history="${message.counter.max.day.history:23}" />
+                enabled="${statistics.enabled:true}"
+                message-counter-sample-period="${message.counter.sample.period:7654}"
+                message-counter-max-day-history="${message.counter.max.day.history:23}"/>
         <transaction
-            timeout="${transaction.timeout:4321}"
-            scan-period="${transaction.timeout.scan.period:5432}" />
+                timeout="${transaction.timeout:4321}"
+                scan-period="${transaction.timeout.scan.period:5432}"/>
+        <message-expiry
+                scan-period="${message.expiry.scan.period:7654}"
+                thread-priority="${message.expiry.thread.priority:7}"/>
+
+        <debug
+                perf-blast-pages="${perf.blast.pages:70}"
+                run-sync-speed-test="${run.sync.speed.test:false}"
+                server-dump-interval="${server.dump.interval:8642}"
+                memory-warning-threshold="${memory.warning.threshold:1024}"
+                memory-measure-interval="${memory.measure.interval:2048}"/>
+
+        <core-queues>
+            <queue name="coreQueueA"
+                    address="${address:addressA}"
+                    filter="${filter:afilter}"
+                    durable="${durable:true}" />
+            <queue name="coreQueueB"
+                    address="addressB" />
+        </core-queues>
+
+        <!--
+        <paging-directory path="${my.paging.dir:test}" relative-to="test" />
+        <bindings-directory path="${my.bindings.dir:test}" relative-to="test" />
+        <journal-directory path="${my.journal.dir:test}" relative-to="test" />
+        <large-messages-directory path="${my.largemessages.dir:test}" relative-to="test" />
+-->
+
+
 
         <!--
 
 
-        <transaction-timeout>${transaction.timeout:4321}</transaction-timeout>
-        <transaction-timeout-scan-period>${transaction.timeout.scan.period:5432}</transaction-timeout-scan-period>
-        <message-expiry-scan-period>${message.expiry.scan.period:7654}</message-expiry-scan-period>
-        <message-expiry-thread-priority>${message.expiry.thread.priority:7}</message-expiry-thread-priority>
-        <id-cache-size>${id.cache.size:102030}</id-cache-size>
-        <persist-id-cache>${persist.id.cache:false}</persist-id-cache>
-        <persist-delivery-count-before-delivery>${persist.delivery.count.before.delivery:true}</persist-delivery-count-before-delivery>
-        <page-max-concurrent-io>${page.max.concurrent.io:10}</page-max-concurrent-io>
-        <perf-blast-pages>${perf.blast.pages:70}</perf-blast-pages>
-        <run-sync-speed-test>${run.sync.speed.test:false}</run-sync-speed-test>
-        <server-dump-interval>${server.dump.interval:8642}</server-dump-interval>
-        <memory-warning-threshold>1024</memory-warning-threshold>
-        <memory-measure-interval>2048</memory-measure-interval>
+
         <create-bindings-dir>${create.bindings.dir:false}</create-bindings-dir>
         <create-journal-dir>${create.journal.dir:true}</create-journal-dir>
         <paging-directory path="${my.paging.dir:test}" relative-to="test" />
@@ -415,11 +439,8 @@
         -->
     </server>
 
-    <!--
-
     <server name="empty"/>
 
--->
     <!--
     <jms-bridge>
         <source>

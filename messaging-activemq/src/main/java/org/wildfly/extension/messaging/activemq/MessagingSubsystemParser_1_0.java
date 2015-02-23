@@ -121,7 +121,7 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
     private static final EnumSet<Element> SIMPLE_ROOT_RESOURCE_ELEMENTS = EnumSet.noneOf(Element.class);
 
     static {
-        for (AttributeDefinition attr : CommonAttributes.SIMPLE_ROOT_RESOURCE_ATTRIBUTES) {
+        for (AttributeDefinition attr : HornetQServerResourceDefinition.ATTRIBUTES) {
             SIMPLE_ROOT_RESOURCE_ELEMENTS.add(Element.forName(attr.getXmlName()));
         }
     }
@@ -289,11 +289,6 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                 case THREAD_POOL_MAX_SIZE: {
                     // Use the "server" variant
                     handleElementText(reader, element, "server", operation);
-                    break;
-                }
-                case MESSAGE_COUNTER_ENABLED: {
-                    MessagingLogger.ROOT_LOGGER.deprecatedXMLElement(element.toString(), Element.STATISTICS_ENABLED.toString());
-                    handleElementText(reader, element, operation);
                     break;
                 }
                 default:
