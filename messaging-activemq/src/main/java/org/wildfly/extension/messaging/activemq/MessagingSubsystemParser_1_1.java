@@ -52,18 +52,46 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
         xmlDescription = builder(MessagingSubsystemRootResourceDefinition.INSTANCE)
                 .addChild(
                         builder(HornetQServerResourceDefinition.INSTANCE)
-                                .addAttributes(CommonAttributes.PERSISTENCE_ENABLED,
-                                        CommonAttributes.SCHEDULED_THREAD_POOL_MAX_SIZE,
-                                        CommonAttributes.THREAD_POOL_MAX_SIZE,
+                                .addAttributes(
+                                        // no attribute groups
+                                        HornetQServerResourceDefinition.PERSISTENCE_ENABLED,
+                                        HornetQServerResourceDefinition.SCHEDULED_THREAD_POOL_MAX_SIZE,
+                                        HornetQServerResourceDefinition.THREAD_POOL_MAX_SIZE,
+                                        HornetQServerResourceDefinition.WILD_CARD_ROUTING_ENABLED,
+                                        HornetQServerResourceDefinition.CONNECTION_TTL_OVERRIDE,
+                                        HornetQServerResourceDefinition.ASYNC_CONNECTION_EXECUTION_ENABLED,
                                         // security
-                                        CommonAttributes.SECURITY_DOMAIN,
-                                        CommonAttributes.SECURITY_ENABLED,
-                                        CommonAttributes.SECURITY_INVALIDATION_INTERVAL,
-                                        CommonAttributes.OVERRIDE_IN_VM_SECURITY,
+                                        HornetQServerResourceDefinition.SECURITY_DOMAIN,
+                                        HornetQServerResourceDefinition.SECURITY_ENABLED,
+                                        HornetQServerResourceDefinition.SECURITY_INVALIDATION_INTERVAL,
+                                        HornetQServerResourceDefinition.OVERRIDE_IN_VM_SECURITY,
                                         // cluster
-                                        CommonAttributes.CLUSTER_USER,
-                                        CommonAttributes.CLUSTER_PASSWORD
-
+                                        HornetQServerResourceDefinition.CLUSTER_USER,
+                                        HornetQServerResourceDefinition.CLUSTER_PASSWORD,
+                                        // management
+                                        HornetQServerResourceDefinition.MANAGEMENT_ADDRESS,
+                                        HornetQServerResourceDefinition.MANAGEMENT_NOTIFICATION_ADDRESS,
+                                        HornetQServerResourceDefinition.JMX_MANAGEMENT_ENABLED,
+                                        HornetQServerResourceDefinition.JMX_DOMAIN,
+                                        // journal
+                                        HornetQServerResourceDefinition.JOURNAL_TYPE,
+                                        HornetQServerResourceDefinition.JOURNAL_BUFFER_TIMEOUT,
+                                        HornetQServerResourceDefinition.JOURNAL_BUFFER_SIZE,
+                                        HornetQServerResourceDefinition.JOURNAL_SYNC_TRANSACTIONAL,
+                                        HornetQServerResourceDefinition.JOURNAL_SYNC_NON_TRANSACTIONAL,
+                                        HornetQServerResourceDefinition.LOG_JOURNAL_WRITE_RATE,
+                                        HornetQServerResourceDefinition.JOURNAL_FILE_SIZE,
+                                        HornetQServerResourceDefinition.JOURNAL_MIN_FILES,
+                                        HornetQServerResourceDefinition.JOURNAL_COMPACT_PERCENTAGE,
+                                        HornetQServerResourceDefinition.JOURNAL_COMPACT_MIN_FILES,
+                                        HornetQServerResourceDefinition.JOURNAL_MAX_IO,
+                                        // statistics
+                                        HornetQServerResourceDefinition.STATISTICS_ENABLED,
+                                        HornetQServerResourceDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD,
+                                        HornetQServerResourceDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY,
+                                        // transaction
+                                        HornetQServerResourceDefinition.TRANSACTION_TIMEOUT,
+                                        HornetQServerResourceDefinition.TRANSACTION_TIMEOUT_SCAN_PERIOD
                                 )
                 )
                 .build();

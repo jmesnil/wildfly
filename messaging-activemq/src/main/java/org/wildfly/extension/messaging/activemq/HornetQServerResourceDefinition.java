@@ -22,61 +22,39 @@
 
 package org.wildfly.extension.messaging.activemq;
 
+import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
+import static org.jboss.as.controller.client.helpers.MeasurementUnit.BYTES;
+import static org.jboss.as.controller.client.helpers.MeasurementUnit.DAYS;
+import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
+import static org.jboss.as.controller.client.helpers.MeasurementUnit.PERCENTAGE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.CHILDREN;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MAX_OCCURS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MIN_OCCURS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PATH;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.ASYNC_CONNECTION_EXECUTION_ENABLED;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTION_TTL_OVERRIDE;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.CREATE_BINDINGS_DIR;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.CREATE_JOURNAL_DIR;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.ID_CACHE_SIZE;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JMX_DOMAIN;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JMX_MANAGEMENT_ENABLED;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_BUFFER_SIZE;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_BUFFER_TIMEOUT;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_COMPACT_MIN_FILES;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_COMPACT_PERCENTAGE;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_FILE_SIZE;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_MAX_IO;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_MIN_FILES;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_SYNC_NON_TRANSACTIONAL;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_SYNC_TRANSACTIONAL;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_TYPE;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.LOG_JOURNAL_WRITE_RATE;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MANAGEMENT_ADDRESS;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MANAGEMENT_NOTIFICATION_ADDRESS;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGE_COUNTER_ENABLED;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGE_COUNTER_MAX_DAY_HISTORY;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGE_COUNTER_SAMPLE_PERIOD;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGE_EXPIRY_SCAN_PERIOD;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGE_EXPIRY_THREAD_PRIORITY;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.PAGE_MAX_CONCURRENT_IO;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.PERF_BLAST_PAGES;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.PERSISTENCE_ENABLED;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.PERSIST_ID_CACHE;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.RUN_SYNC_SPEED_TEST;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_ENABLED;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_INVALIDATION_INTERVAL;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.SERVER_DUMP_INTERVAL;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.STATISTICS_ENABLED;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.TRANSACTION_TIMEOUT;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.TRANSACTION_TIMEOUT_SCAN_PERIOD;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.WILD_CARD_ROUTING_ENABLED;
+import static org.jboss.dmr.ModelType.BOOLEAN;
+import static org.jboss.dmr.ModelType.INT;
+import static org.jboss.dmr.ModelType.LONG;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.core.server.JournalType;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
+import org.jboss.as.controller.SimpleAttributeDefinition;
+import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
 import org.jboss.as.controller.descriptions.DefaultResourceDescriptionProvider;
 import org.jboss.as.controller.descriptions.DescriptionProvider;
+import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
+import org.jboss.as.controller.operations.validation.EnumValidator;
 import org.jboss.as.controller.registry.ImmutableManagementResourceRegistration;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.ModelType;
 import org.wildfly.extension.messaging.activemq.jms.JMSServerControlHandler;
 
 /**
@@ -87,19 +65,269 @@ import org.wildfly.extension.messaging.activemq.jms.JMSServerControlHandler;
 public class HornetQServerResourceDefinition extends PersistentResourceDefinition {
 
     public static final PathElement HORNETQ_SERVER_PATH = PathElement.pathElement(CommonAttributes.SERVER);
+    public static final SimpleAttributeDefinition CLUSTER_PASSWORD = create("cluster-password", ModelType.STRING)
+            .setAttributeGroup("cluster")
+            .setXmlName("password")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterPassword()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
+            .addAccessConstraint(CommonAttributes.MESSAGING_SECURITY_DEF)
+            .build();
+    public static final SimpleAttributeDefinition CLUSTER_USER = create("cluster-user", ModelType.STRING)
+            .setAttributeGroup("cluster")
+            .setXmlName("user")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterUser()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
+            .addAccessConstraint(CommonAttributes.MESSAGING_SECURITY_DEF)
+            .build();
+    public static final AttributeDefinition SCHEDULED_THREAD_POOL_MAX_SIZE = create("scheduled-thread-pool-max-size", INT)
+            .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition SECURITY_DOMAIN = create("security-domain", ModelType.STRING)
+            .setAttributeGroup("security")
+            .setXmlName("domain")
+            .setDefaultValue(new ModelNode("other"))
+            .setAllowNull(true)
+            .setAllowExpression(false) // references the security domain service name
+            .setRestartAllServices()
+            .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.SECURITY_DOMAIN_REF)
+            .addAccessConstraint(CommonAttributes.MESSAGING_SECURITY_DEF)
+            .build();
+    public static final AttributeDefinition THREAD_POOL_MAX_SIZE = create("thread-pool-max-size", INT)
+            .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.getDefaultThreadPoolMaxSize()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition OVERRIDE_IN_VM_SECURITY = create("override-in-vm-security", BOOLEAN)
+            .setAttributeGroup("security")
+            .setDefaultValue(new ModelNode(true))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition WILD_CARD_ROUTING_ENABLED = create("wild-card-routing-enabled", BOOLEAN)
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultWildcardRoutingEnabled()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition STATISTICS_ENABLED = create(ModelDescriptionConstants.STATISTICS_ENABLED, BOOLEAN)
+            .setAttributeGroup("statistics")
+            .setXmlName("enabled")
+            .setDefaultValue(new ModelNode(false))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .build();
+    // no default values, depends on whether NIO or AIO is used.
+    public static final SimpleAttributeDefinition JOURNAL_BUFFER_SIZE = create("journal-buffer-size", LONG)
+            .setAttributeGroup("journal")
+            .setXmlName("buffer-size")
+            .setMeasurementUnit(BYTES)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    // no default values, depends on whether NIO or AIO is used.
+    public static final SimpleAttributeDefinition JOURNAL_BUFFER_TIMEOUT = create("journal-buffer-timeout", LONG)
+            .setAttributeGroup("journal")
+            .setXmlName("buffer-timeout")
+            .setMeasurementUnit(MILLISECONDS)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition JOURNAL_COMPACT_MIN_FILES = create("journal-compact-min-files", INT)
+            .setAttributeGroup("journal")
+            .setXmlName("compact-min-files")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultJournalCompactMinFiles()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition JOURNAL_COMPACT_PERCENTAGE = create("journal-compact-percentage", INT)
+            .setAttributeGroup("journal")
+            .setXmlName("compact-percentage")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage()))
+            .setMeasurementUnit(PERCENTAGE)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition JOURNAL_FILE_SIZE = create("journal-file-size", LONG)
+            .setAttributeGroup("journal")
+            .setXmlName("file-size")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultJournalFileSize()))
+            .setMeasurementUnit(BYTES)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    // no default values, depends on whether NIO or AIO is used.
+    public static final SimpleAttributeDefinition JOURNAL_MAX_IO = create("journal-max-io", INT)
+            .setAttributeGroup("journal")
+            .setXmlName("max-io")
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition JOURNAL_MIN_FILES = create("journal-min-files", INT)
+            .setAttributeGroup("journal")
+            .setXmlName("min-files")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultJournalMinFiles()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition JOURNAL_SYNC_NON_TRANSACTIONAL = create("journal-sync-non-transactional", BOOLEAN)
+            .setAttributeGroup("journal")
+            .setXmlName("sync-non-transactional")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultJournalSyncNonTransactional()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition JOURNAL_SYNC_TRANSACTIONAL = create("journal-sync-transactional", BOOLEAN)
+            .setAttributeGroup("journal")
+            .setXmlName("sync-transactional")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultJournalSyncTransactional()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition JOURNAL_TYPE = create("journal-type", ModelType.STRING)
+            .setAttributeGroup("journal")
+            .setXmlName("type")
+            .setDefaultValue(new ModelNode(ConfigurationImpl.DEFAULT_JOURNAL_TYPE.toString()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setValidator(new EnumValidator<JournalType>(JournalType.class, true, true))
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition LOG_JOURNAL_WRITE_RATE = create("log-journal-write-rate", BOOLEAN)
+            .setAttributeGroup("journal")
+            .setXmlName("log-write-rate")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultJournalLogWriteRate()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition CONNECTION_TTL_OVERRIDE = create("connection-ttl-override", LONG)
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultConnectionTtlOverride()))
+            .setMeasurementUnit(MILLISECONDS)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition ASYNC_CONNECTION_EXECUTION_ENABLED = create("async-connection-execution-enabled", BOOLEAN)
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultAsyncConnectionExecutionEnabled()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition MESSAGE_COUNTER_MAX_DAY_HISTORY = create("message-counter-max-day-history", INT)
+            .setAttributeGroup("statistics")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultMessageCounterMaxDayHistory()))
+            .setMeasurementUnit(DAYS)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .build();
+    public static final SimpleAttributeDefinition MESSAGE_COUNTER_SAMPLE_PERIOD = create("message-counter-sample-period", LONG)
+            .setAttributeGroup("statistics")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultMessageCounterSamplePeriod()))
+            .setMeasurementUnit(MILLISECONDS)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .build();
+    public static final SimpleAttributeDefinition TRANSACTION_TIMEOUT = create("transaction-timeout", LONG)
+            .setAttributeGroup("transaction")
+            .setXmlName("timeout")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultTransactionTimeout()))
+            .setMeasurementUnit(MILLISECONDS)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition TRANSACTION_TIMEOUT_SCAN_PERIOD = create("transaction-timeout-scan-period", LONG)
+            .setAttributeGroup("transaction")
+            .setXmlName("scan-period")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultTransactionTimeoutScanPeriod()))
+            .setMeasurementUnit(MILLISECONDS)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
 
     protected static final PersistentResourceDefinition INSTANCE = new HornetQServerResourceDefinition(false);
 
-    public static final AttributeDefinition[] ATTRIBUTES_WITH_EXPRESSION_ALLOWED_IN_1_2_0 = { ASYNC_CONNECTION_EXECUTION_ENABLED, PERSISTENCE_ENABLED, SECURITY_ENABLED, SECURITY_INVALIDATION_INTERVAL,
-            WILD_CARD_ROUTING_ENABLED, MANAGEMENT_ADDRESS, MANAGEMENT_NOTIFICATION_ADDRESS, JMX_MANAGEMENT_ENABLED, JMX_DOMAIN,
-            STATISTICS_ENABLED, MESSAGE_COUNTER_ENABLED, MESSAGE_COUNTER_SAMPLE_PERIOD, MESSAGE_COUNTER_MAX_DAY_HISTORY,
-            CONNECTION_TTL_OVERRIDE, TRANSACTION_TIMEOUT, TRANSACTION_TIMEOUT_SCAN_PERIOD,
-            MESSAGE_EXPIRY_SCAN_PERIOD, MESSAGE_EXPIRY_THREAD_PRIORITY, ID_CACHE_SIZE, PERSIST_ID_CACHE,
-            PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY, PAGE_MAX_CONCURRENT_IO,
-            CREATE_BINDINGS_DIR, CREATE_JOURNAL_DIR, JOURNAL_TYPE, JOURNAL_BUFFER_TIMEOUT, JOURNAL_BUFFER_SIZE,
-            JOURNAL_SYNC_TRANSACTIONAL, JOURNAL_SYNC_NON_TRANSACTIONAL, LOG_JOURNAL_WRITE_RATE,
-            JOURNAL_FILE_SIZE, JOURNAL_MIN_FILES, JOURNAL_COMPACT_PERCENTAGE, JOURNAL_COMPACT_MIN_FILES, JOURNAL_MAX_IO,
-            PERF_BLAST_PAGES, RUN_SYNC_SPEED_TEST, SERVER_DUMP_INTERVAL};
+    public static final SimpleAttributeDefinition SECURITY_INVALIDATION_INTERVAL = create("security-invalidation-interval", LONG)
+            .setAttributeGroup("security")
+            .setXmlName("invalidation-interval")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultSecurityInvalidationInterval()))
+            .setMeasurementUnit(MILLISECONDS)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .addAccessConstraint(CommonAttributes.MESSAGING_SECURITY_DEF)
+            .build();
+    public static final SimpleAttributeDefinition SECURITY_ENABLED = create("security-enabled", BOOLEAN)
+            .setAttributeGroup("security")
+            .setXmlName("enabled")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultSecurityEnabled()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .addAccessConstraint(CommonAttributes.MESSAGING_SECURITY_DEF)
+            .build();
+    public static final SimpleAttributeDefinition PERSISTENCE_ENABLED = create("persistence-enabled", BOOLEAN)
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultPersistenceEnabled()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+    public static final SimpleAttributeDefinition MANAGEMENT_NOTIFICATION_ADDRESS = create("management-notification-address", ModelType.STRING)
+            .setAttributeGroup("management")
+            .setXmlName("notification-address")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress().toString()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .addAccessConstraint(CommonAttributes.MESSAGING_MANAGEMENT_DEF)
+            .build();
+    public static final SimpleAttributeDefinition MANAGEMENT_ADDRESS = create("management-address", ModelType.STRING)
+            .setAttributeGroup("management")
+            .setXmlName("address")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultManagementAddress().toString()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .addAccessConstraint(CommonAttributes.MESSAGING_MANAGEMENT_DEF)
+            .build();
+    public static final SimpleAttributeDefinition JMX_MANAGEMENT_ENABLED = create("jmx-management-enabled", BOOLEAN)
+            .setAttributeGroup("management")
+            .setXmlName("jmx-enabled")
+            .setDefaultValue(new ModelNode(false))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .addAccessConstraint(CommonAttributes.MESSAGING_MANAGEMENT_DEF)
+            .build();
+    public static final SimpleAttributeDefinition JMX_DOMAIN = create("jmx-domain", ModelType.STRING)
+            .setAttributeGroup("management")
+            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultJmxDomain()))
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .addAccessConstraint(CommonAttributes.MESSAGING_MANAGEMENT_DEF)
+            .build();
 
     private final boolean registerRuntimeOnly;
 

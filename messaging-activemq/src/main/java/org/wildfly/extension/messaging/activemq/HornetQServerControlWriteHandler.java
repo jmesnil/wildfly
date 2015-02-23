@@ -131,12 +131,12 @@ public class HornetQServerControlWriteHandler extends AbstractWriteAttributeHand
             throw ControllerLogger.ROOT_LOGGER.managementResourceNotFound(address);
         }
         try {
-            if (attributeName.equals(CommonAttributes.MESSAGE_COUNTER_SAMPLE_PERIOD.getName())) {
-                serverControl.setMessageCounterSamplePeriod(CommonAttributes.MESSAGE_COUNTER_SAMPLE_PERIOD.resolveModelAttribute(context, operation).asLong());
-            } else if (attributeName.equals(CommonAttributes.MESSAGE_COUNTER_MAX_DAY_HISTORY.getName())) {
-                serverControl.setMessageCounterMaxDayCount(CommonAttributes.MESSAGE_COUNTER_MAX_DAY_HISTORY.resolveModelAttribute(context, operation).asInt());
-            } else if (attributeName.equals(CommonAttributes.STATISTICS_ENABLED.getName())) {
-                boolean enabled = CommonAttributes.STATISTICS_ENABLED.resolveModelAttribute(context, operation).asBoolean();
+            if (attributeName.equals(HornetQServerResourceDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD.getName())) {
+                serverControl.setMessageCounterSamplePeriod(HornetQServerResourceDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD.resolveModelAttribute(context, operation).asLong());
+            } else if (attributeName.equals(HornetQServerResourceDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY.getName())) {
+                serverControl.setMessageCounterMaxDayCount(HornetQServerResourceDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY.resolveModelAttribute(context, operation).asInt());
+            } else if (attributeName.equals(HornetQServerResourceDefinition.STATISTICS_ENABLED.getName())) {
+                boolean enabled = HornetQServerResourceDefinition.STATISTICS_ENABLED.resolveModelAttribute(context, operation).asBoolean();
                 if (enabled) {
                     serverControl.enableMessageCounters();
                 } else {
@@ -166,7 +166,7 @@ public class HornetQServerControlWriteHandler extends AbstractWriteAttributeHand
 
         private static ModelNode getAliasedOperation(ModelNode operation) {
             ModelNode aliased = operation.clone();
-            aliased.get(ModelDescriptionConstants.NAME).set(CommonAttributes.STATISTICS_ENABLED.getName());
+            aliased.get(ModelDescriptionConstants.NAME).set(HornetQServerResourceDefinition.STATISTICS_ENABLED.getName());
             return aliased;
         }
 
