@@ -141,7 +141,7 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
             writer.writeAttribute(Attribute.NAME.getLocalName(), serverName);
         }
 
-        for (AttributeDefinition simpleAttribute : CommonAttributes.SIMPLE_ROOT_RESOURCE_ATTRIBUTES) {
+        for (AttributeDefinition simpleAttribute : HornetQServerResourceDefinition.ATTRIBUTES) {
             simpleAttribute.marshallAsElement(node, writer);
         }
 

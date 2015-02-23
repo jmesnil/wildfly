@@ -27,7 +27,9 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.QUEUE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.RUNTIME_QUEUE;
 import static org.jboss.dmr.ModelType.LONG;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import org.jboss.as.controller.AbstractAddStepHandler;
@@ -36,6 +38,7 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.access.constraint.ApplicationTypeConfig;
@@ -54,7 +57,7 @@ import org.jboss.dmr.ModelType;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class QueueDefinition extends SimpleResourceDefinition {
+public class QueueDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.QUEUE);
 
@@ -141,6 +144,11 @@ public class QueueDefinition extends SimpleResourceDefinition {
                 registry.registerMetric(metric, QueueReadAttributeHandler.INSTANCE);
             }
         }
+    }
+
+    @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Collections.emptyList();
     }
 
     @Override

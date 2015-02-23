@@ -24,7 +24,6 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGE_COUNTER_ENABLED;
 import static org.wildfly.extension.messaging.activemq.HornetQActivationService.isHornetQServerActive;
 
 import org.apache.activemq.api.core.management.ActiveMQServerControl;
@@ -40,11 +39,11 @@ import org.jboss.as.controller.logging.ControllerLogger;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ImmutableManagementResourceRegistration;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
+import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
  * Write attribute handler for attributes that update HornetQServerControl.
@@ -56,18 +55,13 @@ public class HornetQServerControlWriteHandler extends AbstractWriteAttributeHand
     public static final HornetQServerControlWriteHandler INSTANCE = new HornetQServerControlWriteHandler();
 
     private HornetQServerControlWriteHandler() {
-        super(CommonAttributes.SIMPLE_ROOT_RESOURCE_ATTRIBUTES);
+        super(HornetQServerResourceDefinition.ATTRIBUTES);
     }
 
     public void registerAttributes(final ManagementResourceRegistration registry, boolean registerRuntimeOnly) {
-        for (AttributeDefinition attr : CommonAttributes.SIMPLE_ROOT_RESOURCE_ATTRIBUTES) {
+        for (AttributeDefinition attr : HornetQServerResourceDefinition.ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
-                if (attr.getName().equals(MESSAGE_COUNTER_ENABLED.getName())) {
-                    MessageCounterEnabledHandler handler = new MessageCounterEnabledHandler();
-                    registry.registerReadWriteAttribute(MESSAGE_COUNTER_ENABLED, handler, handler);
-                } else {
-                    registry.registerReadWriteAttribute(attr, null, this);
-                }
+                registry.registerReadWriteAttribute(attr, null, this);
             }
         }
     }

@@ -55,6 +55,10 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                 .addAttributes(
                                         // no attribute groups
                                         HornetQServerResourceDefinition.PERSISTENCE_ENABLED,
+                                        HornetQServerResourceDefinition.PERSIST_ID_CACHE,
+                                        HornetQServerResourceDefinition.PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY,
+                                        HornetQServerResourceDefinition.ID_CACHE_SIZE,
+                                        HornetQServerResourceDefinition.PAGE_MAX_CONCURRENT_IO,
                                         HornetQServerResourceDefinition.SCHEDULED_THREAD_POOL_MAX_SIZE,
                                         HornetQServerResourceDefinition.THREAD_POOL_MAX_SIZE,
                                         HornetQServerResourceDefinition.WILD_CARD_ROUTING_ENABLED,
@@ -85,15 +89,32 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                         HornetQServerResourceDefinition.JOURNAL_COMPACT_PERCENTAGE,
                                         HornetQServerResourceDefinition.JOURNAL_COMPACT_MIN_FILES,
                                         HornetQServerResourceDefinition.JOURNAL_MAX_IO,
+                                        HornetQServerResourceDefinition.CREATE_BINDINGS_DIR,
+                                        HornetQServerResourceDefinition.CREATE_JOURNAL_DIR,
                                         // statistics
                                         HornetQServerResourceDefinition.STATISTICS_ENABLED,
                                         HornetQServerResourceDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD,
                                         HornetQServerResourceDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY,
                                         // transaction
                                         HornetQServerResourceDefinition.TRANSACTION_TIMEOUT,
-                                        HornetQServerResourceDefinition.TRANSACTION_TIMEOUT_SCAN_PERIOD
+                                        HornetQServerResourceDefinition.TRANSACTION_TIMEOUT_SCAN_PERIOD,
+                                        // message expiry
+                                        HornetQServerResourceDefinition.MESSAGE_EXPIRY_SCAN_PERIOD,
+                                        HornetQServerResourceDefinition.MESSAGE_EXPIRY_THREAD_PRIORITY,
+                                        // debug
+                                        HornetQServerResourceDefinition.PERF_BLAST_PAGES,
+                                        HornetQServerResourceDefinition.RUN_SYNC_SPEED_TEST,
+                                        HornetQServerResourceDefinition.SERVER_DUMP_INTERVAL,
+                                        HornetQServerResourceDefinition.MEMORY_MEASURE_INTERVAL,
+                                        HornetQServerResourceDefinition.MEMORY_WARNING_THRESHOLD
                                 )
-                )
+                                .addChild(builder(QueueDefinition.newQueueDefinition(false))
+                                                .setXmlWrapperElement("core-queues")
+                                                .addAttributes(QueueDefinition.ADDRESS,
+                                                        CommonAttributes.DURABLE,
+                                                        CommonAttributes.FILTER)
+                                ) // End of QueueDefinition
+                ) // End of HornetQServerResourceDefinition
                 .build();
     }
 
