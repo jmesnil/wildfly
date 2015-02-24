@@ -26,9 +26,13 @@ import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.STRING;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.AttributeAccess;
@@ -40,7 +44,7 @@ import org.jboss.dmr.ModelNode;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class DivertDefinition extends SimpleResourceDefinition {
+public class DivertDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.DIVERT);
 
@@ -74,6 +78,8 @@ public class DivertDefinition extends SimpleResourceDefinition {
 
     private final boolean registerRuntimeOnly;
 
+    static final DivertDefinition INSTANCE = new DivertDefinition(false);
+
     public DivertDefinition(boolean registerRuntimeOnly) {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.DIVERT),
@@ -83,8 +89,12 @@ public class DivertDefinition extends SimpleResourceDefinition {
     }
 
     @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(ATTRIBUTES);
+    }
+
+    @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
         for (AttributeDefinition attr : ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, DivertConfigurationWriteHandler.INSTANCE);

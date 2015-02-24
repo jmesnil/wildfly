@@ -23,6 +23,10 @@
 package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.PersistentResourceXMLDescription.builder;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.DISCOVERY_GROUP;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_STACK;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SOCKET_BINDING;
 import static org.wildfly.extension.messaging.activemq.Namespace.CURRENT;
 
 import java.util.List;
@@ -220,7 +224,57 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                                                 .addAttribute(TransportParamDefinition.VALUE)
                                                 )
                                 )
-
+                                .addChild(builder(BroadcastGroupDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        CommonAttributes.JGROUPS_STACK,
+                                                        CommonAttributes.JGROUPS_CHANNEL,
+                                                        CommonAttributes.SOCKET_BINDING,
+                                                        BroadcastGroupDefinition.BROADCAST_PERIOD,
+                                                        BroadcastGroupDefinition.CONNECTOR_REFS
+                                                )
+                                )
+                                .addChild(builder(DiscoveryGroupDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        CommonAttributes.JGROUPS_STACK,
+                                                        CommonAttributes.JGROUPS_CHANNEL,
+                                                        CommonAttributes.SOCKET_BINDING,
+                                                        DiscoveryGroupDefinition.REFRESH_TIMEOUT,
+                                                        DiscoveryGroupDefinition.INITIAL_WAIT_TIMEOUT)
+                                )
+                                .addChild(builder(DivertDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        DivertDefinition.ROUTING_NAME,
+                                                        DivertDefinition.ADDRESS,
+                                                        DivertDefinition.FORWARDING_ADDRESS,
+                                                        CommonAttributes.FILTER,
+                                                        CommonAttributes.TRANSFORMER_CLASS_NAME,
+                                                        DivertDefinition.EXCLUSIVE
+                                                )
+                                )
+                                .addChild(builder(BridgeDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        BridgeDefinition.QUEUE_NAME,
+                                                        BridgeDefinition.FORWARDING_ADDRESS,
+                                                        CommonAttributes.HA,
+                                                        CommonAttributes.FILTER,
+                                                        CommonAttributes.TRANSFORMER_CLASS_NAME,
+                                                        CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
+                                                        CommonAttributes.CHECK_PERIOD,
+                                                        CommonAttributes.CONNECTION_TTL,
+                                                        CommonAttributes.RETRY_INTERVAL,
+                                                        CommonAttributes.RETRY_INTERVAL_MULTIPLIER,
+                                                        CommonAttributes.MAX_RETRY_INTERVAL,
+                                                        BridgeDefinition.INITIAL_CONNECT_ATTEMPTS,
+                                                        BridgeDefinition.RECONNECT_ATTEMPTS,
+                                                        BridgeDefinition.RECONNECT_ATTEMPTS_ON_SAME_NODE,
+                                                        BridgeDefinition.USE_DUPLICATE_DETECTION,
+                                                        CommonAttributes.BRIDGE_CONFIRMATION_WINDOW_SIZE,
+                                                        BridgeDefinition.USER,
+                                                        BridgeDefinition.PASSWORD,
+                                                        BridgeDefinition.CONNECTOR_REFS,
+                                                        BridgeDefinition.DISCOVERY_GROUP_NAME
+                                                )
+                                )
                 ) // End of HornetQServerResourceDefinition
                 .build();
     }

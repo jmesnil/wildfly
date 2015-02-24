@@ -28,9 +28,13 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_STACK;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SOCKET_BINDING;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.AttributeAccess;
@@ -44,7 +48,7 @@ import org.jboss.dmr.ModelType;
 *
 * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
 */
-public class DiscoveryGroupDefinition extends SimpleResourceDefinition {
+public class DiscoveryGroupDefinition extends PersistentResourceDefinition {
 
    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.DISCOVERY_GROUP);
 
@@ -71,6 +75,8 @@ public class DiscoveryGroupDefinition extends SimpleResourceDefinition {
 
     private final boolean registerRuntimeOnly;
 
+    static final DiscoveryGroupDefinition INSTANCE = new DiscoveryGroupDefinition(false);
+
     public DiscoveryGroupDefinition(final boolean registerRuntimeOnly) {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.DISCOVERY_GROUP),
@@ -80,8 +86,12 @@ public class DiscoveryGroupDefinition extends SimpleResourceDefinition {
     }
 
     @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(ATTRIBUTES);
+    }
+
+    @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
         for (AttributeDefinition attr : ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, DiscoveryGroupWriteAttributeHandler.INSTANCE);
