@@ -25,13 +25,12 @@ package org.wildfly.extension.messaging.activemq;
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
 import static org.jboss.as.controller.registry.AttributeAccess.Flag.STORAGE_RUNTIME;
+import static org.jboss.dmr.ModelType.LONG;
+import static org.jboss.dmr.ModelType.STRING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTORS;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTOR_REF_STRING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_STACK;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SOCKET_BINDING;
-import static org.jboss.dmr.ModelType.LONG;
-import static org.jboss.dmr.ModelType.STRING;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,15 +56,14 @@ import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleOperationDefinition;
 import org.jboss.as.controller.SimpleOperationDefinitionBuilder;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.registry.OperationEntry;
 import org.jboss.as.controller.registry.Resource;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.dmr.ModelNode;
+import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
  * Broadcast group resource definition
