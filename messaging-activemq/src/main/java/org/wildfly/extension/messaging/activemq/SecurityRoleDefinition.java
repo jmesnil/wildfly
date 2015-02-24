@@ -26,6 +26,7 @@ import static org.jboss.as.controller.registry.AttributeAccess.Flag.RESTART_NONE
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.STRING;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,9 +38,9 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
@@ -49,7 +50,7 @@ import org.jboss.dmr.ModelNode;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class SecurityRoleDefinition extends SimpleResourceDefinition {
+public class SecurityRoleDefinition extends PersistentResourceDefinition {
 
     public static ObjectTypeAttributeDefinition getObjectTypeAttributeDefinition() {
         // add the role name as an attribute of the object type
@@ -59,22 +60,23 @@ public class SecurityRoleDefinition extends SimpleResourceDefinition {
         return ObjectTypeAttributeDefinition.Builder.of(CommonAttributes.ROLE, attrs).build();
     }
 
-    private static SimpleAttributeDefinition create(final String name, final String xmlName) {
+    private static SimpleAttributeDefinition create(final String name) {
         return SimpleAttributeDefinitionBuilder.create(name, BOOLEAN)
-                .setXmlName(xmlName)
                 .setDefaultValue(new ModelNode(false))
+                .setAllowNull(true)
                 .setFlags(RESTART_NONE)
                 .build();
     }
 
-    static final SimpleAttributeDefinition SEND = create("send", "send");
-    static final SimpleAttributeDefinition CONSUME = create("consume", "consume");
-    static final SimpleAttributeDefinition CREATE_DURABLE_QUEUE = create("create-durable-queue", "createDurableQueue");
-    static final SimpleAttributeDefinition DELETE_DURABLE_QUEUE = create("delete-durable-queue", "deleteDurableQueue");
-    static final SimpleAttributeDefinition CREATE_NON_DURABLE_QUEUE = create("create-non-durable-queue", "createNonDurableQueue");
-    static final SimpleAttributeDefinition DELETE_NON_DURABLE_QUEUE = create("delete-non-durable-queue", "deleteNonDurableQueue");
+    static final SimpleAttributeDefinition SEND = create("send");
+    static final SimpleAttributeDefinition CONSUME = create("consume");
+    static final SimpleAttributeDefinition CREATE_DURABLE_QUEUE = create("create-durable-queue");
+    static final SimpleAttributeDefinition DELETE_DURABLE_QUEUE = create("delete-durable-queue");
+    static final SimpleAttributeDefinition CREATE_NON_DURABLE_QUEUE = create("create-non-durable-queue");
+    static final SimpleAttributeDefinition DELETE_NON_DURABLE_QUEUE = create("delete-non-durable-queue");
     static final SimpleAttributeDefinition MANAGE = SimpleAttributeDefinitionBuilder.create("manage", BOOLEAN)
             .setDefaultValue(new ModelNode(false))
+            .setAllowNull(true)
             .setFlags(RESTART_NONE)
             .addAccessConstraint(CommonAttributes.MESSAGING_MANAGEMENT_DEF)
             .build();
@@ -96,6 +98,7 @@ public class SecurityRoleDefinition extends SimpleResourceDefinition {
     private final boolean registerRuntimeOnly;
     private final boolean readOnly;
 
+    static final SecurityRoleDefinition INSTANCE = newSecurityRoleDefinition(false);
     static {
         Map<String, AttributeDefinition> robxn = new HashMap<String, AttributeDefinition>();
         for (AttributeDefinition attr : SecurityRoleDefinition.ATTRIBUTES) {
@@ -133,6 +136,11 @@ public class SecurityRoleDefinition extends SimpleResourceDefinition {
                 removeHandler);
         this.registerRuntimeOnly = registerRuntimeOnly;
         this.readOnly = readOnly;
+    }
+
+    @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Collections.emptyList();
     }
 
     @Override

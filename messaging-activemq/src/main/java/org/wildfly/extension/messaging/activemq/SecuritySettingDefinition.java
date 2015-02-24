@@ -23,9 +23,13 @@
 package org.wildfly.extension.messaging.activemq;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.access.constraint.ApplicationTypeConfig;
 import org.jboss.as.controller.access.management.AccessConstraintDefinition;
@@ -37,10 +41,12 @@ import org.jboss.as.controller.registry.ManagementResourceRegistration;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class SecuritySettingDefinition extends SimpleResourceDefinition {
+public class SecuritySettingDefinition extends PersistentResourceDefinition {
 
     private final boolean registerRuntimeOnly;
     private final List<AccessConstraintDefinition> accessConstraints;
+
+    static final SecuritySettingDefinition INSTANCE = new SecuritySettingDefinition(false);
 
     public SecuritySettingDefinition(final boolean registerRuntimeOnly) {
         super(PathElement.pathElement(CommonAttributes.SECURITY_SETTING),
@@ -51,6 +57,11 @@ public class SecuritySettingDefinition extends SimpleResourceDefinition {
         ApplicationTypeConfig atc = new ApplicationTypeConfig(MessagingExtension.SUBSYSTEM_NAME, CommonAttributes.SECURITY_SETTING);
         AccessConstraintDefinition acd = new ApplicationTypeAccessConstraintDefinition(atc);
         this.accessConstraints = Arrays.asList((AccessConstraintDefinition) CommonAttributes.MESSAGING_SECURITY_DEF, acd);
+    }
+
+    @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Collections.emptyList();
     }
 
     @Override

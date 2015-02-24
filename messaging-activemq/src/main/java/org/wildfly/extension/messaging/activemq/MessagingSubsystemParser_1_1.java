@@ -109,11 +109,44 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                         HornetQServerResourceDefinition.MEMORY_WARNING_THRESHOLD
                                 )
                                 .addChild(builder(QueueDefinition.newQueueDefinition(false))
-                                                .setXmlWrapperElement("core-queues")
                                                 .addAttributes(QueueDefinition.ADDRESS,
                                                         CommonAttributes.DURABLE,
                                                         CommonAttributes.FILTER)
                                 ) // End of QueueDefinition
+                                .addChild(builder(SecuritySettingDefinition.INSTANCE)
+                                        .addChild(builder(SecurityRoleDefinition.INSTANCE)
+                                                        .addAttributes(
+                                                                SecurityRoleDefinition.SEND,
+                                                                SecurityRoleDefinition.CONSUME,
+                                                                SecurityRoleDefinition.CREATE_DURABLE_QUEUE,
+                                                                SecurityRoleDefinition.DELETE_DURABLE_QUEUE,
+                                                                SecurityRoleDefinition.CREATE_NON_DURABLE_QUEUE,
+                                                                SecurityRoleDefinition.DELETE_NON_DURABLE_QUEUE,
+                                                                SecurityRoleDefinition.MANAGE
+                                                        )
+                                        ) // End of SecurityRoleDefinition
+                                ) // End of SecuritySettingDefinition
+                                .addChild(builder(AddressSettingDefinition.INSTANCE)
+                                        .addAttributes(
+                                                CommonAttributes.DEAD_LETTER_ADDRESS,
+                                                CommonAttributes.EXPIRY_ADDRESS,
+                                                AddressSettingDefinition.EXPIRY_DELAY,
+                                                AddressSettingDefinition.REDELIVERY_DELAY,
+                                                AddressSettingDefinition.REDELIVERY_MULTIPLIER,
+                                                AddressSettingDefinition.MAX_DELIVERY_ATTEMPTS,
+                                                AddressSettingDefinition.MAX_REDELIVERY_DELAY,
+                                                AddressSettingDefinition.MAX_SIZE_BYTES,
+                                                AddressSettingDefinition.PAGE_SIZE_BYTES,
+                                                AddressSettingDefinition.PAGE_MAX_CACHE_SIZE,
+                                                AddressSettingDefinition.ADDRESS_FULL_MESSAGE_POLICY,
+                                                AddressSettingDefinition.MESSAGE_COUNTER_HISTORY_DAY_LIMIT,
+                                                AddressSettingDefinition.LAST_VALUE_QUEUE,
+                                                AddressSettingDefinition.REDISTRIBUTION_DELAY,
+                                                AddressSettingDefinition.SEND_TO_DLA_ON_NO_ROUTE
+
+                                        )
+                                ) // End of AddressSettingDefinition
+
                 ) // End of HornetQServerResourceDefinition
                 .build();
     }

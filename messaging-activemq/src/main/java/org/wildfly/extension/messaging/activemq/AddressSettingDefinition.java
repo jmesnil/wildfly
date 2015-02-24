@@ -29,10 +29,15 @@ import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECOND
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DEAD_LETTER_ADDRESS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.EXPIRY_ADDRESS;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.operations.validation.EnumValidator;
@@ -46,7 +51,7 @@ import org.jboss.dmr.ModelType;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class AddressSettingDefinition extends SimpleResourceDefinition {
+public class AddressSettingDefinition extends PersistentResourceDefinition {
 
     private final boolean registerRuntimeOnly;
 
@@ -139,16 +144,10 @@ public class AddressSettingDefinition extends SimpleResourceDefinition {
             .setAllowExpression(true)
             .build();
 
-    public static final AttributeDefinition[] ATTRIBUTES_WITH_EXPRESSION_ALLOWED_IN_1_2_0 = new AttributeDefinition[]{ DEAD_LETTER_ADDRESS,
-            EXPIRY_ADDRESS, REDELIVERY_DELAY, MAX_DELIVERY_ATTEMPTS, MAX_SIZE_BYTES,
-            PAGE_SIZE_BYTES, PAGE_MAX_CACHE_SIZE, ADDRESS_FULL_MESSAGE_POLICY, MESSAGE_COUNTER_HISTORY_DAY_LIMIT,
-            LAST_VALUE_QUEUE, REDISTRIBUTION_DELAY, SEND_TO_DLA_ON_NO_ROUTE
-    };
-
     /**
      * Attributes are defined in the <em>same order than in the XSD schema</em>
      */
-    static final SimpleAttributeDefinition[] ATTRIBUTES = new SimpleAttributeDefinition[] {
+    static final AttributeDefinition[] ATTRIBUTES = new SimpleAttributeDefinition[] {
         DEAD_LETTER_ADDRESS,
         EXPIRY_ADDRESS,
         EXPIRY_DELAY,
@@ -166,6 +165,8 @@ public class AddressSettingDefinition extends SimpleResourceDefinition {
         SEND_TO_DLA_ON_NO_ROUTE
     };
 
+    static final AddressSettingDefinition INSTANCE = new AddressSettingDefinition(false);
+
     public AddressSettingDefinition(final boolean registerRuntimeOnly) {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.ADDRESS_SETTING),
@@ -174,13 +175,18 @@ public class AddressSettingDefinition extends SimpleResourceDefinition {
         this.registerRuntimeOnly = registerRuntimeOnly;
     }
 
+
     @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
         for (AttributeDefinition attr : ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, AddressSettingsWriteHandler.INSTANCE);
             }
         }
+    }
+
+    @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(ATTRIBUTES);
     }
 }
