@@ -58,14 +58,46 @@
                 memory-warning-threshold="${memory.warning.threshold:1024}"
                 memory-measure-interval="${memory.measure.interval:2048}"/>
 
-        <core-queues>
-            <queue name="coreQueueA"
-                    address="${address:addressA}"
-                    filter="${filter:afilter}"
-                    durable="${durable:true}" />
-            <queue name="coreQueueB"
-                    address="addressB" />
-        </core-queues>
+        <queue name="coreQueueA"
+               address="${address:addressA}"
+               filter="${filter:afilter}"
+               durable="${durable:true}" />
+        <queue name="coreQueueB"
+               address="addressB" />
+
+        <security-setting name="#">
+            <role name="guest"
+                  send="true"
+                  consume="true"
+                  create-non-durable-queue="true"
+                  delete-non-durable-queue="true" />
+            <role name="admin"
+                  send="true"
+                  consume="true"
+                  create-durable-queue="true"
+                  delete-durable-queue="true"
+                  create-non-durable-queue="true"
+                  delete-non-durable-queue="true"
+                  manage="true" />
+        </security-setting>
+
+        <address-setting name="#"
+                         dead-letter-address="${dead.letter.address:jms.queue.DLQ}"
+                         expiry-address="${expiry.address:jms.queue.ExpiryQueue}"
+                         expiry-delay="${expiry.delay:12345}"
+                         redelivery-delay="${redelivery.delay:0}"
+                         redelivery-multiplier="${redelivery.multiplier:1.0}"
+                         max-delivery-attempts="${max.delivery.attempts:5}"
+                         max-redelivery-delay="${max.redelivery.delay:234}"
+                         max-size-bytes="${max.size.bytes:10485760}"
+                         page-size-bytes="${page.size.bytes:10485760}"
+                         page-max-cache-size="${page.max.cache.size:7}"
+                         address-full-policy="${address.full.policy:BLOCK}"
+                         message-counter-history-day-limit="${message.counter.history.day.limit:10}"
+                         last-value-queue="${last.value.queue:false}"
+                         redistribution-delay="${redistribution.delay:0}"
+                         send-to-dla-on-no-route="${send.to.dla.on.no.route:false}" />
+
 
         <!--
         <paging-directory path="${my.paging.dir:test}" relative-to="test" />
@@ -252,15 +284,6 @@
             <group-timeout>${group-timeout:1234}</group-timeout>
             <reaper-period>${reaper-period:5678}</reaper-period>
         </grouping-handler>
-        <security-settings>
-            <security-setting match="#">
-                <permission roles="guest" type="send"/>
-                <permission roles="guest" type="consume"/>
-                <permission roles="guest" type="createNonDurableQueue"/>
-                <permission roles="guest" type="deleteNonDurableQueue"/>
-                <permission roles="adming" type="manage"/>
-            </security-setting>
-        </security-settings>
         <address-settings>
             <address-setting match="#">
                 <dead-letter-address>${dead.letter.address:jms.queue.DLQ}</dead-letter-address>

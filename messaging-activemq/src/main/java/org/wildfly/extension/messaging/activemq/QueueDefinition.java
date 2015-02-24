@@ -23,13 +23,12 @@
 package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
+import static org.jboss.dmr.ModelType.LONG;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.QUEUE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.RUNTIME_QUEUE;
-import static org.jboss.dmr.ModelType.LONG;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import org.jboss.as.controller.AbstractAddStepHandler;
@@ -40,7 +39,6 @@ import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.access.constraint.ApplicationTypeConfig;
 import org.jboss.as.controller.access.management.AccessConstraintDefinition;
 import org.jboss.as.controller.access.management.ApplicationTypeAccessConstraintDefinition;
