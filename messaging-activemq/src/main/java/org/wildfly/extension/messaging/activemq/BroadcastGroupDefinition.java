@@ -33,22 +33,32 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.SOCKET_B
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.AttributeParser;
+import org.jboss.as.controller.DefaultAttributeMarshaller;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleOperationDefinition;
 import org.jboss.as.controller.SimpleOperationDefinitionBuilder;
 import org.jboss.as.controller.SimpleResourceDefinition;
+import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -62,16 +72,46 @@ import org.jboss.dmr.ModelNode;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class BroadcastGroupDefinition extends SimpleResourceDefinition {
+public class BroadcastGroupDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.BROADCAST_GROUP);
 
-    public static final PrimitiveListAttributeDefinition CONNECTOR_REFS = PrimitiveListAttributeDefinition.Builder.of(CONNECTORS, STRING)
+    public static final PrimitiveListAttributeDefinition CONNECTOR_REFS = new StringListAttributeDefinition.Builder(CONNECTORS)
             .setAllowNull(true)
             .setElementValidator(new StringLengthValidator(1))
-            .setXmlName(CONNECTOR_REF_STRING)
-            .setAttributeMarshaller(new AttributeMarshallers.WrappedListAttributeMarshaller(null))
-            // disallow expressions since the attribute references other configuration items
+                    //.setXmlName(CONNECTOR_REF_STRING)
+                    //.setAttributeMarshaller(new AttributeMarshallers.WrappedListAttributeMarshaller(null))
+                    // disallow expressions since the attribute references other configuration items
+            .setAttributeParser(new AttributeParser() {
+                @Override
+                public void parseAndSetParameter(AttributeDefinition attribute, String value, ModelNode operation, XMLStreamReader reader) throws XMLStreamException {
+                    if (value == null) {
+                        return;
+                    }
+                    for (String element : value.split(",")) {
+                        ModelNode paramVal = parse(attribute, element, reader);
+                        operation.get(attribute.getName()).add(paramVal);
+                    }
+                }
+            })
+            .setAttributeMarshaller(new DefaultAttributeMarshaller() {
+                @Override
+                public void marshallAsAttribute(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
+
+                    StringBuilder builder = new StringBuilder();
+                    if (resourceModel.hasDefined(attribute.getName())) {
+                        for (ModelNode p : resourceModel.get(attribute.getName()).asList()) {
+                            builder.append(p.asString()).append(", ");
+                        }
+                    }
+                    if (builder.length() > 3) {
+                        builder.setLength(builder.length() - 2);
+                    }
+                    if (builder.length() > 0) {
+                        writer.writeAttribute(attribute.getXmlName(), builder.toString());
+                    }
+                }
+            })
             .setAllowExpression(false)
             .setRestartAllServices()
             .build();
@@ -91,6 +131,8 @@ public class BroadcastGroupDefinition extends SimpleResourceDefinition {
 
     private final boolean registerRuntimeOnly;
 
+    static final BroadcastGroupDefinition INSTANCE = new BroadcastGroupDefinition(false);
+
     public BroadcastGroupDefinition(boolean registerRuntimeOnly) {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.BROADCAST_GROUP),
@@ -100,8 +142,12 @@ public class BroadcastGroupDefinition extends SimpleResourceDefinition {
     }
 
     @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(ATTRIBUTES);
+    }
+
+    @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
         for (AttributeDefinition attr : ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, BroadcastGroupWriteAttributeHandler.INSTANCE);

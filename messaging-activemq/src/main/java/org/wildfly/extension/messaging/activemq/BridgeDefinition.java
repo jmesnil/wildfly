@@ -23,6 +23,7 @@
 package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTORS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTOR_REF_STRING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGING_SECURITY_DEF;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.STATIC_CONNECTORS;
@@ -30,12 +31,23 @@ import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.STRING;
 
+import java.util.Arrays;
+import java.util.Collection;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.AttributeParser;
+import org.jboss.as.controller.DefaultAttributeMarshaller;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
+import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.as.controller.registry.AttributeAccess;
@@ -47,25 +59,55 @@ import org.jboss.dmr.ModelNode;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class BridgeDefinition extends SimpleResourceDefinition {
+public class BridgeDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.BRIDGE);
 
     private final boolean registerRuntimeOnly;
 
-    public static final PrimitiveListAttributeDefinition CONNECTOR_REFS = PrimitiveListAttributeDefinition.Builder.of(STATIC_CONNECTORS, STRING)
+    public static final PrimitiveListAttributeDefinition CONNECTOR_REFS = new StringListAttributeDefinition.Builder(CommonAttributes.STATIC_CONNECTORS)
             .setAllowNull(true)
-            .setAlternatives(CommonAttributes.DISCOVERY_GROUP_NAME)
             .setElementValidator(new StringLengthValidator(1))
-            .setXmlName(CONNECTOR_REF_STRING)
-            .setAttributeMarshaller(new AttributeMarshallers.WrappedListAttributeMarshaller(STATIC_CONNECTORS))
+                    //.setXmlName(CONNECTOR_REF_STRING)
+                    //.setAttributeMarshaller(new AttributeMarshallers.WrappedListAttributeMarshaller(null))
+                    // disallow expressions since the attribute references other configuration items
+            .setAttributeParser(new AttributeParser() {
+                @Override
+                public void parseAndSetParameter(AttributeDefinition attribute, String value, ModelNode operation, XMLStreamReader reader) throws XMLStreamException {
+                    if (value == null) {
+                        return;
+                    }
+                    for (String element : value.split(",")) {
+                        ModelNode paramVal = parse(attribute, element, reader);
+                        operation.get(attribute.getName()).add(paramVal);
+                    }
+                }
+            })
+            .setAttributeMarshaller(new DefaultAttributeMarshaller() {
+                @Override
+                public void marshallAsAttribute(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
+
+                    StringBuilder builder = new StringBuilder();
+                    if (resourceModel.hasDefined(attribute.getName())) {
+                        for (ModelNode p : resourceModel.get(attribute.getName()).asList()) {
+                            builder.append(p.asString()).append(", ");
+                        }
+                    }
+                    if (builder.length() > 3) {
+                        builder.setLength(builder.length() - 2);
+                    }
+                    if (builder.length() > 0) {
+                        writer.writeAttribute(attribute.getXmlName(), builder.toString());
+                    }
+                }
+            })
+            .setAllowExpression(false)
             .setRestartAllServices()
             .build();
 
-    public static final SimpleAttributeDefinition DISCOVERY_GROUP_NAME = create(CommonAttributes.DISCOVERY_GROUP_NAME, STRING)
+    public static final SimpleAttributeDefinition DISCOVERY_GROUP_NAME = create(CommonAttributes.DISCOVERY_GROUP, STRING)
             .setAllowNull(true)
             .setAlternatives(STATIC_CONNECTORS)
-            .setAttributeMarshaller(AttributeMarshallers.DISCOVERY_GROUP_MARSHALLER)
             .setRestartAllServices()
             .build();
 
@@ -139,12 +181,8 @@ public class BridgeDefinition extends SimpleResourceDefinition {
             CONNECTOR_REFS, DISCOVERY_GROUP_NAME
     };
 
-    public static final AttributeDefinition[] ATTRIBUTES_WITH_EXPRESSION_ALLOWED_IN_1_2_0 = { QUEUE_NAME, USE_DUPLICATE_DETECTION,
-            RECONNECT_ATTEMPTS, FORWARDING_ADDRESS,
-            CommonAttributes.FILTER, CommonAttributes.HA, CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
-            CommonAttributes.CHECK_PERIOD, CommonAttributes.CONNECTION_TTL,
-            CommonAttributes.RETRY_INTERVAL, CommonAttributes.RETRY_INTERVAL_MULTIPLIER, CommonAttributes.MAX_RETRY_INTERVAL,
-            CommonAttributes.BRIDGE_CONFIRMATION_WINDOW_SIZE };
+
+    static final BridgeDefinition INSTANCE = new BridgeDefinition(false);
 
     public BridgeDefinition(final boolean registerRuntimeOnly) {
         super(PATH,
@@ -155,8 +193,12 @@ public class BridgeDefinition extends SimpleResourceDefinition {
     }
 
     @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(ATTRIBUTES);
+    }
+
+    @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
         for (AttributeDefinition attr : ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, BridgeWriteAttributeHandler.INSTANCE);

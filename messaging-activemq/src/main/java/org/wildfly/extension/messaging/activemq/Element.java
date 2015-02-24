@@ -151,7 +151,7 @@ public enum Element {
    TRANSFORMER_CLASS_NAME(CommonAttributes.TRANSFORMER_CLASS_NAME),
    WILD_CARD_ROUTING_ENABLED(HornetQServerResourceDefinition.WILD_CARD_ROUTING_ENABLED),
    ACCEPTOR(CommonAttributes.ACCEPTOR),
-   CONNECTORS(CommonAttributes.CONNECTORS),
+   CONNECTORS(BroadcastGroupDefinition.CONNECTOR_REFS),
    CONNECTOR(CommonAttributes.CONNECTOR),
    FACTORY_CLASS(CommonAttributes.FACTORY_CLASS),
    FILTER(CommonAttributes.FILTER),
@@ -362,8 +362,8 @@ public enum Element {
     private static Map<String, AttributeDefinition> getConnectorRefDefinitions() {
         final Map<String, AttributeDefinition> result = new HashMap<String, AttributeDefinition>();
         result.put("simple", ClusterConnectionDefinition.CONNECTOR_REF);
-        result.put("broadcast-group", BroadcastGroupDefinition.CONNECTOR_REFS);
-        result.put("bridge", BridgeDefinition.CONNECTOR_REFS);
+        //result.put("broadcast-group", BroadcastGroupDefinition.CONNECTOR_REFS);
+//        result.put("bridge", BridgeDefinition.CONNECTOR_REFS);
         result.put("cluster-connection", ClusterConnectionDefinition.CONNECTOR_REFS);
         return result;
 

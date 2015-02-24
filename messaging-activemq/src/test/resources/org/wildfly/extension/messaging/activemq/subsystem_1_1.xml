@@ -9,22 +9,24 @@
             thread-pool-max-size="${messaging.thread.pool.max.size:5}"
             wild-card-routing-enabled="${wild.card.routing.enabled:false}"
             connection-ttl-override="${connection.ttl.override:5432}"
-            async-connection-execution-enabled="${async.connection.execution.enabled:false}"
+            async-connection-execution-enabled="${async.connection.execution.enabled:false}">
 
-            >
         <security
                 domain="someDomain"
                 enabled="${security.enabled:false}"
                 invalidation-interval="${security.invalidation.interval:1234}"
                 override-in-vm-security="${override.in-vm.security:false}"/>
+
         <cluster
                 user="${messaging.cluster.user.name}"
                 password="${messaging.cluster.user.password}"/>
+
         <management
                 address="${management.address:my.management.address}"
                 notification-address="${management.notification.address:my.management.notif.address}"
                 jmx-enabled="${jmx.management.enabled:false}"
                 jmx-domain="${jmx.domain:my.jmx.domain}"/>
+
         <journal
                 type="${journal.type:NIO}"
                 buffer-timeout="${journal.buffer.timeout:1357}"
@@ -38,8 +40,8 @@
                 compact-min-files="${journal.compact.min.files:2}"
                 max-io="${journal.max.io:50}"
                 create-bindings-dir="${create.bindings.dir:false}"
-                create-journal-dir="${create.journal.dir:true}"
-                />
+                create-journal-dir="${create.journal.dir:true}"/>
+
         <statistics
                 enabled="${statistics.enabled:true}"
                 message-counter-sample-period="${message.counter.sample.period:7654}"
@@ -50,7 +52,6 @@
         <message-expiry
                 scan-period="${message.expiry.scan.period:7654}"
                 thread-priority="${message.expiry.thread.priority:7}"/>
-
         <debug
                 perf-blast-pages="${perf.blast.pages:70}"
                 run-sync-speed-test="${run.sync.speed.test:false}"
@@ -58,24 +59,25 @@
                 memory-warning-threshold="${memory.warning.threshold:1024}"
                 memory-measure-interval="${memory.measure.interval:2048}"/>
 
-        <bindings-directory path="${my.bindings.dir:test}" relative-to="test" />
-        <journal-directory path="${my.journal.dir:test}" relative-to="test" />
-        <large-messages-directory path="${my.largemessages.dir:test}" relative-to="test" />
-        <paging-directory path="${my.paging.dir:test}" relative-to="test" />
+        <bindings-directory path="${my.bindings.dir:test}" relative-to="test"/>
+        <journal-directory path="${my.journal.dir:test}" relative-to="test"/>
+        <large-messages-directory path="${my.largemessages.dir:test}" relative-to="test"/>
+        <paging-directory path="${my.paging.dir:test}" relative-to="test"/>
 
         <queue name="coreQueueA"
                address="${address:addressA}"
                filter="${filter:afilter}"
-               durable="${durable:true}" />
+               durable="${durable:true}"/>
+
         <queue name="coreQueueB"
-               address="addressB" />
+               address="addressB"/>
 
         <security-setting name="#">
             <role name="guest"
                   send="true"
                   consume="true"
                   create-non-durable-queue="true"
-                  delete-non-durable-queue="true" />
+                  delete-non-durable-queue="true"/>
             <role name="admin"
                   send="true"
                   consume="true"
@@ -83,7 +85,7 @@
                   delete-durable-queue="true"
                   create-non-durable-queue="true"
                   delete-non-durable-queue="true"
-                  manage="true" />
+                  manage="true"/>
         </security-setting>
 
         <address-setting name="#"
@@ -101,22 +103,22 @@
                          message-counter-history-day-limit="${message.counter.history.day.limit:10}"
                          last-value-queue="${last.value.queue:false}"
                          redistribution-delay="${redistribution.delay:0}"
-                         send-to-dla-on-no-route="${send.to.dla.on.no.route:false}" />
+                         send-to-dla-on-no-route="${send.to.dla.on.no.route:false}"/>
 
         <http-connector name="http"
                         socket-binding="http">
-            <param name="batch-delay" value="${batch.delay:50}" />
+            <param name="batch-delay" value="${batch.delay:50}"/>
         </http-connector>
         <remote-connector name="netty"
-                         socket-binding="messaging" />
+                          socket-binding="messaging"/>
         <remote-connector name="netty-throughput"
-                         socket-binding="messaging-throughput">
+                          socket-binding="messaging-throughput">
             <param name="batch-delay" value="${batch.delay:50}"/>
         </remote-connector>
         <in-vm-connector name="in-vm"
-                         server-id="${my.server-id:0}" />
+                         server-id="${my.server-id:0}"/>
         <connector name="myconnector"
-                factory-class="org.hornetq.core.remoting.impl.netty.NettyConnectorFactory">
+                   factory-class="org.hornetq.core.remoting.impl.netty.NettyConnectorFactory">
             <param name="host" value="192.168.1.2"/>
             <param name="port" value="5445"/>
             <param name="key-store-path" value="path/to/server.jks"/>
@@ -128,19 +130,68 @@
             <param name="batch-delay" value="${batch.delay:50}"/>
         </http-acceptor>
         <remote-acceptor name="netty"
-                        socket-binding="messaging" />
+                         socket-binding="messaging"/>
         <remote-acceptor name="netty-throughput"
-                        socket-binding="messaging-throughput">
+                         socket-binding="messaging-throughput">
             <param name="batch-delay" value="50"/>
             <param name="direct-deliver" value="false"/>
         </remote-acceptor>
         <in-vm-acceptor name="in-vm"
-                        server-id="${my.server-id:0}" />
+                        server-id="${my.server-id:0}"/>
         <acceptor name="myacceptor"
                   factory-class="org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory">
             <param name="batch-delay" value="${batch.delay:50}"/>
         </acceptor>
 
+        <broadcast-group name="groupT"
+                         jgroups-stack="${jgroups.stack:udp}"
+                         jgroups-channel="${jgroups.channel:hq-cluster}"
+                         broadcast-period="${broadcast.group.period:1234}"
+                         connectors="http, netty"/>
+        <broadcast-group name="groupS"
+                         socket-binding="group-s-binding"/>
+
+        <discovery-group name="groupT"
+                         socket-binding="group-t-binding"/>
+        <discovery-group name="groupU"
+                         jgroups-stack="${jgroups.stack:udp}"
+                         jgroups-channel="${jgroups.channel:hq-cluster}"
+                         refresh-timeout="${discovery.group.refresh.timeout:2345}"
+                         initial-wait-timeout="${discovery.group.initial.wait.timeout:2345}"/>
+
+        <divert name="testDivert1"
+                routing-name="${routing.name:routing}"
+                address="${address:address1}"
+                forwarding-address="${forwarding.address:forwardingaddress1}"
+                filter="${filter:afilter}"
+                transformer-class-name="org.jboss.test.Transformer"
+                exclusive="${exclusive:true}"/>
+        <divert name="testDivert2"
+                address="address2"
+                forwarding-address="forwardingaddress2"/>
+
+        <bridge name="bridge1"
+                queue-name="${queue.name:coreQueueA}"
+                forwarding-address="${forwarding.address:forwardingaddress1}"
+                ha="${ha:true}"
+                filter="${filter:afilter}"
+                transformer-class-name="foo.bar"
+                min-large-message-size="${min.large.message.size:10240}"
+                check-period="${check.period:666}"
+                connection-ttl="${connection.tt:36000}"
+                retry-interval="${retry.interval:750}"
+                retry-interval-multiplier="${retry.interval.multiplier:2}"
+                max-retry-interval="${max.retry.interval:3000}"
+                reconnect-attempts="${reconnect-attempts:3}"
+                reconnect-attempts-on-same-node="${reconnect-attempts-on-same-node:5}"
+                use-duplicate-detection="${use.duplicate.detection:true}"
+                confirmation-window-size="${confirmation.window.size:350}"
+                user="${user:Brian}"
+                password="${password:secret}"
+                static-connectors="in-vm, netty" />
+        <bridge name="bridge2"
+                queue-name="coreQueueB"
+                discovery-group="groupC" />
 
         <!--
 
@@ -154,99 +205,6 @@
             <class-name>bar.foo</class-name>
         </remoting-outgoing-interceptors>
 
-        <connectors>
-            <http-connector name="http" socket-binding="http">
-                <param key="batch-delay" value="${batch.delay:50}"/>
-            </http-connector>
-            <netty-connector name="netty" socket-binding="messaging" />
-            <netty-connector name="netty-throughput" socket-binding="messaging-throughput">
-                <param key="batch-delay" value="${batch.delay:50}"/>
-            </netty-connector>
-            <in-vm-connector name="in-vm" server-id="${my.server-id:0}" />
-            <connector name="myconnector">
-                <param key="host" value="192.168.1.2"/>
-                <param key="port" value="5445"/>
-                <param key="key-store-path" value="path/to/server.jks"/>
-                <param key="key-store-password" value="${VAULT::server-key::key-store-password::sharedKey}"/>
-                <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
-            </connector>
-        </connectors>
-        <acceptors>
-            <http-acceptor name="http" http-listener="default">
-                <param key="batch-delay" value="${batch.delay:50}"/>
-            </http-acceptor>
-            <netty-acceptor name="netty" socket-binding="messaging" />
-            <netty-acceptor name="netty-throughput" socket-binding="messaging-throughput">
-                <param key="batch-delay" value="50"/>
-                <param key="direct-deliver" value="false"/>
-            </netty-acceptor>
-            <in-vm-acceptor name="in-vm" server-id="${my.server-id:0}" />
-            <acceptor name="myacceptor">
-                <param key="batch-delay" value="${batch.delay:50}"/>
-                <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
-            </acceptor>
-        </acceptors>
-        <broadcast-groups>
-            <broadcast-group name="groupS">
-                <socket-binding>group-s-binding</socket-binding>
-            </broadcast-group>
-            <broadcast-group name="groupT">
-                <jgroups-stack>${jgroups.stack:udp}</jgroups-stack>
-                <jgroups-channel>${jgroups.channel:hq-cluster}</jgroups-channel>
-            </broadcast-group>
-        </broadcast-groups>
-        <discovery-groups>
-            <discovery-group name="groupT">
-                <socket-binding>group-t-binding</socket-binding>
-            </discovery-group>
-            <discovery-group name="groupU">
-                <jgroups-stack>${jgroups.stack:udp}</jgroups-stack>
-                <jgroups-channel>${jgroups.channel:hq-cluster}</jgroups-channel>
-            </discovery-group>
-        </discovery-groups>
-        <diverts>
-            <divert name="testDivert1">
-                <routing-name>${routing.name:routing}</routing-name>
-                <address>${address:address1}</address>
-                <forwarding-address>${forwarding.address:forwardingaddress1}</forwarding-address>
-                <filter string="${filter:afilter}"/>
-                <transformer-class-name>org.jboss.test.Transformer</transformer-class-name>
-                <exclusive>${exclusive:true}</exclusive>
-            </divert>
-            <divert name="testDivert2">
-                <address>address2</address>
-                <forwarding-address>forwardingaddress2</forwarding-address>
-            </divert>
-        </diverts>
-        <bridges>
-            <bridge name="bridge1">
-                <queue-name>${queue.name:coreQueueA}</queue-name>
-                <forwarding-address>${forwarding.address:forwardingaddress1}</forwarding-address>
-                <ha>${ha:true}</ha>
-                <filter string="${filter:afilter}"/>
-                <transformer-class-name>foo.bar</transformer-class-name>
-                <min-large-message-size>${min.large.message.size:10240}</min-large-message-size>
-                <check-period>${check.period:666}</check-period>
-                <connection-ttl>${connection.tt:36000}</connection-ttl>
-                <retry-interval>${retry.interval:750}</retry-interval>
-                <retry-interval-multiplier>${retry.interval.multiplier:2}</retry-interval-multiplier>
-                <max-retry-interval>${max.retry.interval:3000}</max-retry-interval>
-                <reconnect-attempts>${reconnect-attempts:3}</reconnect-attempts>
-                <reconnect-attempts-on-same-node>${reconnect-attempts-on-same-node:5}</reconnect-attempts-on-same-node>
-                <use-duplicate-detection>${use.duplicate.detection:true}</use-duplicate-detection>
-                <confirmation-window-size>${confirmation.window.size:350}</confirmation-window-size>
-                <user>${user:Brian}</user>
-                <password>${password:secret}</password>
-                <static-connectors>
-                    <connector-ref>in-vm</connector-ref>
-                    <connector-ref>netty</connector-ref>
-                </static-connectors>
-            </bridge>
-            <bridge name="bridge2">
-                <queue-name>coreQueueB</queue-name>
-                <discovery-group-ref discovery-group-name="groupC"/>
-            </bridge>
-        </bridges>
         <cluster-connections>
             <cluster-connection name="cc1">
                 <address>${address:cc1-address}</address>
@@ -300,25 +258,7 @@
             <group-timeout>${group-timeout:1234}</group-timeout>
             <reaper-period>${reaper-period:5678}</reaper-period>
         </grouping-handler>
-        <address-settings>
-            <address-setting match="#">
-                <dead-letter-address>${dead.letter.address:jms.queue.DLQ}</dead-letter-address>
-                <expiry-address>${expiry.address:jms.queue.ExpiryQueue}</expiry-address>
-                <expiry-delay>${expiry.delay:12345}</expiry-delay>
-                <redelivery-delay>${redelivery.delay:0}</redelivery-delay>
-                <redelivery-multiplier>${redelivery.multiplier:1.0}</redelivery-multiplier>
-                <max-delivery-attempts>${max.delivery.attempts:5}</max-delivery-attempts>
-                <max-redelivery-delay>${max.redelivery.delay:234}</max-redelivery-delay>
-                <max-size-bytes>${max.size.bytes:10485760}</max-size-bytes>
-                <page-size-bytes>${page.size.bytes:10485760}</page-size-bytes>
-                <page-max-cache-size>${page.max.cache.size:7}</page-max-cache-size>
-                <address-full-policy>${address.full.policy:BLOCK}</address-full-policy>
-                <message-counter-history-day-limit>${message.counter.history.day.limit:10}</message-counter-history-day-limit>
-                <last-value-queue>${last.value.queue:false}</last-value-queue>
-                <redistribution-delay>${redistribution.delay:0}</redistribution-delay>
-                <send-to-dla-on-no-route>${send.to.dla.on.no.route:false}</send-to-dla-on-no-route>
-            </address-setting>
-        </address-settings>
+
 
         <connector-services>
             <connector-service name="a">
