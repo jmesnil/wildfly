@@ -30,6 +30,8 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.LARGE_ME
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.PAGING_DIRECTORY;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,9 +41,9 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.registry.Resource;
@@ -54,7 +56,7 @@ import org.jboss.msc.service.ServiceName;
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2014 Red Hat inc.
  */
-public class PathDefinition extends SimpleResourceDefinition {
+public class PathDefinition extends PersistentResourceDefinition {
 
     static final String DEFAULT_RELATIVE_TO = ServerEnvironment.SERVER_DATA_DIR;
 
@@ -119,6 +121,11 @@ public class PathDefinition extends SimpleResourceDefinition {
         return new AttributeDefinition[] { PATHS.get(path), RELATIVE_TO };
     }
 
+    static final PathDefinition BINDINGS_INSTANCE = new PathDefinition(PathElement.pathElement(ModelDescriptionConstants.PATH, BINDINGS_DIRECTORY));
+    static final PathDefinition LARGE_MESSAGES_INSTANCE = new PathDefinition(PathElement.pathElement(ModelDescriptionConstants.PATH, LARGE_MESSAGES_DIRECTORY));
+    static final PathDefinition PAGING_INSTANCE = new PathDefinition(PathElement.pathElement(ModelDescriptionConstants.PATH, PAGING_DIRECTORY));
+    static final PathDefinition JOURNAL_INSTANCE = new PathDefinition(PathElement.pathElement(ModelDescriptionConstants.PATH, JOURNAL_DIRECTORY));
+
     public PathDefinition(PathElement path) {
         super(path,
                 MessagingExtension.getResourceDescriptionResolver(ModelDescriptionConstants.PATH),
@@ -128,9 +135,12 @@ public class PathDefinition extends SimpleResourceDefinition {
     }
 
     @Override
-    public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(getAttributes(getPathElement().getValue()));
+    }
 
+    @Override
+    public void registerAttributes(ManagementResourceRegistration registry) {
         AttributeDefinition[] attributes = getAttributes(path.getValue());
         OperationStepHandler attributeHandler = new ReloadRequiredWriteAttributeHandler(attributes);
         for (AttributeDefinition attribute : attributes) {

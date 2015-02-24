@@ -25,6 +25,8 @@ package org.wildfly.extension.messaging.activemq;
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_ACCEPTOR;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -32,9 +34,9 @@ import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.descriptions.StandardResourceDescriptionResolver;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -45,7 +47,7 @@ import org.jboss.dmr.ModelType;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2013 Red Hat Inc.
  */
-public class HTTPAcceptorDefinition extends SimpleResourceDefinition {
+public class HTTPAcceptorDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(HTTP_ACCEPTOR);
 
@@ -56,6 +58,8 @@ public class HTTPAcceptorDefinition extends SimpleResourceDefinition {
             .build();
 
     static AttributeDefinition[] ATTRIBUTES = { HTTP_LISTENER };
+
+    static final HTTPAcceptorDefinition INSTANCE = new HTTPAcceptorDefinition(false);
 
     HTTPAcceptorDefinition(final boolean registerRuntimeOnly) {
         super(PATH,
@@ -72,14 +76,17 @@ public class HTTPAcceptorDefinition extends SimpleResourceDefinition {
 
     @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
-
         OperationStepHandler attributeHandler = new ReloadRequiredWriteAttributeHandler(ATTRIBUTES);
         for (AttributeDefinition attr : ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, attributeHandler);
             }
         }
+    }
+
+    @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(ATTRIBUTES);
     }
 
     @Override
