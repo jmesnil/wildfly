@@ -26,11 +26,13 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.jboss.as.subsystem.test.AbstractSubsystemBaseTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  *  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2012 Red Hat inc
  */
+@Ignore
 public class MessagingActivemQ6Subsystem_1_0_TestCase extends AbstractSubsystemBaseTest {
 
     public MessagingActivemQ6Subsystem_1_0_TestCase() {

@@ -26,10 +26,12 @@ import java.io.IOException;
 
 import org.jboss.as.subsystem.test.AbstractSubsystemBaseTest;
 import org.jboss.as.subsystem.test.AdditionalInitialization;
+import org.junit.Ignore;
 
 /**
  * @author Jeff Mesnil (c) 2012 Red Hat inc
  */
+@Ignore
 public class JMSBridge_1_0_TestCase extends AbstractSubsystemBaseTest {
 
     public JMSBridge_1_0_TestCase() {

@@ -23,13 +23,11 @@
 package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTORS;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTOR_REF_STRING;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGING_SECURITY_DEF;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.STATIC_CONNECTORS;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.STRING;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGING_SECURITY_DEF;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.STATIC_CONNECTORS;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,7 +44,6 @@ import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;

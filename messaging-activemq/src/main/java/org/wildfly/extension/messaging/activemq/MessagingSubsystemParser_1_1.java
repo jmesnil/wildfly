@@ -23,10 +23,6 @@
 package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.PersistentResourceXMLDescription.builder;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.DISCOVERY_GROUP;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_STACK;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.SOCKET_BINDING;
 import static org.wildfly.extension.messaging.activemq.Namespace.CURRENT;
 
 import java.util.List;
