@@ -32,7 +32,6 @@ import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.AttributeMarshaller;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
 import org.jboss.dmr.ModelNode;
 
@@ -58,12 +57,14 @@ public class RemoteTransportDefinition extends AbstractTransportDefinition {
 
     static AttributeDefinition[] ATTRIBUTES = { SOCKET_BINDING };
 
+    static final RemoteTransportDefinition CONNECTOR_INSTANCE = createConnectorDefinition(false);
+    static final RemoteTransportDefinition ACCEPTOR_INSTANCE = createAcceptorDefinition(false);
 
-    public static SimpleResourceDefinition createAcceptorDefinition(final boolean registerRuntimeOnly) {
+    public static RemoteTransportDefinition createAcceptorDefinition(final boolean registerRuntimeOnly) {
         return new RemoteTransportDefinition(registerRuntimeOnly, true, CommonAttributes.REMOTE_ACCEPTOR);
     }
 
-    public static SimpleResourceDefinition createConnectorDefinition(final boolean registerRuntimeOnly) {
+    public static RemoteTransportDefinition createConnectorDefinition(final boolean registerRuntimeOnly) {
         return new RemoteTransportDefinition(registerRuntimeOnly, false, CommonAttributes.REMOTE_CONNECTOR);
     }
 

@@ -108,6 +108,30 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                         HornetQServerResourceDefinition.MEMORY_MEASURE_INTERVAL,
                                         HornetQServerResourceDefinition.MEMORY_WARNING_THRESHOLD
                                 )
+                                .addChild(builder(PathDefinition.BINDINGS_INSTANCE)
+                                                .addAttributes(
+                                                        PathDefinition.PATHS.get(CommonAttributes.BINDINGS_DIRECTORY),
+                                                        PathDefinition.RELATIVE_TO
+                                                )
+                                ) // End of Bindings PathDefinition
+                                .addChild(builder(PathDefinition.JOURNAL_INSTANCE)
+                                                .addAttributes(
+                                                        PathDefinition.PATHS.get(CommonAttributes.JOURNAL_DIRECTORY),
+                                                        PathDefinition.RELATIVE_TO
+                                                )
+                                ) // End of Journal PathDefinition
+                                .addChild(builder(PathDefinition.LARGE_MESSAGES_INSTANCE)
+                                                .addAttributes(
+                                                        PathDefinition.PATHS.get(CommonAttributes.LARGE_MESSAGES_DIRECTORY),
+                                                        PathDefinition.RELATIVE_TO
+                                                )
+                                ) // End of Large Messages PathDefinition
+                                .addChild(builder(PathDefinition.PAGING_INSTANCE)
+                                                .addAttributes(
+                                                        PathDefinition.PATHS.get(CommonAttributes.PAGING_DIRECTORY),
+                                                        PathDefinition.RELATIVE_TO
+                                                )
+                                ) // End of Paging PathDefinition
                                 .addChild(builder(QueueDefinition.newQueueDefinition(false))
                                                 .addAttributes(QueueDefinition.ADDRESS,
                                                         CommonAttributes.DURABLE,
@@ -127,25 +151,75 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                         ) // End of SecurityRoleDefinition
                                 ) // End of SecuritySettingDefinition
                                 .addChild(builder(AddressSettingDefinition.INSTANCE)
-                                        .addAttributes(
-                                                CommonAttributes.DEAD_LETTER_ADDRESS,
-                                                CommonAttributes.EXPIRY_ADDRESS,
-                                                AddressSettingDefinition.EXPIRY_DELAY,
-                                                AddressSettingDefinition.REDELIVERY_DELAY,
-                                                AddressSettingDefinition.REDELIVERY_MULTIPLIER,
-                                                AddressSettingDefinition.MAX_DELIVERY_ATTEMPTS,
-                                                AddressSettingDefinition.MAX_REDELIVERY_DELAY,
-                                                AddressSettingDefinition.MAX_SIZE_BYTES,
-                                                AddressSettingDefinition.PAGE_SIZE_BYTES,
-                                                AddressSettingDefinition.PAGE_MAX_CACHE_SIZE,
-                                                AddressSettingDefinition.ADDRESS_FULL_MESSAGE_POLICY,
-                                                AddressSettingDefinition.MESSAGE_COUNTER_HISTORY_DAY_LIMIT,
-                                                AddressSettingDefinition.LAST_VALUE_QUEUE,
-                                                AddressSettingDefinition.REDISTRIBUTION_DELAY,
-                                                AddressSettingDefinition.SEND_TO_DLA_ON_NO_ROUTE
+                                                .addAttributes(
+                                                        CommonAttributes.DEAD_LETTER_ADDRESS,
+                                                        CommonAttributes.EXPIRY_ADDRESS,
+                                                        AddressSettingDefinition.EXPIRY_DELAY,
+                                                        AddressSettingDefinition.REDELIVERY_DELAY,
+                                                        AddressSettingDefinition.REDELIVERY_MULTIPLIER,
+                                                        AddressSettingDefinition.MAX_DELIVERY_ATTEMPTS,
+                                                        AddressSettingDefinition.MAX_REDELIVERY_DELAY,
+                                                        AddressSettingDefinition.MAX_SIZE_BYTES,
+                                                        AddressSettingDefinition.PAGE_SIZE_BYTES,
+                                                        AddressSettingDefinition.PAGE_MAX_CACHE_SIZE,
+                                                        AddressSettingDefinition.ADDRESS_FULL_MESSAGE_POLICY,
+                                                        AddressSettingDefinition.MESSAGE_COUNTER_HISTORY_DAY_LIMIT,
+                                                        AddressSettingDefinition.LAST_VALUE_QUEUE,
+                                                        AddressSettingDefinition.REDISTRIBUTION_DELAY,
+                                                        AddressSettingDefinition.SEND_TO_DLA_ON_NO_ROUTE
 
-                                        )
-                                ) // End of AddressSettingDefinition
+                                                )
+                                )
+                                .addChild(builder(HTTPConnectorDefinition.INSTANCE)
+                                                .addAttributes(HTTPConnectorDefinition.SOCKET_BINDING)
+                                                .addChild(builder(TransportParamDefinition.INSTANCE)
+                                                                .addAttribute(TransportParamDefinition.VALUE)
+                                                )
+                                )
+                                .addChild(builder(RemoteTransportDefinition.CONNECTOR_INSTANCE)
+                                                .addAttributes(RemoteTransportDefinition.SOCKET_BINDING)
+                                                .addChild(builder(TransportParamDefinition.INSTANCE)
+                                                                .addAttribute(TransportParamDefinition.VALUE)
+                                                )
+                                )
+                                .addChild(builder(InVMTransportDefinition.CONNECTOR_INSTANCE)
+                                                .addAttributes(InVMTransportDefinition.SERVER_ID)
+                                                .addChild(builder(TransportParamDefinition.INSTANCE)
+                                                                .addAttribute(TransportParamDefinition.VALUE)
+                                                )
+                                )
+                                .addChild(builder(GenericTransportDefinition.CONNECTOR_INSTANCE)
+                                                .addAttributes(GenericTransportDefinition.SOCKET_BINDING,
+                                                        CommonAttributes.FACTORY_CLASS)
+                                                .addChild(builder(TransportParamDefinition.INSTANCE)
+                                                                .addAttribute(TransportParamDefinition.VALUE)
+                                                )
+                                )
+                                .addChild(builder(HTTPAcceptorDefinition.INSTANCE)
+                                                .addAttributes(HTTPAcceptorDefinition.HTTP_LISTENER)
+                                                .addChild(builder(TransportParamDefinition.INSTANCE)
+                                                                .addAttribute(TransportParamDefinition.VALUE)
+                                                )
+                                )
+                                .addChild(builder(RemoteTransportDefinition.ACCEPTOR_INSTANCE)
+                                                .addAttributes(RemoteTransportDefinition.SOCKET_BINDING)
+                                                .addChild(builder(TransportParamDefinition.INSTANCE)
+                                                                .addAttribute(TransportParamDefinition.VALUE)
+                                                )
+                                )
+                                .addChild(builder(InVMTransportDefinition.ACCEPTOR_INSTANCE)
+                                                .addAttributes(InVMTransportDefinition.SERVER_ID)
+                                                .addChild(builder(TransportParamDefinition.INSTANCE)
+                                                                .addAttribute(TransportParamDefinition.VALUE)
+                                                )
+                                )
+                                .addChild(builder(GenericTransportDefinition.ACCEPTOR_INSTANCE)
+                                                .addAttributes(GenericTransportDefinition.SOCKET_BINDING,
+                                                        CommonAttributes.FACTORY_CLASS)
+                                                .addChild(builder(TransportParamDefinition.INSTANCE)
+                                                                .addAttribute(TransportParamDefinition.VALUE)
+                                                )
+                                )
 
                 ) // End of HornetQServerResourceDefinition
                 .build();

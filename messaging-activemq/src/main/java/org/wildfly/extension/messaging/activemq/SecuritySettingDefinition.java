@@ -30,7 +30,6 @@ import java.util.List;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.access.constraint.ApplicationTypeConfig;
 import org.jboss.as.controller.access.management.AccessConstraintDefinition;
 import org.jboss.as.controller.access.management.ApplicationTypeAccessConstraintDefinition;

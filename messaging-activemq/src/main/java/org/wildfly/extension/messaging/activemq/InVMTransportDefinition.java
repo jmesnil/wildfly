@@ -34,7 +34,6 @@ import javax.xml.stream.XMLStreamWriter;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.AttributeMarshaller;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.dmr.ModelNode;
 
 /**
@@ -59,11 +58,14 @@ public class InVMTransportDefinition extends AbstractTransportDefinition {
 
     static AttributeDefinition[] ATTRIBUTES = { SERVER_ID };
 
-    public static SimpleResourceDefinition createAcceptorDefinition(final boolean registerRuntimeOnly) {
+    static final InVMTransportDefinition CONNECTOR_INSTANCE = createConnectorDefinition(false);
+    static final InVMTransportDefinition ACCEPTOR_INSTANCE = createAcceptorDefinition(false);
+
+    public static InVMTransportDefinition createAcceptorDefinition(final boolean registerRuntimeOnly) {
         return new InVMTransportDefinition(registerRuntimeOnly, true, CommonAttributes.IN_VM_ACCEPTOR);
     }
 
-    public static SimpleResourceDefinition createConnectorDefinition(final boolean registerRuntimeOnly) {
+    public static InVMTransportDefinition createConnectorDefinition(final boolean registerRuntimeOnly) {
         return new InVMTransportDefinition(registerRuntimeOnly, false, CommonAttributes.IN_VM_CONNECTOR);
     }
 

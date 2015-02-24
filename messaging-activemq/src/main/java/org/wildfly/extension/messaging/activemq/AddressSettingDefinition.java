@@ -31,7 +31,6 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.EXPIRY_A
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
@@ -39,7 +38,6 @@ import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.operations.validation.EnumValidator;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -143,6 +141,7 @@ public class AddressSettingDefinition extends PersistentResourceDefinition {
             .setAllowNull(true)
             .setAllowExpression(true)
             .build();
+
 
     /**
      * Attributes are defined in the <em>same order than in the XSD schema</em>

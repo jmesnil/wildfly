@@ -25,29 +25,35 @@ package org.wildfly.extension.messaging.activemq;
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.dmr.ModelType.STRING;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
+import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.registry.Resource;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.dmr.ModelNode;
+import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
  * Transport param resource definition.
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class TransportParamDefinition extends SimpleResourceDefinition {
+public class TransportParamDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.PARAM);
+
+    static final TransportParamDefinition INSTANCE = new TransportParamDefinition(Collections.<String>emptySet());
 
     public static final SimpleAttributeDefinition VALUE = create("value", STRING)
             .setAllowExpression(true)
@@ -68,9 +74,12 @@ public class TransportParamDefinition extends SimpleResourceDefinition {
     }
 
     @Override
-    public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList((AttributeDefinition)VALUE);
+    }
 
+    @Override
+    public void registerAttributes(ManagementResourceRegistration registry) {
         registry.registerReadWriteAttribute(VALUE, null, new HornetQReloadRequiredHandlers.WriteAttributeHandler(VALUE));
     }
 

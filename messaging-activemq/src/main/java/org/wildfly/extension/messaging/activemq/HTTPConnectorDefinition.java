@@ -42,6 +42,8 @@ import org.jboss.dmr.ModelNode;
  */
 public class HTTPConnectorDefinition extends AbstractTransportDefinition {
 
+    static final HTTPConnectorDefinition INSTANCE = new HTTPConnectorDefinition(false);
+
     // for remote acceptor, the socket-binding is required
     public static final SimpleAttributeDefinition SOCKET_BINDING = create(GenericTransportDefinition.SOCKET_BINDING)
             .setAllowNull(false)

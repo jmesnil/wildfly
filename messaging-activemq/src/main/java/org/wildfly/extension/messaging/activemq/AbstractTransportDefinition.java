@@ -22,6 +22,8 @@
 
 package org.wildfly.extension.messaging.activemq;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -29,8 +31,8 @@ import java.util.Set;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.descriptions.StandardResourceDescriptionResolver;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -40,7 +42,7 @@ import org.jboss.as.controller.registry.ManagementResourceRegistration;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public abstract class AbstractTransportDefinition extends SimpleResourceDefinition {
+public abstract class AbstractTransportDefinition extends PersistentResourceDefinition {
 
     private final boolean registerRuntimeOnly;
     private final AttributeDefinition[] attrs;
@@ -71,9 +73,12 @@ public abstract class AbstractTransportDefinition extends SimpleResourceDefiniti
     }
 
     @Override
-    public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(attrs);
+    }
 
+    @Override
+    public void registerAttributes(ManagementResourceRegistration registry) {
         OperationStepHandler attributeHandler = new ReloadRequiredWriteAttributeHandler(attrs);
         for (AttributeDefinition attr : attrs) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
