@@ -27,7 +27,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CALL_FAILOVER_TIMEOUT;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CALL_TIMEOUT;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CLIENT_ID;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTOR;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTORS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.HA;
 
 import java.util.ArrayList;
@@ -45,15 +45,15 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
-import org.wildfly.extension.messaging.activemq.AlternativeAttributeCheckHandler;
-import org.wildfly.extension.messaging.activemq.HornetQActivationService;
-import org.wildfly.extension.messaging.activemq.MessagingServices;
-import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Common;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceController.Mode;
 import org.jboss.msc.service.ServiceName;
+import org.wildfly.extension.messaging.activemq.AlternativeAttributeCheckHandler;
+import org.wildfly.extension.messaging.activemq.HornetQActivationService;
+import org.wildfly.extension.messaging.activemq.MessagingServices;
+import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Common;
 
 /**
  * Update adding a connection factory to the subsystem. The
@@ -119,9 +119,11 @@ public class ConnectionFactoryAdd extends AbstractAddStepHandler {
         config.setCompressLargeMessages(Common.COMPRESS_LARGE_MESSAGES.resolveModelAttribute(context, model).asBoolean());
         config.setConfirmationWindowSize(Common.CONFIRMATION_WINDOW_SIZE.resolveModelAttribute(context, model).asInt());
         config.setConnectionTTL(Common.CONNECTION_TTL.resolveModelAttribute(context, model).asLong());
-        if (model.hasDefined(CONNECTOR)) {
-            ModelNode connectorRefs = model.get(CONNECTOR);
-            List<String> connectorNames = new ArrayList<String>(connectorRefs.keys());
+        if (model.hasDefined(CONNECTORS)) {
+            List<String> connectorNames = new ArrayList<String>();
+            for (ModelNode connectorName : model.get(CONNECTORS).asList()) {
+                connectorNames.add(connectorName.asString());
+            }
             config.setConnectorNames(connectorNames);
         }
         config.setConsumerMaxRate(Common.CONSUMER_MAX_RATE.resolveModelAttribute(context, model).asInt());
