@@ -43,7 +43,7 @@ public class PooledConnectionFactoryConfigurationRuntimeHandler extends Abstract
         if (connectionFactory.hasDefined(attributeName)) {
             context.getResult().set(connectionFactory.get(attributeName));
         } else {
-            ConnectionFactoryAttribute attribute = PooledConnectionFactoryDefinition.getAttributes().get(attributeName);
+            ConnectionFactoryAttribute attribute = PooledConnectionFactoryDefinition.getAttributesMap().get(attributeName);
             if (attribute.getDefinition().getDefaultValue() != null && attribute.getDefinition().getDefaultValue().isDefined()) {
                 context.getResult().set(attribute.getDefinition().getDefaultValue());
             }

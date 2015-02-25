@@ -333,6 +333,7 @@ public interface ConnectionFactoryAttributes {
                 .build();
 
         SimpleAttributeDefinition JNDI_PARAMS = SimpleAttributeDefinitionBuilder.create("jndi-params", STRING)
+                .setAttributeGroup("inbound-config")
                 .setAllowNull(true)
                 .setAllowExpression(true)
                 .setRestartAllServices()
@@ -370,6 +371,7 @@ public interface ConnectionFactoryAttributes {
                 .build();
 
         SimpleAttributeDefinition SETUP_ATTEMPTS = SimpleAttributeDefinitionBuilder.create("setup-attempts", INT)
+                .setAttributeGroup("inbound-config")
                 .setAllowNull(true)
                 .setAllowExpression(true)
                 .setRestartAllServices()
@@ -377,6 +379,7 @@ public interface ConnectionFactoryAttributes {
 
         SimpleAttributeDefinition SETUP_INTERVAL =  SimpleAttributeDefinitionBuilder.create("setup-interval", LONG)
                 .setMeasurementUnit(MILLISECONDS)
+                .setAttributeGroup("inbound-config")
                 .setAllowNull(true)
                 .setAllowExpression(true)
                 .setRestartAllServices()
@@ -387,15 +390,6 @@ public interface ConnectionFactoryAttributes {
                 .setDefaultValue(new ModelNode().set("transaction"))
                 .setAllowNull(true)
                 .setAllowExpression(true)
-                .setAttributeMarshaller(new AttributeMarshaller() {
-                    public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
-                        if (isMarshallable(attribute, resourceModel)) {
-                            writer.writeStartElement(attribute.getXmlName());
-                            writer.writeAttribute(Element.MODE.getLocalName(), resourceModel.get(attribute.getName()).asString());
-                            writer.writeEndElement();
-                        }
-                    };
-                })
                 .setRestartAllServices()
                 .build();
 
@@ -407,12 +401,14 @@ public interface ConnectionFactoryAttributes {
                 .build();
 
         AttributeDefinition USE_JNDI = SimpleAttributeDefinitionBuilder.create("use-jndi", BOOLEAN)
+                .setAttributeGroup("inbound-config")
                 .setAllowNull(true)
                 .setAllowExpression(true)
                 .setRestartAllServices()
                 .build();
 
         AttributeDefinition USE_LOCAL_TX = SimpleAttributeDefinitionBuilder.create("use-local-tx", BOOLEAN)
+                .setAttributeGroup("inbound-config")
                 .setAllowNull(true)
                 .setAllowExpression(true)
                 .setRestartAllServices()

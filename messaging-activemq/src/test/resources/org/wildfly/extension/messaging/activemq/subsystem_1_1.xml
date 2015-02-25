@@ -194,58 +194,118 @@
                 discovery-group="groupC" />
 
         <jms-queue name="testQueue"
-            entries="${jms-queue.entry:queue/test}"
-            selector="${selector:color='red'}"
-            durable="${durable:true}" />
+                   entries="${jms-queue.entry:queue/test}"
+                   selector="${selector:color='red'}"
+                   durable="${durable:true}" />
         <jms-queue name="testQueue2"
-            entries="java:/global/queue/test, java:/global/queue/test2" />
+                   entries="java:/global/queue/test, java:/global/queue/test2" />
 
         <jms-topic name="testTopic"
-            entries="${jms-topic.entry:topic/test}" />
+                   entries="${jms-topic.entry:topic/test}" />
 
         <connection-factory name="InVmConnectionFactory"
-            connectors="in-vm"
-            entries="${connection-factory.entries.entry:java:/ConnectionFactory}" />
+                            connectors="in-vm"
+                            entries="${connection-factory.entries.entry:java:/ConnectionFactory}" />
         <connection-factory name="RemoteConnectionFactory"
-            factory-type="XA_QUEUE"
-            client-id="testClient"
-            connectors="http, netty"
-            entries="RemoteConnectionFactory, java:/global/jms/RemoteConnectionFactory" />
+                            factory-type="XA_QUEUE"
+                            client-id="testClient"
+                            connectors="http, netty"
+                            entries="RemoteConnectionFactory, java:/global/jms/RemoteConnectionFactory" />
         <connection-factory name="otherConnectionFactory"
-            discovery-group="groupC"
-            entries="otherConnectionFactory"
-            ha="${ha:true}"
-            client-failure-check-period="${client.failure.check.period:12345}"
-            connection-ttl="${connection.ttl:56789}"
-            call-timeout="${call.timeout:123}"
-            call-failover-timeout="${call.failover.timeout:456}"
-            consumer-window-size="${consumer.window.size:456}"
-            consumer-max-rate="${consumer.max.rate:789}"
-            confirmation-window-size="${confirmation.window.size:-1}"
-            producer-window-size="${producer.window.size:-1}"
-            producer-max-rate="${producer.max.rate:1024}"
-            compress-large-messages="${compress.large.messages:true}"
-            cache-large-message-client="${cache.large.message.client:false}"
-            min-large-message-size="${min.large.message.size:2048}"
-            client-id="${client.id:myClientID}"
-            dups-ok-batch-size="${dups.ok.batch.size:256}"
-            transaction-batch-size="${transaction.batch.size:512}"
-            block-on-acknowledge="${block.on.acknowledge:false}"
-            block-on-non-durable-send="${block.on.non.durable.send:false}"
-            block-on-durable-send="${block.on.durable.send:false}"
-            auto-group="${auto.group:true}"
-            pre-acknowledge="${pre.acknowledge:true}"
-            retry-interval="${retry.interval:500}"
-            retry-interval-multiplier="${retry.interval.multiplier:2.5}"
-            max-retry-interval="${max.retry.interval:10000}"
-            reconnect-attempts="${reconnect.attempts:2}"
-            failover-on-initial-connection="${failover.on.initial.connection:true}"
-            connection-load-balancing-policy-class-name="connection.load.balancy.policy.class"
-            use-global-pools="${use.global.pools:true}"
-            scheduled-thread-pool-max-size="${scheduled.thread.pool.max.size:24}"
-            thread-pool-max-size="${thread.pool.max.size:48}"
-            group-id="${group.id:myGroup}" />
-
+                            discovery-group="groupC"
+                            entries="otherConnectionFactory"
+                            ha="${ha:true}"
+                            client-failure-check-period="${client.failure.check.period:12345}"
+                            connection-ttl="${connection.ttl:56789}"
+                            call-timeout="${call.timeout:123}"
+                            call-failover-timeout="${call.failover.timeout:456}"
+                            consumer-window-size="${consumer.window.size:456}"
+                            consumer-max-rate="${consumer.max.rate:789}"
+                            confirmation-window-size="${confirmation.window.size:-1}"
+                            producer-window-size="${producer.window.size:-1}"
+                            producer-max-rate="${producer.max.rate:1024}"
+                            compress-large-messages="${compress.large.messages:true}"
+                            cache-large-message-client="${cache.large.message.client:false}"
+                            min-large-message-size="${min.large.message.size:2048}"
+                            client-id="${client.id:myClientID}"
+                            dups-ok-batch-size="${dups.ok.batch.size:256}"
+                            transaction-batch-size="${transaction.batch.size:512}"
+                            block-on-acknowledge="${block.on.acknowledge:false}"
+                            block-on-non-durable-send="${block.on.non.durable.send:false}"
+                            block-on-durable-send="${block.on.durable.send:false}"
+                            auto-group="${auto.group:true}"
+                            pre-acknowledge="${pre.acknowledge:true}"
+                            retry-interval="${retry.interval:500}"
+                            retry-interval-multiplier="${retry.interval.multiplier:2.5}"
+                            max-retry-interval="${max.retry.interval:10000}"
+                            reconnect-attempts="${reconnect.attempts:2}"
+                            failover-on-initial-connection="${failover.on.initial.connection:true}"
+                            connection-load-balancing-policy-class-name="connection.load.balancy.policy.class"
+                            use-global-pools="${use.global.pools:true}"
+                            scheduled-thread-pool-max-size="${scheduled.thread.pool.max.size:24}"
+                            thread-pool-max-size="${thread.pool.max.size:48}"
+                            group-id="${group.id:myGroup}" />
+        <pooled-connection-factory name="hornetq-ra-local"
+                                   transaction="local"
+                                   user="alice"
+                                   password="alicepassword"
+                                   use-auto-recovery="${use.auto.recovery:true}"
+                                   connectors="in-vm"
+                                   entries="java:/JmsLocal"/>
+        <pooled-connection-factory name="hornetq-ra-none"
+                                   transaction="none"
+                                   user="alice"
+                                   password="alicepassword"
+                                   connectors="in-vm"
+                                   entries="java:/JmsNone"/>
+        <pooled-connection-factory name="hornetq-ra"
+                                   transaction="${transaction:xa}"
+                                   user="${user:alice}"
+                                   password="${password:alicepassword}"
+                                   min-pool-size="${min.pool.size:42}"
+                                   max-pool-size="${max.pool.size:242}"
+                                   initial-message-packet-size="${initial.message.packet.size:9876}"
+                                   initial-connect-attempts="${initial.connect.attempts:5432}"
+                                   connectors="in-vm, netty"
+                                   entries="${pooled-connection-factory.entries.entry:java:/JmsXA}"
+                                   ha="${ha:true}"
+                                   client-failure-check-period="${client.failure.check.period:12345}"
+                                   connection-ttl="${connection.ttl:6789}"
+                                   call-timeout="${call.timeout:123}"
+                                   call-failover-timeout="${call.failover.timeout:456}"
+                                   consumer-window-size="${consumer.window.size:456}"
+                                   consumer-max-rate="${consumer.max.rate:789}"
+                                   confirmation-window-size="${confirmation.window.size:-1}"
+                                   producer-window-size="${producer.window.size:-1}"
+                                   producer-max-rate="${producer.max.rate:1024}"
+                                   compress-large-messages="${compress.large.messages:true}"
+                                   cache-large-message-client="${cache.large.message.client:false}"
+                                   min-large-message-size="${min.large.message.size:2048}"
+                                   client-id="${client.id:myClientID}"
+                                   dups-ok-batch-size="${dups.ok.batch.size:256}"
+                                   transaction-batch-size="${transaction.batch.size:512}"
+                                   block-on-acknowledge="${block.on.acknowledge:false}"
+                                   block-on-non-durable-send="${block.on.non.durable.send:false}"
+                                   block-on-durable-send="${block.on.durable.send:false}"
+                                   auto-group="${auto.group:true}"
+                                   pre-acknowledge="${pre.acknowledge:true}"
+                                   retry-interval="${retry.interval:500}"
+                                   retry-interval-multiplier="${retry.interval.multiplier:2.5}"
+                                   max-retry-interval="${max.retry.interval:10000}"
+                                   reconnect-attempts="${reconnect.attempts:2}"
+                                   failover-on-initial-connection="${failover.on.initial.connection:true}"
+                                   connection-load-balancing-policy-class-name="connection.load.balancing.policy.class"
+                                   use-global-pools="${use.global.pools:true}"
+                                   scheduled-thread-pool-max-size="${scheduled.thread.pool.max.size:24}"
+                                   thread-pool-max-size="${thread.pool.max.size:48}"
+                                   group-id="${group.id:myGroup}">
+            <inbound-config
+                    use-jndi="${use.jndi:false}"
+                    jndi-params="${jndi.params:whatever}"
+                    use-local-tx="${use.local.tx:true}"
+                    setup-attempts="${setup-attempts:123}"
+                    setup-interval="${setup-interval:456}" />
+        </pooled-connection-factory>
 
         <!--
 
@@ -325,150 +385,6 @@
             </connector-service>
         </connector-services>
 
-        <jms-connection-factories>
-            <connection-factory name="InVmConnectionFactory">
-                <connectors>
-                    <connector-ref connector-name="in-vm"/>
-                </connectors>
-                <entries>
-                    <entry name="${connection-factory.entries.entry:java:/ConnectionFactory}"/>
-                </entries>
-            </connection-factory>
-            <connection-factory name="RemoteConnectionFactory">
-                <factory-type>XA_QUEUE</factory-type>
-                <connectors>
-                    <connector-ref connector-name="netty"/>
-                </connectors>
-                <entries>
-                    <entry name="RemoteConnectionFactory"/>
-                </entries>
-                <client-id>testClient</client-id>
-            </connection-factory>
-            <connection-factory name="otherConnectionFactory">
-                <discovery-group-ref discovery-group-name="groupC"/>
-                <entries>
-                    <entry name="otherConnectionFactory"/>
-                </entries>
-                <ha>${ha:true}</ha>
-                <client-failure-check-period>${client.failure.check.period:12345}</client-failure-check-period>
-                <connection-ttl>${connection.ttl:56789}</connection-ttl>
-                <call-timeout>${call.timeout:123}</call-timeout>
-                <call-failover-timeout>${call.failover.timeout:456}</call-failover-timeout>
-                <consumer-window-size>${consumer.window.size:456}</consumer-window-size>
-                <consumer-max-rate>${consumer.max.rate:789}</consumer-max-rate>
-                <confirmation-window-size>${confirmation.window.size:-1}</confirmation-window-size>
-                <producer-window-size>${producer.window.size:-1}</producer-window-size>
-                <producer-max-rate>${producer.max.rate:1024}</producer-max-rate>
-                <compress-large-messages>${compress.large.messages:true}</compress-large-messages>
-                <cache-large-message-client>${cache.large.message.client:false}</cache-large-message-client>
-                <min-large-message-size>${min.large.message.size:2048}</min-large-message-size>
-                <client-id>${client.id:myClientID}</client-id>
-                <dups-ok-batch-size>${dups.ok.batch.size:256}</dups-ok-batch-size>
-                <transaction-batch-size>${transaction.batch.size:512}</transaction-batch-size>
-                <block-on-acknowledge>${block.on.acknowledge:false}</block-on-acknowledge>
-                <block-on-non-durable-send>${block.on.non.durable.send:false}</block-on-non-durable-send>
-                <block-on-durable-send>${block.on.durable.send:false}</block-on-durable-send>
-                <auto-group>${auto.group:true}</auto-group>
-                <pre-acknowledge>${pre.acknowledge:true}</pre-acknowledge>
-                <retry-interval>${retry.interval:500}</retry-interval>
-                <retry-interval-multiplier>${retry.interval.multiplier:2.5}</retry-interval-multiplier>
-                <max-retry-interval>${max.retry.interval:10000}</max-retry-interval>
-                <reconnect-attempts>${reconnect.attempts:2}</reconnect-attempts>
-                <failover-on-initial-connection>${failover.on.initial.connection:true}</failover-on-initial-connection>
-                <connection-load-balancing-policy-class-name>connection.load.balancy.policy.class</connection-load-balancing-policy-class-name>
-                <use-global-pools>${use.global.pools:true}</use-global-pools>
-                <scheduled-thread-pool-max-size>${scheduled.thread.pool.max.size:24}</scheduled-thread-pool-max-size>
-                <thread-pool-max-size>${thread.pool.max.size:48}</thread-pool-max-size>
-                <group-id>${group.id:myGroup}</group-id>
-            </connection-factory>
-            <pooled-connection-factory name="hornetq-ra">
-                <inbound-config>
-                    <use-jndi>${use.jndi:false}</use-jndi>
-                    <jndi-params>${jndi.params:whatever}</jndi-params>
-                    <use-local-tx>${use.local.tx:true}</use-local-tx>
-                    <setup-attempts>${setup-attempts:123}</setup-attempts>
-                    <setup-interval>${setup-interval:456}</setup-interval>
-                </inbound-config>
-                <transaction mode="${transaction:xa}"/>
-                <user>${user:alice}</user>
-                <password>${password:alicepassword}</password>
-                <min-pool-size>${min.pool.size:42}</min-pool-size>
-                <max-pool-size>${max.pool.size:242}</max-pool-size>
-                <initial-message-packet-size>${initial.message.packet.size:9876}</initial-message-packet-size>
-                <initial-connect-attempts>${initial.connect.attempts:5432}</initial-connect-attempts>
-                <connectors>
-                    <connector-ref connector-name="in-vm"/>
-                </connectors>
-                <entries>
-                    <entry name="${pooled-connection-factory.entries.entry:java:/JmsXA}"/>
-                </entries>
-                <ha>${ha:true}</ha>
-                <client-failure-check-period>${client.failure.check.period:12345}</client-failure-check-period>
-                <connection-ttl>${connection.ttl:6789}</connection-ttl>
-                <call-timeout>${call.timeout:123}</call-timeout>
-                <call-failover-timeout>${call.failover.timeout:456}</call-failover-timeout>
-                <consumer-window-size>${consumer.window.size:456}</consumer-window-size>
-                <consumer-max-rate>${consumer.max.rate:789}</consumer-max-rate>
-                <confirmation-window-size>${confirmation.window.size:-1}</confirmation-window-size>
-                <producer-window-size>${producer.window.size:-1}</producer-window-size>
-                <producer-max-rate>${producer.max.rate:1024}</producer-max-rate>
-                <compress-large-messages>${compress.large.messages:true}</compress-large-messages>
-                <cache-large-message-client>${cache.large.message.client:false}</cache-large-message-client>
-                <min-large-message-size>${min.large.message.size:2048}</min-large-message-size>
-                <client-id>${client.id:myClientID}</client-id>
-                <dups-ok-batch-size>${dups.ok.batch.size:256}</dups-ok-batch-size>
-                <transaction-batch-size>${transaction.batch.size:512}</transaction-batch-size>
-                <block-on-acknowledge>${block.on.acknowledge:false}</block-on-acknowledge>
-                <block-on-non-durable-send>${block.on.non.durable.send:false}</block-on-non-durable-send>
-                <block-on-durable-send>${block.on.durable.send:false}</block-on-durable-send>
-                <auto-group>${auto.group:true}</auto-group>
-                <pre-acknowledge>${pre.acknowledge:true}</pre-acknowledge>
-                <retry-interval>${retry.interval:500}</retry-interval>
-                <retry-interval-multiplier>${retry.interval.multiplier:2.5}</retry-interval-multiplier>
-                <max-retry-interval>${max.retry.interval:10000}</max-retry-interval>
-                <reconnect-attempts>${reconnect.attempts:2}</reconnect-attempts>
-                <failover-on-initial-connection>${failover.on.initial.connection:true}</failover-on-initial-connection>
-                <connection-load-balancing-policy-class-name>connection.load.balancing.policy.class</connection-load-balancing-policy-class-name>
-                <use-global-pools>${use.global.pools:true}</use-global-pools>
-                <scheduled-thread-pool-max-size>${scheduled.thread.pool.max.size:24}</scheduled-thread-pool-max-size>
-                <thread-pool-max-size>${thread.pool.max.size:48}</thread-pool-max-size>
-                <group-id>${group.id:myGroup}</group-id>
-            </pooled-connection-factory>
-            <pooled-connection-factory name="hornetq-ra-local">
-                <transaction mode="local"/>
-                <user>alice</user>
-                <password>alicepassword</password>
-                <use-auto-recovery>${use.auto.recovery:true}</use-auto-recovery>
-                <connectors>
-                    <connector-ref connector-name="in-vm"/>
-                </connectors>
-                <entries>
-                    <entry name="java:/JmsLocal"/>
-                </entries>
-            </pooled-connection-factory>
-            <pooled-connection-factory name="hornetq-ra-none">
-                <transaction mode="none"/>
-                <user>alice</user>
-                <password>alicepassword</password>
-                <connectors>
-                    <connector-ref connector-name="in-vm"/>
-                </connectors>
-                <entries>
-                    <entry name="java:/JmsNone"/>
-                </entries>
-            </pooled-connection-factory>
-        </jms-connection-factories>
-
-        <jms-destinations>
-            <jms-queue name="testQueue">
-                <entry name="${jms-queue.entry:queue/test}"/>
-                <selector string="${selector:color='red'}"/>
-                <durable>${durable:true}</durable>
-            </jms-queue>
-            <jms-topic name="testTopic">
-                <entry name="${jms-topic.entry:topic/test}"/>
-            </jms-topic>
-        </jms-destinations>
         -->
     </server>
 

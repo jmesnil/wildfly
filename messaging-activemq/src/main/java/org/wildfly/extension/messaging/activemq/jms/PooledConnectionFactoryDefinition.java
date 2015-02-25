@@ -62,12 +62,15 @@ import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttr
 import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Pooled.USE_JNDI;
 import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Pooled.USE_LOCAL_TX;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.jboss.as.controller.AbstractAttributeDefinitionBuilder;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
@@ -86,7 +89,7 @@ import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class PooledConnectionFactoryDefinition extends SimpleResourceDefinition {
+public class PooledConnectionFactoryDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.POOLED_CONNECTION_FACTORY);
 
@@ -139,23 +142,7 @@ public class PooledConnectionFactoryDefinition extends SimpleResourceDefinition 
 
     public static final ConnectionFactoryAttribute[] ATTRIBUTES = define(Pooled.ATTRIBUTES, Common.ATTRIBUTES);
 
-    // attributes added to the pooled cf resources *after* 1.1.0
-    public static final AttributeDefinition[] ATTRIBUTES_ADDED_IN_1_2_0 = new AttributeDefinition[]{INITIAL_CONNECT_ATTEMPTS,
-            INITIAL_MESSAGE_PACKET_SIZE,
-            COMPRESS_LARGE_MESSAGES,
-            USE_AUTO_RECOVERY};
-
-    // attributes with expression supported added *after* 1.1.0
-    public static final AttributeDefinition[] ATTRIBUTES_WITH_EXPRESSION_ALLOWED_IN_1_2_0 = { ENTRIES, CALL_TIMEOUT,
-            AUTO_GROUP, BLOCK_ON_ACKNOWLEDGE, BLOCK_ON_DURABLE_SEND, BLOCK_ON_NON_DURABLE_SEND, CACHE_LARGE_MESSAGE_CLIENT, CLIENT_FAILURE_CHECK_PERIOD, CLIENT_ID,
-            CONFIRMATION_WINDOW_SIZE, CONNECTION_TTL, CONSUMER_MAX_RATE,
-            CONSUMER_WINDOW_SIZE, DUPS_OK_BATCH_SIZE, FAILOVER_ON_INITIAL_CONNECTION, GROUP_ID, HA, MAX_RETRY_INTERVAL, MIN_LARGE_MESSAGE_SIZE, PRE_ACKNOWLEDGE,
-            PRODUCER_MAX_RATE, PRODUCER_WINDOW_SIZE, RETRY_INTERVAL, RETRY_INTERVAL_MULTIPLIER, TRANSACTION_BATCH_SIZE,
-            USE_GLOBAL_POOLS, // end of common attributes
-            JNDI_PARAMS, RECONNECT_ATTEMPTS, SETUP_ATTEMPTS, SETUP_INTERVAL,
-            TRANSACTION, USE_JNDI, USE_LOCAL_TX};
-
-    public static Map<String, ConnectionFactoryAttribute> getAttributes() {
+    public static Map<String, ConnectionFactoryAttribute> getAttributesMap() {
         Map<String, ConnectionFactoryAttribute> attrs = new HashMap<String, ConnectionFactoryAttribute>(ATTRIBUTES.length);
         for (ConnectionFactoryAttribute attribute : ATTRIBUTES) {
             attrs.put(attribute.getDefinition().getName(), attribute);
@@ -166,6 +153,8 @@ public class PooledConnectionFactoryDefinition extends SimpleResourceDefinition 
     private final boolean registerRuntimeOnly;
     private final boolean deployed;
 
+    public static final PooledConnectionFactoryDefinition INSTANCE = new PooledConnectionFactoryDefinition(false, false);
+
     public PooledConnectionFactoryDefinition(final boolean registerRuntimeOnly, final boolean deployed) {
         super(PATH, MessagingExtension.getResourceDescriptionResolver(CommonAttributes.POOLED_CONNECTION_FACTORY),
                 PooledConnectionFactoryAdd.INSTANCE,
@@ -175,9 +164,12 @@ public class PooledConnectionFactoryDefinition extends SimpleResourceDefinition 
     }
 
     @Override
-    public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(getDefinitions(ATTRIBUTES));
+    }
 
+    @Override
+    public void registerAttributes(ManagementResourceRegistration registry) {
         for (AttributeDefinition attr : getDefinitions(ATTRIBUTES)) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 if (deployed) {
