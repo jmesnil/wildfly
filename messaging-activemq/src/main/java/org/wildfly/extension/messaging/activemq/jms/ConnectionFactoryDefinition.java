@@ -54,8 +54,12 @@ import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttr
 import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Common.USE_GLOBAL_POOLS;
 import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Regular.FACTORY_TYPE;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -69,7 +73,7 @@ import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class ConnectionFactoryDefinition extends SimpleResourceDefinition {
+public class ConnectionFactoryDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.CONNECTION_FACTORY);
 
@@ -95,6 +99,8 @@ public class ConnectionFactoryDefinition extends SimpleResourceDefinition {
 
     private final boolean registerRuntimeOnly;
 
+    public static final ConnectionFactoryDefinition INSTANCE = new ConnectionFactoryDefinition(false);
+
     public ConnectionFactoryDefinition(final boolean registerRuntimeOnly) {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.CONNECTION_FACTORY),
@@ -104,9 +110,12 @@ public class ConnectionFactoryDefinition extends SimpleResourceDefinition {
     }
 
     @Override
-    public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(ATTRIBUTES);
+    }
 
+    @Override
+    public void registerAttributes(ManagementResourceRegistration registry) {
         for (AttributeDefinition attr : ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, ConnectionFactoryWriteAttributeHandler.INSTANCE);

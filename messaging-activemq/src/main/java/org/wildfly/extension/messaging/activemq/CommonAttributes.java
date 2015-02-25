@@ -32,10 +32,16 @@ import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.wildfly.extension.messaging.activemq.jms.Validators.noDuplicateElements;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.config.impl.FileConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.AttributeParser;
+import org.jboss.as.controller.DefaultAttributeMarshaller;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.StringListAttributeDefinition;
@@ -121,11 +127,40 @@ public interface CommonAttributes {
             .setStorageRuntime()
             .build();
 
-    PrimitiveListAttributeDefinition DESTINATION_ENTRIES = PrimitiveListAttributeDefinition.Builder.of(ENTRIES, ModelType.STRING)
+    PrimitiveListAttributeDefinition DESTINATION_ENTRIES = new StringListAttributeDefinition.Builder(ENTRIES)
             .setAllowNull(false)
             .setListValidator(noDuplicateElements(new StringLengthValidator(1, false, true)))
             .setAllowExpression(true)
-            .setAttributeMarshaller(new AttributeMarshallers.JndiEntriesAttributeMarshaller(true))
+            .setAttributeParser(new AttributeParser() {
+                @Override
+                public void parseAndSetParameter(AttributeDefinition attribute, String value, ModelNode operation, XMLStreamReader reader) throws XMLStreamException {
+                    if (value == null) {
+                        return;
+                    }
+                    for (String element : value.split(",")) {
+                        ModelNode paramVal = parse(attribute, element, reader);
+                        operation.get(attribute.getName()).add(paramVal);
+                    }
+                }
+            })
+            .setAttributeMarshaller(new DefaultAttributeMarshaller() {
+                @Override
+                public void marshallAsAttribute(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
+
+                    StringBuilder builder = new StringBuilder();
+                    if (resourceModel.hasDefined(attribute.getName())) {
+                        for (ModelNode p : resourceModel.get(attribute.getName()).asList()) {
+                            builder.append(p.asString()).append(", ");
+                        }
+                    }
+                    if (builder.length() > 3) {
+                        builder.setLength(builder.length() - 2);
+                    }
+                    if (builder.length() > 0) {
+                        writer.writeAttribute(attribute.getXmlName(), builder.toString());
+                    }
+                }
+            })
             .setRestartAllServices()
             .build();
 
@@ -246,7 +281,6 @@ public interface CommonAttributes {
     SimpleAttributeDefinition SELECTOR = create("selector", ModelType.STRING)
             .setAllowNull(true)
             .setAllowExpression(true)
-            .setAttributeMarshaller(AttributeMarshallers.SELECTOR_MARSHALLER)
             .setRestartAllServices()
             .build();
 

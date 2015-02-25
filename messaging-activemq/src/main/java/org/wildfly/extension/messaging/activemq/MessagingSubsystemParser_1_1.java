@@ -38,6 +38,10 @@ import org.jboss.staxmapper.XMLElementReader;
 import org.jboss.staxmapper.XMLElementWriter;
 import org.jboss.staxmapper.XMLExtendedStreamReader;
 import org.jboss.staxmapper.XMLExtendedStreamWriter;
+import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes;
+import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryDefinition;
+import org.wildfly.extension.messaging.activemq.jms.JMSQueueDefinition;
+import org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2015 Red Hat inc.
@@ -50,8 +54,7 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
 
     static {
         xmlDescription = builder(MessagingSubsystemRootResourceDefinition.INSTANCE)
-                .addChild(
-                        builder(HornetQServerResourceDefinition.INSTANCE)
+                .addChild(builder(HornetQServerResourceDefinition.INSTANCE)
                                 .addAttributes(
                                         // no attribute groups
                                         HornetQServerResourceDefinition.PERSISTENCE_ENABLED,
@@ -269,6 +272,59 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                                         BridgeDefinition.PASSWORD,
                                                         BridgeDefinition.CONNECTOR_REFS,
                                                         BridgeDefinition.DISCOVERY_GROUP_NAME
+                                                )
+                                )
+                                .addChild(builder(JMSQueueDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        CommonAttributes.DESTINATION_ENTRIES,
+                                                        CommonAttributes.SELECTOR,
+                                                        CommonAttributes.DURABLE
+                                                )
+                                )
+                                .addChild(builder(JMSTopicDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        CommonAttributes.DESTINATION_ENTRIES
+                                                )
+                                )
+                                .addChild(builder(ConnectionFactoryDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        // common
+                                                        ConnectionFactoryAttributes.Common.DISCOVERY_GROUP_NAME,
+                                                        ConnectionFactoryAttributes.Common.CONNECTOR,
+                                                        ConnectionFactoryAttributes.Common.ENTRIES,
+                                                        CommonAttributes.HA,
+                                                        ConnectionFactoryAttributes.Common.CLIENT_FAILURE_CHECK_PERIOD,
+                                                        ConnectionFactoryAttributes.Common.CONNECTION_TTL,
+                                                        CommonAttributes.CALL_TIMEOUT,
+                                                        CommonAttributes.CALL_FAILOVER_TIMEOUT,
+                                                        ConnectionFactoryAttributes.Common.CONSUMER_WINDOW_SIZE,
+                                                        ConnectionFactoryAttributes.Common.CONSUMER_MAX_RATE,
+                                                        ConnectionFactoryAttributes.Common.CONFIRMATION_WINDOW_SIZE,
+                                                        ConnectionFactoryAttributes.Common.PRODUCER_WINDOW_SIZE,
+                                                        ConnectionFactoryAttributes.Common.PRODUCER_MAX_RATE,
+                                                        ConnectionFactoryAttributes.Common.COMPRESS_LARGE_MESSAGES,
+                                                        ConnectionFactoryAttributes.Common.CACHE_LARGE_MESSAGE_CLIENT,
+                                                        CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
+                                                        CommonAttributes.CLIENT_ID,
+                                                        ConnectionFactoryAttributes.Common.DUPS_OK_BATCH_SIZE,
+                                                        ConnectionFactoryAttributes.Common.TRANSACTION_BATCH_SIZE,
+                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_ACKNOWLEDGE,
+                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_DURABLE_SEND,
+                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_NON_DURABLE_SEND,
+                                                        ConnectionFactoryAttributes.Common.AUTO_GROUP,
+                                                        ConnectionFactoryAttributes.Common.PRE_ACKNOWLEDGE,
+                                                        ConnectionFactoryAttributes.Common.RETRY_INTERVAL,
+                                                        ConnectionFactoryAttributes.Common.RETRY_INTERVAL_MULTIPLIER,
+                                                        CommonAttributes.MAX_RETRY_INTERVAL,
+                                                        ConnectionFactoryAttributes.Common.RECONNECT_ATTEMPTS,
+                                                        ConnectionFactoryAttributes.Common.FAILOVER_ON_INITIAL_CONNECTION,
+                                                        ConnectionFactoryAttributes.Common.CONNECTION_LOAD_BALANCING_CLASS_NAME,
+                                                        ConnectionFactoryAttributes.Common.USE_GLOBAL_POOLS,
+                                                        ConnectionFactoryAttributes.Common.SCHEDULED_THREAD_POOL_MAX_SIZE,
+                                                        ConnectionFactoryAttributes.Common.THREAD_POOL_MAX_SIZE,
+                                                        ConnectionFactoryAttributes.Common.GROUP_ID,
+                                                        // regular
+                                                        ConnectionFactoryAttributes.Regular.FACTORY_TYPE
                                                 )
                                 )
                 ) // End of HornetQServerResourceDefinition
