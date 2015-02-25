@@ -223,7 +223,7 @@ public class JMSConnectionFactoryDefinitionInjectionSource extends ResourceDefin
     }
 
     void clearUnknownProperties(final Map<String, String> props) {
-        Set<String> attributeNames = PooledConnectionFactoryDefinition.getAttributes().keySet();
+        Set<String> attributeNames = PooledConnectionFactoryDefinition.getAttributesMap().keySet();
 
         final Iterator<Map.Entry<String, String>> it = props.entrySet().iterator();
         while (it.hasNext()) {
@@ -257,7 +257,7 @@ public class JMSConnectionFactoryDefinitionInjectionSource extends ResourceDefin
     }
 
     private List<PooledConnectionFactoryConfigProperties> getAdapterParams(ModelNode model) {
-        Map<String, ConnectionFactoryAttribute> attributes = PooledConnectionFactoryDefinition.getAttributes();
+        Map<String, ConnectionFactoryAttribute> attributes = PooledConnectionFactoryDefinition.getAttributesMap();
         List<PooledConnectionFactoryConfigProperties> props = new ArrayList<>();
 
         for (Property property : model.asPropertyList()) {
