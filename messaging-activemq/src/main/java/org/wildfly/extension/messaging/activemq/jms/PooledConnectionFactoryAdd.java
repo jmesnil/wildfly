@@ -23,7 +23,7 @@
 package org.wildfly.extension.messaging.activemq.jms;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTOR;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTORS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.LOCAL;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.LOCAL_TX;
@@ -42,13 +42,13 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.registry.Resource;
+import org.jboss.dmr.ModelNode;
+import org.jboss.msc.service.ServiceController;
+import org.jboss.msc.service.ServiceTarget;
 import org.wildfly.extension.messaging.activemq.AlternativeAttributeCheckHandler;
 import org.wildfly.extension.messaging.activemq.CommonAttributes;
 import org.wildfly.extension.messaging.activemq.MessagingServices;
 import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Common;
-import org.jboss.dmr.ModelNode;
-import org.jboss.msc.service.ServiceController;
-import org.jboss.msc.service.ServiceTarget;
 
 /**
  * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
@@ -126,9 +126,9 @@ public class PooledConnectionFactoryAdd extends AbstractAddStepHandler {
 
     static List<String> getConnectors(final ModelNode model) {
         List<String> connectorNames = new ArrayList<String>();
-        if (model.hasDefined(CONNECTOR)) {
-            for (String connectorName : model.get(CONNECTOR).keys()) {
-                connectorNames.add(connectorName);
+        if (model.hasDefined(CONNECTORS)) {
+            for (ModelNode connectorName : model.get(CONNECTORS).asList()) {
+                connectorNames.add(connectorName.asString());
             }
         }
         return connectorNames;

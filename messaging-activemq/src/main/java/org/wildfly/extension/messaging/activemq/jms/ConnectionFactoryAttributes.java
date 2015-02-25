@@ -25,35 +25,26 @@ import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.BYTES;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.PER_SECOND;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGING_SECURITY_DEF;
-import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttribute.create;
 import static org.jboss.dmr.ModelType.BIG_DECIMAL;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGING_SECURITY_DEF;
+import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttribute.create;
 
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.AttributeMarshaller;
 import org.jboss.as.controller.ListAttributeDefinition;
-import org.jboss.as.controller.ParameterCorrector;
-import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
-import org.jboss.as.controller.SimpleMapAttributeDefinition;
 import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
+import org.jboss.dmr.ModelNode;
 import org.wildfly.extension.messaging.activemq.AttributeMarshallers;
 import org.wildfly.extension.messaging.activemq.CommonAttributes;
-import org.wildfly.extension.messaging.activemq.Element;
-import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.ModelType;
 
 public interface ConnectionFactoryAttributes {
 

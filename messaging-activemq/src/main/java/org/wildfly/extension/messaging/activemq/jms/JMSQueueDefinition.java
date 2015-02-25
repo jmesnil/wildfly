@@ -23,9 +23,9 @@
 package org.wildfly.extension.messaging.activemq.jms;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
+import static org.jboss.dmr.ModelType.STRING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.PAUSED;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.TEMPORARY;
-import static org.jboss.dmr.ModelType.STRING;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,7 +37,6 @@ import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.access.constraint.ApplicationTypeConfig;
 import org.jboss.as.controller.access.management.AccessConstraintDefinition;
 import org.jboss.as.controller.access.management.ApplicationTypeAccessConstraintDefinition;
