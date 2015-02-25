@@ -27,11 +27,14 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.PAUSED;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.TEMPORARY;
 import static org.jboss.dmr.ModelType.STRING;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.SimpleResourceDefinition;
@@ -48,7 +51,7 @@ import org.wildfly.extension.messaging.activemq.MessagingExtension;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class JMSQueueDefinition extends SimpleResourceDefinition {
+public class JMSQueueDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.JMS_QUEUE);
 
@@ -96,6 +99,8 @@ public class JMSQueueDefinition extends SimpleResourceDefinition {
         return new JMSQueueDefinition(true, true, null, null);
     }
 
+    public static final JMSQueueDefinition INSTANCE = new JMSQueueDefinition(false);
+
     public JMSQueueDefinition(final boolean registerRuntimeOnly) {
         this(registerRuntimeOnly, false, JMSQueueAdd.INSTANCE, JMSQueueRemove.INSTANCE);
     }
@@ -112,9 +117,12 @@ public class JMSQueueDefinition extends SimpleResourceDefinition {
     }
 
     @Override
-    public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(ATTRIBUTES);
+    }
 
+    @Override
+    public void registerAttributes(ManagementResourceRegistration registry) {
         AttributeDefinition[] attributes = deployed ? getDeploymentAttributes() : ATTRIBUTES;
         for (AttributeDefinition attr : attributes) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {

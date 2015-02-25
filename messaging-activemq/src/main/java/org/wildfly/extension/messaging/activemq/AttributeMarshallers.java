@@ -28,10 +28,13 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.DISCOVER
 import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.AttributeMarshaller;
+import org.jboss.as.controller.AttributeParser;
+import org.jboss.as.controller.DefaultAttributeMarshaller;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
 
@@ -41,6 +44,39 @@ import org.jboss.dmr.Property;
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
 public final class AttributeMarshallers {
+
+    public static final AttributeParser COMMA_SEPARATED_PARSER = new AttributeParser() {
+        @Override
+        public void parseAndSetParameter(AttributeDefinition attribute, String value, ModelNode operation, XMLStreamReader
+        reader) throws XMLStreamException {
+            if (value == null) {
+                return;
+            }
+            for (String element : value.split(",")) {
+                ModelNode paramVal = parse(attribute, element, reader);
+                operation.get(attribute.getName()).add(paramVal);
+            }
+        }
+    };
+
+    public static final AttributeMarshaller COMMA_SEPARATED_MARSHALLER = new DefaultAttributeMarshaller() {
+        @Override
+        public void marshallAsAttribute(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
+
+            StringBuilder builder = new StringBuilder();
+            if (resourceModel.hasDefined(attribute.getName())) {
+                for (ModelNode p : resourceModel.get(attribute.getName()).asList()) {
+                    builder.append(p.asString()).append(", ");
+                }
+            }
+            if (builder.length() > 3) {
+                builder.setLength(builder.length() - 2);
+            }
+            if (builder.length() > 0) {
+                writer.writeAttribute(attribute.getXmlName(), builder.toString());
+            }
+        }
+    };
 
     public static final AttributeMarshaller DISCOVERY_GROUP_MARSHALLER = new AttributeInsideElementMarshaller(DISCOVERY_GROUP_REF, DISCOVERY_GROUP_NAME);
 
