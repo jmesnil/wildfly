@@ -81,7 +81,7 @@ public class QueueControlHandler extends AbstractQueueControlHandler<QueueContro
             values.add(new ModelNode(6));
             return values;
         }
-    };
+    }
 
     private QueueControlHandler() {
     }
