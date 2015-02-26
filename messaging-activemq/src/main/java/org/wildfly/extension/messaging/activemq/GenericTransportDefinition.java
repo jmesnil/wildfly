@@ -45,7 +45,7 @@ public class GenericTransportDefinition extends AbstractTransportDefinition {
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.SOCKET_BINDING_REF)
             .build();
 
-    static AttributeDefinition[] ATTRIBUTES = { CommonAttributes.FACTORY_CLASS, SOCKET_BINDING };
+    static AttributeDefinition[] ATTRIBUTES = { CommonAttributes.FACTORY_CLASS, SOCKET_BINDING, CommonAttributes.PARAMS };
 
     static final GenericTransportDefinition CONNECTOR_INSTANCE = createConnectorDefinition(false);
     static final GenericTransportDefinition ACCEPTOR_INSTANCE = createAcceptorDefinition(false);

@@ -99,11 +99,4 @@ public abstract class AbstractTransportDefinition extends PersistentResourceDefi
 
         super.registerOperations(registry);
     }
-
-    @Override
-    public void registerChildren(ManagementResourceRegistration registry) {
-        super.registerChildren(registry);
-
-        registry.registerSubModel(new TransportParamDefinition(getAllowedKeys()));
-    }
 }

@@ -44,6 +44,7 @@ import org.jboss.as.controller.AttributeMarshaller;
 import org.jboss.as.controller.AttributeParser;
 import org.jboss.as.controller.DefaultAttributeMarshaller;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
+import org.jboss.as.controller.PropertiesAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.as.controller.access.constraint.SensitivityClassification;
@@ -194,6 +195,12 @@ public interface CommonAttributes {
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
+            .build();
+
+    PropertiesAttributeDefinition PARAMS = new PropertiesAttributeDefinition.Builder("params", true)
+            .setWrapXmlElement(false)
+            .setAllowExpression(true)
+            .setXmlName("param")
             .build();
 
     SimpleAttributeDefinition JGROUPS_STACK = create("jgroups-stack", ModelType.STRING)
