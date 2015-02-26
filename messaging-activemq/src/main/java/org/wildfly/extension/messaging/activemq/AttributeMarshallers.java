@@ -55,35 +55,4 @@ public final class AttributeMarshallers {
             }
         }
     };
-
-    public static final AttributeMarshaller JNDI_RESOURCE_MARSHALLER = new AttributeMarshaller() {
-        public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
-            if (resourceModel.hasDefined(attribute.getName())) {
-                String name = resourceModel.get(attribute.getName()).asString();
-                writer.writeEmptyElement(attribute.getXmlName());
-                writer.writeAttribute("name", name);
-            }
-        }
-    };
-
-
-    public static final AttributeMarshaller INTERCEPTOR_MARSHALLER = new AttributeMarshaller() {
-        @Override
-        public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
-            if (resourceModel.hasDefined(attribute.getName())) {
-                List<ModelNode> list = resourceModel.get(attribute.getName()).asList();
-                if (list.size() > 0) {
-                    writer.writeStartElement(attribute.getXmlName());
-
-                    for (ModelNode child : list) {
-                        writer.writeStartElement("class-name");
-                        writer.writeCharacters(child.asString());
-                        writer.writeEndElement();
-                    }
-
-                    writer.writeEndElement();
-                }
-            }
-        }
-    };
 }

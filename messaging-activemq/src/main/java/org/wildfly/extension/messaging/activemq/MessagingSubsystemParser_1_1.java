@@ -43,6 +43,7 @@ import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryDefinition;
 import org.wildfly.extension.messaging.activemq.jms.JMSQueueDefinition;
 import org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition;
 import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryDefinition;
+import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2015 Red Hat inc.
@@ -106,6 +107,9 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                         // message expiry
                                         HornetQServerResourceDefinition.MESSAGE_EXPIRY_SCAN_PERIOD,
                                         HornetQServerResourceDefinition.MESSAGE_EXPIRY_THREAD_PRIORITY,
+                                        // remoting-interceptors
+                                        CommonAttributes.REMOTING_INCOMING_INTERCEPTORS,
+                                        CommonAttributes.REMOTING_OUTGOING_INTERCEPTORS,
                                         // debug
                                         HornetQServerResourceDefinition.PERF_BLAST_PAGES,
                                         HornetQServerResourceDefinition.RUN_SYNC_SPEED_TEST,
@@ -275,6 +279,14 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                                         ClusterConnectionDefinition.ALLOW_DIRECT_CONNECTIONS_ONLY,
                                                         ClusterConnectionDefinition.DISCOVERY_GROUP_NAME))
                                 .addChild(
+                                        builder(GroupingHandlerDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        GroupingHandlerDefinition.TYPE,
+                                                        GroupingHandlerDefinition.GROUPING_HANDLER_ADDRESS,
+                                                        GroupingHandlerDefinition.TIMEOUT,
+                                                        GroupingHandlerDefinition.GROUP_TIMEOUT,
+                                                        GroupingHandlerDefinition.REAPER_PERIOD))
+                                .addChild(
                                         builder(DivertDefinition.INSTANCE)
                                                 .addAttributes(
                                                         DivertDefinition.ROUTING_NAME,
@@ -306,6 +318,14 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                                         BridgeDefinition.PASSWORD,
                                                         BridgeDefinition.CONNECTOR_REFS,
                                                         BridgeDefinition.DISCOVERY_GROUP_NAME))
+                                .addChild(
+                                        builder(ConnectorServiceDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        CommonAttributes.FACTORY_CLASS)
+                                                .addChild(
+                                                        builder(ConnectorServiceParamDefinition.INSTANCE)
+                                                                .addAttributes(
+                                                                        ConnectorServiceParamDefinition.VALUE)))
                                 .addChild(
                                         builder(JMSQueueDefinition.INSTANCE)
                                                 .addAttributes(
@@ -407,8 +427,33 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                                         ConnectionFactoryAttributes.Pooled.MAX_POOL_SIZE,
                                                         ConnectionFactoryAttributes.Pooled.USE_AUTO_RECOVERY,
                                                         ConnectionFactoryAttributes.Pooled.INITIAL_MESSAGE_PACKET_SIZE,
-                                                        ConnectionFactoryAttributes.Pooled.INITIAL_CONNECT_ATTEMPTS))
-                ).build();
+                                                        ConnectionFactoryAttributes.Pooled.INITIAL_CONNECT_ATTEMPTS)))
+                .addChild(
+                        builder(JMSBridgeDefinition.INSTANCE)
+                                .addAttributes(
+                                        JMSBridgeDefinition.MODULE,
+                                        JMSBridgeDefinition.QUALITY_OF_SERVICE,
+                                        JMSBridgeDefinition.FAILURE_RETRY_INTERVAL,
+                                        JMSBridgeDefinition.MAX_RETRIES,
+                                        JMSBridgeDefinition.MAX_BATCH_SIZE,
+                                        JMSBridgeDefinition.MAX_BATCH_TIME,
+                                        CommonAttributes.SELECTOR,
+                                        JMSBridgeDefinition.SUBSCRIPTION_NAME,
+                                        CommonAttributes.CLIENT_ID,
+                                        JMSBridgeDefinition.ADD_MESSAGE_ID_IN_HEADER,
+                                        // source
+                                        JMSBridgeDefinition.SOURCE_CONNECTION_FACTORY,
+                                        JMSBridgeDefinition.SOURCE_DESTINATION,
+                                        JMSBridgeDefinition.SOURCE_USER,
+                                        JMSBridgeDefinition.SOURCE_PASSWORD,
+                                        //JMSBridgeDefinition.SOURCE_CONTEXT
+                                        // target
+                                        JMSBridgeDefinition.TARGET_CONNECTION_FACTORY,
+                                        JMSBridgeDefinition.TARGET_DESTINATION,
+                                        JMSBridgeDefinition.TARGET_USER,
+                                        JMSBridgeDefinition.TARGET_PASSWORD
+                                ))
+                .build();
     }
 
     private MessagingSubsystemParser_1_1() {

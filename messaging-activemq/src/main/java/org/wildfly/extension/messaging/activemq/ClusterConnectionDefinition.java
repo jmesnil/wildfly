@@ -117,7 +117,7 @@ public class ClusterConnectionDefinition extends PersistentResourceDefinition {
             .setRestartAllServices()
             .build();
 
-    public static final SimpleAttributeDefinition DISCOVERY_GROUP_NAME = create(CommonAttributes.DISCOVERY_GROUP_NAME, STRING)
+    public static final SimpleAttributeDefinition DISCOVERY_GROUP_NAME = create(CommonAttributes.DISCOVERY_GROUP, STRING)
             .setAllowNull(true)
             .setAlternatives(ALLOW_DIRECT_CONNECTIONS_ONLY.getName(), CONNECTOR_REFS.getName())
             .setRestartAllServices()

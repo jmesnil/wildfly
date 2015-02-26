@@ -40,6 +40,7 @@ import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.config.impl.FileConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.AttributeMarshaller;
 import org.jboss.as.controller.AttributeParser;
 import org.jboss.as.controller.DefaultAttributeMarshaller;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
@@ -242,21 +243,28 @@ public interface CommonAttributes {
             .build();
 
     StringListAttributeDefinition REMOTING_INCOMING_INTERCEPTORS = new StringListAttributeDefinition.Builder("remoting-incoming-interceptors")
+            .setAttributeGroup("remoting-interceptors")
+            .setXmlName("incoming")
             .setAllowNull(true)
             .setAllowExpression(false)
             .setMinSize(1)
             .setMaxSize(Integer.MAX_VALUE)
             .setRestartAllServices()
             .setElementValidator(new StringLengthValidator(1, false, true))
+            .setAttributeParser(AttributeParser.STRING_LIST)
+            .setAttributeMarshaller(AttributeMarshaller.STRING_LIST)
             .build();
 
     StringListAttributeDefinition REMOTING_OUTGOING_INTERCEPTORS = new StringListAttributeDefinition.Builder("remoting-outgoing-interceptors")
+            .setAttributeGroup("remoting-interceptors")
+            .setXmlName("outgoing")
             .setAllowNull(true)
             .setAllowExpression(false)
             .setMinSize(1)
             .setMaxSize(Integer.MAX_VALUE)
             .setRestartAllServices()
             .setElementValidator(new StringLengthValidator(1, false, true))
+            .setAttributeParser(AttributeParser.STRING_LIST)
             .build();
 
     AttributeDefinition RETRY_INTERVAL = create("retry-interval", LONG)

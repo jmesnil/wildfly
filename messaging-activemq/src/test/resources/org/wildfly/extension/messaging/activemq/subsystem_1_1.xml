@@ -46,12 +46,19 @@
                 enabled="${statistics.enabled:true}"
                 message-counter-sample-period="${message.counter.sample.period:7654}"
                 message-counter-max-day-history="${message.counter.max.day.history:23}"/>
+
         <transaction
                 timeout="${transaction.timeout:4321}"
                 scan-period="${transaction.timeout.scan.period:5432}"/>
+
         <message-expiry
                 scan-period="${message.expiry.scan.period:7654}"
                 thread-priority="${message.expiry.thread.priority:7}"/>
+
+        <remoting-interceptors
+                incoming="foo.bar bar.foo"
+                outgoing="bar.foo foo.bar" />
+
         <debug
                 perf-blast-pages="${perf.blast.pages:70}"
                 run-sync-speed-test="${run.sync.speed.test:false}"
@@ -158,11 +165,46 @@
                          jgroups-channel="${jgroups.channel:hq-cluster}"
                          refresh-timeout="${discovery.group.refresh.timeout:2345}"
                          initial-wait-timeout="${discovery.group.initial.wait.timeout:2345}"/>
+
+        <cluster-connection name="cc1"
+                            address="${address:cc1-address}"
+                            connector-name="netty"
+                            check-period="${check.period:2345}"
+                            connection-ttl="${connection.ttl:1234}"
+                            min-large-message-size="${min.large.message.size:10245}"
+                            call-timeout="${call.timeout:3456}"
+                            call-failover-timeout="${call.failover.timeout:7890}"
+                            retry-interval="${retry.interval:987}"
+                            retry-interval-multiplier="${retry.interval.multiplier:3.0}"
+                            max-retry-interval="${max.retry.interval:3600}"
+                            reconnect-attempts="${reconnect.attempts:-1}"
+                            use-duplicate-detection="${use.duplicate.detection:true}"
+                            forward-when-no-consumers="${forward.when.no.consumers:true}"
+                            max-hops="${max.hops:7}"
+                            confirmation-window-size="${confirmation.windows.size:459}"
+                            notification-attempts="${notification.attempts:2}"
+                            notification-interval="${notification.interval:1}"
+                            static-connectors="in-vm netty" />
         <cluster-connection name="cc2"
-            address="cc2-address"
-            connector-name="netty"
-            static-connectors="in-vm netty"
-            allow-direct-connections-only="true" />
+                            address="cc2-address"
+                            connector-name="netty"
+                            static-connectors="in-vm netty"
+                            allow-direct-connections-only="true" />
+        <cluster-connection name="cc3"
+                            address="cc3-address"
+                            connector-name="netty"
+                            discovery-group="groupC"/>
+        <cluster-connection name="cc4"
+                            address="cc4-address"
+                            connector-name="netty-throughput"
+                            static-connectors="in-vm netty" />
+
+        <grouping-handler name="grouping-handler"
+                          type="${grouping.type:LOCAL}"
+                          address="${address:handler-address}"
+                          timeout="${timeout:5000}"
+                          group-timeout="${group-timeout:1234}"
+                          reaper-period="${reaper-period:5678}" />
 
         <divert name="testDivert1"
                 routing-name="${routing.name:routing}"
@@ -197,6 +239,15 @@
         <bridge name="bridge2"
                 queue-name="coreQueueB"
                 discovery-group="groupC" />
+
+        <connector-service name="b"
+                           factory-class="bar.foo">
+            <param name="foo"
+                   value="${connector.value:bar}"/>
+            <param name="bar"
+                   value="2"/>
+        </connector-service>
+
 
         <jms-queue name="testQueue"
                    entries="${jms-queue.entry:queue/test}"
@@ -311,105 +362,57 @@
                     setup-attempts="${setup-attempts:123}"
                     setup-interval="${setup-interval:456}" />
         </pooled-connection-factory>
-
-        <!--
-
-
-                <remoting-incoming-interceptors>
-            <class-name>foo.bar</class-name>
-            <class-name>bar.foo</class-name>
-        </remoting-incoming-interceptors>
-        <remoting-outgoing-interceptors>
-            <class-name>foo.bar</class-name>
-            <class-name>bar.foo</class-name>
-        </remoting-outgoing-interceptors>
-
-        <cluster-connections>
-            <cluster-connection name="cc1">
-                <address>${address:cc1-address}</address>
-                <connector-ref>netty</connector-ref>
-                <check-period>${check.period:2345}</check-period>
-                <connection-ttl>${connection.ttl:1234}</connection-ttl>
-                <min-large-message-size>${min.large.message.size:10245}</min-large-message-size>
-                <call-timeout>${call.timeout:3456}</call-timeout>
-                <call-failover-timeout>${call.failover.timeout:7890}</call-failover-timeout>
-                <retry-interval>${retry.interval:987}</retry-interval>
-                <retry-interval-multiplier>${retry.interval.multiplier:3.0}</retry-interval-multiplier>
-                <max-retry-interval>${max.retry.interval:3600}</max-retry-interval>
-                <reconnect-attempts>${reconnect.attempts:-1}</reconnect-attempts>
-                <use-duplicate-detection>${use.duplicate.detection:true}</use-duplicate-detection>
-                <forward-when-no-consumers>${forward.when.no.consumers:true}</forward-when-no-consumers>
-                <max-hops>${max.hops:7}</max-hops>
-                <confirmation-window-size>${confirmation.windows.size:459}</confirmation-window-size>
-                <notification-attempts>${notification.attempts:2}</notification-attempts>
-                <notification-interval>${notification.interval:1}</notification-interval>
-                <static-connectors>
-                    <connector-ref>in-vm</connector-ref>
-                    <connector-ref>netty</connector-ref>
-                </static-connectors>
-            </cluster-connection>
-            <cluster-connection name="cc2">
-                <address>cc2-address</address>
-                <connector-ref>netty</connector-ref>
-                <static-connectors allow-direct-connections-only="true">
-                    <connector-ref>in-vm</connector-ref>
-                    <connector-ref>netty</connector-ref>
-                </static-connectors>
-            </cluster-connection>
-            <cluster-connection name="cc3">
-                <address>cc3-address</address>
-                <connector-ref>netty</connector-ref>
-                <discovery-group-ref discovery-group-name="groupC"/>
-            </cluster-connection>
-            <cluster-connection name="cc4">
-                <address>cc4-address</address>
-                <connector-ref>netty-throughput</connector-ref>
-                <static-connectors>
-                    <connector-ref>in-vm</connector-ref>
-                    <connector-ref>netty</connector-ref>
-                </static-connectors>
-            </cluster-connection>
-        </cluster-connections>
-        <grouping-handler name="grouping-handler">
-            <type>${grouping.type:LOCAL}</type>
-            <address>${address:handler-address}</address>
-            <timeout>${timeout:5000}</timeout>
-            <group-timeout>${group-timeout:1234}</group-timeout>
-            <reaper-period>${reaper-period:5678}</reaper-period>
-        </grouping-handler>
-
-
-        <connector-services>
-            <connector-service name="a">
-                <factory-class>foo.bar</factory-class>
-            </connector-service>
-            <connector-service name="b">
-                <factory-class>bar.foo</factory-class>
-                <param key="foo" value="${connector.value:bar}"/>
-                <param key="bar" value="2"/>
-            </connector-service>
-        </connector-services>
-
-        -->
     </server>
 
     <server name="empty"/>
 
-    <!--
-    <jms-bridge>
-        <source>
-            <connection-factory name="/cf/sourceCF" />
-            <destination name="/topic/anotherSourceTopic" />
-        </source>
-        <target>
-            <connection-factory name="/cf/targetCF" />
-            <destination name="anotherMQ/jms/queue/anotherTargetQueue" />
-        </target>
-        <quality-of-service>${quality.of.service:AT_MOST_ONCE}</quality-of-service>
-        <failure-retry-interval>${failure.retry.interval:45678}</failure-retry-interval>
-        <max-retries>${max.retries:7890}</max-retries>
-        <max-batch-size>${max.batch.size:12345}</max-batch-size>
-        <max-batch-time>${max.batch.time:10000}</max-batch-time>
+    <jms-bridge name="default"
+                quality-of-service="${quality.of.service:AT_MOST_ONCE}"
+                failure-retry-interval="${failure.retry.interval:45678}"
+                max-retries="${max.retries:7890}"
+                max-batch-size="${max.batch.size:12345}"
+                max-batch-time="${max.batch.time:10000}">
+        <source
+                connection-factory="/cf/sourceCF"
+                destination="/topic/anotherSourceTopic" />
+        <target
+                connection-factory="/cf/targetCF"
+                destination="anotherMQ/jms/queue/anotherTargetQueue" />
+
+        <!--
+        </jms-bridge>
+
+        <jms-bridge name="another-bridge"
+                    module="org.another.mq.broker"
+                    quality-of-service="ONCE_AND_ONLY_ONCE"
+                    failure-retry-interval="-1"
+                    max-retries="-1"
+                    max-batch-size="1"
+                    max-batch-time="-1"
+                    selector="${selector:color='red'}"
+                    subscription-name="${subscription.name:mySubscription}"
+                    client-id="${client.id:myClientID}"
+                    add-messageID-in-header="${add.messageID.in.header:true}">
+
+            <source
+                    connection-factory="/cf/sourceCF"
+                    destination="/topic/sourceTopic"
+                    user="myUser"
+                    password="myPassword" />
+            <target
+                    connection-factory="anotherAS7/jms/cf/targetCF"
+                    destination="anotherAS7/jms/queue/targetQueue"
+                    user="${userInExpression:user}"
+                    password="${passwordInExpression:password}" />
+                    -->
+        <!--
+                <context>
+                    <property key="java.naming.factory.initial"  value="${java.naming.factory.initial:org.jnp.interfaces.NamingContextFactory}" />
+                    <property key="java.naming.provider.url"     value="${java.naming.provider.url:jnp://localhost:1099}" />
+                    <property key="java.naming.factory.url.pkgs" value="${java.naming.factory.url.pkgs:org.jboss.naming:org.jnp.interfaces}"/>
+                    <property key="jnp.timeout"                  value="${jnp.timeout:5000}"/>
+                    <property key="jnp.sotimeout"                value="${jnp.sotimeout:5000}"/>
+                </context>
+                -->
     </jms-bridge>
-    -->
 </subsystem>
