@@ -22,21 +22,27 @@
 
 package org.wildfly.extension.messaging.activemq;
 
+import static org.jboss.as.controller.PathElement.pathElement;
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.BYTES;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.DAYS;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.PERCENTAGE;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.CHILDREN;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MAX_OCCURS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MIN_OCCURS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PATH;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.HA_POLICY;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_MASTER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_SLAVE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_MASTER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_SLAVE;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
@@ -56,7 +62,18 @@ import org.jboss.as.controller.registry.ImmutableManagementResourceRegistration;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
+import org.wildfly.extension.messaging.activemq.ha.LiveOnlyDefinition;
+import org.wildfly.extension.messaging.activemq.ha.ReplicationColocatedDefinition;
+import org.wildfly.extension.messaging.activemq.ha.ReplicationMasterDefinition;
+import org.wildfly.extension.messaging.activemq.ha.ReplicationSlaveDefinition;
+import org.wildfly.extension.messaging.activemq.ha.SharedStoreColocatedDefinition;
+import org.wildfly.extension.messaging.activemq.ha.SharedStoreMasterDefinition;
+import org.wildfly.extension.messaging.activemq.ha.SharedStoreSlaveDefinition;
+import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryDefinition;
+import org.wildfly.extension.messaging.activemq.jms.JMSQueueDefinition;
 import org.wildfly.extension.messaging.activemq.jms.JMSServerControlHandler;
+import org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition;
+import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryDefinition;
 
 /**
  * {@link org.jboss.as.controller.ResourceDefinition} for the messaging subsystem HornetQServer resource.
@@ -435,6 +452,39 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
             JOURNAL_FILE_SIZE, JOURNAL_MIN_FILES, JOURNAL_COMPACT_PERCENTAGE, JOURNAL_COMPACT_MIN_FILES, JOURNAL_MAX_IO,
             PERF_BLAST_PAGES, RUN_SYNC_SPEED_TEST, SERVER_DUMP_INTERVAL, MEMORY_WARNING_THRESHOLD, MEMORY_MEASURE_INTERVAL,
     };
+
+    private static PersistentResourceDefinition[] CHILDREN = {
+            LiveOnlyDefinition.INSTANCE,
+            new ReplicationMasterDefinition(pathElement(HA_POLICY, REPLICATION_MASTER), false),
+            new ReplicationSlaveDefinition(pathElement(HA_POLICY, REPLICATION_SLAVE), false),
+            ReplicationColocatedDefinition.INSTANCE,
+            new SharedStoreMasterDefinition(pathElement(HA_POLICY, SHARED_STORE_MASTER), false),
+            new SharedStoreSlaveDefinition(pathElement(HA_POLICY, SHARED_STORE_SLAVE), false),
+            SharedStoreColocatedDefinition.INSTANCE,
+            AddressSettingDefinition.INSTANCE,
+            SecuritySettingDefinition.INSTANCE,
+            HTTPConnectorDefinition.INSTANCE,
+            RemoteTransportDefinition.CONNECTOR_INSTANCE,
+            InVMTransportDefinition.CONNECTOR_INSTANCE,
+            GenericTransportDefinition.CONNECTOR_INSTANCE,
+            HTTPAcceptorDefinition.INSTANCE,
+            RemoteTransportDefinition.ACCEPTOR_INSTANCE,
+            InVMTransportDefinition.ACCEPTOR_INSTANCE,
+            GenericTransportDefinition.ACCEPTOR_INSTANCE,
+            QueueDefinition.INSTANCE,
+            BroadcastGroupDefinition.INSTANCE,
+            DiscoveryGroupDefinition.INSTANCE,
+            BridgeDefinition.INSTANCE,
+            ClusterConnectionDefinition.INSTANCE,
+            DivertDefinition.INSTANCE,
+            ConnectorServiceDefinition.INSTANCE,
+            GroupingHandlerDefinition.INSTANCE,
+            JMSQueueDefinition.INSTANCE,
+            JMSTopicDefinition.INSTANCE,
+            ConnectionFactoryDefinition.INSTANCE,
+            PooledConnectionFactoryDefinition.INSTANCE
+    };
+
     protected static final PersistentResourceDefinition INSTANCE = new HornetQServerResourceDefinition(false);
     private final boolean registerRuntimeOnly;
 
@@ -455,9 +505,6 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
 
             AddressSettingsResolveHandler.registerOperationHandler(resourceRegistration, getResourceDescriptionResolver());
         }
-
-        // unsupported runtime operations exposed by HornetQServerControl
-        // enableMessageCounters, disableMessageCounters
     }
 
     @Override
@@ -466,15 +513,27 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
         if (registerRuntimeOnly) {
             HornetQServerControlHandler.INSTANCE.registerAttributes(resourceRegistration);
         }
-        // unsupported READ-ATTRIBUTES
-        // getConnectors, getAddressNames, getQueueNames, getDivertNames, getBridgeNames,
-        // unsupported JMSServerControlHandler READ-ATTRIBUTES
-        // getTopicNames, getQueueNames, getConnectionFactoryNames,
     }
 
     @Override
     public Collection<AttributeDefinition> getAttributes() {
         return Arrays.asList(ATTRIBUTES);
+    }
+
+    @Override
+    protected List<? extends PersistentResourceDefinition> getChildren() {
+        return Arrays.asList(CHILDREN);
+    }
+
+    @Override
+    public void registerChildren(ManagementResourceRegistration resourceRegistration) {
+        super.registerChildren(resourceRegistration);
+
+        ManagementResourceRegistration runtimeQueue = resourceRegistration.registerSubModel(QueueDefinition.newRuntimeQueueDefinition(true));
+        runtimeQueue.setRuntimeOnly(true);
+
+        ManagementResourceRegistration coreAddress = resourceRegistration.registerSubModel(CoreAddressDefinition.INSTANCE);
+        coreAddress.setRuntimeOnly(true);
     }
 
     /**
@@ -491,8 +550,8 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
                 @Override
                 public ModelNode getModelDescription(Locale locale) {
                     ModelNode result = super.getModelDescription(locale);
-                    result.get(CHILDREN, PATH, MIN_OCCURS).set(4);
-                    result.get(CHILDREN, PATH, MAX_OCCURS).set(4);
+                    result.get(ModelDescriptionConstants.CHILDREN, PATH, MIN_OCCURS).set(4);
+                    result.get(ModelDescriptionConstants.CHILDREN, PATH, MAX_OCCURS).set(4);
                     return result;
                 }
             };

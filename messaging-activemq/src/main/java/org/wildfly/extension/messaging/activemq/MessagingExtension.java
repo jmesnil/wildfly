@@ -24,11 +24,6 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.PathElement.pathElement;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.HA_POLICY;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_MASTER;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_SLAVE;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_MASTER;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_SLAVE;
 import static org.wildfly.extension.messaging.activemq.Namespace.MESSAGING_ACTIVEMQ6_1_1;
 
 import org.jboss.as.controller.Extension;
@@ -44,17 +39,6 @@ import org.jboss.as.controller.operations.common.GenericSubsystemDescribeHandler
 import org.jboss.as.controller.parsing.ExtensionParsingContext;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.services.path.ResolvePathHandler;
-import org.wildfly.extension.messaging.activemq.ha.LiveOnlyDefinition;
-import org.wildfly.extension.messaging.activemq.ha.ReplicationColocatedDefinition;
-import org.wildfly.extension.messaging.activemq.ha.ReplicationMasterDefinition;
-import org.wildfly.extension.messaging.activemq.ha.ReplicationSlaveDefinition;
-import org.wildfly.extension.messaging.activemq.ha.SharedStoreColocatedDefinition;
-import org.wildfly.extension.messaging.activemq.ha.SharedStoreMasterDefinition;
-import org.wildfly.extension.messaging.activemq.ha.SharedStoreSlaveDefinition;
-import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryDefinition;
-import org.wildfly.extension.messaging.activemq.jms.JMSQueueDefinition;
-import org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition;
-import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryDefinition;
 import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
 
 /**
@@ -117,67 +101,6 @@ public class MessagingExtension implements Extension {
         // HQ servers
         final ManagementResourceRegistration serverRegistration = rootRegistration.registerSubModel(new HornetQServerResourceDefinition(registerRuntimeOnly));
 
-        // Runtime addresses
-        if (registerRuntimeOnly) {
-            final ManagementResourceRegistration coreAddress = serverRegistration.registerSubModel(new CoreAddressDefinition());
-            coreAddress.setRuntimeOnly(true);
-        }
-
-        // Address settings
-        serverRegistration.registerSubModel(new AddressSettingDefinition(registerRuntimeOnly));
-
-        // Broadcast groups
-        serverRegistration.registerSubModel(new BroadcastGroupDefinition(registerRuntimeOnly));
-        // getConnectorPairs, -- no, this is just the same as attribute connector-refs
-
-        // Discovery groups
-        serverRegistration.registerSubModel(new DiscoveryGroupDefinition(registerRuntimeOnly));
-
-        // Diverts
-        serverRegistration.registerSubModel(new DivertDefinition(registerRuntimeOnly));
-
-        // Core queues
-        serverRegistration.registerSubModel(QueueDefinition.newQueueDefinition(registerRuntimeOnly));
-        // getExpiryAddress, setExpiryAddress, getDeadLetterAddress, setDeadLetterAddress  -- no -- just toggle the 'queue-address', make this a mutable attr of address-setting
-
-        // Runtime core queues
-        serverRegistration.registerSubModel(QueueDefinition.newRuntimeQueueDefinition(registerRuntimeOnly));
-
-        // Acceptors
-        serverRegistration.registerSubModel(new HTTPAcceptorDefinition(registerRuntimeOnly));
-        serverRegistration.registerSubModel(GenericTransportDefinition.createAcceptorDefinition(registerRuntimeOnly));
-        serverRegistration.registerSubModel(RemoteTransportDefinition.createAcceptorDefinition(registerRuntimeOnly));
-        serverRegistration.registerSubModel(InVMTransportDefinition.createAcceptorDefinition(registerRuntimeOnly));
-
-        // Connectors
-        serverRegistration.registerSubModel(new HTTPConnectorDefinition(registerRuntimeOnly));
-        serverRegistration.registerSubModel(GenericTransportDefinition.createConnectorDefinition(registerRuntimeOnly));
-        serverRegistration.registerSubModel(RemoteTransportDefinition.createConnectorDefinition(registerRuntimeOnly));
-        serverRegistration.registerSubModel(InVMTransportDefinition.createConnectorDefinition(registerRuntimeOnly));
-
-        // Bridges
-        serverRegistration.registerSubModel(new BridgeDefinition(registerRuntimeOnly));
-
-        // Cluster connections
-        serverRegistration.registerSubModel(new ClusterConnectionDefinition(registerRuntimeOnly));
-
-        // HA Policy
-        // only 1 ha-policy child is allowed among all of the registered models
-        // @see org.jboss.as.messaging.ha.ManagementHelper.checkNoOtherSibling() usage
-        serverRegistration.registerSubModel(LiveOnlyDefinition.INSTANCE);
-        serverRegistration.registerSubModel(new ReplicationMasterDefinition(pathElement(HA_POLICY, REPLICATION_MASTER), false));
-        serverRegistration.registerSubModel(new ReplicationSlaveDefinition(pathElement(HA_POLICY, REPLICATION_SLAVE), false));
-        serverRegistration.registerSubModel(ReplicationColocatedDefinition.INSTANCE);
-        serverRegistration.registerSubModel(new SharedStoreMasterDefinition(pathElement(HA_POLICY, SHARED_STORE_MASTER), false));
-        serverRegistration.registerSubModel(new SharedStoreSlaveDefinition(pathElement(HA_POLICY, SHARED_STORE_SLAVE), false));
-        serverRegistration.registerSubModel(SharedStoreColocatedDefinition.INSTANCE);
-
-        // Grouping Handler
-        serverRegistration.registerSubModel(new GroupingHandlerDefinition(registerRuntimeOnly));
-
-        // Connector services
-        serverRegistration.registerSubModel(new ConnectorServiceDefinition(registerRuntimeOnly));
-
         // Messaging paths
         //todo, shouldn't we leverage Path service from AS? see: package org.jboss.as.controller.services.path
         for (final String path : PathDefinition.PATHS.keySet()) {
@@ -192,34 +115,17 @@ public class MessagingExtension implements Extension {
             }
         }
 
-        // Connection factories
-        serverRegistration.registerSubModel(new ConnectionFactoryDefinition(registerRuntimeOnly));
-        // getJNDIBindings (no -- same as "entries")
-
-        // Resource Adapter Pooled connection factories
-        serverRegistration.registerSubModel(new PooledConnectionFactoryDefinition(registerRuntimeOnly, false));
-        // TODO how do ConnectionFactoryControl things relate?
-
-        // JMS Queues
-        serverRegistration.registerSubModel(new JMSQueueDefinition(registerRuntimeOnly));
-        // setExpiryAddress, setDeadLetterAddress  -- no -- just toggle the 'queue-address', make this a mutable attr of address-setting
-        // getJNDIBindings (no -- same as "entries")
-
-        // JMS Topics
-        serverRegistration.registerSubModel(new JMSTopicDefinition(registerRuntimeOnly));
-        // getJNDIBindings (no -- same as "entries")
-
-        serverRegistration.registerSubModel(new SecuritySettingDefinition(registerRuntimeOnly));
-
         if (registerRuntimeOnly) {
 
             ResourceDefinition deploymentsDef = new SimpleResourceDefinition(SUBSYSTEM_PATH, getResourceDescriptionResolver("deployed"));
             final ManagementResourceRegistration deploymentsRegistration = subsystem.registerDeploymentModel(deploymentsDef);
             final ManagementResourceRegistration serverModel = deploymentsRegistration.registerSubModel(new HornetQServerResourceDefinition(true));
 
+/*
             serverModel.registerSubModel(JMSQueueDefinition.newDeployedJMSQueueDefinition());
             serverModel.registerSubModel(JMSTopicDefinition.newDeployedJMSTopicDefinition());
             serverModel.registerSubModel(new PooledConnectionFactoryDefinition(true, true));
+            */
         }
 
         // JMS Bridges

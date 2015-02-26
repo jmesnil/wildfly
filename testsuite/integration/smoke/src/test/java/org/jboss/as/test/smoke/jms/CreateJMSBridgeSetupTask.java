@@ -51,10 +51,10 @@ public class CreateJMSBridgeSetupTask extends CreateQueueSetupTask {
     public void setup(ManagementClient managementClient, String containerId) throws Exception {
         super.setup(managementClient, containerId);
         this.managementClient = managementClient;
-        jmsOperations = JMSOperationsProvider.getInstance(managementClient);
+        jmsOperations = JMSOperationsProvider.getInstance(managementClient.getControllerClient());
 
         ModelNode connectionFactoryAttributes = new ModelNode();
-        connectionFactoryAttributes.get("connector", "in-vm").set(new ModelNode());
+        connectionFactoryAttributes.get("connectors").add("in-vm");
         connectionFactoryAttributes.get("factory-type").set("XA_GENERIC");
         jmsOperations.addJmsConnectionFactory(CF_NAME, CF_JNDI_NAME, connectionFactoryAttributes);
 
