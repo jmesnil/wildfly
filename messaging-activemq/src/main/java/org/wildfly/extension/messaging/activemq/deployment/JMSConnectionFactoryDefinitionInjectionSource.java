@@ -22,7 +22,7 @@
 
 package org.wildfly.extension.messaging.activemq.deployment;
 
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTOR;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTORS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DEFAULT;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.NO_TX;
@@ -46,15 +46,6 @@ import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.ee.component.InjectionSource;
 import org.jboss.as.ee.resource.definition.ResourceDefinitionInjectionSource;
-import org.wildfly.extension.messaging.activemq.CommonAttributes;
-import org.wildfly.extension.messaging.activemq.MessagingExtension;
-import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttribute;
-import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes;
-import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryConfigProperties;
-import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryConfigurationRuntimeHandler;
-import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryDefinition;
-import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryService;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.as.naming.ManagedReferenceFactory;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
@@ -66,6 +57,15 @@ import org.jboss.msc.inject.Injector;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceTarget;
+import org.wildfly.extension.messaging.activemq.CommonAttributes;
+import org.wildfly.extension.messaging.activemq.MessagingExtension;
+import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttribute;
+import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes;
+import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryConfigProperties;
+import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryConfigurationRuntimeHandler;
+import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryDefinition;
+import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryService;
+import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
@@ -158,7 +158,7 @@ public class JMSConnectionFactoryDefinitionInjectionSource extends ResourceDefin
 
         ModelNode model = new ModelNode();
         for (String connector : connectors) {
-            model.get(CONNECTOR).add(connector);
+            model.get(CONNECTORS).add(connector);
         }
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             model.get(entry.getKey()).set(entry.getValue());
@@ -210,8 +210,8 @@ public class JMSConnectionFactoryDefinitionInjectionSource extends ResourceDefin
 
     private List<String> getConnectors(Map<String, String> props) {
         List<String> connectors = new ArrayList<>();
-        if (props.containsKey(CONNECTOR)) {
-            String connectorsStr = properties.remove(CONNECTOR);
+        if (props.containsKey(CONNECTORS)) {
+            String connectorsStr = properties.remove(CONNECTORS);
             for (String s : connectorsStr.split(",")) {
                 String connector = s.trim();
                 if (!connector.isEmpty()) {

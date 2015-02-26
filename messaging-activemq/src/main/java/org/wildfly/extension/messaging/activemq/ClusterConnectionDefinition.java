@@ -24,7 +24,6 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTOR_REF_STRING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.STATIC_CONNECTORS;
 import static org.jboss.dmr.ModelType.BIG_DECIMAL;
 import static org.jboss.dmr.ModelType.BOOLEAN;
@@ -33,16 +32,21 @@ import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.OBJECT;
 import static org.jboss.dmr.ModelType.STRING;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.AttributeMarshaller;
+import org.jboss.as.controller.AttributeParser;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleOperationDefinition;
 import org.jboss.as.controller.SimpleOperationDefinitionBuilder;
-import org.jboss.as.controller.SimpleResourceDefinition;
+import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -55,7 +59,7 @@ import org.jboss.dmr.ModelNode;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class ClusterConnectionDefinition extends SimpleResourceDefinition {
+public class ClusterConnectionDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.CLUSTER_CONNECTION);
 
@@ -100,15 +104,15 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             .setRestartAllServices()
             .build();
 
-    public static final SimpleAttributeDefinition CONNECTOR_REF = create("connector-ref", STRING)
+    public static final SimpleAttributeDefinition CONNECTOR_NAME = create("connector-name", STRING)
             .setRestartAllServices()
             .build();
 
-    public static final PrimitiveListAttributeDefinition CONNECTOR_REFS = PrimitiveListAttributeDefinition.Builder.of(STATIC_CONNECTORS, STRING)
+    public static final PrimitiveListAttributeDefinition CONNECTOR_REFS = new StringListAttributeDefinition.Builder(STATIC_CONNECTORS)
             .setAllowNull(true)
             .setElementValidator(new StringLengthValidator(1))
-            .setXmlName(CONNECTOR_REF_STRING)
-            .setAttributeMarshaller(new AttributeMarshallers.WrappedListAttributeMarshaller(null))
+            .setAttributeParser(AttributeParser.STRING_LIST)
+            .setAttributeMarshaller(AttributeMarshaller.STRING_LIST)
             .setAlternatives(CommonAttributes.DISCOVERY_GROUP_NAME)
             .setRestartAllServices()
             .build();
@@ -116,7 +120,6 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
     public static final SimpleAttributeDefinition DISCOVERY_GROUP_NAME = create(CommonAttributes.DISCOVERY_GROUP_NAME, STRING)
             .setAllowNull(true)
             .setAlternatives(ALLOW_DIRECT_CONNECTIONS_ONLY.getName(), CONNECTOR_REFS.getName())
-            .setAttributeMarshaller(AttributeMarshallers.DISCOVERY_GROUP_MARSHALLER)
             .setRestartAllServices()
             .build();
 
@@ -195,7 +198,7 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final AttributeDefinition[] ATTRIBUTES = {
-            ADDRESS, CONNECTOR_REF,
+            ADDRESS, CONNECTOR_NAME,
             CHECK_PERIOD,
             CONNECTION_TTL,
             CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
@@ -213,15 +216,6 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             DISCOVERY_GROUP_NAME,
     };
 
-    public static final AttributeDefinition[] ATTRIBUTES_WITH_EXPRESSION_ALLOWED_IN_1_2_0 = {
-            ADDRESS,
-            ALLOW_DIRECT_CONNECTIONS_ONLY, CHECK_PERIOD, CONNECTION_TTL, FORWARD_WHEN_NO_CONSUMERS, MAX_HOPS,
-            MAX_RETRY_INTERVAL,
-            CommonAttributes.MIN_LARGE_MESSAGE_SIZE, RETRY_INTERVAL, RETRY_INTERVAL_MULTIPLIER,
-            USE_DUPLICATE_DETECTION, CommonAttributes.CALL_TIMEOUT,
-            RECONNECT_ATTEMPTS, CommonAttributes.BRIDGE_CONFIRMATION_WINDOW_SIZE
-    };
-
     public static final SimpleAttributeDefinition NODE_ID = create("node-id", STRING)
             .setStorageRuntime()
             .build();
@@ -235,6 +229,8 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
             NODE_ID
     };
 
+    static final ClusterConnectionDefinition INSTANCE = new ClusterConnectionDefinition(false);
+
     public ClusterConnectionDefinition(final boolean registerRuntimeOnly) {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.CLUSTER_CONNECTION),
@@ -244,8 +240,12 @@ public class ClusterConnectionDefinition extends SimpleResourceDefinition {
     }
 
     @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(ATTRIBUTES);
+    }
+
+    @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
         for (AttributeDefinition attr : ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, ClusterConnectionWriteAttributeHandler.INSTANCE);

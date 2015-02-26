@@ -33,15 +33,14 @@ import java.util.List;
 
 import org.apache.activemq.core.config.ScaleDownConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.AttributeMarshaller;
+import org.jboss.as.controller.AttributeParser;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.ParameterCorrector;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
-import org.jboss.as.controller.SimpleMapAttributeDefinition;
+import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.ModelType;
-import org.wildfly.extension.messaging.activemq.AttributeMarshallers;
 import org.wildfly.extension.messaging.activemq.CommonAttributes;
 
 /**
@@ -82,36 +81,10 @@ public class ScaleDownAttributes {
             .setRestartAllServices()
             .build();
 
-    public static AttributeDefinition SCALE_DOWN_CONNECTORS = new SimpleMapAttributeDefinition.Builder(SCALE_DOWN_CONNECTORS_STR, true)
-            .setAttributeMarshaller(new AttributeMarshallers.ConnectorsMarshaller(SCALE_DOWN_CONNECTORS_STR))
+    public static AttributeDefinition SCALE_DOWN_CONNECTORS = new StringListAttributeDefinition.Builder(SCALE_DOWN_CONNECTORS_STR)
             .setAlternatives(SCALE_DOWN_DISCOVERY_GROUP_STR)
-            // we use this corrector so that connectors are represented consistently with other messaging resources
-            .setCorrector(new ParameterCorrector() {
-                /*
-                 * https://issues.jboss.org/browse/WFLY-1796
-                 *
-                 * For backwards compatibility, the connector attribute must be a map where the key is a
-                 * connector name and the value is not taken into account (in previous HornetQ versions, the value
-                 * was the backup's server connector).
-                 *
-                 * This is a source of confusion when creating resources with connector: users expect to pass a
-                 * list of connectors and this fails as they must pass a map with undefined values.
-                 *
-                 * This corrector will replace a list with the map expected to populate the model.
-                 */
-                @Override
-                public ModelNode correct(ModelNode newValue, ModelNode currentValue) {
-                    if (newValue.getType() != ModelType.LIST) {
-                        return newValue;
-                    } else {
-                        ModelNode correctValue = new ModelNode();
-                        for (ModelNode node : newValue.asList()) {
-                            correctValue.get(node.asString());
-                        }
-                        return correctValue;
-                    }
-                }
-            })
+            .setAttributeMarshaller(AttributeMarshaller.STRING_LIST)
+            .setAttributeParser(AttributeParser.STRING_LIST)
             .setRestartAllServices()
             .build();
 

@@ -24,7 +24,6 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.PersistentResourceXMLDescription.builder;
 import static org.wildfly.extension.messaging.activemq.Namespace.CURRENT;
-import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Pooled.*;
 
 import java.util.List;
 
@@ -252,6 +251,30 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                                         DiscoveryGroupDefinition.REFRESH_TIMEOUT,
                                                         DiscoveryGroupDefinition.INITIAL_WAIT_TIMEOUT))
                                 .addChild(
+                                        builder(ClusterConnectionDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        ClusterConnectionDefinition.ADDRESS,
+                                                        ClusterConnectionDefinition.CONNECTOR_NAME,
+                                                        ClusterConnectionDefinition.CHECK_PERIOD,
+                                                        ClusterConnectionDefinition.CONNECTION_TTL,
+                                                        CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
+                                                        CommonAttributes.CALL_TIMEOUT,
+                                                        CommonAttributes.CALL_FAILOVER_TIMEOUT,
+                                                        ClusterConnectionDefinition.RETRY_INTERVAL,
+                                                        ClusterConnectionDefinition.RETRY_INTERVAL_MULTIPLIER,
+                                                        ClusterConnectionDefinition.MAX_RETRY_INTERVAL,
+                                                        ClusterConnectionDefinition.INITIAL_CONNECT_ATTEMPTS,
+                                                        ClusterConnectionDefinition.RECONNECT_ATTEMPTS,
+                                                        ClusterConnectionDefinition.USE_DUPLICATE_DETECTION,
+                                                        ClusterConnectionDefinition.FORWARD_WHEN_NO_CONSUMERS,
+                                                        ClusterConnectionDefinition.MAX_HOPS,
+                                                        CommonAttributes.BRIDGE_CONFIRMATION_WINDOW_SIZE,
+                                                        ClusterConnectionDefinition.NOTIFICATION_ATTEMPTS,
+                                                        ClusterConnectionDefinition.NOTIFICATION_INTERVAL,
+                                                        ClusterConnectionDefinition.CONNECTOR_REFS,
+                                                        ClusterConnectionDefinition.ALLOW_DIRECT_CONNECTIONS_ONLY,
+                                                        ClusterConnectionDefinition.DISCOVERY_GROUP_NAME))
+                                .addChild(
                                         builder(DivertDefinition.INSTANCE)
                                                 .addAttributes(
                                                         DivertDefinition.ROUTING_NAME,
@@ -372,19 +395,19 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                                         ConnectionFactoryAttributes.Common.THREAD_POOL_MAX_SIZE,
                                                         ConnectionFactoryAttributes.Common.GROUP_ID,
                                                         // pooled
-                                                        USE_JNDI,
-                                                        JNDI_PARAMS,
-                                                        USE_LOCAL_TX,
-                                                        SETUP_ATTEMPTS,
-                                                        SETUP_INTERVAL,
-                                                        TRANSACTION,
-                                                        USER,
-                                                        PASSWORD,
-                                                        MIN_POOL_SIZE,
-                                                        MAX_POOL_SIZE,
-                                                        USE_AUTO_RECOVERY,
-                                                        INITIAL_MESSAGE_PACKET_SIZE,
-                                                        INITIAL_CONNECT_ATTEMPTS))
+                                                        ConnectionFactoryAttributes.Pooled.USE_JNDI,
+                                                        ConnectionFactoryAttributes.Pooled.JNDI_PARAMS,
+                                                        ConnectionFactoryAttributes.Pooled.USE_LOCAL_TX,
+                                                        ConnectionFactoryAttributes.Pooled.SETUP_ATTEMPTS,
+                                                        ConnectionFactoryAttributes.Pooled.SETUP_INTERVAL,
+                                                        ConnectionFactoryAttributes.Pooled.TRANSACTION,
+                                                        ConnectionFactoryAttributes.Pooled.USER,
+                                                        ConnectionFactoryAttributes.Pooled.PASSWORD,
+                                                        ConnectionFactoryAttributes.Pooled.MIN_POOL_SIZE,
+                                                        ConnectionFactoryAttributes.Pooled.MAX_POOL_SIZE,
+                                                        ConnectionFactoryAttributes.Pooled.USE_AUTO_RECOVERY,
+                                                        ConnectionFactoryAttributes.Pooled.INITIAL_MESSAGE_PACKET_SIZE,
+                                                        ConnectionFactoryAttributes.Pooled.INITIAL_CONNECT_ATTEMPTS))
                 ).build();
     }
 

@@ -361,10 +361,10 @@ public enum Element {
 
     private static Map<String, AttributeDefinition> getConnectorRefDefinitions() {
         final Map<String, AttributeDefinition> result = new HashMap<String, AttributeDefinition>();
-        result.put("simple", ClusterConnectionDefinition.CONNECTOR_REF);
+//        result.put("simple", ClusterConnectionDefinition.CONNECTOR_REF);
         //result.put("broadcast-group", BroadcastGroupDefinition.CONNECTOR_REFS);
 //        result.put("bridge", BridgeDefinition.CONNECTOR_REFS);
-        result.put("cluster-connection", ClusterConnectionDefinition.CONNECTOR_REFS);
+ //       result.put("cluster-connection", ClusterConnectionDefinition.CONNECTOR_REFS);
         return result;
 
     }

@@ -29,7 +29,6 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICAT
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_SLAVE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_MASTER;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_SLAVE;
-import static org.wildfly.extension.messaging.activemq.Namespace.MESSAGING_ACTIVEMQ6_1_0;
 import static org.wildfly.extension.messaging.activemq.Namespace.MESSAGING_ACTIVEMQ6_1_1;
 
 import org.jboss.as.controller.Extension;
@@ -225,14 +224,9 @@ public class MessagingExtension implements Extension {
 
         // JMS Bridges
         rootRegistration.registerSubModel(new JMSBridgeDefinition());
-
-        if (context.isRegisterTransformers()) {
-            MessagingTransformers.registerTransformers(subsystem);
-        }
     }
 
     public void initializeParsers(ExtensionParsingContext context) {
-        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_ACTIVEMQ6_1_0.getUriString(), MessagingSubsystemParser_1_0.INSTANCE);
         context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_ACTIVEMQ6_1_1.getUriString(), MessagingSubsystemParser_1_1.INSTANCE);
     }
 }

@@ -39,14 +39,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
-
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.AttributeMarshaller;
 import org.jboss.as.controller.AttributeParser;
-import org.jboss.as.controller.DefaultAttributeMarshaller;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
@@ -77,42 +73,12 @@ public class BroadcastGroupDefinition extends PersistentResourceDefinition {
     public static final PrimitiveListAttributeDefinition CONNECTOR_REFS = new StringListAttributeDefinition.Builder(CONNECTORS)
             .setAllowNull(true)
             .setElementValidator(new StringLengthValidator(1))
-                    //.setXmlName(CONNECTOR_REF_STRING)
-                    //.setAttributeMarshaller(new AttributeMarshallers.WrappedListAttributeMarshaller(null))
-                    // disallow expressions since the attribute references other configuration items
-            .setAttributeParser(new AttributeParser() {
-                @Override
-                public void parseAndSetParameter(AttributeDefinition attribute, String value, ModelNode operation, XMLStreamReader reader) throws XMLStreamException {
-                    if (value == null) {
-                        return;
-                    }
-                    for (String element : value.split(",")) {
-                        ModelNode paramVal = parse(attribute, element, reader);
-                        operation.get(attribute.getName()).add(paramVal);
-                    }
-                }
-            })
-            .setAttributeMarshaller(new DefaultAttributeMarshaller() {
-                @Override
-                public void marshallAsAttribute(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
-
-                    StringBuilder builder = new StringBuilder();
-                    if (resourceModel.hasDefined(attribute.getName())) {
-                        for (ModelNode p : resourceModel.get(attribute.getName()).asList()) {
-                            builder.append(p.asString()).append(", ");
-                        }
-                    }
-                    if (builder.length() > 3) {
-                        builder.setLength(builder.length() - 2);
-                    }
-                    if (builder.length() > 0) {
-                        writer.writeAttribute(attribute.getXmlName(), builder.toString());
-                    }
-                }
-            })
+            .setAttributeParser(AttributeParser.STRING_LIST)
+            .setAttributeMarshaller(AttributeMarshaller.STRING_LIST)
             .setAllowExpression(false)
             .setRestartAllServices()
             .build();
+
 
     public static final SimpleAttributeDefinition BROADCAST_PERIOD = create("broadcast-period", LONG)
             .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultBroadcastPeriod()))
