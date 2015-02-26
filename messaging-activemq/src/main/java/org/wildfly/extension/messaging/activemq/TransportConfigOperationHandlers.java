@@ -29,8 +29,6 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_ACC
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_CONNECTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.IN_VM_ACCEPTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.IN_VM_CONNECTOR;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.PARAM;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.PARAMS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.REMOTE_ACCEPTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.REMOTE_CONNECTOR;
 
@@ -119,11 +117,7 @@ class TransportConfigOperationHandlers {
      */
     static Map<String, Object> getParameters(final OperationContext context, final ModelNode config) throws OperationFailedException {
         Map<String, String> fromModel = CommonAttributes.PARAMS.unwrap(context, config);
-        Map<String, Object> parameters = new HashMap<>();
-        for (Map.Entry<String, String> entry : fromModel.entrySet()) {
-            parameters.put(entry.getKey(), entry.getValue());
-        }
-        return parameters;
+        return new HashMap<String, Object>(fromModel);
     }
 
     /**
