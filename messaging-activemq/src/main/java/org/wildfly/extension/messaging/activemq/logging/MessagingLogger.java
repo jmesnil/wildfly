@@ -48,7 +48,6 @@ import org.jboss.logging.annotations.MessageLogger;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.StartException;
-import org.wildfly.extension.messaging.activemq.Element;
 
 /**
  * Date: 10.06.2011
@@ -404,7 +403,7 @@ public interface MessagingLogger extends BasicLogger {
      * @return a {@link XMLStreamException} for the error.
      */
     @Message(id = 34, value = "Ignoring unhandled element: %s, at: %s")
-    XMLStreamException ignoringUnhandledElement(Element element, String location);
+    XMLStreamException ignoringUnhandledElement(String element, String location);
 
     /**
      * A message indicating an illegal element, represented by the {@code illegalElement} parameter, cannot be used

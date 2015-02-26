@@ -52,7 +52,7 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.CONNECTOR_SERVICE);
 
-    public static final AttributeDefinition[] ATTRIBUTES = { CommonAttributes.FACTORY_CLASS };
+    public static final AttributeDefinition[] ATTRIBUTES = { CommonAttributes.FACTORY_CLASS, CommonAttributes.PARAMS };
 
     private final boolean registerRuntimeOnly;
 
@@ -77,16 +77,11 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
     static ConnectorServiceConfiguration createConnectorServiceConfiguration(final OperationContext context, final String name, final ModelNode model) throws OperationFailedException {
 
         final String factoryClass = CommonAttributes.FACTORY_CLASS.resolveModelAttribute(context, model).asString();
-        final Map<String, Object> params = new HashMap<String, Object>();
-        if (model.hasDefined(CommonAttributes.PARAM)) {
-            for (Property property : model.get(CommonAttributes.PARAM).asPropertyList()) {
-                String value = ConnectorServiceParamDefinition.VALUE.resolveModelAttribute(context, property.getValue()).asString();
-                params.put(property.getName(), value);
-            }
-        }
+        Map<String, String> unwrappedParameters = CommonAttributes.PARAMS.unwrap(context, model);
+        Map<String, Object> parameters = new HashMap<String, Object>(unwrappedParameters);
         return new ConnectorServiceConfiguration()
                 .setFactoryClassName(factoryClass)
-                .setParams(params)
+                .setParams(parameters)
                 .setName(name);
     }
 
@@ -103,10 +98,5 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
                 registry.registerReadWriteAttribute(attr, null, writeHandler);
             }
         }
-    }
-
-    @Override
-    public void registerChildren(ManagementResourceRegistration registry) {
-        registry.registerSubModel(new ConnectorServiceParamDefinition());
     }
 }

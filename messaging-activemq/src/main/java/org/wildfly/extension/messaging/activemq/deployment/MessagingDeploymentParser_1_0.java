@@ -26,7 +26,12 @@ import static org.jboss.as.controller.parsing.ParseUtils.readStringAttributeElem
 import static org.jboss.as.controller.parsing.ParseUtils.requireSingleAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DURABLE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.ENTRY;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JMS_DESTINATIONS;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JMS_QUEUE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JMS_TOPIC;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SELECTOR;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SERVER;
 
 import java.util.Collections;
 
@@ -34,13 +39,11 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
 import org.jboss.as.controller.parsing.ParseUtils;
-import org.wildfly.extension.messaging.activemq.Attribute;
-import org.wildfly.extension.messaging.activemq.CommonAttributes;
-import org.wildfly.extension.messaging.activemq.Element;
 import org.jboss.dmr.ModelNode;
 import org.jboss.metadata.property.PropertyReplacer;
 import org.jboss.staxmapper.XMLElementReader;
 import org.jboss.staxmapper.XMLExtendedStreamReader;
+import org.wildfly.extension.messaging.activemq.CommonAttributes;
 
 
 /**
@@ -51,6 +54,7 @@ import org.jboss.staxmapper.XMLExtendedStreamReader;
  * @author <a href="mailto:andy.taylor@jboss.com">Andy Taylor</a>
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
+
 class MessagingDeploymentParser_1_0 implements XMLStreamConstants, XMLElementReader<ParseResult> {
 
     private final PropertyReplacer propertyReplacer;
@@ -76,8 +80,7 @@ class MessagingDeploymentParser_1_0 implements XMLStreamConstants, XMLElementRea
 
     private void processHornetQServer(final XMLExtendedStreamReader reader, final ParseResult result) throws XMLStreamException {
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-            final Element element = Element.forName(reader.getLocalName());
-            switch (element) {
+            switch (reader.getLocalName()) {
                 case SERVER:
                     processHornetQ(reader, result);
                     break;
@@ -92,7 +95,7 @@ class MessagingDeploymentParser_1_0 implements XMLStreamConstants, XMLElementRea
 
         final int count = reader.getAttributeCount();
         if (count > 0) {
-            requireSingleAttribute(reader, Attribute.NAME.getLocalName());
+            requireSingleAttribute(reader, CommonAttributes.NAME);
             hqServerName = propertyReplacer.replaceProperties(reader.getAttributeValue(0).trim());
         }
 
@@ -101,8 +104,7 @@ class MessagingDeploymentParser_1_0 implements XMLStreamConstants, XMLElementRea
         }
 
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-            final Element element = Element.forName(reader.getLocalName());
-            switch (element) {
+            switch (reader.getLocalName()) {
                 case JMS_DESTINATIONS:
                     processJmsDestinations(reader, result, hqServerName);
                     break;
@@ -115,8 +117,7 @@ class MessagingDeploymentParser_1_0 implements XMLStreamConstants, XMLElementRea
     private void processJmsDestinations(final XMLExtendedStreamReader reader, final ParseResult result, final String hqServerName) throws XMLStreamException {
 
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-            final Element element = Element.forName(reader.getLocalName());
-            switch (element) {
+            switch (reader.getLocalName()) {
                 case JMS_QUEUE:
                     processJMSQueue(reader, hqServerName, result);
                     break;
@@ -139,8 +140,7 @@ class MessagingDeploymentParser_1_0 implements XMLStreamConstants, XMLElementRea
         final ModelNode topic = new ModelNode();
 
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-            final Element element = Element.forName(reader.getLocalName());
-            switch (element) {
+            switch (reader.getLocalName()) {
                 case ENTRY: {
                     final String entry = propertyReplacer.replaceProperties(readStringAttributeElement(reader, CommonAttributes.NAME));
                     CommonAttributes.DESTINATION_ENTRIES.parseAndAddParameterElement(entry, topic, reader);
@@ -166,25 +166,24 @@ class MessagingDeploymentParser_1_0 implements XMLStreamConstants, XMLElementRea
         final ModelNode queue = new ModelNode();
 
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-            final Element element = Element.forName(reader.getLocalName());
-            switch (element) {
+            switch (reader.getLocalName()) {
                 case ENTRY: {
                     final String entry = propertyReplacer.replaceProperties(readStringAttributeElement(reader, CommonAttributes.NAME));
                     CommonAttributes.DESTINATION_ENTRIES.parseAndAddParameterElement(entry, queue, reader);
                     break;
                 }
-                case SELECTOR: {
+                case "selector": {
                     if (queue.has(SELECTOR.getName())) {
-                        throw ParseUtils.duplicateNamedElement(reader, Element.SELECTOR.getLocalName());
+                        throw ParseUtils.duplicateNamedElement(reader, reader.getLocalName());
                     }
                     requireSingleAttribute(reader, CommonAttributes.STRING);
                     final String selector = propertyReplacer.replaceProperties(readStringAttributeElement(reader, CommonAttributes.STRING));
                     SELECTOR.parseAndSetParameter(selector, queue, reader);
                     break;
                 }
-                case DURABLE: {
+                case "durable": {
                     if (queue.has(DURABLE.getName())) {
-                        throw ParseUtils.duplicateNamedElement(reader, Element.DURABLE.getLocalName());
+                        throw ParseUtils.duplicateNamedElement(reader, reader.getLocalName());
                     }
                     DURABLE.parseAndSetParameter(propertyReplacer.replaceProperties(reader.getElementText()), queue, reader);
                     break;
