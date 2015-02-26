@@ -33,7 +33,7 @@
                        value="false"/>
             </http-acceptor>
             <in-vm-acceptor name="in-vm"
-                            server-id="${my.server-id:0}"/>
+                            server-id="0"/>
 
             <?BROADCAST-GROUPS?>
             <?DISCOVERY-GROUPS?>
@@ -67,7 +67,7 @@
             <pooled-connection-factory name="hornetq-ra"
                                        transaction="xa"
                                        connectors="in-vm"
-                                       entries="java:/JmsXA, java:jboss/DefaultJMSConnectionFactory"/>
+                                       entries="java:/JmsXA java:jboss/DefaultJMSConnectionFactory"/>
             <jms-queue name="ExpiryQueue"
                        entries="java:/jms/queue/ExpiryQueue" />
             <jms-queue name="DLQ"
