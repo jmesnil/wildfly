@@ -24,16 +24,15 @@ package org.wildfly.extension.messaging.activemq.jms.bridge;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGING_SECURITY_DEF;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGING_SECURITY_DEF;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 import org.jboss.as.controller.AttributeDefinition;
@@ -42,17 +41,15 @@ import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PropertiesAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleOperationDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.operations.validation.EnumValidator;
 import org.jboss.as.controller.operations.validation.IntRangeValidator;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
-import org.wildfly.extension.messaging.activemq.AttributeMarshallers;
+import org.jboss.dmr.ModelNode;
 import org.wildfly.extension.messaging.activemq.CommonAttributes;
 import org.wildfly.extension.messaging.activemq.MessagingExtension;
-import org.jboss.dmr.ModelNode;
 
 /**
  * @author Jeff Mesnil (c) 2012 Red Hat Inc.
@@ -75,52 +72,36 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition SOURCE_CONNECTION_FACTORY = create("source-connection-factory", STRING)
-            .setAttributeGroup(SOURCE)
-            .setXmlName(CommonAttributes.CONNECTION_FACTORY)
-            .setXmlName(CommonAttributes.CONNECTION_FACTORY)
             .build();
 
     public static final SimpleAttributeDefinition SOURCE_DESTINATION = create("source-destination", STRING)
-            .setAttributeGroup(SOURCE)
-            .setXmlName(CommonAttributes.DESTINATION)
             .build();
 
     public static final SimpleAttributeDefinition SOURCE_USER = create("source-user", STRING)
-            .setAttributeGroup(SOURCE)
-            .setXmlName("user")
             .setAllowNull(true)
             .setAllowExpression(true)
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
             .addAccessConstraint(MESSAGING_SECURITY_DEF)
             .build();
     public static final SimpleAttributeDefinition SOURCE_PASSWORD = create("source-password", STRING)
-            .setAttributeGroup(SOURCE)
-            .setXmlName("password")
             .setAllowNull(true)
             .setAllowExpression(true)
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
             .addAccessConstraint(MESSAGING_SECURITY_DEF)
             .build();
 
-    public static final PropertiesAttributeDefinition SOURCE_CONTEXT = new PropertiesAttributeDefinition.Builder("source-context", true)
-            .setXmlName(CONTEXT)
+    public static final PropertiesAttributeDefinition SOURCE_CONTEXT = new PropertiesAttributeDefinition.Builder("source-context-property", true)
+            .setWrapXmlElement(false)
             .setAllowExpression(true)
-            .setAttributeMarshaller(AttributeMarshallers.JNDI_CONTEXT_MARSHALLER)
             .build();
 
     public static final SimpleAttributeDefinition TARGET_CONNECTION_FACTORY = create("target-connection-factory", STRING)
-            .setAttributeGroup(TARGET)
-            .setXmlName(CommonAttributes.CONNECTION_FACTORY)
             .build();
 
     public static final SimpleAttributeDefinition TARGET_DESTINATION = create("target-destination", STRING)
-            .setAttributeGroup(TARGET)
-            .setXmlName(CommonAttributes.DESTINATION)
             .build();
 
     public static final SimpleAttributeDefinition TARGET_USER = create("target-user", STRING)
-            .setAttributeGroup(TARGET)
-            .setXmlName("user")
             .setAllowNull(true)
             .setAllowExpression(true)
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
@@ -128,18 +109,14 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition TARGET_PASSWORD = create("target-password", STRING)
-            .setAttributeGroup(TARGET)
-            .setAllowNull(true)
             .setAllowExpression(true)
-            .setXmlName("password")
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
             .addAccessConstraint(MESSAGING_SECURITY_DEF)
             .build();
 
-    public static final PropertiesAttributeDefinition TARGET_CONTEXT = new PropertiesAttributeDefinition.Builder("target-context", true)
-            .setXmlName(CONTEXT)
+    public static final PropertiesAttributeDefinition TARGET_CONTEXT = new PropertiesAttributeDefinition.Builder("target-context-property", true)
+            .setWrapXmlElement(false)
             .setAllowExpression(true)
-            .setAttributeMarshaller(AttributeMarshallers.JNDI_CONTEXT_MARSHALLER)
             .build();
 
     public static final SimpleAttributeDefinition QUALITY_OF_SERVICE = create("quality-of-service", STRING)

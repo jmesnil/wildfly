@@ -441,18 +441,16 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                         JMSBridgeDefinition.SUBSCRIPTION_NAME,
                                         CommonAttributes.CLIENT_ID,
                                         JMSBridgeDefinition.ADD_MESSAGE_ID_IN_HEADER,
-                                        // source
                                         JMSBridgeDefinition.SOURCE_CONNECTION_FACTORY,
                                         JMSBridgeDefinition.SOURCE_DESTINATION,
                                         JMSBridgeDefinition.SOURCE_USER,
                                         JMSBridgeDefinition.SOURCE_PASSWORD,
-                                        //JMSBridgeDefinition.SOURCE_CONTEXT
-                                        // target
                                         JMSBridgeDefinition.TARGET_CONNECTION_FACTORY,
                                         JMSBridgeDefinition.TARGET_DESTINATION,
                                         JMSBridgeDefinition.TARGET_USER,
-                                        JMSBridgeDefinition.TARGET_PASSWORD
-                                ))
+                                        JMSBridgeDefinition.TARGET_PASSWORD,
+                                        JMSBridgeDefinition.SOURCE_CONTEXT,
+                                        JMSBridgeDefinition.TARGET_CONTEXT))
                 .build();
     }
 
