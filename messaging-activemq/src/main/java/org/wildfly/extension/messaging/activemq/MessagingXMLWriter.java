@@ -464,14 +464,6 @@ public class MessagingXMLWriter implements XMLElementWriter<SubsystemMarshalling
     }
 
     private static void writeTransportParam(final XMLExtendedStreamWriter writer, final ModelNode param) throws XMLStreamException {
-        if (param.isDefined()) {
-            for(final Property parameter : param.asPropertyList()) {
-                writer.writeStartElement(Element.PARAM.getLocalName());
-                writer.writeAttribute(Attribute.KEY.getLocalName(), parameter.getName());
-                writer.writeAttribute(Attribute.VALUE.getLocalName(), parameter.getValue().get(TransportParamDefinition.VALUE.getName()).asString());
-                writer.writeEndElement();
-            }
-        }
     }
 
     private static void writeBroadcastGroups(final XMLExtendedStreamWriter writer, final ModelNode node) throws XMLStreamException {

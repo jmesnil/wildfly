@@ -24,6 +24,7 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.dmr.ModelType.INT;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.PARAMS;
 
 import java.util.Collections;
 import java.util.Set;
@@ -56,7 +57,7 @@ public class InVMTransportDefinition extends AbstractTransportDefinition {
             .setRestartAllServices()
             .build();
 
-    static AttributeDefinition[] ATTRIBUTES = { SERVER_ID };
+    static AttributeDefinition[] ATTRIBUTES = { SERVER_ID, PARAMS };
 
     static final InVMTransportDefinition CONNECTOR_INSTANCE = createConnectorDefinition(false);
     static final InVMTransportDefinition ACCEPTOR_INSTANCE = createAcceptorDefinition(false);

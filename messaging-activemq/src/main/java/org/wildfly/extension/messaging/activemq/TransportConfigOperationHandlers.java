@@ -30,6 +30,7 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_CON
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.IN_VM_ACCEPTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.IN_VM_CONNECTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.PARAM;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.PARAMS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.REMOTE_ACCEPTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.REMOTE_CONNECTOR;
 
@@ -117,13 +118,10 @@ class TransportConfigOperationHandlers {
      * @throws OperationFailedException if an expression can not be resolved
      */
     static Map<String, Object> getParameters(final OperationContext context, final ModelNode config) throws OperationFailedException {
-        final Map<String, Object> parameters = new HashMap<String, Object>();
-        if (config.hasDefined(PARAM)) {
-            for (final Property parameter : config.get(PARAM).asPropertyList()) {
-                String name = parameter.getName();
-                String value = TransportParamDefinition.VALUE.resolveModelAttribute(context, parameter.getValue()).asString();
-                parameters.put(name, value);
-            }
+        Map<String, String> fromModel = CommonAttributes.PARAMS.unwrap(context, config);
+        Map<String, Object> parameters = new HashMap<>();
+        for (Map.Entry<String, String> entry : fromModel.entrySet()) {
+            parameters.put(entry.getKey(), entry.getValue());
         }
         return parameters;
     }

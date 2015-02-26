@@ -24,6 +24,7 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_ACCEPTOR;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.PARAMS;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,7 +58,7 @@ public class HTTPAcceptorDefinition extends PersistentResourceDefinition {
             .setAllowNull(false)
             .build();
 
-    static AttributeDefinition[] ATTRIBUTES = { HTTP_LISTENER };
+    static AttributeDefinition[] ATTRIBUTES = { HTTP_LISTENER, PARAMS };
 
     static final HTTPAcceptorDefinition INSTANCE = new HTTPAcceptorDefinition(false);
 
@@ -93,6 +94,6 @@ public class HTTPAcceptorDefinition extends PersistentResourceDefinition {
     public void registerChildren(ManagementResourceRegistration registry) {
         super.registerChildren(registry);
 
-        registry.registerSubModel(new TransportParamDefinition(TransportConstants.ALLOWABLE_ACCEPTOR_KEYS));
+       // registry.registerSubModel(new TransportParamDefinition(TransportConstants.ALLOWABLE_ACCEPTOR_KEYS));
     }
 }

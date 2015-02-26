@@ -23,6 +23,7 @@
 package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.PARAMS;
 
 import java.util.Set;
 
@@ -59,7 +60,7 @@ public class HTTPConnectorDefinition extends AbstractTransportDefinition {
             .build();
 
     public HTTPConnectorDefinition(final boolean registerRuntimeOnly) {
-        super(registerRuntimeOnly, false, CommonAttributes.HTTP_CONNECTOR, SOCKET_BINDING);
+        super(registerRuntimeOnly, false, CommonAttributes.HTTP_CONNECTOR, SOCKET_BINDING, PARAMS);
     }
 
     @Override
