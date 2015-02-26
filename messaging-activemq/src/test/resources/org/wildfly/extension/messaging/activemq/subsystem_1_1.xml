@@ -147,7 +147,7 @@
                          jgroups-stack="${jgroups.stack:udp}"
                          jgroups-channel="${jgroups.channel:hq-cluster}"
                          broadcast-period="${broadcast.group.period:1234}"
-                         connectors="http, netty"/>
+                         connectors="http netty"/>
         <broadcast-group name="groupS"
                          socket-binding="group-s-binding"/>
 
@@ -158,6 +158,11 @@
                          jgroups-channel="${jgroups.channel:hq-cluster}"
                          refresh-timeout="${discovery.group.refresh.timeout:2345}"
                          initial-wait-timeout="${discovery.group.initial.wait.timeout:2345}"/>
+        <cluster-connection name="cc2"
+            address="cc2-address"
+            connector-name="netty"
+            static-connectors="in-vm netty"
+            allow-direct-connections-only="true" />
 
         <divert name="testDivert1"
                 routing-name="${routing.name:routing}"
@@ -198,19 +203,19 @@
                    selector="${selector:color='red'}"
                    durable="${durable:true}" />
         <jms-queue name="testQueue2"
-                   entries="java:/global/queue/test, java:/global/queue/test2" />
+                   entries="java:/global/queue/test java:/global/queue/test2" />
 
         <jms-topic name="testTopic"
                    entries="${jms-topic.entry:topic/test}" />
 
         <connection-factory name="InVmConnectionFactory"
-                            connectors="in-vm"
+                            connectors="in-vm, netty"
                             entries="${connection-factory.entries.entry:java:/ConnectionFactory}" />
         <connection-factory name="RemoteConnectionFactory"
                             factory-type="XA_QUEUE"
                             client-id="testClient"
                             connectors="http, netty"
-                            entries="RemoteConnectionFactory, java:/global/jms/RemoteConnectionFactory" />
+                            entries="RemoteConnectionFactory java:/global/jms/RemoteConnectionFactory" />
         <connection-factory name="otherConnectionFactory"
                             discovery-group="groupC"
                             entries="otherConnectionFactory"
@@ -266,7 +271,7 @@
                                    max-pool-size="${max.pool.size:242}"
                                    initial-message-packet-size="${initial.message.packet.size:9876}"
                                    initial-connect-attempts="${initial.connect.attempts:5432}"
-                                   connectors="in-vm, netty"
+                                   connectors="in-vm netty"
                                    entries="${pooled-connection-factory.entries.entry:java:/JmsXA}"
                                    ha="${ha:true}"
                                    client-failure-check-period="${client.failure.check.period:12345}"

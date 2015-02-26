@@ -22,19 +22,13 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.DISCOVERY_GROUP_NAME;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.DISCOVERY_GROUP_REF;
-
 import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.AttributeMarshaller;
-import org.jboss.as.controller.AttributeParser;
-import org.jboss.as.controller.DefaultAttributeMarshaller;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
 
@@ -45,103 +39,6 @@ import org.jboss.dmr.Property;
  */
 public final class AttributeMarshallers {
 
-    public static final AttributeParser COMMA_SEPARATED_PARSER = new AttributeParser() {
-        @Override
-        public void parseAndSetParameter(AttributeDefinition attribute, String value, ModelNode operation, XMLStreamReader
-        reader) throws XMLStreamException {
-            if (value == null) {
-                return;
-            }
-            for (String element : value.split(",")) {
-                ModelNode paramVal = parse(attribute, element, reader);
-                operation.get(attribute.getName()).add(paramVal);
-            }
-        }
-    };
-
-    public static final AttributeMarshaller COMMA_SEPARATED_MARSHALLER = new DefaultAttributeMarshaller() {
-        @Override
-        public void marshallAsAttribute(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
-
-            StringBuilder builder = new StringBuilder();
-            if (resourceModel.hasDefined(attribute.getName())) {
-                for (ModelNode p : resourceModel.get(attribute.getName()).asList()) {
-                    builder.append(p.asString()).append(", ");
-                }
-            }
-            if (builder.length() > 3) {
-                builder.setLength(builder.length() - 2);
-            }
-            if (builder.length() > 0) {
-                writer.writeAttribute(attribute.getXmlName(), builder.toString());
-            }
-        }
-    };
-
-    public static final AttributeMarshaller DISCOVERY_GROUP_MARSHALLER = new AttributeInsideElementMarshaller(DISCOVERY_GROUP_REF, DISCOVERY_GROUP_NAME);
-
-    private static final class AttributeInsideElementMarshaller extends AttributeMarshaller {
-        private final String elementName;
-        private final String attributeName;
-
-        public AttributeInsideElementMarshaller(final String elementName, final String attributeName) {
-            this.elementName = elementName;
-            this.attributeName = attributeName;
-        }
-
-        public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, javax.xml.stream.XMLStreamWriter writer) throws javax.xml.stream.XMLStreamException {
-            if (isMarshallable(attribute, resourceModel)) {
-                writer.writeStartElement(elementName);
-                writer.writeAttribute(attributeName, resourceModel.get(attributeName).asString());
-                writer.writeEndElement();
-            }
-        }
-    }
-
-    public static final AttributeMarshaller NOOP_MARSHALLER = new AttributeMarshaller() {
-        public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
-            // do nothing
-        };
-
-        public void marshallAsAttribute(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
-            // do nothing
-        };
-    };
-
-
-    public static final AttributeMarshaller CONNECTORS_MARSHALLER = new ConnectorsMarshaller(CommonAttributes.CONNECTOR);
-
-    public static final class ConnectorsMarshaller extends AttributeMarshaller {
-        // WildFly management attribute name
-        private final String attributeName;
-
-        public ConnectorsMarshaller(final String attributeName) {
-            this.attributeName = attributeName;
-        }
-
-        public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
-            if (resourceModel.hasDefined(attributeName)) {
-                writer.writeStartElement(Element.CONNECTORS.getLocalName());
-                for (Property connProp : resourceModel.get(attributeName).asPropertyList()) {
-                    writer.writeStartElement(Element.CONNECTOR_REF.getLocalName());
-                    writer.writeAttribute(Attribute.CONNECTOR_NAME.getLocalName(), connProp.getName());
-                    writer.writeEndElement();
-                }
-                writer.writeEndElement();
-            }
-        }
-    }
-
-    public static final AttributeMarshaller SELECTOR_MARSHALLER = new AttributeMarshaller() {
-        public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
-            if (resourceModel.hasDefined(attribute.getName())) {
-                String selector = resourceModel.get(attribute.getName()).asString();
-                writer.writeEmptyElement(Element.SELECTOR.getLocalName());
-                writer.writeAttribute(Attribute.STRING.getLocalName(), selector);
-            }
-        }
-    };
-
     public static final AttributeMarshaller JNDI_CONTEXT_MARSHALLER = new AttributeMarshaller() {
         public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
             if (resourceModel.hasDefined(attribute.getName())) {
@@ -149,9 +46,9 @@ public final class AttributeMarshallers {
 
                 writer.writeStartElement(attribute.getXmlName());
                 for (Property property : context.asPropertyList()) {
-                    writer.writeStartElement(Element.PROPERTY.getLocalName());
-                    writer.writeAttribute(Attribute.KEY.getLocalName(), property.getName());
-                    writer.writeAttribute(Attribute.VALUE.getLocalName(), property.getValue().asString());
+                    writer.writeStartElement("property");
+                    writer.writeAttribute("key", property.getName());
+                    writer.writeAttribute("value", property.getValue().asString());
                     writer.writeEndElement();
                 }
                 writer.writeEndElement();
@@ -164,7 +61,7 @@ public final class AttributeMarshallers {
             if (resourceModel.hasDefined(attribute.getName())) {
                 String name = resourceModel.get(attribute.getName()).asString();
                 writer.writeEmptyElement(attribute.getXmlName());
-                writer.writeAttribute(Attribute.NAME.getLocalName(), name);
+                writer.writeAttribute("name", name);
             }
         }
     };
@@ -179,7 +76,7 @@ public final class AttributeMarshallers {
                     writer.writeStartElement(attribute.getXmlName());
 
                     for (ModelNode child : list) {
-                        writer.writeStartElement(Element.CLASS_NAME.getLocalName());
+                        writer.writeStartElement("class-name");
                         writer.writeCharacters(child.asString());
                         writer.writeEndElement();
                     }
@@ -189,80 +86,4 @@ public final class AttributeMarshallers {
             }
         }
     };
-
-    /**
-     * XML marshaller for connector attribute to wrap a list of attributes in an optional XML element.
-     */
-    public static final class WrappedListAttributeMarshaller extends AttributeMarshaller {
-
-        private final String wrappingElementName;
-
-        /**
-         * @param wrappingElementName @null if the list of connector must not be wrapper
-         *         or the name of the XML element that wraps the list.
-         */
-        public WrappedListAttributeMarshaller(final String wrappingElementName) {
-            this.wrappingElementName = wrappingElementName;
-        }
-
-        @Override
-        public void marshallAsElement(final AttributeDefinition attribute,
-                final ModelNode resourceModel,
-                final boolean marshallDefault,
-                final XMLStreamWriter writer) throws XMLStreamException {
-            if (resourceModel.hasDefined(attribute.getName())) {
-                List<ModelNode> list = resourceModel.get(attribute.getName()).asList();
-                if (list.size() > 0) {
-
-                    if (wrappingElementName != null) {
-                        writer.writeStartElement(wrappingElementName);
-                    }
-
-                    for (ModelNode child : list) {
-                        writer.writeStartElement(attribute.getXmlName());
-                        writer.writeCharacters(child.asString());
-                        writer.writeEndElement();
-                    }
-
-                    if (wrappingElementName != null) {
-                        writer.writeEndElement();
-                    }
-                }
-            }
-        }
-    }
-
-    public static final class JndiEntriesAttributeMarshaller extends AttributeMarshaller {
-
-        private final boolean forDestination;
-
-        public JndiEntriesAttributeMarshaller(final boolean forDestination) {
-            this.forDestination = forDestination;
-        }
-
-        public void marshallAsElement(final AttributeDefinition attribute,
-                final ModelNode resourceModel,
-                final boolean marshallDefault,
-                final XMLStreamWriter writer) throws XMLStreamException {
-            if (resourceModel.hasDefined(attribute.getName())) {
-                List<ModelNode> list = resourceModel.get(attribute.getName()).asList();
-                if (list.size() > 0) {
-                    // This is a bit of a hack, using allowNull to distinguish the connection factory case
-                    // from the jms destination case
-                    if (!forDestination) {
-                        writer.writeStartElement(attribute.getXmlName());
-                    }
-
-                    for (ModelNode child : list) {
-                        writer.writeEmptyElement(Element.ENTRY.getLocalName());
-                        writer.writeAttribute(Attribute.NAME.getLocalName(), child.asString());
-                    }
-
-                    if (!forDestination) {
-                        writer.writeEndElement();
-                    }
-                }
-            }
-        }
-    }
 }

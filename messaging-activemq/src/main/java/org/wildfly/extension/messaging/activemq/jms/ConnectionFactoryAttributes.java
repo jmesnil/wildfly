@@ -36,6 +36,8 @@ import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttr
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.AttributeMarshaller;
+import org.jboss.as.controller.AttributeParser;
 import org.jboss.as.controller.ListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
@@ -43,7 +45,6 @@ import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.dmr.ModelNode;
-import org.wildfly.extension.messaging.activemq.AttributeMarshallers;
 import org.wildfly.extension.messaging.activemq.CommonAttributes;
 
 public interface ConnectionFactoryAttributes {
@@ -115,8 +116,8 @@ public interface ConnectionFactoryAttributes {
         AttributeDefinition CONNECTOR = new StringListAttributeDefinition.Builder(CommonAttributes.CONNECTORS)
                 .setAlternatives(CommonAttributes.DISCOVERY_GROUP_NAME)
                 .setAllowNull(true)
-                .setAttributeParser(AttributeMarshallers.COMMA_SEPARATED_PARSER)
-                .setAttributeMarshaller(AttributeMarshallers.COMMA_SEPARATED_MARSHALLER)
+                .setAttributeParser(AttributeParser.STRING_LIST)
+                .setAttributeMarshaller(AttributeMarshaller.STRING_LIST)
                 .setRestartAllServices()
                 .build();
 
@@ -150,8 +151,8 @@ public interface ConnectionFactoryAttributes {
                 .setAllowNull(false)
                 .setAllowExpression(true)
                 .setListValidator(Validators.noDuplicateElements(new StringLengthValidator(1, false, true)))
-                .setAttributeParser(AttributeMarshallers.COMMA_SEPARATED_PARSER)
-                .setAttributeMarshaller(AttributeMarshallers.COMMA_SEPARATED_MARSHALLER)
+                .setAttributeParser(AttributeParser.STRING_LIST)
+                .setAttributeMarshaller(AttributeMarshaller.STRING_LIST)
                 .setRestartAllServices()
                 .build();
 
