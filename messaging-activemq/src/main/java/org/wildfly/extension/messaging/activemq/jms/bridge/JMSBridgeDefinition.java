@@ -109,6 +109,7 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition TARGET_PASSWORD = create("target-password", STRING)
+            .setAllowNull(true)
             .setAllowExpression(true)
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
             .addAccessConstraint(MESSAGING_SECURITY_DEF)

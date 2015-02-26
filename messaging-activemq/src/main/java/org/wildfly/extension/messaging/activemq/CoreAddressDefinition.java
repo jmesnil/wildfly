@@ -85,6 +85,8 @@ public class CoreAddressDefinition extends SimpleResourceDefinition {
     @Deprecated
     public static final String GET_ROLES_AS_JSON = "get-roles-as-json";
 
+    static final CoreAddressDefinition INSTANCE = new CoreAddressDefinition();
+
     public CoreAddressDefinition() {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.CORE_ADDRESS));

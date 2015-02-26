@@ -85,6 +85,8 @@ public class QueueDefinition extends PersistentResourceDefinition {
             CommonAttributes.SCHEDULED_COUNT, CommonAttributes.CONSUMER_COUNT
             };
 
+    static final QueueDefinition INSTANCE = newQueueDefinition(false);
+
     public static QueueDefinition newRuntimeQueueDefinition(final boolean registerRuntimeOnly) {
         return new QueueDefinition(registerRuntimeOnly, true, RUNTIME_QUEUE, null, null);
     }
