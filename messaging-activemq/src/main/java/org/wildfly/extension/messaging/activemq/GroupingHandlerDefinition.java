@@ -29,10 +29,14 @@ import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.operations.validation.EnumValidator;
@@ -44,7 +48,7 @@ import org.jboss.dmr.ModelNode;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class GroupingHandlerDefinition extends SimpleResourceDefinition {
+public class GroupingHandlerDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.GROUPING_HANDLER);
 
@@ -91,6 +95,8 @@ public class GroupingHandlerDefinition extends SimpleResourceDefinition {
 
     private final boolean registerRuntimeOnly;
 
+    static final GroupingHandlerDefinition INSTANCE = new GroupingHandlerDefinition(false);
+
     public GroupingHandlerDefinition(final boolean registerRuntimeOnly) {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.GROUPING_HANDLER),
@@ -100,8 +106,12 @@ public class GroupingHandlerDefinition extends SimpleResourceDefinition {
     }
 
     @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(ATTRIBUTES);
+    }
+
+    @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
         for (AttributeDefinition attr : ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, GroupingHandlerWriteAttributeHandler.INSTANCE);

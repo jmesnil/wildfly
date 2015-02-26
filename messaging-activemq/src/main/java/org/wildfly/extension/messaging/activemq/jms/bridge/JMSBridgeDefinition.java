@@ -30,9 +30,15 @@ import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PropertiesAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleOperationDefinition;
@@ -51,7 +57,7 @@ import org.jboss.dmr.ModelNode;
 /**
  * @author Jeff Mesnil (c) 2012 Red Hat Inc.
  */
-public class JMSBridgeDefinition extends SimpleResourceDefinition {
+public class JMSBridgeDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.JMS_BRIDGE);
 
@@ -69,26 +75,29 @@ public class JMSBridgeDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition SOURCE_CONNECTION_FACTORY = create("source-connection-factory", STRING)
+            .setAttributeGroup(SOURCE)
             .setXmlName(CommonAttributes.CONNECTION_FACTORY)
-            .setAttributeMarshaller(AttributeMarshallers.JNDI_RESOURCE_MARSHALLER)
+            .setXmlName(CommonAttributes.CONNECTION_FACTORY)
             .build();
 
     public static final SimpleAttributeDefinition SOURCE_DESTINATION = create("source-destination", STRING)
+            .setAttributeGroup(SOURCE)
             .setXmlName(CommonAttributes.DESTINATION)
-            .setAttributeMarshaller(AttributeMarshallers.JNDI_RESOURCE_MARSHALLER)
             .build();
 
     public static final SimpleAttributeDefinition SOURCE_USER = create("source-user", STRING)
+            .setAttributeGroup(SOURCE)
+            .setXmlName("user")
             .setAllowNull(true)
             .setAllowExpression(true)
-            .setXmlName("user")
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
             .addAccessConstraint(MESSAGING_SECURITY_DEF)
             .build();
     public static final SimpleAttributeDefinition SOURCE_PASSWORD = create("source-password", STRING)
+            .setAttributeGroup(SOURCE)
+            .setXmlName("password")
             .setAllowNull(true)
             .setAllowExpression(true)
-            .setXmlName("password")
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
             .addAccessConstraint(MESSAGING_SECURITY_DEF)
             .build();
@@ -100,24 +109,26 @@ public class JMSBridgeDefinition extends SimpleResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition TARGET_CONNECTION_FACTORY = create("target-connection-factory", STRING)
+            .setAttributeGroup(TARGET)
             .setXmlName(CommonAttributes.CONNECTION_FACTORY)
-            .setAttributeMarshaller(AttributeMarshallers.JNDI_RESOURCE_MARSHALLER)
             .build();
 
     public static final SimpleAttributeDefinition TARGET_DESTINATION = create("target-destination", STRING)
+            .setAttributeGroup(TARGET)
             .setXmlName(CommonAttributes.DESTINATION)
-            .setAttributeMarshaller(AttributeMarshallers.JNDI_RESOURCE_MARSHALLER)
             .build();
 
     public static final SimpleAttributeDefinition TARGET_USER = create("target-user", STRING)
+            .setAttributeGroup(TARGET)
+            .setXmlName("user")
             .setAllowNull(true)
             .setAllowExpression(true)
-            .setXmlName("user")
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
             .addAccessConstraint(MESSAGING_SECURITY_DEF)
             .build();
 
     public static final SimpleAttributeDefinition TARGET_PASSWORD = create("target-password", STRING)
+            .setAttributeGroup(TARGET)
             .setAllowNull(true)
             .setAllowExpression(true)
             .setXmlName("password")
@@ -209,8 +220,16 @@ public class JMSBridgeDefinition extends SimpleResourceDefinition {
     }
 
     @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        Collection<AttributeDefinition> attributes = new ArrayList<>();
+        attributes.addAll(Arrays.asList(JMS_BRIDGE_ATTRIBUTES));
+        attributes.addAll(Arrays.asList(JMS_SOURCE_ATTRIBUTES));
+        attributes.addAll(Arrays.asList(JMS_TARGET_ATTRIBUTES));
+        return attributes;
+    }
+
+    @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
         for (AttributeDefinition attr : JMS_BRIDGE_ATTRIBUTES) {
             registry.registerReadWriteAttribute(attr, null, JMSBridgeWriteAttributeHandler.INSTANCE);
         }

@@ -24,6 +24,8 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.registry.AttributeAccess.Flag.STORAGE_RUNTIME;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,7 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -46,7 +49,7 @@ import org.jboss.dmr.Property;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class ConnectorServiceDefinition extends SimpleResourceDefinition {
+public class ConnectorServiceDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.CONNECTOR_SERVICE);
 
@@ -54,6 +57,7 @@ public class ConnectorServiceDefinition extends SimpleResourceDefinition {
 
     private final boolean registerRuntimeOnly;
 
+    static final ConnectorServiceDefinition INSTANCE = new ConnectorServiceDefinition(false);
     public ConnectorServiceDefinition(final boolean registerRuntimeOnly) {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(false, CommonAttributes.CONNECTOR_SERVICE),
@@ -88,8 +92,12 @@ public class ConnectorServiceDefinition extends SimpleResourceDefinition {
     }
 
     @Override
+    public Collection<AttributeDefinition> getAttributes() {
+        return Arrays.asList(ATTRIBUTES);
+    }
+
+    @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
         OperationStepHandler writeHandler = new ReloadRequiredWriteAttributeHandler(ATTRIBUTES);
         for (AttributeDefinition attr : ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(STORAGE_RUNTIME)) {
