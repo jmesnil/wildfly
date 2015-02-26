@@ -55,7 +55,7 @@ public class SecuritySettingDefinition extends PersistentResourceDefinition {
         this.registerRuntimeOnly = registerRuntimeOnly;
         ApplicationTypeConfig atc = new ApplicationTypeConfig(MessagingExtension.SUBSYSTEM_NAME, CommonAttributes.SECURITY_SETTING);
         AccessConstraintDefinition acd = new ApplicationTypeAccessConstraintDefinition(atc);
-        this.accessConstraints = Arrays.asList((AccessConstraintDefinition) CommonAttributes.MESSAGING_SECURITY_DEF, acd);
+        this.accessConstraints = Arrays.asList(CommonAttributes.MESSAGING_SECURITY_DEF, acd);
     }
 
     @Override

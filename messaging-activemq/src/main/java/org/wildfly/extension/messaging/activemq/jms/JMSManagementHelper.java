@@ -55,7 +55,7 @@ public class JMSManagementHelper {
             values.add(new ModelNode("NON_PERSISTENT"));
             return values;
         }
-    };
+    }
 
     protected static final AttributeDefinition[] JMS_MESSAGE_PARAMETERS = new AttributeDefinition[] {
         createNonEmptyStringAttribute("JMSMessageID"),
