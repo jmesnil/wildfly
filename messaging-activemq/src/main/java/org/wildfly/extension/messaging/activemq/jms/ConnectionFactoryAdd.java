@@ -68,7 +68,7 @@ public class ConnectionFactoryAdd extends AbstractAddStepHandler {
 
     protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
 
-        AlternativeAttributeCheckHandler.checkAlternatives(operation, Common.CONNECTOR.getName(), Common.DISCOVERY_GROUP_NAME.getName(), false);
+        AlternativeAttributeCheckHandler.checkAlternatives(operation, Common.CONNECTORS.getName(), Common.DISCOVERY_GROUP.getName(), false);
 
         for (final AttributeDefinition attribute : ConnectionFactoryDefinition.ATTRIBUTES) {
             attribute.validateAndSet(operation, model);
@@ -128,7 +128,7 @@ public class ConnectionFactoryAdd extends AbstractAddStepHandler {
         }
         config.setConsumerMaxRate(Common.CONSUMER_MAX_RATE.resolveModelAttribute(context, model).asInt());
         config.setConsumerWindowSize(Common.CONSUMER_WINDOW_SIZE.resolveModelAttribute(context, model).asInt());
-        final ModelNode discoveryGroupName = Common.DISCOVERY_GROUP_NAME.resolveModelAttribute(context, model);
+        final ModelNode discoveryGroupName = Common.DISCOVERY_GROUP.resolveModelAttribute(context, model);
         if (discoveryGroupName.isDefined()) {
             config.setDiscoveryGroupName(discoveryGroupName.asString());
         }

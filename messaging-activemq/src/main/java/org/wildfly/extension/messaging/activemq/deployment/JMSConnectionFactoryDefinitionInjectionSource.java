@@ -29,7 +29,7 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.NO_TX;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.POOLED_CONNECTION_FACTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SERVER;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.XA_TX;
-import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Common.DISCOVERY_GROUP_NAME;
+import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Common.DISCOVERY_GROUP;
 import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Pooled.MAX_POOL_SIZE;
 import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Pooled.MIN_POOL_SIZE;
 
@@ -175,9 +175,9 @@ public class JMSConnectionFactoryDefinitionInjectionSource extends ResourceDefin
             model.get(CommonAttributes.CLIENT_ID.getName()).set(clientId);
         }
 
-        final String discoveryGroupName = properties.containsKey(DISCOVERY_GROUP_NAME.getName()) ? properties.get(DISCOVERY_GROUP_NAME.getName()) : null;
+        final String discoveryGroupName = properties.containsKey(DISCOVERY_GROUP.getName()) ? properties.get(DISCOVERY_GROUP.getName()) : null;
         if (discoveryGroupName != null) {
-            model.get(DISCOVERY_GROUP_NAME.getName()).set(discoveryGroupName);
+            model.get(DISCOVERY_GROUP.getName()).set(discoveryGroupName);
         }
         final String jgroupsChannelName = properties.containsKey(JGROUPS_CHANNEL.getName()) ? properties.get(JGROUPS_CHANNEL.getName()) : null;
         if (jgroupsChannelName != null) {

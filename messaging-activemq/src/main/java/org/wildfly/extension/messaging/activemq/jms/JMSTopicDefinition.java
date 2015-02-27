@@ -31,14 +31,13 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
-import org.jboss.as.controller.PrimitiveListAttributeDefinition;
+import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
+import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.as.controller.access.constraint.ApplicationTypeConfig;
 import org.jboss.as.controller.access.management.AccessConstraintDefinition;
 import org.jboss.as.controller.access.management.ApplicationTypeAccessConstraintDefinition;
-import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.wildfly.extension.messaging.activemq.CommonAttributes;
 import org.wildfly.extension.messaging.activemq.MessagingExtension;
@@ -53,22 +52,25 @@ public class JMSTopicDefinition extends PersistentResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.JMS_TOPIC);
 
-    public static final AttributeDefinition[] ATTRIBUTES = { CommonAttributes.DESTINATION_ENTRIES };
+    public static final AttributeDefinition[] ATTRIBUTES = {
+            CommonAttributes.DESTINATION_ENTRIES
+    };
 
     /**
      * Attributes for deployed JMS topic are stored in runtime
      */
-    private static AttributeDefinition[] getDeploymentAttributes() {
-        return new AttributeDefinition[] {
-                new PrimitiveListAttributeDefinition.Builder(CommonAttributes.DESTINATION_ENTRIES).setStorageRuntime().build()
-        };
-    }
+    private static AttributeDefinition[] DEPLOYMENT_ATTRIBUTES = {
+            new StringListAttributeDefinition.Builder(CommonAttributes.DESTINATION_ENTRIES)
+                    .setStorageRuntime()
+                    .build()
+    };
 
     static final AttributeDefinition TOPIC_ADDRESS = create(CommonAttributes.TOPIC_ADDRESS, STRING)
             .setStorageRuntime()
             .build();
 
-    static final AttributeDefinition[] READONLY_ATTRIBUTES = { TOPIC_ADDRESS, CommonAttributes.TEMPORARY };
+    static final AttributeDefinition[] READONLY_ATTRIBUTES = { TOPIC_ADDRESS,
+            CommonAttributes.TEMPORARY };
 
     static final AttributeDefinition DURABLE_MESSAGE_COUNT = create(CommonAttributes.DURABLE_MESSAGE_COUNT, INT)
             .setStorageRuntime()
@@ -90,63 +92,67 @@ public class JMSTopicDefinition extends PersistentResourceDefinition {
             .setStorageRuntime()
             .build();
 
-    static final AttributeDefinition[] METRICS = { CommonAttributes.DELIVERING_COUNT, CommonAttributes.MESSAGES_ADDED,
-        CommonAttributes.MESSAGE_COUNT, DURABLE_MESSAGE_COUNT, NON_DURABLE_MESSAGE_COUNT,
-        SUBSCRIPTION_COUNT, DURABLE_SUBSCRIPTION_COUNT, NON_DURABLE_SUBSCRIPTION_COUNT};
-
-    private final boolean registerRuntimeOnly;
+    static final AttributeDefinition[] METRICS = { CommonAttributes.DELIVERING_COUNT,
+            CommonAttributes.MESSAGES_ADDED,
+            CommonAttributes.MESSAGE_COUNT,
+            DURABLE_MESSAGE_COUNT,
+            NON_DURABLE_MESSAGE_COUNT,
+            SUBSCRIPTION_COUNT,
+            DURABLE_SUBSCRIPTION_COUNT,
+            NON_DURABLE_SUBSCRIPTION_COUNT
+    };
 
     private final boolean deployed;
 
-    private final List<AccessConstraintDefinition> accessConstraints;
+    private static final List<AccessConstraintDefinition> ACCESS_CONSTRAINTS;
 
-    public static JMSTopicDefinition newDeployedJMSTopicDefinition() {
-        return new JMSTopicDefinition(true, true, null, null);
+    static {
+        ApplicationTypeConfig atc = new ApplicationTypeConfig(MessagingExtension.SUBSYSTEM_NAME, CommonAttributes.JMS_QUEUE);
+        ACCESS_CONSTRAINTS = new ApplicationTypeAccessConstraintDefinition(atc).wrapAsList();
     }
 
     public static final JMSTopicDefinition INSTANCE = new JMSTopicDefinition(false);
 
-    public JMSTopicDefinition(final boolean registerRuntimeOnly) {
-        this(registerRuntimeOnly, false, JMSTopicAdd.INSTANCE, JMSTopicRemove.INSTANCE);
-    }
+    public static final JMSTopicDefinition DEPLOYMENT_INSTANCE = new JMSTopicDefinition(true);
 
-    private JMSTopicDefinition(final boolean registerRuntimeOnly, final boolean deployed, final OperationStepHandler addHandler, final OperationStepHandler removeHandler) {
+    public JMSTopicDefinition(final boolean deployed) {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.JMS_TOPIC),
-                addHandler,
-                removeHandler);
-        this.registerRuntimeOnly = registerRuntimeOnly;
+                deployed ? null : JMSTopicAdd.INSTANCE,
+                deployed ? null : JMSTopicRemove.INSTANCE);
         this.deployed = deployed;
-        ApplicationTypeConfig atc = new ApplicationTypeConfig(MessagingExtension.SUBSYSTEM_NAME, CommonAttributes.JMS_TOPIC);
-        accessConstraints = new ApplicationTypeAccessConstraintDefinition(atc).wrapAsList();
     }
 
     @Override
     public Collection<AttributeDefinition> getAttributes() {
-        return Arrays.asList(ATTRIBUTES);
+        if (deployed) {
+            return Arrays.asList(DEPLOYMENT_ATTRIBUTES);
+        } else {
+            return Arrays.asList(ATTRIBUTES);
+        }
     }
 
     @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
-        AttributeDefinition[] attributes = deployed ? getDeploymentAttributes() : ATTRIBUTES;
-        for (AttributeDefinition attr : attributes) {
-            if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
-                if (deployed) {
-                    registry.registerReadOnlyAttribute(attr, JMSTopicConfigurationRuntimeHandler.INSTANCE);
+        ReloadRequiredWriteAttributeHandler handler = new ReloadRequiredWriteAttributeHandler(getAttributes());
+        for (AttributeDefinition attr : getAttributes()) {
+            if (deployed) {
+                registry.registerReadOnlyAttribute(attr, JMSTopicConfigurationRuntimeHandler.INSTANCE);
+            } else {
+                if (attr == CommonAttributes.DESTINATION_ENTRIES) {
+                    registry.registerReadWriteAttribute(attr, null, handler);
                 } else {
-                    registry.registerReadWriteAttribute(attr, null, JMSTopicConfigurationWriteHandler.INSTANCE);
+                    registry.registerReadOnlyAttribute(attr, null);
                 }
             }
         }
 
-        if (registerRuntimeOnly) {
-            for (AttributeDefinition attr : READONLY_ATTRIBUTES) {
-                registry.registerReadOnlyAttribute(attr, JMSTopicReadAttributeHandler.INSTANCE);
-            }
+        for (AttributeDefinition attr : READONLY_ATTRIBUTES) {
+            registry.registerReadOnlyAttribute(attr, JMSTopicReadAttributeHandler.INSTANCE);
+        }
 
-            for (AttributeDefinition metric : METRICS) {
-                registry.registerMetric(metric, JMSTopicReadAttributeHandler.INSTANCE);
-            }
+        for (AttributeDefinition metric : METRICS) {
+            registry.registerMetric(metric, JMSTopicReadAttributeHandler.INSTANCE);
         }
     }
 
@@ -154,7 +160,7 @@ public class JMSTopicDefinition extends PersistentResourceDefinition {
     public void registerOperations(ManagementResourceRegistration registry) {
         super.registerOperations(registry);
 
-        if (registerRuntimeOnly && !deployed) {
+        if (!deployed) {
             JMSTopicUpdateJndiHandler.registerOperations(registry, getResourceDescriptionResolver());
         }
 
@@ -163,6 +169,6 @@ public class JMSTopicDefinition extends PersistentResourceDefinition {
 
     @Override
     public List<AccessConstraintDefinition> getAccessConstraints() {
-        return accessConstraints;
+        return ACCESS_CONSTRAINTS;
     }
 }

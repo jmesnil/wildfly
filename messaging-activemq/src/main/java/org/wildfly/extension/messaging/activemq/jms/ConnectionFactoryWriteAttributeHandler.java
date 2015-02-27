@@ -116,8 +116,8 @@ public class ConnectionFactoryWriteAttributeHandler extends AbstractWriteAttribu
     }
 
     private void applyOperationToHornetQService(final OperationContext context, String name, String attributeName, ModelNode value, ServiceController<?> hqService) {
-        if(attributeName.equals(Common.CONNECTOR.getName()) ||
-                attributeName.equals(Common.DISCOVERY_GROUP_NAME.getName())) {
+        if(attributeName.equals(Common.CONNECTORS.getName()) ||
+                attributeName.equals(Common.DISCOVERY_GROUP.getName())) {
             return;
         }
 
