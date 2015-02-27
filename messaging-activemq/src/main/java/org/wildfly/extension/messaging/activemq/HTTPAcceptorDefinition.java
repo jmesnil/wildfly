@@ -33,7 +33,6 @@ import java.util.ResourceBundle;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationStepHandler;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.SimpleAttributeDefinition;
@@ -49,20 +48,16 @@ import org.jboss.dmr.ModelType;
  */
 public class HTTPAcceptorDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(HTTP_ACCEPTOR);
-
-    private final boolean registerRuntimeOnly;
-
     static final SimpleAttributeDefinition HTTP_LISTENER = create(CommonAttributes.HTTP_LISTENER, ModelType.STRING)
             .setAllowNull(false)
             .build();
 
     static AttributeDefinition[] ATTRIBUTES = { HTTP_LISTENER, PARAMS };
 
-    static final HTTPAcceptorDefinition INSTANCE = new HTTPAcceptorDefinition(false);
+    static final HTTPAcceptorDefinition INSTANCE = new HTTPAcceptorDefinition();
 
-    HTTPAcceptorDefinition(final boolean registerRuntimeOnly) {
-        super(PATH,
+    private HTTPAcceptorDefinition() {
+        super(MessagingExtension.HTTP_ACCEPTOR_PATH,
                 new StandardResourceDescriptionResolver(CommonAttributes.ACCEPTOR, MessagingExtension.RESOURCE_NAME, MessagingExtension.class.getClassLoader(), true, false) {
                     @Override
                     public String getResourceDescription(Locale locale, ResourceBundle bundle) {
@@ -71,14 +66,13 @@ public class HTTPAcceptorDefinition extends PersistentResourceDefinition {
                 },
                 HTTPAcceptorAdd.INSTANCE,
                 HTTPAcceptorRemove.INSTANCE);
-        this.registerRuntimeOnly = registerRuntimeOnly;
     }
 
     @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
         OperationStepHandler attributeHandler = new ReloadRequiredWriteAttributeHandler(ATTRIBUTES);
         for (AttributeDefinition attr : ATTRIBUTES) {
-            if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
+            if (!attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, attributeHandler);
             }
         }
@@ -87,12 +81,5 @@ public class HTTPAcceptorDefinition extends PersistentResourceDefinition {
     @Override
     public Collection<AttributeDefinition> getAttributes() {
         return Arrays.asList(ATTRIBUTES);
-    }
-
-    @Override
-    public void registerChildren(ManagementResourceRegistration registry) {
-        super.registerChildren(registry);
-
-       // registry.registerSubModel(new TransportParamDefinition(TransportConstants.ALLOWABLE_ACCEPTOR_KEYS));
     }
 }

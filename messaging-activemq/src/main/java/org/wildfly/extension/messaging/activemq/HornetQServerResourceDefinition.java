@@ -89,7 +89,7 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
             .setAllowExpression(true)
             .setRestartAllServices()
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
-            .addAccessConstraint(CommonAttributes.MESSAGING_SECURITY_DEF)
+            .addAccessConstraint(MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET)
             .build();
     public static final SimpleAttributeDefinition CLUSTER_USER = create("cluster-user", ModelType.STRING)
             .setAttributeGroup("cluster")
@@ -99,7 +99,7 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
             .setAllowExpression(true)
             .setRestartAllServices()
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
-            .addAccessConstraint(CommonAttributes.MESSAGING_SECURITY_DEF)
+            .addAccessConstraint(MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET)
             .build();
     public static final AttributeDefinition SCHEDULED_THREAD_POOL_MAX_SIZE = create("scheduled-thread-pool-max-size", INT)
             .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize()))
@@ -115,7 +115,7 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
             .setAllowExpression(false) // references the security domain service name
             .setRestartAllServices()
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.SECURITY_DOMAIN_REF)
-            .addAccessConstraint(CommonAttributes.MESSAGING_SECURITY_DEF)
+            .addAccessConstraint(MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET)
             .build();
     public static final AttributeDefinition THREAD_POOL_MAX_SIZE = create("thread-pool-max-size", INT)
             .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.getDefaultThreadPoolMaxSize()))
@@ -345,7 +345,7 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
-            .addAccessConstraint(CommonAttributes.MESSAGING_SECURITY_DEF)
+            .addAccessConstraint(MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET)
             .build();
     public static final SimpleAttributeDefinition SECURITY_ENABLED = create("security-enabled", BOOLEAN)
             .setAttributeGroup("security")
@@ -354,7 +354,7 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
-            .addAccessConstraint(CommonAttributes.MESSAGING_SECURITY_DEF)
+            .addAccessConstraint(MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET)
             .build();
     public static final SimpleAttributeDefinition PERSISTENCE_ENABLED = create("persistence-enabled", BOOLEAN)
             .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultPersistenceEnabled()))
@@ -369,7 +369,7 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
-            .addAccessConstraint(CommonAttributes.MESSAGING_MANAGEMENT_DEF)
+            .addAccessConstraint(MessagingExtension.MESSAGING_MANAGEMENT_SENSITIVE_TARGET)
             .build();
     public static final SimpleAttributeDefinition MANAGEMENT_ADDRESS = create("management-address", ModelType.STRING)
             .setAttributeGroup("management")
@@ -378,7 +378,7 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
-            .addAccessConstraint(CommonAttributes.MESSAGING_MANAGEMENT_DEF)
+            .addAccessConstraint(MessagingExtension.MESSAGING_MANAGEMENT_SENSITIVE_TARGET)
             .build();
     public static final SimpleAttributeDefinition JMX_MANAGEMENT_ENABLED = create("jmx-management-enabled", BOOLEAN)
             .setAttributeGroup("management")
@@ -387,7 +387,7 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
-            .addAccessConstraint(CommonAttributes.MESSAGING_MANAGEMENT_DEF)
+            .addAccessConstraint(MessagingExtension.MESSAGING_MANAGEMENT_SENSITIVE_TARGET)
             .build();
     public static final SimpleAttributeDefinition JMX_DOMAIN = create("jmx-domain", ModelType.STRING)
             .setAttributeGroup("management")
@@ -395,7 +395,7 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
-            .addAccessConstraint(CommonAttributes.MESSAGING_MANAGEMENT_DEF)
+            .addAccessConstraint(MessagingExtension.MESSAGING_MANAGEMENT_SENSITIVE_TARGET)
             .build();
 
     public static final SimpleAttributeDefinition PERSIST_ID_CACHE = create("persist-id-cache", BOOLEAN)
@@ -527,7 +527,7 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
     public void registerChildren(ManagementResourceRegistration resourceRegistration) {
         super.registerChildren(resourceRegistration);
 
-        ManagementResourceRegistration runtimeQueue = resourceRegistration.registerSubModel(QueueDefinition.newRuntimeQueueDefinition(true));
+        ManagementResourceRegistration runtimeQueue = resourceRegistration.registerSubModel(QueueDefinition.RUNTIME_INSTANCE);
         runtimeQueue.setRuntimeOnly(true);
         ManagementResourceRegistration coreAddress = resourceRegistration.registerSubModel(CoreAddressDefinition.INSTANCE);
         coreAddress.setRuntimeOnly(true);

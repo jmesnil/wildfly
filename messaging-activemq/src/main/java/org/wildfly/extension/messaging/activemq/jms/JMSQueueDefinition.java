@@ -32,14 +32,11 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.StringListAttributeDefinition;
-import org.jboss.as.controller.access.constraint.ApplicationTypeConfig;
 import org.jboss.as.controller.access.management.AccessConstraintDefinition;
-import org.jboss.as.controller.access.management.ApplicationTypeAccessConstraintDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.wildfly.extension.messaging.activemq.CommonAttributes;
 import org.wildfly.extension.messaging.activemq.MessagingExtension;
@@ -50,8 +47,6 @@ import org.wildfly.extension.messaging.activemq.MessagingExtension;
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
 public class JMSQueueDefinition extends PersistentResourceDefinition {
-
-    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.JMS_QUEUE);
 
     public static final AttributeDefinition[] ATTRIBUTES = {
             CommonAttributes.DESTINATION_ENTRIES,
@@ -110,15 +105,8 @@ public class JMSQueueDefinition extends PersistentResourceDefinition {
 
     private final boolean deployed;
 
-    private static final List<AccessConstraintDefinition> ACCESS_CONSTRAINTS;
-
-    static {
-        ApplicationTypeConfig atc = new ApplicationTypeConfig(MessagingExtension.SUBSYSTEM_NAME, CommonAttributes.JMS_QUEUE);
-        ACCESS_CONSTRAINTS = new ApplicationTypeAccessConstraintDefinition(atc).wrapAsList();
-    }
-
     private JMSQueueDefinition(final boolean deployed) {
-        super(PATH,
+        super(MessagingExtension.JMS_QUEUE_PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.JMS_QUEUE),
                 deployed ? null : JMSQueueAdd.INSTANCE,
                 deployed ? null : JMSQueueRemove.INSTANCE);
@@ -172,6 +160,6 @@ public class JMSQueueDefinition extends PersistentResourceDefinition {
 
     @Override
     public List<AccessConstraintDefinition> getAccessConstraints() {
-        return ACCESS_CONSTRAINTS;
+        return Arrays.asList(MessagingExtension.JMS_DESTINATION_ACCESS_CONSTRAINT);
     }
 }

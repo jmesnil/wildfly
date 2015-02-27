@@ -24,13 +24,33 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.PathElement.pathElement;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.ADDRESS_SETTING;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.BRIDGE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.BROADCAST_GROUP;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.CLUSTER_CONNECTION;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTOR_SERVICE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.GROUPING_HANDLER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_ACCEPTOR;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JMS_QUEUE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JMS_TOPIC;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.QUEUE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.ROLE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.RUNTIME_QUEUE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_SETTING;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SERVER;
 import static org.wildfly.extension.messaging.activemq.Namespace.MESSAGING_ACTIVEMQ6_1_1;
 
 import org.jboss.as.controller.Extension;
 import org.jboss.as.controller.ExtensionContext;
+import org.jboss.as.controller.ModelVersion;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.SubsystemRegistration;
+import org.jboss.as.controller.access.constraint.ApplicationTypeConfig;
+import org.jboss.as.controller.access.constraint.SensitivityClassification;
+import org.jboss.as.controller.access.management.AccessConstraintDefinition;
+import org.jboss.as.controller.access.management.ApplicationTypeAccessConstraintDefinition;
+import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
 import org.jboss.as.controller.descriptions.StandardResourceDescriptionResolver;
@@ -47,7 +67,7 @@ import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
  * Domain extension that integrates Apache ActiveMQ 6.
  *
  * <dl>
- *   <dt><strong>Current</strong> - WildFly 10</dt>
+ *   <dt><strong>Current</strong> - WildFly 9</dt>
  *   <dd>
  *     <ul>
  *       <li>XML namespace: urn:jboss:domain:messaging-activemq:1.0
@@ -63,15 +83,35 @@ import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
 public class MessagingExtension implements Extension {
 
     public static final String SUBSYSTEM_NAME = "messaging-activemq";
-    public static final PathElement SERVER_PATH = PathElement.pathElement(CommonAttributes.SERVER);
 
     static final PathElement SUBSYSTEM_PATH  = pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
+    static final PathElement SERVER_PATH = pathElement(SERVER);
+    static final PathElement CONNECTOR_SERVICE_PATH = pathElement(CONNECTOR_SERVICE);
+    static final PathElement QUEUE_PATH = pathElement(QUEUE);
+    static final PathElement RUNTIME_QUEUE_PATH = pathElement(RUNTIME_QUEUE);
+    static final PathElement GROUPING_HANDLER_PATH = pathElement(GROUPING_HANDLER);
+    static final PathElement HTTP_ACCEPTOR_PATH = pathElement(HTTP_ACCEPTOR);
+    static final PathElement BROADCAST_GROUP_PATH = pathElement(BROADCAST_GROUP);
+    static final PathElement CLUSTER_CONNECTION_PATH = pathElement(CLUSTER_CONNECTION);
+    static final PathElement BRIDGE_PATH = pathElement(BRIDGE);
+    static final PathElement ADDRESS_SETTING_PATH = pathElement(ADDRESS_SETTING);
+    static final PathElement ROLE_PATH = PathElement.pathElement(ROLE);
+    static final PathElement SECURITY_SETTING_PATH =  PathElement.pathElement(SECURITY_SETTING);
+    public static final PathElement JMS_BRIDGE_PATH = pathElement(CommonAttributes.JMS_BRIDGE);
+
+    public static final SensitiveTargetAccessConstraintDefinition MESSAGING_SECURITY_SENSITIVE_TARGET = new SensitiveTargetAccessConstraintDefinition(new SensitivityClassification(SUBSYSTEM_NAME, "messaging-security", false, false, true));
+    public static final SensitiveTargetAccessConstraintDefinition MESSAGING_MANAGEMENT_SENSITIVE_TARGET = new SensitiveTargetAccessConstraintDefinition(new SensitivityClassification(SUBSYSTEM_NAME, "messaging-management", false, false, true));
+
+    static final AccessConstraintDefinition SECURITY_SETTING_ACCESS_CONSTRAINT = new ApplicationTypeAccessConstraintDefinition( new ApplicationTypeConfig(SUBSYSTEM_NAME, SECURITY_SETTING));
+    static final AccessConstraintDefinition QUEUE_ACCESS_CONSTRAINT = new ApplicationTypeAccessConstraintDefinition(new ApplicationTypeConfig(SUBSYSTEM_NAME, QUEUE));
+    public static final AccessConstraintDefinition JMS_DESTINATION_ACCESS_CONSTRAINT = new ApplicationTypeAccessConstraintDefinition(new ApplicationTypeConfig(SUBSYSTEM_NAME, CommonAttributes.JMS_DESTINATION));
+
+    public static final PathElement JMS_QUEUE_PATH = pathElement(JMS_QUEUE);
+    public static final PathElement JMS_TOPIC_PATH = pathElement(JMS_TOPIC);
 
     static final String RESOURCE_NAME = MessagingExtension.class.getPackage().getName() + ".LocalDescriptions";
 
-    private static final int MANAGEMENT_API_MAJOR_VERSION = 1;
-    private static final int MANAGEMENT_API_MINOR_VERSION = 0;
-    private static final int MANAGEMENT_API_MICRO_VERSION = 0;
+    private static final ModelVersion CURRENT_MODEL_VERSION = ModelVersion.create(1, 0, 0);
 
     public static ResourceDescriptionResolver getResourceDescriptionResolver(final String... keyPrefix) {
         return getResourceDescriptionResolver(true, keyPrefix);
@@ -89,26 +129,22 @@ public class MessagingExtension implements Extension {
     }
 
     public void initialize(ExtensionContext context) {
-        final SubsystemRegistration subsystem = context.registerSubsystem(SUBSYSTEM_NAME,
-                MANAGEMENT_API_MAJOR_VERSION,
-                MANAGEMENT_API_MINOR_VERSION,
-                MANAGEMENT_API_MICRO_VERSION);
-        subsystem.registerXMLElementWriter(MessagingSubsystemParser_1_1.INSTANCE);
+        final SubsystemRegistration subsystemRegistration = context.registerSubsystem(SUBSYSTEM_NAME, CURRENT_MODEL_VERSION);
+        subsystemRegistration.registerXMLElementWriter(MessagingSubsystemParser_1_1.INSTANCE);
 
         boolean registerRuntimeOnly = context.isRuntimeOnlyRegistrationValid();
-        System.out.println("registerRuntimeOnly = " + registerRuntimeOnly);
 
         // Root resource
-        final ManagementResourceRegistration rootRegistration = subsystem.registerSubsystemModel(MessagingSubsystemRootResourceDefinition.INSTANCE);
-        rootRegistration.registerOperationHandler(GenericSubsystemDescribeHandler.DEFINITION, GenericSubsystemDescribeHandler.INSTANCE);
+        final ManagementResourceRegistration subsystem = subsystemRegistration.registerSubsystemModel(MessagingSubsystemRootResourceDefinition.INSTANCE);
+        subsystem.registerOperationHandler(GenericSubsystemDescribeHandler.DEFINITION, GenericSubsystemDescribeHandler.INSTANCE);
 
-        // HQ servers
-        final ManagementResourceRegistration serverRegistration = rootRegistration.registerSubModel(new HornetQServerResourceDefinition(registerRuntimeOnly));
+        // ActiveMQ Servers
+        final ManagementResourceRegistration server = subsystem.registerSubModel(new HornetQServerResourceDefinition(registerRuntimeOnly));
 
         // Messaging paths
         //todo, shouldn't we leverage Path service from AS? see: package org.jboss.as.controller.services.path
         for (final String path : PathDefinition.PATHS.keySet()) {
-            ManagementResourceRegistration binding = serverRegistration.registerSubModel(new PathDefinition(pathElement(ModelDescriptionConstants.PATH, path)));
+            ManagementResourceRegistration binding = server.registerSubModel(new PathDefinition(pathElement(ModelDescriptionConstants.PATH, path)));
             // Create the path resolver operation
             if (context.getProcessType().isServer()) {
                 final ResolvePathHandler resolvePathHandler = ResolvePathHandler.Builder.of(context.getPathManager())
@@ -119,16 +155,15 @@ public class MessagingExtension implements Extension {
             }
         }
 
-        if (registerRuntimeOnly) {
-            final ManagementResourceRegistration deployment = subsystem.registerDeploymentModel(new SimpleResourceDefinition(SUBSYSTEM_PATH, getResourceDescriptionResolver("deployed")));
-            final ManagementResourceRegistration server = deployment.registerSubModel(new SimpleResourceDefinition(SERVER_PATH, getResourceDescriptionResolver(CommonAttributes.SERVER)));
-            server.registerSubModel(JMSQueueDefinition.DEPLOYMENT_INSTANCE);
-            server.registerSubModel(JMSTopicDefinition.DEPLOYMENT_INSTANCE);
-            server.registerSubModel(PooledConnectionFactoryDefinition.DEPLOYMENT_INSTANCE);
-        }
+        subsystem.registerSubModel(JMSBridgeDefinition.INSTANCE);
 
-        // JMS Bridges
-        rootRegistration.registerSubModel(new JMSBridgeDefinition());
+        if (registerRuntimeOnly) {
+            final ManagementResourceRegistration deployment = subsystemRegistration.registerDeploymentModel(new SimpleResourceDefinition(SUBSYSTEM_PATH, getResourceDescriptionResolver("deployed")));
+            final ManagementResourceRegistration deployedServer = deployment.registerSubModel(new SimpleResourceDefinition(SERVER_PATH, getResourceDescriptionResolver(SERVER)));
+            deployedServer.registerSubModel(JMSQueueDefinition.DEPLOYMENT_INSTANCE);
+            deployedServer.registerSubModel(JMSTopicDefinition.DEPLOYMENT_INSTANCE);
+            deployedServer.registerSubModel(PooledConnectionFactoryDefinition.DEPLOYMENT_INSTANCE);
+        }
     }
 
     public void initializeParsers(ExtensionParsingContext context) {

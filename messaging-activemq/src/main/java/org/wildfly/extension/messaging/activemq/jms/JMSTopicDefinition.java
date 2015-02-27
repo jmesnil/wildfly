@@ -31,13 +31,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.StringListAttributeDefinition;
-import org.jboss.as.controller.access.constraint.ApplicationTypeConfig;
 import org.jboss.as.controller.access.management.AccessConstraintDefinition;
-import org.jboss.as.controller.access.management.ApplicationTypeAccessConstraintDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.wildfly.extension.messaging.activemq.CommonAttributes;
 import org.wildfly.extension.messaging.activemq.MessagingExtension;
@@ -49,8 +46,6 @@ import org.wildfly.extension.messaging.activemq.MessagingExtension;
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
 public class JMSTopicDefinition extends PersistentResourceDefinition {
-
-    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.JMS_TOPIC);
 
     public static final AttributeDefinition[] ATTRIBUTES = {
             CommonAttributes.DESTINATION_ENTRIES
@@ -104,19 +99,12 @@ public class JMSTopicDefinition extends PersistentResourceDefinition {
 
     private final boolean deployed;
 
-    private static final List<AccessConstraintDefinition> ACCESS_CONSTRAINTS;
-
-    static {
-        ApplicationTypeConfig atc = new ApplicationTypeConfig(MessagingExtension.SUBSYSTEM_NAME, CommonAttributes.JMS_QUEUE);
-        ACCESS_CONSTRAINTS = new ApplicationTypeAccessConstraintDefinition(atc).wrapAsList();
-    }
-
     public static final JMSTopicDefinition INSTANCE = new JMSTopicDefinition(false);
 
     public static final JMSTopicDefinition DEPLOYMENT_INSTANCE = new JMSTopicDefinition(true);
 
-    public JMSTopicDefinition(final boolean deployed) {
-        super(PATH,
+    private JMSTopicDefinition(final boolean deployed) {
+        super(MessagingExtension.JMS_TOPIC_PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.JMS_TOPIC),
                 deployed ? null : JMSTopicAdd.INSTANCE,
                 deployed ? null : JMSTopicRemove.INSTANCE);
@@ -169,6 +157,6 @@ public class JMSTopicDefinition extends PersistentResourceDefinition {
 
     @Override
     public List<AccessConstraintDefinition> getAccessConstraints() {
-        return ACCESS_CONSTRAINTS;
+        return Arrays.asList(MessagingExtension.JMS_DESTINATION_ACCESS_CONSTRAINT);
     }
 }

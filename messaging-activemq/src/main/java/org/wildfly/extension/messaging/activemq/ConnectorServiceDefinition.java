@@ -36,7 +36,6 @@ import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -50,19 +49,17 @@ import org.jboss.dmr.Property;
  */
 public class ConnectorServiceDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.CONNECTOR_SERVICE);
+    private static final AttributeDefinition[] ATTRIBUTES = {
+            CommonAttributes.FACTORY_CLASS,
+            CommonAttributes.PARAMS };
 
-    public static final AttributeDefinition[] ATTRIBUTES = { CommonAttributes.FACTORY_CLASS, CommonAttributes.PARAMS };
+    static final ConnectorServiceDefinition INSTANCE = new ConnectorServiceDefinition();
 
-    private final boolean registerRuntimeOnly;
-
-    static final ConnectorServiceDefinition INSTANCE = new ConnectorServiceDefinition(false);
-    public ConnectorServiceDefinition(final boolean registerRuntimeOnly) {
-        super(PATH,
+    private ConnectorServiceDefinition() {
+        super(MessagingExtension.CONNECTOR_SERVICE_PATH,
                 MessagingExtension.getResourceDescriptionResolver(false, CommonAttributes.CONNECTOR_SERVICE),
                 new HornetQReloadRequiredHandlers.AddStepHandler(ATTRIBUTES),
                 new HornetQReloadRequiredHandlers.RemoveStepHandler());
-        this.registerRuntimeOnly = registerRuntimeOnly;
     }
 
     static void addConnectorServiceConfigs(final OperationContext context, final Configuration configuration, final ModelNode model)  throws OperationFailedException {
@@ -94,7 +91,7 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
     public void registerAttributes(ManagementResourceRegistration registry) {
         OperationStepHandler writeHandler = new ReloadRequiredWriteAttributeHandler(ATTRIBUTES);
         for (AttributeDefinition attr : ATTRIBUTES) {
-            if (registerRuntimeOnly || !attr.getFlags().contains(STORAGE_RUNTIME)) {
+            if (!attr.getFlags().contains(STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, writeHandler);
             }
         }

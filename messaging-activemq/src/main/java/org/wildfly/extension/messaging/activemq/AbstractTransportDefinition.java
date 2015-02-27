@@ -44,7 +44,6 @@ import org.jboss.as.controller.registry.ManagementResourceRegistration;
  */
 public abstract class AbstractTransportDefinition extends PersistentResourceDefinition {
 
-    private final boolean registerRuntimeOnly;
     private final AttributeDefinition[] attrs;
     protected final boolean isAcceptor;
 
@@ -56,7 +55,7 @@ public abstract class AbstractTransportDefinition extends PersistentResourceDefi
      */
     protected abstract Set<String> getAllowedKeys();
 
-    protected AbstractTransportDefinition(final boolean registerRuntimeOnly, final boolean isAcceptor, final String specificType, AttributeDefinition... attrs) {
+    protected AbstractTransportDefinition(final boolean isAcceptor, final String specificType, AttributeDefinition... attrs) {
         super(PathElement.pathElement(specificType),
                 new StandardResourceDescriptionResolver((isAcceptor ? CommonAttributes.ACCEPTOR : CommonAttributes.CONNECTOR),
                         MessagingExtension.RESOURCE_NAME, MessagingExtension.class.getClassLoader(), true, false) {
@@ -67,7 +66,6 @@ public abstract class AbstractTransportDefinition extends PersistentResourceDefi
                 },
                 new HornetQReloadRequiredHandlers.AddStepHandler(attrs),
                 new HornetQReloadRequiredHandlers.RemoveStepHandler());
-        this.registerRuntimeOnly = registerRuntimeOnly;
         this.isAcceptor = isAcceptor;
         this.attrs = attrs;
     }
@@ -81,19 +79,19 @@ public abstract class AbstractTransportDefinition extends PersistentResourceDefi
     public void registerAttributes(ManagementResourceRegistration registry) {
         OperationStepHandler attributeHandler = new ReloadRequiredWriteAttributeHandler(attrs);
         for (AttributeDefinition attr : attrs) {
-            if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
+            if (!attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, attributeHandler);
             }
         }
 
-        if (isAcceptor && registerRuntimeOnly) {
+        if (isAcceptor) {
             AcceptorControlHandler.INSTANCE.registerAttributes(registry);
         }
     }
 
     @Override
     public void registerOperations(ManagementResourceRegistration registry) {
-        if (isAcceptor && registerRuntimeOnly) {
+        if (isAcceptor) {
             AcceptorControlHandler.INSTANCE.registerOperations(registry, getResourceDescriptionResolver());
         }
 

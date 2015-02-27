@@ -26,21 +26,16 @@ import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.STRING;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGING_SECURITY_DEF;
+import static org.wildfly.extension.messaging.activemq.MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.STATIC_CONNECTORS;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
-
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.AttributeMarshaller;
 import org.jboss.as.controller.AttributeParser;
-import org.jboss.as.controller.DefaultAttributeMarshaller;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
@@ -58,46 +53,11 @@ import org.jboss.dmr.ModelNode;
  */
 public class BridgeDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.BRIDGE);
-
-    private final boolean registerRuntimeOnly;
-
     public static final PrimitiveListAttributeDefinition CONNECTOR_REFS = new StringListAttributeDefinition.Builder(CommonAttributes.STATIC_CONNECTORS)
             .setAllowNull(true)
             .setElementValidator(new StringLengthValidator(1))
-                    //.setXmlName(CONNECTOR_REF_STRING)
-                    //.setAttributeMarshaller(new AttributeMarshallers.WrappedListAttributeMarshaller(null))
-                    // disallow expressions since the attribute references other configuration items
-            .setAttributeParser(new AttributeParser() {
-                @Override
-                public void parseAndSetParameter(AttributeDefinition attribute, String value, ModelNode operation, XMLStreamReader reader) throws XMLStreamException {
-                    if (value == null) {
-                        return;
-                    }
-                    for (String element : value.split(",")) {
-                        ModelNode paramVal = parse(attribute, element, reader);
-                        operation.get(attribute.getName()).add(paramVal);
-                    }
-                }
-            })
-            .setAttributeMarshaller(new DefaultAttributeMarshaller() {
-                @Override
-                public void marshallAsAttribute(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
-
-                    StringBuilder builder = new StringBuilder();
-                    if (resourceModel.hasDefined(attribute.getName())) {
-                        for (ModelNode p : resourceModel.get(attribute.getName()).asList()) {
-                            builder.append(p.asString()).append(", ");
-                        }
-                    }
-                    if (builder.length() > 3) {
-                        builder.setLength(builder.length() - 2);
-                    }
-                    if (builder.length() > 0) {
-                        writer.writeAttribute(attribute.getXmlName(), builder.toString());
-                    }
-                }
-            })
+            .setAttributeParser(AttributeParser.STRING_LIST)
+            .setAttributeMarshaller(AttributeMarshaller.STRING_LIST)
             .setAllowExpression(false)
             .setRestartAllServices()
             .build();
@@ -126,7 +86,7 @@ public class BridgeDefinition extends PersistentResourceDefinition {
             .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.getDefaultClusterPassword()))
             .setRestartAllServices()
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
-            .addAccessConstraint(MESSAGING_SECURITY_DEF)
+            .addAccessConstraint(MESSAGING_SECURITY_SENSITIVE_TARGET)
             .build();
 
     public static final SimpleAttributeDefinition USER = create("user", STRING)
@@ -135,7 +95,7 @@ public class BridgeDefinition extends PersistentResourceDefinition {
             .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.getDefaultClusterUser()))
             .setRestartAllServices()
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
-            .addAccessConstraint(MESSAGING_SECURITY_DEF)
+            .addAccessConstraint(MESSAGING_SECURITY_SENSITIVE_TARGET)
             .build();
 
     public static final SimpleAttributeDefinition USE_DUPLICATE_DETECTION = create("use-duplicate-detection", BOOLEAN)
@@ -179,14 +139,13 @@ public class BridgeDefinition extends PersistentResourceDefinition {
     };
 
 
-    static final BridgeDefinition INSTANCE = new BridgeDefinition(false);
+    static final BridgeDefinition INSTANCE = new BridgeDefinition();
 
-    public BridgeDefinition(final boolean registerRuntimeOnly) {
-        super(PATH,
+    private BridgeDefinition() {
+        super(MessagingExtension.BRIDGE_PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.BRIDGE),
                 BridgeAdd.INSTANCE,
                 BridgeRemove.INSTANCE);
-        this.registerRuntimeOnly = registerRuntimeOnly;
     }
 
     @Override
@@ -197,22 +156,17 @@ public class BridgeDefinition extends PersistentResourceDefinition {
     @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
         for (AttributeDefinition attr : ATTRIBUTES) {
-            if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
+            if (!attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, BridgeWriteAttributeHandler.INSTANCE);
             }
         }
 
-        if (registerRuntimeOnly) {
-            BridgeControlHandler.INSTANCE.registerAttributes(registry);
-        }
+        BridgeControlHandler.INSTANCE.registerAttributes(registry);
     }
 
     @Override
     public void registerOperations(ManagementResourceRegistration registry) {
-        if (registerRuntimeOnly) {
-            BridgeControlHandler.INSTANCE.registerOperations(registry, getResourceDescriptionResolver());
-        }
-
         super.registerOperations(registry);
+        BridgeControlHandler.INSTANCE.registerOperations(registry, getResourceDescriptionResolver());
     }
 }
