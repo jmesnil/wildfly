@@ -46,7 +46,6 @@ import org.jboss.as.controller.AttributeParser;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
@@ -67,8 +66,6 @@ import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
 public class BroadcastGroupDefinition extends PersistentResourceDefinition {
-
-    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.BROADCAST_GROUP);
 
     public static final PrimitiveListAttributeDefinition CONNECTOR_REFS = new StringListAttributeDefinition.Builder(CONNECTORS)
             .setAllowNull(true)
@@ -93,16 +90,13 @@ public class BroadcastGroupDefinition extends PersistentResourceDefinition {
 
     public static final String GET_CONNECTOR_PAIRS_AS_JSON = "get-connector-pairs-as-json";
 
-    private final boolean registerRuntimeOnly;
+    static final BroadcastGroupDefinition INSTANCE = new BroadcastGroupDefinition();
 
-    static final BroadcastGroupDefinition INSTANCE = new BroadcastGroupDefinition(false);
-
-    public BroadcastGroupDefinition(boolean registerRuntimeOnly) {
-        super(PATH,
+    private BroadcastGroupDefinition() {
+        super(MessagingExtension.BROADCAST_GROUP_PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.BROADCAST_GROUP),
                 BroadcastGroupAdd.INSTANCE,
                 BroadcastGroupRemove.INSTANCE);
-        this.registerRuntimeOnly = registerRuntimeOnly;
     }
 
     @Override
@@ -113,28 +107,24 @@ public class BroadcastGroupDefinition extends PersistentResourceDefinition {
     @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
         for (AttributeDefinition attr : ATTRIBUTES) {
-            if (registerRuntimeOnly || !attr.getFlags().contains(STORAGE_RUNTIME)) {
+            if (!attr.getFlags().contains(STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, BroadcastGroupWriteAttributeHandler.INSTANCE);
             }
         }
 
-        if (registerRuntimeOnly) {
-            BroadcastGroupControlHandler.INSTANCE.registerAttributes(registry);
-        }
+        BroadcastGroupControlHandler.INSTANCE.registerAttributes(registry);
     }
 
     @Override
     public void registerOperations(ManagementResourceRegistration registry) {
-        if (registerRuntimeOnly) {
-            BroadcastGroupControlHandler.INSTANCE.registerOperations(registry, getResourceDescriptionResolver());
+        super.registerOperations(registry);
+        BroadcastGroupControlHandler.INSTANCE.registerOperations(registry, getResourceDescriptionResolver());
 
-            SimpleOperationDefinition op = new SimpleOperationDefinitionBuilder(GET_CONNECTOR_PAIRS_AS_JSON, getResourceDescriptionResolver())
+        SimpleOperationDefinition op = new SimpleOperationDefinitionBuilder(GET_CONNECTOR_PAIRS_AS_JSON, getResourceDescriptionResolver())
                 .withFlags(EnumSet.of(OperationEntry.Flag.READ_ONLY, OperationEntry.Flag.RUNTIME_ONLY))
                 .setReplyType(STRING)
                 .build();
-            registry.registerOperationHandler(op, BroadcastGroupControlHandler.INSTANCE);
-        }
-        super.registerOperations(registry);
+        registry.registerOperationHandler(op, BroadcastGroupControlHandler.INSTANCE);
     }
 
     static void validateConnectors(OperationContext context, ModelNode operation, ModelNode connectorRefs) throws OperationFailedException {

@@ -22,18 +22,17 @@
 
 package org.wildfly.extension.messaging.activemq;
 
+import static org.wildfly.extension.messaging.activemq.MessagingExtension.SECURITY_SETTING_ACCESS_CONSTRAINT;
+import static org.wildfly.extension.messaging.activemq.MessagingExtension.SECURITY_SETTING_PATH;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
-import org.jboss.as.controller.access.constraint.ApplicationTypeConfig;
 import org.jboss.as.controller.access.management.AccessConstraintDefinition;
-import org.jboss.as.controller.access.management.ApplicationTypeAccessConstraintDefinition;
-import org.jboss.as.controller.registry.ManagementResourceRegistration;
 
 /**
  * Security setting resource definition
@@ -42,20 +41,17 @@ import org.jboss.as.controller.registry.ManagementResourceRegistration;
  */
 public class SecuritySettingDefinition extends PersistentResourceDefinition {
 
-    private final boolean registerRuntimeOnly;
-    private final List<AccessConstraintDefinition> accessConstraints;
+    private static final PersistentResourceDefinition[] CHILDREN = {
+            SecurityRoleDefinition.INSTANCE
+    };
 
-    static final SecuritySettingDefinition INSTANCE = new SecuritySettingDefinition(false);
+    static final SecuritySettingDefinition INSTANCE = new SecuritySettingDefinition();
 
-    public SecuritySettingDefinition(final boolean registerRuntimeOnly) {
-        super(PathElement.pathElement(CommonAttributes.SECURITY_SETTING),
-                MessagingExtension.getResourceDescriptionResolver(false, CommonAttributes.SECURITY_SETTING),
+    private SecuritySettingDefinition() {
+        super(SECURITY_SETTING_PATH,
+                MessagingExtension.getResourceDescriptionResolver(false, SECURITY_SETTING_PATH.getKey()),
                 SecuritySettingAdd.INSTANCE,
                 SecuritySettingRemove.INSTANCE);
-        this.registerRuntimeOnly = registerRuntimeOnly;
-        ApplicationTypeConfig atc = new ApplicationTypeConfig(MessagingExtension.SUBSYSTEM_NAME, CommonAttributes.SECURITY_SETTING);
-        AccessConstraintDefinition acd = new ApplicationTypeAccessConstraintDefinition(atc);
-        this.accessConstraints = Arrays.asList(CommonAttributes.MESSAGING_SECURITY_DEF, acd);
     }
 
     @Override
@@ -64,14 +60,12 @@ public class SecuritySettingDefinition extends PersistentResourceDefinition {
     }
 
     @Override
-    public void registerChildren(ManagementResourceRegistration registry) {
-        super.registerChildren(registry);
-
-        registry.registerSubModel(SecurityRoleDefinition.newSecurityRoleDefinition(registerRuntimeOnly));
+    protected List<? extends PersistentResourceDefinition> getChildren() {
+        return Arrays.asList(CHILDREN);
     }
 
     @Override
     public List<AccessConstraintDefinition> getAccessConstraints() {
-        return accessConstraints;
+        return Arrays.asList(SECURITY_SETTING_ACCESS_CONSTRAINT);
     }
 }

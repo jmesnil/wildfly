@@ -30,7 +30,7 @@ import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGING_SECURITY_DEF;
+import static org.wildfly.extension.messaging.activemq.MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET;
 import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttribute.create;
 
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
@@ -350,7 +350,7 @@ public interface ConnectionFactoryAttributes {
                 .setAllowExpression(true)
                 .setRestartAllServices()
                 .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
-                .addAccessConstraint(MESSAGING_SECURITY_DEF)
+                .addAccessConstraint(MESSAGING_SECURITY_SENSITIVE_TARGET)
                 .build();
 
         /**
@@ -410,7 +410,7 @@ public interface ConnectionFactoryAttributes {
                 .setAllowNull(true)
                 .setAllowExpression(true)
                 .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
-                .addAccessConstraint(MESSAGING_SECURITY_DEF)
+                .addAccessConstraint(MESSAGING_SECURITY_SENSITIVE_TARGET)
                 .build();
 
         /**

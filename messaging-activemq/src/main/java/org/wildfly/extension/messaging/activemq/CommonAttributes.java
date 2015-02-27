@@ -41,7 +41,6 @@ import org.jboss.as.controller.AttributeParser;
 import org.jboss.as.controller.PropertiesAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.StringListAttributeDefinition;
-import org.jboss.as.controller.access.constraint.SensitivityClassification;
 import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.dmr.ModelNode;
@@ -56,16 +55,6 @@ public interface CommonAttributes {
 
     String DISCOVERY_GROUP_NAME = "discovery-group-name";
     String ENTRIES = "entries";
-
-    SensitivityClassification MESSAGING_MANAGEMENT =
-            new SensitivityClassification(MessagingExtension.SUBSYSTEM_NAME, "messaging-management", false, false, true);
-
-    SensitiveTargetAccessConstraintDefinition MESSAGING_MANAGEMENT_DEF = new SensitiveTargetAccessConstraintDefinition(MESSAGING_MANAGEMENT);
-
-    SensitivityClassification MESSAGING_SECURITY =
-            new SensitivityClassification(MessagingExtension.SUBSYSTEM_NAME, "messaging-security", false, false, true);
-
-    SensitiveTargetAccessConstraintDefinition MESSAGING_SECURITY_DEF = new SensitiveTargetAccessConstraintDefinition(MESSAGING_SECURITY);
 
     AttributeDefinition CALL_TIMEOUT = create("call-timeout", LONG)
             .setDefaultValue(new ModelNode(ActiveMQClient.DEFAULT_CALL_TIMEOUT))
@@ -344,6 +333,7 @@ public interface CommonAttributes {
     String IN_VM_CONNECTOR = "in-vm-connector";
     String JMS_BRIDGE = "jms-bridge";
     String JMS_CONNECTION_FACTORIES = "jms-connection-factories";
+    String JMS_DESTINATION = "jms-destination";
     String JMS_DESTINATIONS = "jms-destinations";
     String JMS_QUEUE = "jms-queue";
     String JMS_TOPIC = "jms-topic";

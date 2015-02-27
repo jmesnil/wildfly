@@ -28,16 +28,12 @@ import static org.jboss.dmr.ModelType.STRING;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.activemq.core.security.Role;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.ObjectTypeAttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.OperationStepHandler;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
@@ -78,7 +74,7 @@ public class SecurityRoleDefinition extends PersistentResourceDefinition {
             .setDefaultValue(new ModelNode(false))
             .setAllowNull(true)
             .setFlags(RESTART_NONE)
-            .addAccessConstraint(CommonAttributes.MESSAGING_MANAGEMENT_DEF)
+            .addAccessConstraint(MessagingExtension.MESSAGING_MANAGEMENT_SENSITIVE_TARGET)
             .build();
 
     static final SimpleAttributeDefinition[] ATTRIBUTES = {
@@ -94,21 +90,11 @@ public class SecurityRoleDefinition extends PersistentResourceDefinition {
     static final SimpleAttributeDefinition NAME = SimpleAttributeDefinitionBuilder.create("name", STRING)
             .build();
 
-    static final Map<String, AttributeDefinition> ROLE_ATTRIBUTES_BY_XML_NAME;
-    private final boolean registerRuntimeOnly;
-    private final boolean readOnly;
+    private final boolean runtimeOnly;
 
-    static final SecurityRoleDefinition INSTANCE = newSecurityRoleDefinition(false);
-    static {
-        Map<String, AttributeDefinition> robxn = new HashMap<String, AttributeDefinition>();
-        for (AttributeDefinition attr : SecurityRoleDefinition.ATTRIBUTES) {
-            robxn.put(attr.getXmlName(), attr);
-        }
-        // Legacy xml names
-        robxn.put("createTempQueue", SecurityRoleDefinition.CREATE_NON_DURABLE_QUEUE);
-        robxn.put("deleteTempQueue", SecurityRoleDefinition.DELETE_NON_DURABLE_QUEUE);
-        ROLE_ATTRIBUTES_BY_XML_NAME = Collections.unmodifiableMap(robxn);
-    }
+    static final SecurityRoleDefinition RUNTIME_INSTANCE = new SecurityRoleDefinition(true);
+
+    static final SecurityRoleDefinition INSTANCE = new SecurityRoleDefinition(false);
 
     static Role transform(final OperationContext context, final String name, final ModelNode node) throws OperationFailedException {
         final boolean send = SEND.resolveModelAttribute(context, node).asBoolean();
@@ -121,21 +107,12 @@ public class SecurityRoleDefinition extends PersistentResourceDefinition {
         return new Role(name, send, consume, createDurableQueue, deleteDurableQueue, createNonDurableQueue, deleteNonDurableQueue, manage);
     }
 
-    public static SecurityRoleDefinition newReadOnlySecurityRoleDefinition() {
-        return new SecurityRoleDefinition(true, true, null, null);
-    }
-
-    public static SecurityRoleDefinition newSecurityRoleDefinition(final boolean registerRuntimeOnly) {
-        return new SecurityRoleDefinition(registerRuntimeOnly, false, SecurityRoleAdd.INSTANCE, SecurityRoleRemove.INSTANCE);
-    }
-
-    private SecurityRoleDefinition(final boolean registerRuntimeOnly, final boolean readOnly, final OperationStepHandler addHandler, final OperationStepHandler removeHandler) {
-        super(PathElement.pathElement(CommonAttributes.ROLE),
+    private SecurityRoleDefinition(final boolean runtimeOnly) {
+        super(MessagingExtension.ROLE_PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.SECURITY_ROLE),
-                addHandler,
-                removeHandler);
-        this.registerRuntimeOnly = registerRuntimeOnly;
-        this.readOnly = readOnly;
+                runtimeOnly ? null : SecurityRoleAdd.INSTANCE,
+                runtimeOnly ? null : SecurityRoleRemove.INSTANCE);
+        this.runtimeOnly = runtimeOnly;
     }
 
     @Override
@@ -147,7 +124,7 @@ public class SecurityRoleDefinition extends PersistentResourceDefinition {
     public void registerAttributes(ManagementResourceRegistration registry) {
         super.registerAttributes(registry);
 
-        if (readOnly) {
+        if (runtimeOnly) {
             for (SimpleAttributeDefinition attr : ATTRIBUTES) {
                 AttributeDefinition readOnlyAttr = SimpleAttributeDefinitionBuilder.create(attr)
                         .setStorageRuntime()
@@ -156,7 +133,7 @@ public class SecurityRoleDefinition extends PersistentResourceDefinition {
             }
         } else {
             for (AttributeDefinition attr : ATTRIBUTES) {
-                if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
+                if (!attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                     registry.registerReadWriteAttribute(attr, null, SecurityRoleAttributeHandler.INSTANCE);
                 }
             }

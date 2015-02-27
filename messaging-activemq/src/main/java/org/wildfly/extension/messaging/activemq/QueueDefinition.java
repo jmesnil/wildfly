@@ -24,14 +24,13 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.dmr.ModelType.LONG;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.QUEUE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.RUNTIME_QUEUE;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationStepHandler;
@@ -39,9 +38,7 @@ import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.access.constraint.ApplicationTypeConfig;
 import org.jboss.as.controller.access.management.AccessConstraintDefinition;
-import org.jboss.as.controller.access.management.ApplicationTypeAccessConstraintDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -56,8 +53,6 @@ import org.jboss.dmr.ModelType;
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
 public class QueueDefinition extends PersistentResourceDefinition {
-
-    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.QUEUE);
 
     public static final SimpleAttributeDefinition ADDRESS = create("queue-address", ModelType.STRING)
             .setXmlName(CommonAttributes.ADDRESS)
@@ -83,39 +78,21 @@ public class QueueDefinition extends PersistentResourceDefinition {
 
     static final AttributeDefinition[] METRICS = { CommonAttributes.MESSAGE_COUNT, CommonAttributes.DELIVERING_COUNT, CommonAttributes.MESSAGES_ADDED,
             CommonAttributes.SCHEDULED_COUNT, CommonAttributes.CONSUMER_COUNT
-            };
+    };
 
-    static final QueueDefinition INSTANCE = newQueueDefinition(false);
+    static final QueueDefinition INSTANCE = new QueueDefinition(false, MessagingExtension.QUEUE_PATH);
 
-    public static QueueDefinition newRuntimeQueueDefinition(final boolean registerRuntimeOnly) {
-        return new QueueDefinition(registerRuntimeOnly, true, RUNTIME_QUEUE, null, null);
-    }
+    static final QueueDefinition RUNTIME_INSTANCE = new QueueDefinition(true,  MessagingExtension.RUNTIME_QUEUE_PATH);
 
-    public static QueueDefinition newQueueDefinition(final boolean registerRuntimeOnly) {
-        return new QueueDefinition(registerRuntimeOnly, false, QUEUE, QueueAdd.INSTANCE, QueueRemove.INSTANCE);
-    }
-
-    private final boolean registerRuntimeOnly;
     private final boolean runtimeOnly;
 
-    private final List<AccessConstraintDefinition> accessConstraints;
-
-    private QueueDefinition(final boolean registerRuntimeOnly, final boolean runtimeOnly,
-            final String path,
-            final AbstractAddStepHandler addHandler,
-            final OperationStepHandler removeHandler) {
-        super(PathElement.pathElement(path),
+    private QueueDefinition(final boolean runtimeOnly,
+                            final PathElement path) {
+        super(path,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.QUEUE),
-                addHandler,
-                removeHandler);
-        this.registerRuntimeOnly = registerRuntimeOnly;
+                runtimeOnly ? null : QueueAdd.INSTANCE,
+                runtimeOnly ? null : QueueRemove.INSTANCE);
         this.runtimeOnly = runtimeOnly;
-        if (!runtimeOnly) {
-            ApplicationTypeConfig atc = new ApplicationTypeConfig(MessagingExtension.SUBSYSTEM_NAME, path);
-            accessConstraints = new ApplicationTypeAccessConstraintDefinition(atc).wrapAsList();
-        } else {
-            accessConstraints = Collections.emptyList();
-        }
     }
 
     @Override
@@ -123,7 +100,7 @@ public class QueueDefinition extends PersistentResourceDefinition {
         super.registerAttributes(registry);
 
         for (SimpleAttributeDefinition attr : ATTRIBUTES) {
-            if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
+            if (!attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 if (runtimeOnly) {
                     AttributeDefinition readOnlyRuntimeAttr = create(attr)
                             .setStorageRuntime()
@@ -135,14 +112,12 @@ public class QueueDefinition extends PersistentResourceDefinition {
             }
         }
 
-        if (registerRuntimeOnly) {
-            for (AttributeDefinition attr : READONLY_ATTRIBUTES) {
-                registry.registerReadOnlyAttribute(attr, QueueReadAttributeHandler.INSTANCE);
-            }
+        for (AttributeDefinition attr : READONLY_ATTRIBUTES) {
+            registry.registerReadOnlyAttribute(attr, QueueReadAttributeHandler.INSTANCE);
+        }
 
-            for (AttributeDefinition metric : METRICS) {
-                registry.registerMetric(metric, QueueReadAttributeHandler.INSTANCE);
-            }
+        for (AttributeDefinition metric : METRICS) {
+            registry.registerMetric(metric, QueueReadAttributeHandler.INSTANCE);
         }
     }
 
@@ -155,14 +130,16 @@ public class QueueDefinition extends PersistentResourceDefinition {
     public void registerOperations(ManagementResourceRegistration registry) {
         super.registerOperations(registry);
 
-        if (registerRuntimeOnly) {
-            QueueControlHandler.INSTANCE.registerOperations(registry, getResourceDescriptionResolver());
-        }
+        QueueControlHandler.INSTANCE.registerOperations(registry, getResourceDescriptionResolver());
     }
 
     @Override
     public List<AccessConstraintDefinition> getAccessConstraints() {
-        return accessConstraints;
+        if (runtimeOnly) {
+            return Collections.emptyList();
+        } else {
+            return Arrays.asList(MessagingExtension.QUEUE_ACCESS_CONSTRAINT);
+        }
     }
 
     /**

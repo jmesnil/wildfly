@@ -35,7 +35,6 @@ import java.util.Collection;
 import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.operations.validation.EnumValidator;
@@ -50,10 +49,6 @@ import org.jboss.dmr.ModelType;
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
 public class AddressSettingDefinition extends PersistentResourceDefinition {
-
-    private final boolean registerRuntimeOnly;
-
-    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.ADDRESS_SETTING);
 
     public static final SimpleAttributeDefinition ADDRESS_FULL_MESSAGE_POLICY = create("address-full-policy", ModelType.STRING)
             .setDefaultValue(new ModelNode(AddressSettings.DEFAULT_ADDRESS_FULL_MESSAGE_POLICY.toString()))
@@ -164,21 +159,20 @@ public class AddressSettingDefinition extends PersistentResourceDefinition {
         SEND_TO_DLA_ON_NO_ROUTE
     };
 
-    static final AddressSettingDefinition INSTANCE = new AddressSettingDefinition(false);
+    static final AddressSettingDefinition INSTANCE = new AddressSettingDefinition();
 
-    public AddressSettingDefinition(final boolean registerRuntimeOnly) {
-        super(PATH,
+    private AddressSettingDefinition() {
+        super(MessagingExtension.ADDRESS_SETTING_PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.ADDRESS_SETTING),
                 AddressSettingAdd.INSTANCE,
                 AddressSettingRemove.INSTANCE);
-        this.registerRuntimeOnly = registerRuntimeOnly;
     }
 
 
     @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
         for (AttributeDefinition attr : ATTRIBUTES) {
-            if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
+            if (!attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, AddressSettingsWriteHandler.INSTANCE);
             }
         }

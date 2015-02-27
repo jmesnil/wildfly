@@ -115,7 +115,7 @@ public class CoreAddressDefinition extends SimpleResourceDefinition {
     public void registerChildren(ManagementResourceRegistration registry) {
         super.registerChildren(registry);
 
-        ManagementResourceRegistration securityRole = registry.registerSubModel(SecurityRoleDefinition.newReadOnlySecurityRoleDefinition());
+        ManagementResourceRegistration securityRole = registry.registerSubModel(SecurityRoleDefinition.RUNTIME_INSTANCE);
         securityRole.setRuntimeOnly(true);
     }
 }

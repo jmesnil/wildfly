@@ -60,7 +60,7 @@ public class HTTPConnectorDefinition extends AbstractTransportDefinition {
     static final HTTPConnectorDefinition INSTANCE = new HTTPConnectorDefinition(false);
 
     public HTTPConnectorDefinition(final boolean registerRuntimeOnly) {
-        super(registerRuntimeOnly, false, CommonAttributes.HTTP_CONNECTOR, SOCKET_BINDING, PARAMS);
+        super(false, CommonAttributes.HTTP_CONNECTOR, SOCKET_BINDING, PARAMS);
     }
 
     @Override

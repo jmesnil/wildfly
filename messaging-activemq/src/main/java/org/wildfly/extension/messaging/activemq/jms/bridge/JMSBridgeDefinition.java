@@ -28,7 +28,7 @@ import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGING_SECURITY_DEF;
+import static org.wildfly.extension.messaging.activemq.MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +36,6 @@ import java.util.Collection;
 
 import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PropertiesAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
@@ -56,13 +55,7 @@ import org.wildfly.extension.messaging.activemq.MessagingExtension;
  */
 public class JMSBridgeDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.JMS_BRIDGE);
-
     public static final JMSBridgeDefinition INSTANCE = new JMSBridgeDefinition();
-
-    public static final String SOURCE = "source";
-    public static final String TARGET = "target";
-    public static final String CONTEXT = "context";
 
     public static final String PAUSE = "pause";
     public static final String RESUME = "resume";
@@ -81,13 +74,13 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
             .setAllowNull(true)
             .setAllowExpression(true)
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
-            .addAccessConstraint(MESSAGING_SECURITY_DEF)
+            .addAccessConstraint(MESSAGING_SECURITY_SENSITIVE_TARGET)
             .build();
     public static final SimpleAttributeDefinition SOURCE_PASSWORD = create("source-password", STRING)
             .setAllowNull(true)
             .setAllowExpression(true)
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
-            .addAccessConstraint(MESSAGING_SECURITY_DEF)
+            .addAccessConstraint(MESSAGING_SECURITY_SENSITIVE_TARGET)
             .build();
 
     public static final PropertiesAttributeDefinition SOURCE_CONTEXT = new PropertiesAttributeDefinition.Builder("source-context-property", true)
@@ -105,14 +98,14 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
             .setAllowNull(true)
             .setAllowExpression(true)
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
-            .addAccessConstraint(MESSAGING_SECURITY_DEF)
+            .addAccessConstraint(MESSAGING_SECURITY_SENSITIVE_TARGET)
             .build();
 
     public static final SimpleAttributeDefinition TARGET_PASSWORD = create("target-password", STRING)
             .setAllowNull(true)
             .setAllowExpression(true)
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
-            .addAccessConstraint(MESSAGING_SECURITY_DEF)
+            .addAccessConstraint(MESSAGING_SECURITY_SENSITIVE_TARGET)
             .build();
 
     public static final PropertiesAttributeDefinition TARGET_CONTEXT = new PropertiesAttributeDefinition.Builder("target-context-property", true)
@@ -190,8 +183,8 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
             PAUSE, RESUME
     };
 
-    public JMSBridgeDefinition() {
-        super(PATH,
+    private JMSBridgeDefinition() {
+        super(MessagingExtension.JMS_BRIDGE_PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.JMS_BRIDGE),
                 JMSBridgeAdd.INSTANCE,
                 JMSBridgeRemove.INSTANCE);
