@@ -29,7 +29,6 @@ import static org.wildfly.extension.messaging.activemq.Namespace.MESSAGING_ACTIV
 import org.jboss.as.controller.Extension;
 import org.jboss.as.controller.ExtensionContext;
 import org.jboss.as.controller.PathElement;
-import org.jboss.as.controller.ResourceDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.SubsystemRegistration;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
@@ -39,6 +38,9 @@ import org.jboss.as.controller.operations.common.GenericSubsystemDescribeHandler
 import org.jboss.as.controller.parsing.ExtensionParsingContext;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.services.path.ResolvePathHandler;
+import org.wildfly.extension.messaging.activemq.jms.JMSQueueDefinition;
+import org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition;
+import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryDefinition;
 import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
 
 /**
@@ -61,6 +63,7 @@ import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
 public class MessagingExtension implements Extension {
 
     public static final String SUBSYSTEM_NAME = "messaging-activemq";
+    public static final PathElement SERVER_PATH = PathElement.pathElement(CommonAttributes.SERVER);
 
     static final PathElement SUBSYSTEM_PATH  = pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
 
@@ -93,6 +96,7 @@ public class MessagingExtension implements Extension {
         subsystem.registerXMLElementWriter(MessagingSubsystemParser_1_1.INSTANCE);
 
         boolean registerRuntimeOnly = context.isRuntimeOnlyRegistrationValid();
+        System.out.println("registerRuntimeOnly = " + registerRuntimeOnly);
 
         // Root resource
         final ManagementResourceRegistration rootRegistration = subsystem.registerSubsystemModel(MessagingSubsystemRootResourceDefinition.INSTANCE);
@@ -116,16 +120,11 @@ public class MessagingExtension implements Extension {
         }
 
         if (registerRuntimeOnly) {
-
-            ResourceDefinition deploymentsDef = new SimpleResourceDefinition(SUBSYSTEM_PATH, getResourceDescriptionResolver("deployed"));
-            final ManagementResourceRegistration deploymentsRegistration = subsystem.registerDeploymentModel(deploymentsDef);
-            final ManagementResourceRegistration serverModel = deploymentsRegistration.registerSubModel(new HornetQServerResourceDefinition(true));
-
-/*
-            serverModel.registerSubModel(JMSQueueDefinition.newDeployedJMSQueueDefinition());
-            serverModel.registerSubModel(JMSTopicDefinition.newDeployedJMSTopicDefinition());
-            serverModel.registerSubModel(new PooledConnectionFactoryDefinition(true, true));
-            */
+            final ManagementResourceRegistration deployment = subsystem.registerDeploymentModel(new SimpleResourceDefinition(SUBSYSTEM_PATH, getResourceDescriptionResolver("deployed")));
+            final ManagementResourceRegistration server = deployment.registerSubModel(new SimpleResourceDefinition(SERVER_PATH, getResourceDescriptionResolver(CommonAttributes.SERVER)));
+            server.registerSubModel(JMSQueueDefinition.DEPLOYMENT_INSTANCE);
+            server.registerSubModel(JMSTopicDefinition.DEPLOYMENT_INSTANCE);
+            server.registerSubModel(PooledConnectionFactoryDefinition.DEPLOYMENT_INSTANCE);
         }
 
         // JMS Bridges

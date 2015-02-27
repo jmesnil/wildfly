@@ -117,6 +117,8 @@ public class PooledConnectionFactoryDefinition extends PersistentResourceDefinit
 
     public static final PooledConnectionFactoryDefinition INSTANCE = new PooledConnectionFactoryDefinition(false, false);
 
+    public static final PooledConnectionFactoryDefinition DEPLOYMENT_INSTANCE = new PooledConnectionFactoryDefinition(false, true);
+
     public PooledConnectionFactoryDefinition(final boolean registerRuntimeOnly, final boolean deployed) {
         super(PATH, MessagingExtension.getResourceDescriptionResolver(CommonAttributes.POOLED_CONNECTION_FACTORY),
                 PooledConnectionFactoryAdd.INSTANCE,

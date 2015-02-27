@@ -113,8 +113,8 @@ public interface ConnectionFactoryAttributes {
                 .setMeasurementUnit(MILLISECONDS)
                 .build();
 
-        AttributeDefinition CONNECTOR = new StringListAttributeDefinition.Builder(CommonAttributes.CONNECTORS)
-                .setAlternatives(CommonAttributes.DISCOVERY_GROUP_NAME)
+        AttributeDefinition CONNECTORS = new StringListAttributeDefinition.Builder(CommonAttributes.CONNECTORS)
+                .setAlternatives(CommonAttributes.DISCOVERY_GROUP)
                 .setAllowNull(true)
                 .setAttributeParser(AttributeParser.STRING_LIST)
                 .setAttributeMarshaller(AttributeMarshaller.STRING_LIST)
@@ -135,9 +135,9 @@ public interface ConnectionFactoryAttributes {
                 .setAllowExpression(true)
                 .build();
 
-        SimpleAttributeDefinition DISCOVERY_GROUP_NAME =  SimpleAttributeDefinitionBuilder.create(CommonAttributes.DISCOVERY_GROUP, STRING)
+        SimpleAttributeDefinition DISCOVERY_GROUP =  SimpleAttributeDefinitionBuilder.create(CommonAttributes.DISCOVERY_GROUP, STRING)
                 .setAllowNull(true)
-                .setAlternatives(CommonAttributes.CONNECTOR)
+                .setAlternatives(CommonAttributes.CONNECTORS)
                 .setRestartAllServices()
                 .build();
 
@@ -249,8 +249,8 @@ public interface ConnectionFactoryAttributes {
          * Attributes are defined in the <em>same order than in the XSD schema</em>
          */
         ConnectionFactoryAttribute[] ATTRIBUTES = {
-                create(DISCOVERY_GROUP_NAME, null, false),
-                create(CONNECTOR, null, false),
+                create(DISCOVERY_GROUP, null, false),
+                create(CONNECTORS, null, false),
                 create(ENTRIES, "entries", true),
                 create(CommonAttributes.HA, "HA", true),
                 create(CLIENT_FAILURE_CHECK_PERIOD, "clientFailureCheckPeriod", true),

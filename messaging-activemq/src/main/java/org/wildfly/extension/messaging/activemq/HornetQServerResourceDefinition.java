@@ -49,7 +49,6 @@ import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.core.server.JournalType;
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
@@ -82,7 +81,6 @@ import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryDefin
  */
 public class HornetQServerResourceDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement HORNETQ_SERVER_PATH = PathElement.pathElement(CommonAttributes.SERVER);
     public static final SimpleAttributeDefinition CLUSTER_PASSWORD = create("cluster-password", ModelType.STRING)
             .setAttributeGroup("cluster")
             .setXmlName("password")
@@ -489,7 +487,7 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
     private final boolean registerRuntimeOnly;
 
     HornetQServerResourceDefinition(boolean registerRuntimeOnly) {
-        super(HORNETQ_SERVER_PATH,
+        super(MessagingExtension.SERVER_PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.SERVER),
                 HornetQServerAdd.INSTANCE,
                 HornetQServerRemove.INSTANCE);
@@ -531,7 +529,6 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
 
         ManagementResourceRegistration runtimeQueue = resourceRegistration.registerSubModel(QueueDefinition.newRuntimeQueueDefinition(true));
         runtimeQueue.setRuntimeOnly(true);
-
         ManagementResourceRegistration coreAddress = resourceRegistration.registerSubModel(CoreAddressDefinition.INSTANCE);
         coreAddress.setRuntimeOnly(true);
     }

@@ -65,16 +65,16 @@ public class ConnectionFactoryManagementTestCase extends ContainerResourceMgmtTe
 
     @Test
     public void testWriteDiscoveryGroupAttributeWhenConnectorIsAlreadyDefined() throws Exception {
-        JMSOperations jmsOperations = JMSOperationsProvider.getInstance(managementClient);
+        JMSOperations jmsOperations = JMSOperationsProvider.getInstance(managementClient.getControllerClient());
 
         ModelNode attributes = new ModelNode();
-        attributes.get(CommonAttributes.CONNECTOR, "in-vm").set(new ModelNode());
+        attributes.get(CommonAttributes.CONNECTORS).add("in-vm");
         jmsOperations.addJmsConnectionFactory(CF_NAME, "java:/jms/" + CF_NAME, attributes);
 
         final ModelNode writeAttribute = new ModelNode();
         writeAttribute.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
         writeAttribute.get(OP_ADDR).set(jmsOperations.getServerAddress().add("connection-factory", CF_NAME));
-        writeAttribute.get(NAME).set(CommonAttributes.DISCOVERY_GROUP_NAME);
+        writeAttribute.get(NAME).set(CommonAttributes.DISCOVERY_GROUP);
         writeAttribute.get(VALUE).set(randomUUID().toString());
 
         try {

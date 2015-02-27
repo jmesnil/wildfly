@@ -61,7 +61,7 @@ public class PooledConnectionFactoryAdd extends AbstractAddStepHandler {
 
     protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
 
-        AlternativeAttributeCheckHandler.checkAlternatives(operation, Common.CONNECTOR.getName(), Common.DISCOVERY_GROUP_NAME.getName(), false);
+        AlternativeAttributeCheckHandler.checkAlternatives(operation, Common.CONNECTORS.getName(), Common.DISCOVERY_GROUP.getName(), false);
 
         for(final AttributeDefinition attribute : getDefinitions(PooledConnectionFactoryDefinition.ATTRIBUTES)) {
             attribute.validateAndSet(operation, model);
@@ -135,8 +135,8 @@ public class PooledConnectionFactoryAdd extends AbstractAddStepHandler {
     }
 
     static String getDiscoveryGroup(final ModelNode model) {
-        if(model.hasDefined(Common.DISCOVERY_GROUP_NAME.getName())) {
-            return model.get(Common.DISCOVERY_GROUP_NAME.getName()).asString();
+        if(model.hasDefined(Common.DISCOVERY_GROUP.getName())) {
+            return model.get(Common.DISCOVERY_GROUP.getName()).asString();
         }
         return null;
     }

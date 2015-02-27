@@ -313,8 +313,8 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                                         builder(ConnectionFactoryDefinition.INSTANCE)
                                                                 .addAttributes(
                                                                         // common
-                                                                        ConnectionFactoryAttributes.Common.DISCOVERY_GROUP_NAME,
-                                                                        ConnectionFactoryAttributes.Common.CONNECTOR,
+                                                                        ConnectionFactoryAttributes.Common.DISCOVERY_GROUP,
+                                                                        ConnectionFactoryAttributes.Common.CONNECTORS,
                                                                         ConnectionFactoryAttributes.Common.ENTRIES,
                                                                         CommonAttributes.HA,
                                                                         ConnectionFactoryAttributes.Common.CLIENT_FAILURE_CHECK_PERIOD,
@@ -353,8 +353,8 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                                         builder(PooledConnectionFactoryDefinition.INSTANCE)
                                                                 .addAttributes(
                                                                         // common
-                                                                        ConnectionFactoryAttributes.Common.DISCOVERY_GROUP_NAME,
-                                                                        ConnectionFactoryAttributes.Common.CONNECTOR,
+                                                                        ConnectionFactoryAttributes.Common.DISCOVERY_GROUP,
+                                                                        ConnectionFactoryAttributes.Common.CONNECTORS,
                                                                         ConnectionFactoryAttributes.Common.ENTRIES,
                                                                         CommonAttributes.HA,
                                                                         ConnectionFactoryAttributes.Common.CLIENT_FAILURE_CHECK_PERIOD,

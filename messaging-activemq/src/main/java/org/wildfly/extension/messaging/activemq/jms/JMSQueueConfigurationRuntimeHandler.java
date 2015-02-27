@@ -43,10 +43,14 @@ public class JMSQueueConfigurationRuntimeHandler extends AbstractJMSRuntimeHandl
 
     @Override
     protected void executeReadAttribute(final String attributeName, final OperationContext context, final ModelNode destination, final PathAddress address, final boolean includeDefault) {
+        System.out.println("JMSQueueConfigurationRuntimeHandler.executeReadAttribute");
+        System.out.println("attributeName = [" + attributeName + "], context = [" + context + "], destination = [" + destination + "], address = [" + address + "], includeDefault = [" + includeDefault + "]");
+
         if (destination.hasDefined(attributeName)) {
+            System.out.println(">>>> value = " + destination.get(attributeName));
             context.getResult().set(destination.get(attributeName));
         } else if(includeDefault) {
-            for (AttributeDefinition attr : JMSQueueDefinition.ATTRIBUTES) {
+            for (AttributeDefinition attr : JMSQueueDefinition.DEPLOYMENT_INSTANCE.getAttributes()) {
                 if(attr.getName().equals(attributeName)) {
                     ModelNode resultNode = context.getResult();
                     ModelNode defaultValue = attr.getDefaultValue();

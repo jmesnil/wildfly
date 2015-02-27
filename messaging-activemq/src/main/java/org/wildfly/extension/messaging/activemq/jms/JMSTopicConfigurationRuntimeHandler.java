@@ -40,6 +40,7 @@ public class JMSTopicConfigurationRuntimeHandler extends AbstractJMSRuntimeHandl
 
     @Override
     protected void executeReadAttribute(final String attributeName, final OperationContext context, final ModelNode destination, final PathAddress address, final boolean includeDefault) {
+        System.out.println("destination = " + destination);
         if (destination.hasDefined(attributeName)) {
             context.getResult().set(destination.get(attributeName));
         }
