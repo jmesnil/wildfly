@@ -203,7 +203,7 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
                             }
                         }
                         tc.getParams().put(HOST, host);
-                        tc.getParams().put(PORT, String.valueOf(port));
+                        tc.getParams().put(PORT, port);
                     }
                 }
             }
@@ -220,7 +220,7 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
                         binding.getSocketBindings().getNamedRegistry().registerBinding(ManagedBinding.Factory.createSimpleManagedBinding(binding));
                         InetSocketAddress socketAddress = binding.getSocketAddress();
                         tc.getParams().put(HOST, socketAddress.getAddress().getHostAddress());
-                        tc.getParams().put(PORT, "" + socketAddress.getPort());
+                        tc.getParams().put(PORT, socketAddress.getPort());
                     }
                 }
             }
@@ -342,8 +342,12 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
      * @return {@code true} if a {@link ServiceController} is installed
      */
     static boolean isServiceInstalled(final OperationContext context) {
+        System.out.println("ActiveMQServerService.isServiceInstalled");
         if (context.isNormalServer()) {
+            System.out.println("context = " + context);
+            System.out.println("context.getCurrentAddress() = " + context.getCurrentAddress());
             final ServiceName serviceName = MessagingServices.getActiveMQServiceName(context.getCurrentAddress());
+            System.out.println("serviceName = " + serviceName);
             final ServiceController<?> controller = context.getServiceRegistry(false).getService(serviceName);
             return controller != null;
         }

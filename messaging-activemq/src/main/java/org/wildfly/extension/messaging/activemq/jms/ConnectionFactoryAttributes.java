@@ -113,7 +113,7 @@ public interface ConnectionFactoryAttributes {
                 .setMeasurementUnit(MILLISECONDS)
                 .build();
 
-        AttributeDefinition CONNECTORS = new StringListAttributeDefinition.Builder(CommonAttributes.CONNECTORS)
+        StringListAttributeDefinition CONNECTORS = new StringListAttributeDefinition.Builder(CommonAttributes.CONNECTORS)
                 .setAlternatives(CommonAttributes.DISCOVERY_GROUP)
                 .setAllowNull(true)
                 .setAttributeParser(AttributeParser.STRING_LIST)

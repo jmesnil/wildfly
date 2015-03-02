@@ -27,10 +27,8 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CALL_FAILOVER_TIMEOUT;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CALL_TIMEOUT;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CLIENT_ID;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTORS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.HA;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.activemq.api.core.client.ActiveMQClient;
@@ -50,8 +48,8 @@ import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceController.Mode;
 import org.jboss.msc.service.ServiceName;
-import org.wildfly.extension.messaging.activemq.AlternativeAttributeCheckHandler;
 import org.wildfly.extension.messaging.activemq.ActiveMQActivationService;
+import org.wildfly.extension.messaging.activemq.AlternativeAttributeCheckHandler;
 import org.wildfly.extension.messaging.activemq.MessagingServices;
 import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Common;
 
@@ -119,13 +117,9 @@ public class ConnectionFactoryAdd extends AbstractAddStepHandler {
         config.setCompressLargeMessages(Common.COMPRESS_LARGE_MESSAGES.resolveModelAttribute(context, model).asBoolean());
         config.setConfirmationWindowSize(Common.CONFIRMATION_WINDOW_SIZE.resolveModelAttribute(context, model).asInt());
         config.setConnectionTTL(Common.CONNECTION_TTL.resolveModelAttribute(context, model).asLong());
-        if (model.hasDefined(CONNECTORS)) {
-            List<String> connectorNames = new ArrayList<String>();
-            for (ModelNode connectorName : model.get(CONNECTORS).asList()) {
-                connectorNames.add(connectorName.asString());
-            }
-            config.setConnectorNames(connectorNames);
-        }
+        List<String> connectorNames = Common.CONNECTORS.unwrap(context, model);
+        System.out.println("connectorNames = " + connectorNames);
+        config.setConnectorNames(connectorNames);
         config.setConsumerMaxRate(Common.CONSUMER_MAX_RATE.resolveModelAttribute(context, model).asInt());
         config.setConsumerWindowSize(Common.CONSUMER_WINDOW_SIZE.resolveModelAttribute(context, model).asInt());
         final ModelNode discoveryGroupName = Common.DISCOVERY_GROUP.resolveModelAttribute(context, model);
