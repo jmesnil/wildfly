@@ -61,7 +61,7 @@ public class SecurityRoleReadAttributeHandler extends AbstractRuntimeOnlyHandler
         String addressName = pathAddress.getElement(pathAddress.size() - 2).getValue();
         String roleName = pathAddress.getLastElement().getValue();
 
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
         ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
         AddressControl control = AddressControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.CORE_ADDRESS + addressName));

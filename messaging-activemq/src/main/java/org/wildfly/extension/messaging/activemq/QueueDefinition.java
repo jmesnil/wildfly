@@ -160,7 +160,7 @@ public class QueueDefinition extends PersistentResourceDefinition {
 
         String queueName = address.getLastElement().getValue();
 
-        PathAddress hornetQPathAddress = MessagingServices.getHornetQServerPathAddress(address);
+        PathAddress hornetQPathAddress = MessagingServices.getActiveMQServerPathAddress(address);
         Resource hornetqServerResource = context.readResourceFromRoot(hornetQPathAddress);
         boolean hasChild = hornetqServerResource.hasChild(address.getLastElement());
         if (hasChild) {

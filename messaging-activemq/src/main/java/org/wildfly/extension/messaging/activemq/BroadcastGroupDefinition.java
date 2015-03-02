@@ -141,7 +141,7 @@ public class BroadcastGroupDefinition extends PersistentResourceDefinition {
 
     private static Set<String> getAvailableConnectors(final OperationContext context,final ModelNode operation) throws OperationFailedException{
         PathAddress address = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR));
-        PathAddress hornetqServer = MessagingServices.getHornetQServerPathAddress(address);
+        PathAddress hornetqServer = MessagingServices.getActiveMQServerPathAddress(address);
         Resource hornetQServerResource = context.readResourceFromRoot(hornetqServer);
         Set<String> availableConnectors = new HashSet<String>();
         availableConnectors.addAll(hornetQServerResource.getChildrenNames(CommonAttributes.HTTP_CONNECTOR));

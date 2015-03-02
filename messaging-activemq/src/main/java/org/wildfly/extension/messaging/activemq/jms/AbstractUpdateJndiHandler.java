@@ -23,7 +23,7 @@
 package org.wildfly.extension.messaging.activemq.jms;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.wildfly.extension.messaging.activemq.HornetQActivationService.rollbackOperationIfServerNotActive;
+import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.rollbackOperationIfServerNotActive;
 import static org.wildfly.extension.messaging.activemq.logging.MessagingLogger.ROOT_LOGGER;
 
 import org.apache.activemq.jms.server.JMSServerManager;
@@ -123,7 +123,7 @@ public abstract class AbstractUpdateJndiHandler implements OperationStepHandler 
                 public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
                     final String resourceName = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR)).getLastElement().getValue();
 
-                    final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+                    final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
                     final ServiceName jmsManagerServiceName = JMSServices.getJmsManagerBaseServiceName(hqServiceName);
 
                     final ServiceController<?> jmsServerService = context.getServiceRegistry(false).getService(jmsManagerServiceName);

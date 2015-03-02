@@ -66,7 +66,7 @@ public class JMSQueueAdd extends AbstractAddStepHandler {
         final PathAddress address = PathAddress.pathAddress(operation.get(OP_ADDR));
         final String name = address.getLastElement().getValue();
         final ServiceTarget serviceTarget = context.getServiceTarget();
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
 
         final ModelNode selectorNode = SELECTOR.resolveModelAttribute(context, model);
         final boolean durable = DURABLE.resolveModelAttribute(context, model).asBoolean();

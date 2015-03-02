@@ -110,14 +110,14 @@ public class PooledConnectionFactoryAdd extends AbstractAddStepHandler {
         String discoveryGroupName = getDiscoveryGroup(resolvedModel);
         String jgroupsChannelName = null;
         if (discoveryGroupName != null) {
-            Resource dgResource = context.readResourceFromRoot(MessagingServices.getHornetQServerPathAddress(address).append(CommonAttributes.DISCOVERY_GROUP, discoveryGroupName));
+            Resource dgResource = context.readResourceFromRoot(MessagingServices.getActiveMQServerPathAddress(address).append(CommonAttributes.DISCOVERY_GROUP, discoveryGroupName));
             ModelNode dgModel = dgResource.getModel();
             jgroupsChannelName = JGROUPS_CHANNEL.resolveModelAttribute(context, dgModel).asString();
         }
 
         List<PooledConnectionFactoryConfigProperties> adapterParams = getAdapterParams(resolvedModel, context);
 
-        final PathAddress hqServiceAddress = MessagingServices.getHornetQServerPathAddress(address);
+        final PathAddress hqServiceAddress = MessagingServices.getActiveMQServerPathAddress(address);
 
         PooledConnectionFactoryService.installService(verificationHandler, newControllers, serviceTarget,
                 name, hqServiceAddress.getLastElement().getValue(), connectors, discoveryGroupName, jgroupsChannelName,

@@ -23,7 +23,6 @@
 package org.wildfly.extension.messaging.activemq.jms;
 
 import static org.jboss.as.controller.OperationContext.Stage.MODEL;
-import static org.wildfly.extension.messaging.activemq.HornetQActivationService.isHornetQServerActive;
 
 import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
@@ -39,6 +38,7 @@ import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
+import org.wildfly.extension.messaging.activemq.ActiveMQActivationService;
 import org.wildfly.extension.messaging.activemq.AlternativeAttributeCheckHandler;
 import org.wildfly.extension.messaging.activemq.CommonAttributes;
 import org.wildfly.extension.messaging.activemq.MessagingServices;
@@ -77,7 +77,7 @@ public class ConnectionFactoryWriteAttributeHandler extends AbstractWriteAttribu
         }
 
         ServiceRegistry registry = context.getServiceRegistry(true);
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = registry.getService(hqServiceName);
         if (hqService == null) {
             // The service isn't installed, so the work done in the Stage.MODEL part is all there is to it
@@ -89,7 +89,7 @@ public class ConnectionFactoryWriteAttributeHandler extends AbstractWriteAttribu
             // No, don't barf; just let the update apply to the model and put the server in a reload-required state
             return true;
         } else {
-            if (!isHornetQServerActive(context, operation)) {
+            if (!ActiveMQActivationService.isActiveMQServerActive(context, operation)) {
                 return false;
             }
             // Actually apply the update
@@ -104,7 +104,7 @@ public class ConnectionFactoryWriteAttributeHandler extends AbstractWriteAttribu
                                          final ModelNode valueToRevert,
                                          final Void handback) throws OperationFailedException {
             ServiceRegistry registry = context.getServiceRegistry(true);
-            final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+            final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
             ServiceController<?> hqService = registry.getService(hqServiceName);
             if (hqService != null && hqService.getState() == ServiceController.State.UP) {
                 applyOperationToHornetQService(context, getName(operation), attributeName, valueToRestore, hqService);

@@ -47,7 +47,7 @@ import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
-import org.wildfly.extension.messaging.activemq.HornetQReloadRequiredHandlers;
+import org.wildfly.extension.messaging.activemq.ActiveMQReloadRequiredHandlers;
 import org.wildfly.extension.messaging.activemq.MessagingExtension;
 
 /**
@@ -80,7 +80,7 @@ public class ReplicationSlaveDefinition extends PersistentResourceDefinition {
 
     @Override
     public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
-        AbstractWriteAttributeHandler writeAttribute = new HornetQReloadRequiredHandlers.WriteAttributeHandler(ATTRIBUTES);
+        AbstractWriteAttributeHandler writeAttribute = new ActiveMQReloadRequiredHandlers.WriteAttributeHandler(ATTRIBUTES);
         for (AttributeDefinition attribute : ATTRIBUTES) {
             resourceRegistration.registerReadWriteAttribute(attribute, null, writeAttribute);
         }

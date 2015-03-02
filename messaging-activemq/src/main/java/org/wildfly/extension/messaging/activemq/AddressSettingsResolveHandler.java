@@ -39,7 +39,7 @@ import static org.wildfly.extension.messaging.activemq.AddressSettingDefinition.
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DEAD_LETTER_ADDRESS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.EXPIRY_ADDRESS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.RESOLVE_ADDRESS_SETTING;
-import static org.wildfly.extension.messaging.activemq.HornetQActivationService.ignoreOperationIfServerNotActive;
+import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.ignoreOperationIfServerNotActive;
 import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.createNonEmptyStringAttribute;
 
 import java.util.EnumSet;
@@ -93,7 +93,7 @@ public class AddressSettingsResolveHandler extends AbstractRuntimeOnlyHandler {
         }
 
         final PathAddress address = PathAddress.pathAddress(operation.get(OP_ADDR));
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(address);
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(address);
 
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
         ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());

@@ -23,7 +23,6 @@
 package org.wildfly.extension.messaging.activemq;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AbstractRemoveStepHandler;
@@ -31,16 +30,15 @@ import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
-import org.jboss.msc.service.ServiceController;
 
 /**
- * Requires a reload only if the hornetq service is up and running.
+ * Requires a reload only if the {@link ActiveMQServerService} service is up and running.
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat, inc
  */
-public interface HornetQReloadRequiredHandlers {
+public interface ActiveMQReloadRequiredHandlers {
     static class AddStepHandler extends AbstractAddStepHandler {
 
         public AddStepHandler(Collection<? extends AttributeDefinition> attributes) {
@@ -52,16 +50,15 @@ public interface HornetQReloadRequiredHandlers {
         }
 
         @Override
-        protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
-            if (ActiveMQServerService.isHornetQServiceInstalled(context, operation)) {
+        protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
+            if (ActiveMQServerService.isServiceInstalled(context)) {
                 context.reloadRequired();
             }
         }
 
         @Override
-        protected void rollbackRuntime(OperationContext context, ModelNode operation, ModelNode model,
-                List<ServiceController<?>> controllers) {
-            if (ActiveMQServerService.isHornetQServiceInstalled(context, operation)) {
+        protected void rollbackRuntime(OperationContext context, ModelNode operation, Resource resource) {
+            if (ActiveMQServerService.isServiceInstalled(context)) {
                 context.revertReloadRequired();
             }
         }
@@ -70,14 +67,14 @@ public interface HornetQReloadRequiredHandlers {
     final class RemoveStepHandler extends AbstractRemoveStepHandler {
         @Override
         protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
-            if (ActiveMQServerService.isHornetQServiceInstalled(context, operation)) {
+            if (ActiveMQServerService.isServiceInstalled(context)) {
                 context.reloadRequired();
             }
         }
 
         @Override
         protected void recoverServices(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
-            if (ActiveMQServerService.isHornetQServiceInstalled(context, operation)) {
+            if (ActiveMQServerService.isServiceInstalled(context)) {
                 context.revertReloadRequired();
             }
         }
@@ -98,13 +95,13 @@ public interface HornetQReloadRequiredHandlers {
                 ModelNode resolvedValue, ModelNode currentValue,
                 org.jboss.as.controller.AbstractWriteAttributeHandler.HandbackHolder<Void> handbackHolder)
                 throws OperationFailedException {
-            return ActiveMQServerService.isHornetQServiceInstalled(context, operation);
+            return ActiveMQServerService.isServiceInstalled(context);
         }
 
         @Override
         protected void revertUpdateToRuntime(OperationContext context, ModelNode operation, String attributeName,
                 ModelNode valueToRestore, ModelNode valueToRevert, Void handback) throws OperationFailedException {
-            if (ActiveMQServerService.isHornetQServiceInstalled(context, operation)) {
+            if (ActiveMQServerService.isServiceInstalled(context)) {
                 context.revertReloadRequired();
             }
         }

@@ -58,8 +58,8 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
     private ConnectorServiceDefinition() {
         super(MessagingExtension.CONNECTOR_SERVICE_PATH,
                 MessagingExtension.getResourceDescriptionResolver(false, CommonAttributes.CONNECTOR_SERVICE),
-                new HornetQReloadRequiredHandlers.AddStepHandler(ATTRIBUTES),
-                new HornetQReloadRequiredHandlers.RemoveStepHandler());
+                new ActiveMQReloadRequiredHandlers.AddStepHandler(ATTRIBUTES),
+                new ActiveMQReloadRequiredHandlers.RemoveStepHandler());
     }
 
     static void addConnectorServiceConfigs(final OperationContext context, final Configuration configuration, final ModelNode model)  throws OperationFailedException {

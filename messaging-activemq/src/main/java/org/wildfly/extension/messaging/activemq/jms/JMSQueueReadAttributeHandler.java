@@ -25,7 +25,7 @@ package org.wildfly.extension.messaging.activemq.jms;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.NAME;
-import static org.wildfly.extension.messaging.activemq.HornetQActivationService.ignoreOperationIfServerNotActive;
+import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.ignoreOperationIfServerNotActive;
 
 import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.api.jms.management.JMSQueueControl;
@@ -127,7 +127,7 @@ public class JMSQueueReadAttributeHandler extends AbstractRuntimeOnlyHandler {
 
     private JMSQueueControl getControl(OperationContext context, ModelNode operation) {
         String queueName = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR)).getLastElement().getValue();
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
 
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
         ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());

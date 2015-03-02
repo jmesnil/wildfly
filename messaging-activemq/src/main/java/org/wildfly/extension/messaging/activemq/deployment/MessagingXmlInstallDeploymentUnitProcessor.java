@@ -67,7 +67,7 @@ public class MessagingXmlInstallDeploymentUnitProcessor implements DeploymentUni
         for (final ParseResult parseResult : parseResults) {
 
             for (final JmsDestination topic : parseResult.getTopics()) {
-                final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(topic.getServer());
+                final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(topic.getServer());
                 String[] jndiBindings = null;
                 if (topic.getDestination().hasDefined(CommonAttributes.DESTINATION_ENTRIES.getName())) {
                     final ModelNode entries = topic.getDestination().resolve().get(CommonAttributes.DESTINATION_ENTRIES.getName());
@@ -88,7 +88,7 @@ public class MessagingXmlInstallDeploymentUnitProcessor implements DeploymentUni
 
             for (final JmsDestination queue : parseResult.getQueues()) {
 
-                final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(queue.getServer());
+                final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(queue.getServer());
                 String[] jndiBindings = null;
                 final ModelNode destination = queue.getDestination();
                 if (destination.hasDefined(CommonAttributes.DESTINATION_ENTRIES.getName())) {

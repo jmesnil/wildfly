@@ -64,7 +64,7 @@ import org.xnio.netty.transport.WrappingXnioSocketChannel;
 public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
 
     public static final ServiceName HTTP_UPGRADE_REGISTRY = ServiceName.JBOSS.append("http-upgrade-registry");
-    public static final ServiceName UPGRADE_SERVICE_NAME = MessagingServices.JBOSS_MESSAGING.append("http-upgrade-service");
+    public static final ServiceName UPGRADE_SERVICE_NAME = MessagingServices.JBOSS_MESSAGING_ACTIVEMQ.append("http-upgrade-service");
 
     private final String hornetQServerName;
     private final String acceptorName;
@@ -87,7 +87,7 @@ public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
         ServiceBuilder<HTTPUpgradeService> builder = serviceTarget.addService(UPGRADE_SERVICE_NAME.append(acceptorName), service)
                 .addDependency(HTTP_UPGRADE_REGISTRY.append(httpListenerName), ChannelUpgradeHandler.class, service.injectedRegistry)
                 .addDependency(HttpListenerRegistryService.SERVICE_NAME, ListenerRegistry.class, service.listenerRegistry)
-                .addDependency(HornetQActivationService.getHornetQActivationServiceName(MessagingServices.getHornetQServiceName(hornetQServerName)));
+                .addDependency(ActiveMQActivationService.getServiceName(MessagingServices.getActiveMQServiceName(hornetQServerName)));
 
         if (verificationHandler != null) {
             builder.addListener(verificationHandler);
@@ -109,7 +109,7 @@ public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
         listenerInfo.addHttpUpgradeMetadata(httpUpgradeMetadata);
 
         MESSAGING_LOGGER.registeredHTTPUpgradeHandler(ACTIVEMQ_REMOTING, acceptorName);
-        ServiceController<?> hornetqService = context.getController().getServiceContainer().getService(MessagingServices.getHornetQServiceName(hornetQServerName));
+        ServiceController<?> hornetqService = context.getController().getServiceContainer().getService(MessagingServices.getActiveMQServiceName(hornetQServerName));
         ActiveMQServer hornetQServer = ActiveMQServer.class.cast(hornetqService.getValue());
 
         injectedRegistry.getValue().addProtocol(ACTIVEMQ_REMOTING,

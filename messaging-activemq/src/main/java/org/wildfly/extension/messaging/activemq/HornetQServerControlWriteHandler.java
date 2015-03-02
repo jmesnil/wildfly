@@ -24,7 +24,6 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.wildfly.extension.messaging.activemq.HornetQActivationService.isHornetQServerActive;
 
 import org.apache.activemq.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.core.server.ActiveMQServer;
@@ -77,7 +76,7 @@ public class HornetQServerControlWriteHandler extends AbstractWriteAttributeHand
         } else {
 
             ServiceRegistry registry = context.getServiceRegistry(true);
-            final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(OP_ADDR)));
+            final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(OP_ADDR)));
             ServiceController<?> hqService = registry.getService(hqServiceName);
             if (hqService == null) {
                 // The service isn't installed, so the work done in the Stage.MODEL part is all there is to it
@@ -89,7 +88,7 @@ public class HornetQServerControlWriteHandler extends AbstractWriteAttributeHand
                 // No, don't barf; just let the update apply to the model and put the server in a reload-required state
                 return true;
             } else {
-                if (!isHornetQServerActive(context, operation)) {
+                if (!ActiveMQActivationService.isActiveMQServerActive(context, operation)) {
                     return false;
                 }
                 applyOperationToHornetQService(context, operation, attributeName, hqService);
@@ -107,7 +106,7 @@ public class HornetQServerControlWriteHandler extends AbstractWriteAttributeHand
         AttributeDefinition attr = getAttributeDefinition(attributeName);
         if (!attr.getFlags().contains(AttributeAccess.Flag.RESTART_ALL_SERVICES)) {
             ServiceRegistry registry = context.getServiceRegistry(true);
-            final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(OP_ADDR)));
+            final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(OP_ADDR)));
             ServiceController<?> hqService = registry.getService(hqServiceName);
             if (hqService != null && hqService.getState() == ServiceController.State.UP) {
                 // Create and execute a write-attribute operation that uses the valueToRestore

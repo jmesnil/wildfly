@@ -64,8 +64,8 @@ public abstract class AbstractTransportDefinition extends PersistentResourceDefi
                         return bundle.getString(specificType);
                     }
                 },
-                new HornetQReloadRequiredHandlers.AddStepHandler(attrs),
-                new HornetQReloadRequiredHandlers.RemoveStepHandler());
+                new ActiveMQReloadRequiredHandlers.AddStepHandler(attrs),
+                new ActiveMQReloadRequiredHandlers.RemoveStepHandler());
         this.isAcceptor = isAcceptor;
         this.attrs = attrs;
     }

@@ -39,7 +39,7 @@ import org.jboss.msc.service.ServiceController;
  *
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */
-public class HTTPAcceptorAdd extends HornetQReloadRequiredHandlers.AddStepHandler {
+public class HTTPAcceptorAdd extends ActiveMQReloadRequiredHandlers.AddStepHandler {
 
     public static final HTTPAcceptorAdd INSTANCE = new HTTPAcceptorAdd();
 

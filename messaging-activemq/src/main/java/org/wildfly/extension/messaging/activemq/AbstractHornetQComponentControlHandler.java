@@ -78,7 +78,7 @@ public abstract class AbstractHornetQComponentControlHandler<T extends ActiveMQC
         final String operationName = operation.require(OP).asString();
 
         if (READ_ATTRIBUTE_OPERATION.equals(operationName)) {
-            if (HornetQActivationService.ignoreOperationIfServerNotActive(context, operation)) {
+            if (ActiveMQActivationService.ignoreOperationIfServerNotActive(context, operation)) {
                 return;
             }
             readAttributeValidator.validate(operation);
@@ -93,7 +93,7 @@ public abstract class AbstractHornetQComponentControlHandler<T extends ActiveMQC
             return;
         }
 
-        if (HornetQActivationService.rollbackOperationIfServerNotActive(context, operation)) {
+        if (ActiveMQActivationService.rollbackOperationIfServerNotActive(context, operation)) {
             return;
         }
 
@@ -273,7 +273,7 @@ public abstract class AbstractHornetQComponentControlHandler<T extends ActiveMQC
      * @throws OperationFailedException
      */
     protected final T getHornetQComponentControl(final OperationContext context, final ModelNode operation, final boolean forWrite) throws OperationFailedException {
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = context.getServiceRegistry(forWrite).getService(hqServiceName);
         ActiveMQServer server = ActiveMQServer.class.cast(hqService.getValue());
         PathAddress address = PathAddress.pathAddress(operation.require(OP_ADDR));

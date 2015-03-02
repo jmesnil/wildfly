@@ -119,7 +119,7 @@ public class JMSDestinationDefinitionInjectionSource extends ResourceDefinitionI
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
         final String uniqueName = uniqueName(context);
         try {
-            ServiceName hqServiceName = MessagingServices.getHornetQServiceName(getHornetQServerName());
+            ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(getHornetQServerName());
 
             if (interfaceName.equals(Queue.class.getName())) {
                 startQueue(uniqueName, phaseContext.getServiceTarget(), hqServiceName, serviceBuilder, deploymentUnit, injector);

@@ -55,7 +55,7 @@ class AddressSettingsValidator {
             String addressSetting = PathAddress.pathAddress(operation.require(OP_ADDR)).getLastElement().getValue();
 
             PathAddress address = pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
-            Resource hornetqServer = context.readResourceFromRoot(MessagingServices.getHornetQServerPathAddress(address), true);
+            Resource hornetqServer = context.readResourceFromRoot(MessagingServices.getActiveMQServerPathAddress(address), true);
 
             checkExpiryAddress(context, operation, hornetqServer, addressSetting);
             checkDeadLetterAddress(context, operation, hornetqServer, addressSetting);
@@ -72,7 +72,7 @@ class AddressSettingsValidator {
         String addressSetting = PathAddress.pathAddress(operation.require(OP_ADDR)).getLastElement().getValue();
         PathAddress address = pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
 
-        Resource hornetqServer = context.readResourceFromRoot(MessagingServices.getHornetQServerPathAddress(address), true);
+        Resource hornetqServer = context.readResourceFromRoot(MessagingServices.getActiveMQServerPathAddress(address), true);
 
         checkExpiryAddress(context, resource.getModel(), hornetqServer, addressSetting);
         checkDeadLetterAddress(context, resource.getModel(), hornetqServer, addressSetting);

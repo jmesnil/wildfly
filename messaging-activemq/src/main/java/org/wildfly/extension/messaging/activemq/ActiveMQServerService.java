@@ -45,17 +45,13 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.jboss.as.controller.OperationContext;
-import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.services.path.AbsolutePathService;
 import org.jboss.as.controller.services.path.PathManager;
 import org.jboss.as.network.ManagedBinding;
 import org.jboss.as.network.NetworkUtils;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.as.network.OutboundSocketBinding;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.as.security.plugins.SecurityDomainContext;
-import org.jboss.dmr.ModelNode;
 import org.jboss.msc.inject.Injector;
 import org.jboss.msc.inject.MapInjector;
 import org.jboss.msc.service.Service;
@@ -67,6 +63,7 @@ import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
 import org.jgroups.JChannel;
 import org.wildfly.clustering.jgroups.spi.ChannelFactory;
+import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
  * Service configuring and starting the {@code HornetQService}.
@@ -339,17 +336,15 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
     /**
      * Returns true if a {@link ServiceController} for this service has been {@link org.jboss.msc.service.ServiceBuilder#install() installed}
      * in MSC under the
-     * {@link MessagingServices#getHornetQServiceName(PathAddress) service name appropriate to the given operation}.
+     * {@link MessagingServices#getActiveMQServiceName(org.jboss.as.controller.PathAddress) service name appropriate to the given operation}.
      *
      * @param context the operation context
-     * @param operation the operation
-     *
      * @return {@code true} if a {@link ServiceController} is installed
      */
-    static boolean isHornetQServiceInstalled(final OperationContext context, final ModelNode operation) {
+    static boolean isServiceInstalled(final OperationContext context) {
         if (context.isNormalServer()) {
-            final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
-            final ServiceController<?> controller = context.getServiceRegistry(false).getService(hqServiceName);
+            final ServiceName serviceName = MessagingServices.getActiveMQServiceName(context.getCurrentAddress());
+            final ServiceController<?> controller = context.getServiceRegistry(false).getService(serviceName);
             return controller != null;
         }
         return false;

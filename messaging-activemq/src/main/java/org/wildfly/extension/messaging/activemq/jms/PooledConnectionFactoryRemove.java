@@ -51,7 +51,7 @@ public class PooledConnectionFactoryRemove extends AbstractRemoveStepHandler {
         final ModelNode operationAddress = operation.require(OP_ADDR);
         final PathAddress address = PathAddress.pathAddress(operationAddress);
         final String name = address.getLastElement().getValue();
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
 
         context.removeService(JMSServices.getPooledConnectionFactoryBaseServiceName(hqServiceName).append(name));
 

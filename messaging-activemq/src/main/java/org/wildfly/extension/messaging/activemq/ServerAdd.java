@@ -227,7 +227,7 @@ class ServerAdd implements OperationStepHandler {
                         configuration, new ActiveMQServerService.PathConfig(bindingsPath, bindingsRelativeToPath, journalPath, journalRelativeToPath, largeMessagePath, largeMessageRelativeToPath, pagingPath, pagingRelativeToPath));
 
                 // Add the HornetQ Service
-                ServiceName hqServiceName = MessagingServices.getHornetQServiceName(serverName);
+                ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(serverName);
                 final ServiceBuilder<ActiveMQServer> serviceBuilder = serviceTarget.addService(hqServiceName, hqService)
                         .addDependency(DependencyType.OPTIONAL, ServiceName.JBOSS.append("mbean", "server"), MBeanServer.class, hqService.getMBeanServer());
 

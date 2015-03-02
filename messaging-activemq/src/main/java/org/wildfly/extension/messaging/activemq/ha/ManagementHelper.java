@@ -36,7 +36,7 @@ import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
-import org.wildfly.extension.messaging.activemq.HornetQReloadRequiredHandlers;
+import org.wildfly.extension.messaging.activemq.ActiveMQReloadRequiredHandlers;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
@@ -52,7 +52,7 @@ public class ManagementHelper {
      * @param attributes the attributes of the ADD operation
      */
     static AbstractAddStepHandler createAddOperation(final String childType, final boolean allowSibling, Collection<? extends AttributeDefinition> attributes) {
-        return new HornetQReloadRequiredHandlers.AddStepHandler(attributes) {
+        return new ActiveMQReloadRequiredHandlers.AddStepHandler(attributes) {
             @Override
             public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
                 super.execute(context, operation);
