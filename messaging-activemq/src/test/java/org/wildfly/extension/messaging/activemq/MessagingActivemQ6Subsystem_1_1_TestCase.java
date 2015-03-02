@@ -61,7 +61,6 @@ public class MessagingActivemQ6Subsystem_1_1_TestCase extends AbstractSubsystemB
     //  Tests for HA Policy Configuration  //
     /////////////////////////////////////////
 
-    @Ignore
     @Test
     public void testHAPolicyConfiguration() throws Exception {
         standardSubsystemTest("subsystem_1_0_ha-policy.xml");

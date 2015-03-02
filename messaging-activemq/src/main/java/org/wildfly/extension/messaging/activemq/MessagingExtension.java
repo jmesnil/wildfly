@@ -28,16 +28,25 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.ADDRESS_
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BRIDGE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BROADCAST_GROUP;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CLUSTER_CONNECTION;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONFIGURATION;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTOR_SERVICE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.GROUPING_HANDLER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.HA_POLICY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_ACCEPTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JMS_QUEUE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JMS_TOPIC;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.LIVE_ONLY;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.MASTER;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.QUEUE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_MASTER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_SLAVE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ROLE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.RUNTIME_QUEUE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_SETTING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SERVER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_MASTER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_SLAVE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SLAVE;
 import static org.wildfly.extension.messaging.activemq.Namespace.MESSAGING_ACTIVEMQ6_1_1;
 
 import org.jboss.as.controller.Extension;
@@ -86,6 +95,13 @@ public class MessagingExtension implements Extension {
 
     static final PathElement SUBSYSTEM_PATH  = pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
     static final PathElement SERVER_PATH = pathElement(SERVER);
+    public static final PathElement LIVE_ONLY_PATH = pathElement(HA_POLICY, LIVE_ONLY);
+    public static final PathElement REPLICATION_MASTER_PATH = pathElement(HA_POLICY, REPLICATION_MASTER);
+    public static final PathElement REPLICATION_SLAVE_PATH = pathElement(HA_POLICY, REPLICATION_SLAVE);
+    public static final PathElement SHARED_STORE_MASTER_PATH = pathElement(HA_POLICY, SHARED_STORE_MASTER);
+    public static final PathElement SHARED_STORE_SLAVE_PATH = pathElement(HA_POLICY, SHARED_STORE_SLAVE);
+    public static final PathElement CONFIGURATION_MASTER_PATH = pathElement(CONFIGURATION, MASTER);
+    public static final PathElement CONFIGURATION_SLAVE_PATH = pathElement(CONFIGURATION, SLAVE);
     static final PathElement CONNECTOR_SERVICE_PATH = pathElement(CONNECTOR_SERVICE);
     static final PathElement QUEUE_PATH = pathElement(QUEUE);
     static final PathElement RUNTIME_QUEUE_PATH = pathElement(RUNTIME_QUEUE);
@@ -95,8 +111,8 @@ public class MessagingExtension implements Extension {
     static final PathElement CLUSTER_CONNECTION_PATH = pathElement(CLUSTER_CONNECTION);
     static final PathElement BRIDGE_PATH = pathElement(BRIDGE);
     static final PathElement ADDRESS_SETTING_PATH = pathElement(ADDRESS_SETTING);
-    static final PathElement ROLE_PATH = PathElement.pathElement(ROLE);
-    static final PathElement SECURITY_SETTING_PATH =  PathElement.pathElement(SECURITY_SETTING);
+    static final PathElement ROLE_PATH = pathElement(ROLE);
+    static final PathElement SECURITY_SETTING_PATH =  pathElement(SECURITY_SETTING);
     public static final PathElement JMS_BRIDGE_PATH = pathElement(CommonAttributes.JMS_BRIDGE);
 
     public static final SensitiveTargetAccessConstraintDefinition MESSAGING_SECURITY_SENSITIVE_TARGET = new SensitiveTargetAccessConstraintDefinition(new SensitivityClassification(SUBSYSTEM_NAME, "messaging-security", false, false, true));

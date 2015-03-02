@@ -23,7 +23,6 @@
 package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.PersistentResourceXMLDescription.builder;
-import static org.wildfly.extension.messaging.activemq.Namespace.CURRENT;
 
 import java.util.List;
 
@@ -38,6 +37,15 @@ import org.jboss.staxmapper.XMLElementReader;
 import org.jboss.staxmapper.XMLElementWriter;
 import org.jboss.staxmapper.XMLExtendedStreamReader;
 import org.jboss.staxmapper.XMLExtendedStreamWriter;
+import org.wildfly.extension.messaging.activemq.ha.HAAttributes;
+import org.wildfly.extension.messaging.activemq.ha.LiveOnlyDefinition;
+import org.wildfly.extension.messaging.activemq.ha.ReplicationColocatedDefinition;
+import org.wildfly.extension.messaging.activemq.ha.ReplicationMasterDefinition;
+import org.wildfly.extension.messaging.activemq.ha.ReplicationSlaveDefinition;
+import org.wildfly.extension.messaging.activemq.ha.ScaleDownAttributes;
+import org.wildfly.extension.messaging.activemq.ha.SharedStoreColocatedDefinition;
+import org.wildfly.extension.messaging.activemq.ha.SharedStoreMasterDefinition;
+import org.wildfly.extension.messaging.activemq.ha.SharedStoreSlaveDefinition;
 import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes;
 import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryDefinition;
 import org.wildfly.extension.messaging.activemq.jms.JMSQueueDefinition;
@@ -46,6 +54,12 @@ import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryDefin
 import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
 
 /**
+ * Parser and Marshaller for {@code "urn:jboss:domain:messaging-activemq:1.1"}.
+ *
+ * <em>All resources and attributes must be listed explicitly and not through any collections.</em>
+ * This ensures that if the resource definitions change in later version (e.g. a new attribute is added),
+ * this will have no impact on parsing this specific version of the subsystem.
+ *
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2015 Red Hat inc.
  */
 public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLElementReader<List<ModelNode>>, XMLElementWriter<SubsystemMarshallingContext> {
@@ -116,6 +130,105 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                         ServerDefinition.SERVER_DUMP_INTERVAL,
                                         ServerDefinition.MEMORY_MEASURE_INTERVAL,
                                         ServerDefinition.MEMORY_WARNING_THRESHOLD)
+                                .addChild(
+                                        builder(LiveOnlyDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        ScaleDownAttributes.SCALE_DOWN,
+                                                        ScaleDownAttributes.SCALE_DOWN_CLUSTER_NAME,
+                                                        ScaleDownAttributes.SCALE_DOWN_GROUP_NAME,
+                                                        ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP,
+                                                        ScaleDownAttributes.SCALE_DOWN_CONNECTORS))
+                                .addChild(
+                                        builder(ReplicationMasterDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        HAAttributes.CLUSTER_NAME,
+                                                        HAAttributes.GROUP_NAME,
+                                                        HAAttributes.CHECK_FOR_LIVE_SERVER))
+                                .addChild(
+                                        builder(ReplicationSlaveDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        HAAttributes.CLUSTER_NAME,
+                                                        HAAttributes.GROUP_NAME,
+                                                        HAAttributes.ALLOW_FAILBACK,
+                                                        HAAttributes.FAILBACK_DELAY,
+                                                        HAAttributes.MAX_SAVED_REPLICATED_JOURNAL_SIZE,
+                                                        HAAttributes.RESTART_BACKUP,
+                                                        ScaleDownAttributes.SCALE_DOWN,
+                                                        ScaleDownAttributes.SCALE_DOWN_CLUSTER_NAME,
+                                                        ScaleDownAttributes.SCALE_DOWN_GROUP_NAME,
+                                                        ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP,
+                                                        ScaleDownAttributes.SCALE_DOWN_CONNECTORS))
+                                .addChild(
+                                        builder(ReplicationColocatedDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        HAAttributes.REQUEST_BACKUP,
+                                                        HAAttributes.BACKUP_REQUEST_RETRIES,
+                                                        HAAttributes.BACKUP_REQUEST_RETRY_INTERVAL,
+                                                        HAAttributes.MAX_BACKUPS,
+                                                        HAAttributes.BACKUP_PORT_OFFSET,
+                                                        HAAttributes.EXCLUDED_CONNECTORS)
+                                                .addChild(
+                                                        builder(ReplicationMasterDefinition.CONFIGURATION_INSTANCE)
+                                                                .addAttributes(
+                                                                        HAAttributes.CLUSTER_NAME,
+                                                                        HAAttributes.GROUP_NAME,
+                                                                        HAAttributes.CHECK_FOR_LIVE_SERVER))
+                                                .addChild(
+                                                        builder(ReplicationSlaveDefinition.CONFIGURATION_INSTANCE)
+                                                                .addAttributes(
+                                                                        HAAttributes.CLUSTER_NAME,
+                                                                        HAAttributes.GROUP_NAME,
+                                                                        HAAttributes.ALLOW_FAILBACK,
+                                                                        HAAttributes.FAILBACK_DELAY,
+                                                                        HAAttributes.MAX_SAVED_REPLICATED_JOURNAL_SIZE,
+                                                                        HAAttributes.RESTART_BACKUP,
+                                                                        ScaleDownAttributes.SCALE_DOWN,
+                                                                        ScaleDownAttributes.SCALE_DOWN_CLUSTER_NAME,
+                                                                        ScaleDownAttributes.SCALE_DOWN_GROUP_NAME,
+                                                                        ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP,
+                                                                        ScaleDownAttributes.SCALE_DOWN_CONNECTORS)))
+                                .addChild(
+                                        builder(SharedStoreMasterDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        HAAttributes.FAILBACK_DELAY,
+                                                        HAAttributes.FAILOVER_ON_SERVER_SHUTDOWN))
+                                .addChild(
+                                        builder(SharedStoreSlaveDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        HAAttributes.ALLOW_FAILBACK,
+                                                        HAAttributes.FAILBACK_DELAY,
+                                                        HAAttributes.FAILOVER_ON_SERVER_SHUTDOWN,
+                                                        HAAttributes.RESTART_BACKUP,
+                                                        ScaleDownAttributes.SCALE_DOWN,
+                                                        ScaleDownAttributes.SCALE_DOWN_CLUSTER_NAME,
+                                                        ScaleDownAttributes.SCALE_DOWN_GROUP_NAME,
+                                                        ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP,
+                                                        ScaleDownAttributes.SCALE_DOWN_CONNECTORS))
+                                .addChild(
+                                        builder(SharedStoreColocatedDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        HAAttributes.REQUEST_BACKUP,
+                                                        HAAttributes.BACKUP_REQUEST_RETRIES,
+                                                        HAAttributes.BACKUP_REQUEST_RETRY_INTERVAL,
+                                                        HAAttributes.MAX_BACKUPS,
+                                                        HAAttributes.BACKUP_PORT_OFFSET)
+                                                .addChild(
+                                                        builder(SharedStoreMasterDefinition.CONFIGURATION_INSTANCE)
+                                                                .addAttributes(
+                                                                        HAAttributes.FAILBACK_DELAY,
+                                                                        HAAttributes.FAILOVER_ON_SERVER_SHUTDOWN))
+                                                .addChild(
+                                                        builder(SharedStoreSlaveDefinition.CONFIGURATION_INSTANCE)
+                                                                .addAttributes(
+                                                                        HAAttributes.ALLOW_FAILBACK,
+                                                                        HAAttributes.FAILBACK_DELAY,
+                                                                        HAAttributes.FAILOVER_ON_SERVER_SHUTDOWN,
+                                                                        HAAttributes.RESTART_BACKUP,
+                                                                        ScaleDownAttributes.SCALE_DOWN,
+                                                                        ScaleDownAttributes.SCALE_DOWN_CLUSTER_NAME,
+                                                                        ScaleDownAttributes.SCALE_DOWN_GROUP_NAME,
+                                                                        ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP,
+                                                                        ScaleDownAttributes.SCALE_DOWN_CONNECTORS)))
                                 .addChild(
                                         builder(PathDefinition.BINDINGS_INSTANCE)
                                                 .addAttributes(
@@ -299,132 +412,132 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                                                 .addAttributes(
                                                         CommonAttributes.FACTORY_CLASS,
                                                         CommonAttributes.PARAMS))
-                                                .addChild(
-                                                        builder(JMSQueueDefinition.INSTANCE)
-                                                                .addAttributes(
-                                                                        CommonAttributes.DESTINATION_ENTRIES,
-                                                                        CommonAttributes.SELECTOR,
-                                                                        CommonAttributes.DURABLE))
-                                                .addChild(
-                                                        builder(JMSTopicDefinition.INSTANCE)
-                                                                .addAttributes(
-                                                                        CommonAttributes.DESTINATION_ENTRIES))
-                                                .addChild(
-                                                        builder(ConnectionFactoryDefinition.INSTANCE)
-                                                                .addAttributes(
-                                                                        // common
-                                                                        ConnectionFactoryAttributes.Common.DISCOVERY_GROUP,
-                                                                        ConnectionFactoryAttributes.Common.CONNECTORS,
-                                                                        ConnectionFactoryAttributes.Common.ENTRIES,
-                                                                        CommonAttributes.HA,
-                                                                        ConnectionFactoryAttributes.Common.CLIENT_FAILURE_CHECK_PERIOD,
-                                                                        ConnectionFactoryAttributes.Common.CONNECTION_TTL,
-                                                                        CommonAttributes.CALL_TIMEOUT,
-                                                                        CommonAttributes.CALL_FAILOVER_TIMEOUT,
-                                                                        ConnectionFactoryAttributes.Common.CONSUMER_WINDOW_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.CONSUMER_MAX_RATE,
-                                                                        ConnectionFactoryAttributes.Common.CONFIRMATION_WINDOW_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.PRODUCER_WINDOW_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.PRODUCER_MAX_RATE,
-                                                                        ConnectionFactoryAttributes.Common.COMPRESS_LARGE_MESSAGES,
-                                                                        ConnectionFactoryAttributes.Common.CACHE_LARGE_MESSAGE_CLIENT,
-                                                                        CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
-                                                                        CommonAttributes.CLIENT_ID,
-                                                                        ConnectionFactoryAttributes.Common.DUPS_OK_BATCH_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.TRANSACTION_BATCH_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_ACKNOWLEDGE,
-                                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_DURABLE_SEND,
-                                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_NON_DURABLE_SEND,
-                                                                        ConnectionFactoryAttributes.Common.AUTO_GROUP,
-                                                                        ConnectionFactoryAttributes.Common.PRE_ACKNOWLEDGE,
-                                                                        ConnectionFactoryAttributes.Common.RETRY_INTERVAL,
-                                                                        ConnectionFactoryAttributes.Common.RETRY_INTERVAL_MULTIPLIER,
-                                                                        CommonAttributes.MAX_RETRY_INTERVAL,
-                                                                        ConnectionFactoryAttributes.Common.RECONNECT_ATTEMPTS,
-                                                                        ConnectionFactoryAttributes.Common.FAILOVER_ON_INITIAL_CONNECTION,
-                                                                        ConnectionFactoryAttributes.Common.CONNECTION_LOAD_BALANCING_CLASS_NAME,
-                                                                        ConnectionFactoryAttributes.Common.USE_GLOBAL_POOLS,
-                                                                        ConnectionFactoryAttributes.Common.SCHEDULED_THREAD_POOL_MAX_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.THREAD_POOL_MAX_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.GROUP_ID,
-                                                                        // regular
-                                                                        ConnectionFactoryAttributes.Regular.FACTORY_TYPE))
-                                                .addChild(
-                                                        builder(PooledConnectionFactoryDefinition.INSTANCE)
-                                                                .addAttributes(
-                                                                        // common
-                                                                        ConnectionFactoryAttributes.Common.DISCOVERY_GROUP,
-                                                                        ConnectionFactoryAttributes.Common.CONNECTORS,
-                                                                        ConnectionFactoryAttributes.Common.ENTRIES,
-                                                                        CommonAttributes.HA,
-                                                                        ConnectionFactoryAttributes.Common.CLIENT_FAILURE_CHECK_PERIOD,
-                                                                        ConnectionFactoryAttributes.Common.CONNECTION_TTL,
-                                                                        CommonAttributes.CALL_TIMEOUT,
-                                                                        CommonAttributes.CALL_FAILOVER_TIMEOUT,
-                                                                        ConnectionFactoryAttributes.Common.CONSUMER_WINDOW_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.CONSUMER_MAX_RATE,
-                                                                        ConnectionFactoryAttributes.Common.CONFIRMATION_WINDOW_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.PRODUCER_WINDOW_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.PRODUCER_MAX_RATE,
-                                                                        ConnectionFactoryAttributes.Common.COMPRESS_LARGE_MESSAGES,
-                                                                        ConnectionFactoryAttributes.Common.CACHE_LARGE_MESSAGE_CLIENT,
-                                                                        CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
-                                                                        CommonAttributes.CLIENT_ID,
-                                                                        ConnectionFactoryAttributes.Common.DUPS_OK_BATCH_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.TRANSACTION_BATCH_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_ACKNOWLEDGE,
-                                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_DURABLE_SEND,
-                                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_NON_DURABLE_SEND,
-                                                                        ConnectionFactoryAttributes.Common.AUTO_GROUP,
-                                                                        ConnectionFactoryAttributes.Common.PRE_ACKNOWLEDGE,
-                                                                        ConnectionFactoryAttributes.Common.RETRY_INTERVAL,
-                                                                        ConnectionFactoryAttributes.Common.RETRY_INTERVAL_MULTIPLIER,
-                                                                        CommonAttributes.MAX_RETRY_INTERVAL,
-                                                                        ConnectionFactoryAttributes.Common.RECONNECT_ATTEMPTS,
-                                                                        ConnectionFactoryAttributes.Common.FAILOVER_ON_INITIAL_CONNECTION,
-                                                                        ConnectionFactoryAttributes.Common.CONNECTION_LOAD_BALANCING_CLASS_NAME,
-                                                                        ConnectionFactoryAttributes.Common.USE_GLOBAL_POOLS,
-                                                                        ConnectionFactoryAttributes.Common.SCHEDULED_THREAD_POOL_MAX_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.THREAD_POOL_MAX_SIZE,
-                                                                        ConnectionFactoryAttributes.Common.GROUP_ID,
-                                                                        // pooled
-                                                                        ConnectionFactoryAttributes.Pooled.USE_JNDI,
-                                                                        ConnectionFactoryAttributes.Pooled.JNDI_PARAMS,
-                                                                        ConnectionFactoryAttributes.Pooled.USE_LOCAL_TX,
-                                                                        ConnectionFactoryAttributes.Pooled.SETUP_ATTEMPTS,
-                                                                        ConnectionFactoryAttributes.Pooled.SETUP_INTERVAL,
-                                                                        ConnectionFactoryAttributes.Pooled.TRANSACTION,
-                                                                        ConnectionFactoryAttributes.Pooled.USER,
-                                                                        ConnectionFactoryAttributes.Pooled.PASSWORD,
-                                                                        ConnectionFactoryAttributes.Pooled.MIN_POOL_SIZE,
-                                                                        ConnectionFactoryAttributes.Pooled.MAX_POOL_SIZE,
-                                                                        ConnectionFactoryAttributes.Pooled.USE_AUTO_RECOVERY,
-                                                                        ConnectionFactoryAttributes.Pooled.INITIAL_MESSAGE_PACKET_SIZE,
-                                                                        ConnectionFactoryAttributes.Pooled.INITIAL_CONNECT_ATTEMPTS)))
                                 .addChild(
-                                        builder(JMSBridgeDefinition.INSTANCE)
+                                        builder(JMSQueueDefinition.INSTANCE)
                                                 .addAttributes(
-                                                        JMSBridgeDefinition.MODULE,
-                                                        JMSBridgeDefinition.QUALITY_OF_SERVICE,
-                                                        JMSBridgeDefinition.FAILURE_RETRY_INTERVAL,
-                                                        JMSBridgeDefinition.MAX_RETRIES,
-                                                        JMSBridgeDefinition.MAX_BATCH_SIZE,
-                                                        JMSBridgeDefinition.MAX_BATCH_TIME,
+                                                        CommonAttributes.DESTINATION_ENTRIES,
                                                         CommonAttributes.SELECTOR,
-                                                        JMSBridgeDefinition.SUBSCRIPTION_NAME,
+                                                        CommonAttributes.DURABLE))
+                                .addChild(
+                                        builder(JMSTopicDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        CommonAttributes.DESTINATION_ENTRIES))
+                                .addChild(
+                                        builder(ConnectionFactoryDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        // common
+                                                        ConnectionFactoryAttributes.Common.DISCOVERY_GROUP,
+                                                        ConnectionFactoryAttributes.Common.CONNECTORS,
+                                                        ConnectionFactoryAttributes.Common.ENTRIES,
+                                                        CommonAttributes.HA,
+                                                        ConnectionFactoryAttributes.Common.CLIENT_FAILURE_CHECK_PERIOD,
+                                                        ConnectionFactoryAttributes.Common.CONNECTION_TTL,
+                                                        CommonAttributes.CALL_TIMEOUT,
+                                                        CommonAttributes.CALL_FAILOVER_TIMEOUT,
+                                                        ConnectionFactoryAttributes.Common.CONSUMER_WINDOW_SIZE,
+                                                        ConnectionFactoryAttributes.Common.CONSUMER_MAX_RATE,
+                                                        ConnectionFactoryAttributes.Common.CONFIRMATION_WINDOW_SIZE,
+                                                        ConnectionFactoryAttributes.Common.PRODUCER_WINDOW_SIZE,
+                                                        ConnectionFactoryAttributes.Common.PRODUCER_MAX_RATE,
+                                                        ConnectionFactoryAttributes.Common.COMPRESS_LARGE_MESSAGES,
+                                                        ConnectionFactoryAttributes.Common.CACHE_LARGE_MESSAGE_CLIENT,
+                                                        CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
                                                         CommonAttributes.CLIENT_ID,
-                                                        JMSBridgeDefinition.ADD_MESSAGE_ID_IN_HEADER,
-                                                        JMSBridgeDefinition.SOURCE_CONNECTION_FACTORY,
-                                                        JMSBridgeDefinition.SOURCE_DESTINATION,
-                                                        JMSBridgeDefinition.SOURCE_USER,
-                                                        JMSBridgeDefinition.SOURCE_PASSWORD,
-                                                        JMSBridgeDefinition.TARGET_CONNECTION_FACTORY,
-                                                        JMSBridgeDefinition.TARGET_DESTINATION,
-                                                        JMSBridgeDefinition.TARGET_USER,
-                                                        JMSBridgeDefinition.TARGET_PASSWORD,
-                                                        JMSBridgeDefinition.SOURCE_CONTEXT,
-                                                        JMSBridgeDefinition.TARGET_CONTEXT))
-                                .build();
+                                                        ConnectionFactoryAttributes.Common.DUPS_OK_BATCH_SIZE,
+                                                        ConnectionFactoryAttributes.Common.TRANSACTION_BATCH_SIZE,
+                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_ACKNOWLEDGE,
+                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_DURABLE_SEND,
+                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_NON_DURABLE_SEND,
+                                                        ConnectionFactoryAttributes.Common.AUTO_GROUP,
+                                                        ConnectionFactoryAttributes.Common.PRE_ACKNOWLEDGE,
+                                                        ConnectionFactoryAttributes.Common.RETRY_INTERVAL,
+                                                        ConnectionFactoryAttributes.Common.RETRY_INTERVAL_MULTIPLIER,
+                                                        CommonAttributes.MAX_RETRY_INTERVAL,
+                                                        ConnectionFactoryAttributes.Common.RECONNECT_ATTEMPTS,
+                                                        ConnectionFactoryAttributes.Common.FAILOVER_ON_INITIAL_CONNECTION,
+                                                        ConnectionFactoryAttributes.Common.CONNECTION_LOAD_BALANCING_CLASS_NAME,
+                                                        ConnectionFactoryAttributes.Common.USE_GLOBAL_POOLS,
+                                                        ConnectionFactoryAttributes.Common.SCHEDULED_THREAD_POOL_MAX_SIZE,
+                                                        ConnectionFactoryAttributes.Common.THREAD_POOL_MAX_SIZE,
+                                                        ConnectionFactoryAttributes.Common.GROUP_ID,
+                                                        // regular
+                                                        ConnectionFactoryAttributes.Regular.FACTORY_TYPE))
+                                .addChild(
+                                        builder(PooledConnectionFactoryDefinition.INSTANCE)
+                                                .addAttributes(
+                                                        // common
+                                                        ConnectionFactoryAttributes.Common.DISCOVERY_GROUP,
+                                                        ConnectionFactoryAttributes.Common.CONNECTORS,
+                                                        ConnectionFactoryAttributes.Common.ENTRIES,
+                                                        CommonAttributes.HA,
+                                                        ConnectionFactoryAttributes.Common.CLIENT_FAILURE_CHECK_PERIOD,
+                                                        ConnectionFactoryAttributes.Common.CONNECTION_TTL,
+                                                        CommonAttributes.CALL_TIMEOUT,
+                                                        CommonAttributes.CALL_FAILOVER_TIMEOUT,
+                                                        ConnectionFactoryAttributes.Common.CONSUMER_WINDOW_SIZE,
+                                                        ConnectionFactoryAttributes.Common.CONSUMER_MAX_RATE,
+                                                        ConnectionFactoryAttributes.Common.CONFIRMATION_WINDOW_SIZE,
+                                                        ConnectionFactoryAttributes.Common.PRODUCER_WINDOW_SIZE,
+                                                        ConnectionFactoryAttributes.Common.PRODUCER_MAX_RATE,
+                                                        ConnectionFactoryAttributes.Common.COMPRESS_LARGE_MESSAGES,
+                                                        ConnectionFactoryAttributes.Common.CACHE_LARGE_MESSAGE_CLIENT,
+                                                        CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
+                                                        CommonAttributes.CLIENT_ID,
+                                                        ConnectionFactoryAttributes.Common.DUPS_OK_BATCH_SIZE,
+                                                        ConnectionFactoryAttributes.Common.TRANSACTION_BATCH_SIZE,
+                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_ACKNOWLEDGE,
+                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_DURABLE_SEND,
+                                                        ConnectionFactoryAttributes.Common.BLOCK_ON_NON_DURABLE_SEND,
+                                                        ConnectionFactoryAttributes.Common.AUTO_GROUP,
+                                                        ConnectionFactoryAttributes.Common.PRE_ACKNOWLEDGE,
+                                                        ConnectionFactoryAttributes.Common.RETRY_INTERVAL,
+                                                        ConnectionFactoryAttributes.Common.RETRY_INTERVAL_MULTIPLIER,
+                                                        CommonAttributes.MAX_RETRY_INTERVAL,
+                                                        ConnectionFactoryAttributes.Common.RECONNECT_ATTEMPTS,
+                                                        ConnectionFactoryAttributes.Common.FAILOVER_ON_INITIAL_CONNECTION,
+                                                        ConnectionFactoryAttributes.Common.CONNECTION_LOAD_BALANCING_CLASS_NAME,
+                                                        ConnectionFactoryAttributes.Common.USE_GLOBAL_POOLS,
+                                                        ConnectionFactoryAttributes.Common.SCHEDULED_THREAD_POOL_MAX_SIZE,
+                                                        ConnectionFactoryAttributes.Common.THREAD_POOL_MAX_SIZE,
+                                                        ConnectionFactoryAttributes.Common.GROUP_ID,
+                                                        // pooled
+                                                        ConnectionFactoryAttributes.Pooled.USE_JNDI,
+                                                        ConnectionFactoryAttributes.Pooled.JNDI_PARAMS,
+                                                        ConnectionFactoryAttributes.Pooled.USE_LOCAL_TX,
+                                                        ConnectionFactoryAttributes.Pooled.SETUP_ATTEMPTS,
+                                                        ConnectionFactoryAttributes.Pooled.SETUP_INTERVAL,
+                                                        ConnectionFactoryAttributes.Pooled.TRANSACTION,
+                                                        ConnectionFactoryAttributes.Pooled.USER,
+                                                        ConnectionFactoryAttributes.Pooled.PASSWORD,
+                                                        ConnectionFactoryAttributes.Pooled.MIN_POOL_SIZE,
+                                                        ConnectionFactoryAttributes.Pooled.MAX_POOL_SIZE,
+                                                        ConnectionFactoryAttributes.Pooled.USE_AUTO_RECOVERY,
+                                                        ConnectionFactoryAttributes.Pooled.INITIAL_MESSAGE_PACKET_SIZE,
+                                                        ConnectionFactoryAttributes.Pooled.INITIAL_CONNECT_ATTEMPTS)))
+                .addChild(
+                        builder(JMSBridgeDefinition.INSTANCE)
+                                .addAttributes(
+                                        JMSBridgeDefinition.MODULE,
+                                        JMSBridgeDefinition.QUALITY_OF_SERVICE,
+                                        JMSBridgeDefinition.FAILURE_RETRY_INTERVAL,
+                                        JMSBridgeDefinition.MAX_RETRIES,
+                                        JMSBridgeDefinition.MAX_BATCH_SIZE,
+                                        JMSBridgeDefinition.MAX_BATCH_TIME,
+                                        CommonAttributes.SELECTOR,
+                                        JMSBridgeDefinition.SUBSCRIPTION_NAME,
+                                        CommonAttributes.CLIENT_ID,
+                                        JMSBridgeDefinition.ADD_MESSAGE_ID_IN_HEADER,
+                                        JMSBridgeDefinition.SOURCE_CONNECTION_FACTORY,
+                                        JMSBridgeDefinition.SOURCE_DESTINATION,
+                                        JMSBridgeDefinition.SOURCE_USER,
+                                        JMSBridgeDefinition.SOURCE_PASSWORD,
+                                        JMSBridgeDefinition.TARGET_CONNECTION_FACTORY,
+                                        JMSBridgeDefinition.TARGET_DESTINATION,
+                                        JMSBridgeDefinition.TARGET_USER,
+                                        JMSBridgeDefinition.TARGET_PASSWORD,
+                                        JMSBridgeDefinition.SOURCE_CONTEXT,
+                                        JMSBridgeDefinition.TARGET_CONTEXT))
+                .build();
     }
 
     private MessagingSubsystemParser_1_1() {
@@ -434,7 +547,7 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
     public void writeContent(XMLExtendedStreamWriter writer, SubsystemMarshallingContext context) throws XMLStreamException {
         ModelNode model = new ModelNode();
         model.get(MessagingSubsystemRootResourceDefinition.INSTANCE.getPathElement().getKeyValuePair()).set(context.getModelNode());
-        xmlDescription.persist(writer, model, CURRENT.getUriString());
+        xmlDescription.persist(writer, model, Namespace.CURRENT.getUriString());
     }
 
     @Override

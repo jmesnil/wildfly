@@ -97,9 +97,8 @@ public class ReplicationColocatedDefinition extends PersistentResourceDefinition
     @Override
     protected List<? extends PersistentResourceDefinition> getChildren() {
         return Collections.unmodifiableList(Arrays.asList(
-                new ReplicationMasterDefinition(PathElement.pathElement(CONFIGURATION, MASTER), true),
-                new ReplicationSlaveDefinition(PathElement.pathElement(CONFIGURATION, SLAVE), true)
-        ));
+                ReplicationMasterDefinition.CONFIGURATION_INSTANCE,
+                ReplicationSlaveDefinition.CONFIGURATION_INSTANCE));
     }
 
     static HAPolicyConfiguration buildConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {

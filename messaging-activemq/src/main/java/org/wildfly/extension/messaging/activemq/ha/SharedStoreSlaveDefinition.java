@@ -77,7 +77,10 @@ public class SharedStoreSlaveDefinition extends PersistentResourceDefinition {
         }
     };
 
-    public SharedStoreSlaveDefinition(PathElement path, boolean allowSibling) {
+    public static SharedStoreSlaveDefinition INSTANCE = new SharedStoreSlaveDefinition(MessagingExtension.SHARED_STORE_SLAVE_PATH, false);
+    public static SharedStoreSlaveDefinition CONFIGURATION_INSTANCE = new SharedStoreSlaveDefinition(MessagingExtension.CONFIGURATION_SLAVE_PATH, true);
+
+    private SharedStoreSlaveDefinition(PathElement path, boolean allowSibling) {
         super(path,
                 MessagingExtension.getResourceDescriptionResolver(HA_POLICY),
                 createAddOperation(path.getKey(), allowSibling, ATTRIBUTES),

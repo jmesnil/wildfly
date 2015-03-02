@@ -58,7 +58,10 @@ public class ReplicationMasterDefinition extends PersistentResourceDefinition {
             CHECK_FOR_LIVE_SERVER
     ));
 
-    public ReplicationMasterDefinition(PathElement path, boolean allowSibling) {
+    public static final ReplicationMasterDefinition INSTANCE = new ReplicationMasterDefinition(MessagingExtension.REPLICATION_MASTER_PATH, false);
+    public static final ReplicationMasterDefinition CONFIGURATION_INSTANCE = new ReplicationMasterDefinition(MessagingExtension.CONFIGURATION_MASTER_PATH, true);
+
+    private ReplicationMasterDefinition(PathElement path, boolean allowSibling) {
         super(path,
                 MessagingExtension.getResourceDescriptionResolver(HA_POLICY),
                 createAddOperation(path.getKey(), allowSibling, ATTRIBUTES),
