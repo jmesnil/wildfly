@@ -82,7 +82,7 @@ public class MessagingPathsTestCase {
         };
 
 
-        HornetQService.PathConfig pathConfig = new HornetQService.PathConfig(
+        ActiveMQServerService.PathConfig pathConfig = new ActiveMQServerService.PathConfig(
                 MY_ABSOLUTE_BINDINGS_DIR, DEFAULT_RELATIVE_TO,  // => binding dir is absolute
                 MY_RELATIVE_JOURNAL_DIR, DEFAULT_RELATIVE_TO,   // => specific journal dir is relative to default relative-to
                 DEFAULT_LARGE_MESSAGE_DIR, DEFAULT_RELATIVE_TO, // => default largeMessage is relative to default relative-to

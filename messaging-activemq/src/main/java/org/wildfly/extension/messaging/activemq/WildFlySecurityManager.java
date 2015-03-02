@@ -39,15 +39,15 @@ import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Set;
 
-public class HornetQSecurityManagerAS7 implements ActiveMQSecurityManager {
+public class WildFlySecurityManager implements ActiveMQSecurityManager {
     private SecurityDomainContext securityDomainContext;
     private String defaultUser = null;
     private String defaultPassword = null;
 
-    public HornetQSecurityManagerAS7(SecurityDomainContext sdc) {
+    public WildFlySecurityManager(SecurityDomainContext sdc) {
         securityDomainContext = sdc;
-        defaultUser = HornetQDefaultCredentials.getUsername();
-        defaultPassword = HornetQDefaultCredentials.getPassword();
+        defaultUser = DefaultCredentials.getUsername();
+        defaultPassword = DefaultCredentials.getPassword();
     }
 
     @Override

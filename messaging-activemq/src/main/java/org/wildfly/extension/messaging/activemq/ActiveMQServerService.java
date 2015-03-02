@@ -67,7 +67,6 @@ import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
 import org.jgroups.JChannel;
 import org.wildfly.clustering.jgroups.spi.ChannelFactory;
-import org.wildfly.security.manager.WildFlySecurityManager;
 
 /**
  * Service configuring and starting the {@code HornetQService}.
@@ -75,7 +74,7 @@ import org.wildfly.security.manager.WildFlySecurityManager;
  * @author scott.stark@jboss.org
  * @author Emanuel Muckenhuber
  */
-class HornetQService implements Service<ActiveMQServer> {
+class ActiveMQServerService implements Service<ActiveMQServer> {
 
     /** */
     private static final String HOST = "host";
@@ -105,7 +104,7 @@ class HornetQService implements Service<ActiveMQServer> {
     // broadcast-group and discovery-groups configured with JGroups must share the same channel
     private final Map<String, JChannel> channels = new HashMap<String, JChannel>();
 
-    public HornetQService(Configuration configuration, PathConfig pathConfig) {
+    public ActiveMQServerService(Configuration configuration, PathConfig pathConfig) {
         this.configuration = configuration;
         this.pathConfig = pathConfig;
     }
@@ -139,7 +138,7 @@ class HornetQService implements Service<ActiveMQServer> {
     }
 
     public synchronized void start(final StartContext context) throws StartException {
-        ClassLoader origTCCL = WildFlySecurityManager.getCurrentContextClassLoaderPrivileged();
+        ClassLoader origTCCL = org.wildfly.security.manager.WildFlySecurityManager.getCurrentContextClassLoaderPrivileged();
         // Validate whether the AIO native layer can be used
         JournalType jtype = configuration.getJournalType();
         if (jtype == JournalType.ASYNCIO) {
@@ -281,7 +280,7 @@ class HornetQService implements Service<ActiveMQServer> {
             }
 
             // security
-            HornetQSecurityManagerAS7 hornetQSecurityManagerAS7 = new HornetQSecurityManagerAS7(securityDomainContextValue.getValue());
+            WildFlySecurityManager hornetQSecurityManagerAS7 = new WildFlySecurityManager(securityDomainContextValue.getValue());
 
             // Now start the server
             server = new ActiveMQServerImpl(configuration, mbeanServer.getOptionalValue(), hornetQSecurityManagerAS7);
@@ -298,7 +297,7 @@ class HornetQService implements Service<ActiveMQServer> {
         } catch (Exception e) {
             throw MessagingLogger.ROOT_LOGGER.failedToStartService(e);
         } finally {
-            WildFlySecurityManager.setCurrentContextClassLoaderPrivileged(origTCCL);
+            org.wildfly.security.manager.WildFlySecurityManager.setCurrentContextClassLoaderPrivileged(origTCCL);
         }
     }
 

@@ -24,7 +24,7 @@ package org.wildfly.extension.messaging.activemq;
 
 import static java.util.UUID.randomUUID;
 
-public class HornetQDefaultCredentials {
+public class DefaultCredentials {
     private static String username = null;
     private static String password = null;
 

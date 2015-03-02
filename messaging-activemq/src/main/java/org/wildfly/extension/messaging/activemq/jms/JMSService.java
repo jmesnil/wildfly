@@ -28,7 +28,7 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 import org.wildfly.extension.messaging.activemq.HornetQActivationService;
-import org.wildfly.extension.messaging.activemq.HornetQDefaultCredentials;
+import org.wildfly.extension.messaging.activemq.DefaultCredentials;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceBuilder;
@@ -144,7 +144,7 @@ public class JMSService implements Service<JMSServerManager> {
 
                 public void activated() {
                     if (overrideInVMSecurity) {
-                        hornetQServer.getValue().getRemotingService().allowInvmSecurityOverride(new ActiveMQPrincipal(HornetQDefaultCredentials.getUsername(), HornetQDefaultCredentials.getPassword()));
+                        hornetQServer.getValue().getRemotingService().allowInvmSecurityOverride(new ActiveMQPrincipal(DefaultCredentials.getUsername(), DefaultCredentials.getPassword()));
                     }
                     // HornetQ only provides a callback to be notified when HornetQ core server is activated.
                     // but the JMS service start must not be completed until the JMSServerManager wrappee is indeed started (and has deployed the JMS resources, etc.).

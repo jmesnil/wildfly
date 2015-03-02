@@ -48,16 +48,16 @@ import org.jboss.msc.service.ServiceController;
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class HornetQServerResource implements Resource {
+public class ActiveMQServerResource implements Resource {
 
     private final Resource delegate;
     private volatile ServiceController<ActiveMQServer> hornetQServerServiceController;
 
-    public HornetQServerResource() {
+    public ActiveMQServerResource() {
         this(Resource.Factory.create());
     }
 
-    public HornetQServerResource(final Resource delegate) {
+    public ActiveMQServerResource(final Resource delegate) {
         this.delegate = delegate;
     }
 
@@ -223,7 +223,7 @@ public class HornetQServerResource implements Resource {
 
     @Override
     public Resource clone() {
-        HornetQServerResource clone = new HornetQServerResource(delegate.clone());
+        ActiveMQServerResource clone = new ActiveMQServerResource(delegate.clone());
         clone.setHornetQServerServiceController(hornetQServerServiceController);
         return clone;
     }
