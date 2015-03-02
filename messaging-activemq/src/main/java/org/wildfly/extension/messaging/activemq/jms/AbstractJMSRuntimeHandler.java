@@ -47,13 +47,9 @@ public abstract class AbstractJMSRuntimeHandler<T> extends AbstractRuntimeOnlyHa
 
     @Override
     protected void executeRuntimeStep(OperationContext context, ModelNode operation) throws OperationFailedException {
-        System.out.println("AbstractJMSRuntimeHandler.executeRuntimeStep");
-        System.out.println("context = [" + context + "], operation = [" + operation + "]");
         String opName = operation.require(ModelDescriptionConstants.OP).asString();
         PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
         final T dataSource = getResourceConfig(address);
-
-        System.out.println("dataSource = " + dataSource);
 
         boolean includeDefault = operation.hasDefined(INCLUDE_DEFAULTS) ? operation.get(INCLUDE_DEFAULTS).asBoolean() : false;
 

@@ -73,7 +73,6 @@ public class MessagingXmlInstallDeploymentUnitProcessor implements DeploymentUni
                     final ModelNode entries = topic.getDestination().resolve().get(CommonAttributes.DESTINATION_ENTRIES.getName());
                     jndiBindings = JMSServices.getJndiBindings(entries);
                 }
-                System.out.println("topic.getDestination() = " + topic.getDestination());
                 JMSTopicService.installService(null, null, topic.getName(), hqServiceName, phaseContext.getServiceTarget(), jndiBindings);
 
                 //create the management registration
@@ -132,18 +131,13 @@ public class MessagingXmlInstallDeploymentUnitProcessor implements DeploymentUni
         synchronized (root) {
             final ManagementResourceRegistration registration = unit.getAttachment(DeploymentModelUtils.MUTABLE_REGISTRATION_ATTACHMENT);
             final PathAddress subsystemAddress = PathAddress.pathAddress(PathElement.pathElement(ModelDescriptionConstants.SUBSYSTEM, MessagingExtension.SUBSYSTEM_NAME));
-            System.out.println("subsystemAddress = " + subsystemAddress);
             final Resource subsystem = getOrCreate(root, subsystemAddress);
             Set<String> childTypes = subsystem.getChildTypes();
-            System.out.println("childTypes = " + childTypes);
             final ManagementResourceRegistration subModel = registration.getSubModel(subsystemAddress.append(address));
             if (subModel == null) {
                 throw new IllegalStateException(address.toString());
             }
             getOrCreate(subsystem, address);
-            System.out.println("MessagingXmlInstallDeploymentUnitProcessor.createDeploymentSubModel");
-            System.out.println("address = [" + address + "], unit = [" + unit + "]");
-            System.out.println("subModel = " + subModel);
             return subModel;
         }
     }

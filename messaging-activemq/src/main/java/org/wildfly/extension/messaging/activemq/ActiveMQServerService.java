@@ -342,12 +342,8 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
      * @return {@code true} if a {@link ServiceController} is installed
      */
     static boolean isServiceInstalled(final OperationContext context) {
-        System.out.println("ActiveMQServerService.isServiceInstalled");
         if (context.isNormalServer()) {
-            System.out.println("context = " + context);
-            System.out.println("context.getCurrentAddress() = " + context.getCurrentAddress());
             final ServiceName serviceName = MessagingServices.getActiveMQServiceName(context.getCurrentAddress());
-            System.out.println("serviceName = " + serviceName);
             final ServiceController<?> controller = context.getServiceRegistry(false).getService(serviceName);
             return controller != null;
         }

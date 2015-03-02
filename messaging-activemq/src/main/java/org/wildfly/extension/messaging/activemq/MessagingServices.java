@@ -54,9 +54,6 @@ public class MessagingServices {
        if (serverPathAddress != null) {
            serverName = serverPathAddress.getLastElement().getValue();
        }
-       System.out.println("MessagingServices.getActiveMQServiceName");
-       System.out.println("pathAddress = [" + pathAddress + "]");
-       System.out.println("serverName = " + serverName);
        return JBOSS_MESSAGING_ACTIVEMQ.append(serverName);
    }
 
