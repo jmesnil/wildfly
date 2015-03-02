@@ -139,7 +139,7 @@ public class MessagingExtension implements Extension {
         subsystem.registerOperationHandler(GenericSubsystemDescribeHandler.DEFINITION, GenericSubsystemDescribeHandler.INSTANCE);
 
         // ActiveMQ Servers
-        final ManagementResourceRegistration server = subsystem.registerSubModel(new HornetQServerResourceDefinition(registerRuntimeOnly));
+        final ManagementResourceRegistration server = subsystem.registerSubModel(new ServerDefinition(registerRuntimeOnly));
 
         // Messaging paths
         //todo, shouldn't we leverage Path service from AS? see: package org.jboss.as.controller.services.path

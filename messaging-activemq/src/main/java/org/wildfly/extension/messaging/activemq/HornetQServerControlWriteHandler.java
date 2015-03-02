@@ -55,11 +55,11 @@ public class HornetQServerControlWriteHandler extends AbstractWriteAttributeHand
     public static final HornetQServerControlWriteHandler INSTANCE = new HornetQServerControlWriteHandler();
 
     private HornetQServerControlWriteHandler() {
-        super(HornetQServerResourceDefinition.ATTRIBUTES);
+        super(ServerDefinition.ATTRIBUTES);
     }
 
     public void registerAttributes(final ManagementResourceRegistration registry, boolean registerRuntimeOnly) {
-        for (AttributeDefinition attr : HornetQServerResourceDefinition.ATTRIBUTES) {
+        for (AttributeDefinition attr : ServerDefinition.ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, this);
             }
@@ -125,12 +125,12 @@ public class HornetQServerControlWriteHandler extends AbstractWriteAttributeHand
             throw ControllerLogger.ROOT_LOGGER.managementResourceNotFound(address);
         }
         try {
-            if (attributeName.equals(HornetQServerResourceDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD.getName())) {
-                serverControl.setMessageCounterSamplePeriod(HornetQServerResourceDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD.resolveModelAttribute(context, operation).asLong());
-            } else if (attributeName.equals(HornetQServerResourceDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY.getName())) {
-                serverControl.setMessageCounterMaxDayCount(HornetQServerResourceDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY.resolveModelAttribute(context, operation).asInt());
-            } else if (attributeName.equals(HornetQServerResourceDefinition.STATISTICS_ENABLED.getName())) {
-                boolean enabled = HornetQServerResourceDefinition.STATISTICS_ENABLED.resolveModelAttribute(context, operation).asBoolean();
+            if (attributeName.equals(ServerDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD.getName())) {
+                serverControl.setMessageCounterSamplePeriod(ServerDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD.resolveModelAttribute(context, operation).asLong());
+            } else if (attributeName.equals(ServerDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY.getName())) {
+                serverControl.setMessageCounterMaxDayCount(ServerDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY.resolveModelAttribute(context, operation).asInt());
+            } else if (attributeName.equals(ServerDefinition.STATISTICS_ENABLED.getName())) {
+                boolean enabled = ServerDefinition.STATISTICS_ENABLED.resolveModelAttribute(context, operation).asBoolean();
                 if (enabled) {
                     serverControl.enableMessageCounters();
                 } else {
@@ -160,7 +160,7 @@ public class HornetQServerControlWriteHandler extends AbstractWriteAttributeHand
 
         private static ModelNode getAliasedOperation(ModelNode operation) {
             ModelNode aliased = operation.clone();
-            aliased.get(ModelDescriptionConstants.NAME).set(HornetQServerResourceDefinition.STATISTICS_ENABLED.getName());
+            aliased.get(ModelDescriptionConstants.NAME).set(ServerDefinition.STATISTICS_ENABLED.getName());
             return aliased;
         }
 

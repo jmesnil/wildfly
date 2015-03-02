@@ -83,7 +83,7 @@ public class ConfigurationAttributesTestCase extends AttributesTestBase {
     @Ignore
     @Test
     public void compareAS7ConfigurationHornetQConfigurationProperties() throws Exception {
-        SortedSet<String> attributes = findAllConfigurationProperties(HornetQServerResourceDefinition.ATTRIBUTES);
+        SortedSet<String> attributes = findAllConfigurationProperties(ServerDefinition.ATTRIBUTES);
         for (String path : PathDefinition.PATHS.keySet()) {
             attributes.add(path);
         }

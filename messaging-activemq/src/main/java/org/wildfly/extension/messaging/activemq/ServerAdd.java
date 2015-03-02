@@ -27,59 +27,59 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PAT
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ADDRESS_SETTING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BINDINGS_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BROADCAST_GROUP;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.CREATE_BINDINGS_DIR;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.CREATE_JOURNAL_DIR;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.CREATE_BINDINGS_DIR;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.CREATE_JOURNAL_DIR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DISCOVERY_GROUP;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_ACCEPTOR;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.ID_CACHE_SIZE;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.ID_CACHE_SIZE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_STACK;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.LARGE_MESSAGES_DIRECTORY;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.PAGE_MAX_CONCURRENT_IO;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.PAGE_MAX_CONCURRENT_IO;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.PAGING_DIRECTORY;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.PERSIST_ID_CACHE;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.PERSIST_ID_CACHE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_SETTING;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.ASYNC_CONNECTION_EXECUTION_ENABLED;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.CLUSTER_PASSWORD;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.CLUSTER_USER;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.CONNECTION_TTL_OVERRIDE;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.JMX_DOMAIN;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.JMX_MANAGEMENT_ENABLED;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.JOURNAL_BUFFER_SIZE;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.JOURNAL_BUFFER_TIMEOUT;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.JOURNAL_COMPACT_MIN_FILES;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.JOURNAL_COMPACT_PERCENTAGE;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.JOURNAL_FILE_SIZE;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.JOURNAL_MAX_IO;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.JOURNAL_MIN_FILES;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.JOURNAL_SYNC_NON_TRANSACTIONAL;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.JOURNAL_SYNC_TRANSACTIONAL;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.JOURNAL_TYPE;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.LOG_JOURNAL_WRITE_RATE;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.MANAGEMENT_ADDRESS;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.MANAGEMENT_NOTIFICATION_ADDRESS;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.MEMORY_MEASURE_INTERVAL;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.MEMORY_WARNING_THRESHOLD;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.MESSAGE_EXPIRY_SCAN_PERIOD;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.MESSAGE_EXPIRY_THREAD_PRIORITY;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.OVERRIDE_IN_VM_SECURITY;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.PERF_BLAST_PAGES;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.PERSISTENCE_ENABLED;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.RUN_SYNC_SPEED_TEST;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.SCHEDULED_THREAD_POOL_MAX_SIZE;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.SECURITY_DOMAIN;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.SECURITY_ENABLED;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.SECURITY_INVALIDATION_INTERVAL;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.SERVER_DUMP_INTERVAL;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.STATISTICS_ENABLED;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.THREAD_POOL_MAX_SIZE;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.TRANSACTION_TIMEOUT;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.TRANSACTION_TIMEOUT_SCAN_PERIOD;
-import static org.wildfly.extension.messaging.activemq.HornetQServerResourceDefinition.WILD_CARD_ROUTING_ENABLED;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.ASYNC_CONNECTION_EXECUTION_ENABLED;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.CLUSTER_PASSWORD;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.CLUSTER_USER;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.CONNECTION_TTL_OVERRIDE;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.JMX_DOMAIN;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.JMX_MANAGEMENT_ENABLED;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_BUFFER_SIZE;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_BUFFER_TIMEOUT;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_COMPACT_MIN_FILES;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_COMPACT_PERCENTAGE;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_FILE_SIZE;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_MAX_IO;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_MIN_FILES;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_SYNC_NON_TRANSACTIONAL;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_SYNC_TRANSACTIONAL;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_TYPE;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.LOG_JOURNAL_WRITE_RATE;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.MANAGEMENT_ADDRESS;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.MANAGEMENT_NOTIFICATION_ADDRESS;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.MEMORY_MEASURE_INTERVAL;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.MEMORY_WARNING_THRESHOLD;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.MESSAGE_EXPIRY_SCAN_PERIOD;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.MESSAGE_EXPIRY_THREAD_PRIORITY;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.OVERRIDE_IN_VM_SECURITY;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.PERF_BLAST_PAGES;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.PERSISTENCE_ENABLED;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.RUN_SYNC_SPEED_TEST;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.SCHEDULED_THREAD_POOL_MAX_SIZE;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.SECURITY_DOMAIN;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.SECURITY_ENABLED;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.SECURITY_INVALIDATION_INTERVAL;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.SERVER_DUMP_INTERVAL;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.STATISTICS_ENABLED;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.THREAD_POOL_MAX_SIZE;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.TRANSACTION_TIMEOUT;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.TRANSACTION_TIMEOUT_SCAN_PERIOD;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.WILD_CARD_ROUTING_ENABLED;
 import static org.wildfly.extension.messaging.activemq.PathDefinition.PATHS;
 import static org.wildfly.extension.messaging.activemq.PathDefinition.RELATIVE_TO;
 import static org.wildfly.extension.messaging.activemq.ha.HAPolicyConfigurationBuilder.addHAPolicyConfiguration;
@@ -137,24 +137,24 @@ import org.wildfly.extension.messaging.activemq.jms.JMSService;
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-class HornetQServerAdd implements OperationStepHandler {
+class ServerAdd implements OperationStepHandler {
 
     static final String PATH_BASE = "paths";
 
-    public static final HornetQServerAdd INSTANCE = new HornetQServerAdd();
+    public static final ServerAdd INSTANCE = new ServerAdd();
 
-    private HornetQServerAdd() {
+    private ServerAdd() {
     }
 
     /** {@inheritDoc */
     public void execute(final OperationContext context, final ModelNode operation) throws OperationFailedException {
 
         // We use a custom Resource impl so we can expose runtime HQ components (e.g. AddressControl) as child resources
-        final HornetQServerResource resource = new HornetQServerResource();
+        final ActiveMQServerResource resource = new ActiveMQServerResource();
         context.addResource(PathAddress.EMPTY_ADDRESS, resource);
         final ModelNode model = resource.getModel();
 
-        for (final AttributeDefinition attributeDefinition : HornetQServerResourceDefinition.ATTRIBUTES) {
+        for (final AttributeDefinition attributeDefinition : ServerDefinition.ATTRIBUTES) {
             attributeDefinition.validateAndSet(operation, model);
         }
 
@@ -196,7 +196,7 @@ class HornetQServerAdd implements OperationStepHandler {
         context.stepCompleted();
     }
 
-    private void performRuntime(final OperationContext context, final HornetQServerResource resource,
+    private void performRuntime(final OperationContext context, final ActiveMQServerResource resource,
                                   final ServiceVerificationHandler verificationHandler,
                                   final List<ServiceController<?>> newControllers) throws OperationFailedException {
         // Add a RUNTIME step to actually install the HQ Service. This will execute after the runtime step
@@ -223,8 +223,8 @@ class HornetQServerAdd implements OperationStepHandler {
                 String pagingRelativeToPath = RELATIVE_TO.resolveModelAttribute(context, model.get(PATH, PAGING_DIRECTORY)).asString();
 
                 // Create the HornetQ Service
-                final HornetQService hqService = new HornetQService(
-                        configuration, new HornetQService.PathConfig(bindingsPath, bindingsRelativeToPath, journalPath, journalRelativeToPath, largeMessagePath, largeMessageRelativeToPath, pagingPath, pagingRelativeToPath));
+                final ActiveMQServerService hqService = new ActiveMQServerService(
+                        configuration, new ActiveMQServerService.PathConfig(bindingsPath, bindingsRelativeToPath, journalPath, journalRelativeToPath, largeMessagePath, largeMessageRelativeToPath, pagingPath, pagingRelativeToPath));
 
                 // Add the HornetQ Service
                 ServiceName hqServiceName = MessagingServices.getHornetQServiceName(serverName);

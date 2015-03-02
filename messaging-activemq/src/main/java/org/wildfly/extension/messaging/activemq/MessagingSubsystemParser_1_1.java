@@ -57,65 +57,65 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
     static {
         xmlDescription = builder(MessagingSubsystemRootResourceDefinition.INSTANCE)
                 .addChild(
-                        builder(HornetQServerResourceDefinition.INSTANCE)
+                        builder(ServerDefinition.INSTANCE)
                                 .addAttributes(
                                         // no attribute groups
-                                        HornetQServerResourceDefinition.PERSISTENCE_ENABLED,
-                                        HornetQServerResourceDefinition.PERSIST_ID_CACHE,
-                                        HornetQServerResourceDefinition.PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY,
-                                        HornetQServerResourceDefinition.ID_CACHE_SIZE,
-                                        HornetQServerResourceDefinition.PAGE_MAX_CONCURRENT_IO,
-                                        HornetQServerResourceDefinition.SCHEDULED_THREAD_POOL_MAX_SIZE,
-                                        HornetQServerResourceDefinition.THREAD_POOL_MAX_SIZE,
-                                        HornetQServerResourceDefinition.WILD_CARD_ROUTING_ENABLED,
-                                        HornetQServerResourceDefinition.CONNECTION_TTL_OVERRIDE,
-                                        HornetQServerResourceDefinition.ASYNC_CONNECTION_EXECUTION_ENABLED,
+                                        ServerDefinition.PERSISTENCE_ENABLED,
+                                        ServerDefinition.PERSIST_ID_CACHE,
+                                        ServerDefinition.PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY,
+                                        ServerDefinition.ID_CACHE_SIZE,
+                                        ServerDefinition.PAGE_MAX_CONCURRENT_IO,
+                                        ServerDefinition.SCHEDULED_THREAD_POOL_MAX_SIZE,
+                                        ServerDefinition.THREAD_POOL_MAX_SIZE,
+                                        ServerDefinition.WILD_CARD_ROUTING_ENABLED,
+                                        ServerDefinition.CONNECTION_TTL_OVERRIDE,
+                                        ServerDefinition.ASYNC_CONNECTION_EXECUTION_ENABLED,
                                         // security
-                                        HornetQServerResourceDefinition.SECURITY_DOMAIN,
-                                        HornetQServerResourceDefinition.SECURITY_ENABLED,
-                                        HornetQServerResourceDefinition.SECURITY_INVALIDATION_INTERVAL,
-                                        HornetQServerResourceDefinition.OVERRIDE_IN_VM_SECURITY,
+                                        ServerDefinition.SECURITY_DOMAIN,
+                                        ServerDefinition.SECURITY_ENABLED,
+                                        ServerDefinition.SECURITY_INVALIDATION_INTERVAL,
+                                        ServerDefinition.OVERRIDE_IN_VM_SECURITY,
                                         // cluster
-                                        HornetQServerResourceDefinition.CLUSTER_USER,
-                                        HornetQServerResourceDefinition.CLUSTER_PASSWORD,
+                                        ServerDefinition.CLUSTER_USER,
+                                        ServerDefinition.CLUSTER_PASSWORD,
                                         // management
-                                        HornetQServerResourceDefinition.MANAGEMENT_ADDRESS,
-                                        HornetQServerResourceDefinition.MANAGEMENT_NOTIFICATION_ADDRESS,
-                                        HornetQServerResourceDefinition.JMX_MANAGEMENT_ENABLED,
-                                        HornetQServerResourceDefinition.JMX_DOMAIN,
+                                        ServerDefinition.MANAGEMENT_ADDRESS,
+                                        ServerDefinition.MANAGEMENT_NOTIFICATION_ADDRESS,
+                                        ServerDefinition.JMX_MANAGEMENT_ENABLED,
+                                        ServerDefinition.JMX_DOMAIN,
                                         // journal
-                                        HornetQServerResourceDefinition.JOURNAL_TYPE,
-                                        HornetQServerResourceDefinition.JOURNAL_BUFFER_TIMEOUT,
-                                        HornetQServerResourceDefinition.JOURNAL_BUFFER_SIZE,
-                                        HornetQServerResourceDefinition.JOURNAL_SYNC_TRANSACTIONAL,
-                                        HornetQServerResourceDefinition.JOURNAL_SYNC_NON_TRANSACTIONAL,
-                                        HornetQServerResourceDefinition.LOG_JOURNAL_WRITE_RATE,
-                                        HornetQServerResourceDefinition.JOURNAL_FILE_SIZE,
-                                        HornetQServerResourceDefinition.JOURNAL_MIN_FILES,
-                                        HornetQServerResourceDefinition.JOURNAL_COMPACT_PERCENTAGE,
-                                        HornetQServerResourceDefinition.JOURNAL_COMPACT_MIN_FILES,
-                                        HornetQServerResourceDefinition.JOURNAL_MAX_IO,
-                                        HornetQServerResourceDefinition.CREATE_BINDINGS_DIR,
-                                        HornetQServerResourceDefinition.CREATE_JOURNAL_DIR,
+                                        ServerDefinition.JOURNAL_TYPE,
+                                        ServerDefinition.JOURNAL_BUFFER_TIMEOUT,
+                                        ServerDefinition.JOURNAL_BUFFER_SIZE,
+                                        ServerDefinition.JOURNAL_SYNC_TRANSACTIONAL,
+                                        ServerDefinition.JOURNAL_SYNC_NON_TRANSACTIONAL,
+                                        ServerDefinition.LOG_JOURNAL_WRITE_RATE,
+                                        ServerDefinition.JOURNAL_FILE_SIZE,
+                                        ServerDefinition.JOURNAL_MIN_FILES,
+                                        ServerDefinition.JOURNAL_COMPACT_PERCENTAGE,
+                                        ServerDefinition.JOURNAL_COMPACT_MIN_FILES,
+                                        ServerDefinition.JOURNAL_MAX_IO,
+                                        ServerDefinition.CREATE_BINDINGS_DIR,
+                                        ServerDefinition.CREATE_JOURNAL_DIR,
                                         // statistics
-                                        HornetQServerResourceDefinition.STATISTICS_ENABLED,
-                                        HornetQServerResourceDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD,
-                                        HornetQServerResourceDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY,
+                                        ServerDefinition.STATISTICS_ENABLED,
+                                        ServerDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD,
+                                        ServerDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY,
                                         // transaction
-                                        HornetQServerResourceDefinition.TRANSACTION_TIMEOUT,
-                                        HornetQServerResourceDefinition.TRANSACTION_TIMEOUT_SCAN_PERIOD,
+                                        ServerDefinition.TRANSACTION_TIMEOUT,
+                                        ServerDefinition.TRANSACTION_TIMEOUT_SCAN_PERIOD,
                                         // message expiry
-                                        HornetQServerResourceDefinition.MESSAGE_EXPIRY_SCAN_PERIOD,
-                                        HornetQServerResourceDefinition.MESSAGE_EXPIRY_THREAD_PRIORITY,
+                                        ServerDefinition.MESSAGE_EXPIRY_SCAN_PERIOD,
+                                        ServerDefinition.MESSAGE_EXPIRY_THREAD_PRIORITY,
                                         // remoting-interceptors
                                         CommonAttributes.REMOTING_INCOMING_INTERCEPTORS,
                                         CommonAttributes.REMOTING_OUTGOING_INTERCEPTORS,
                                         // debug
-                                        HornetQServerResourceDefinition.PERF_BLAST_PAGES,
-                                        HornetQServerResourceDefinition.RUN_SYNC_SPEED_TEST,
-                                        HornetQServerResourceDefinition.SERVER_DUMP_INTERVAL,
-                                        HornetQServerResourceDefinition.MEMORY_MEASURE_INTERVAL,
-                                        HornetQServerResourceDefinition.MEMORY_WARNING_THRESHOLD)
+                                        ServerDefinition.PERF_BLAST_PAGES,
+                                        ServerDefinition.RUN_SYNC_SPEED_TEST,
+                                        ServerDefinition.SERVER_DUMP_INTERVAL,
+                                        ServerDefinition.MEMORY_MEASURE_INTERVAL,
+                                        ServerDefinition.MEMORY_WARNING_THRESHOLD)
                                 .addChild(
                                         builder(PathDefinition.BINDINGS_INSTANCE)
                                                 .addAttributes(

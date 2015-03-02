@@ -41,9 +41,9 @@ import org.jboss.msc.service.ServiceName;
  * @author Emanuel Muckenhuber
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-class HornetQServerRemove implements OperationStepHandler {
+class ServerRemove implements OperationStepHandler {
 
-    static final HornetQServerRemove INSTANCE = new HornetQServerRemove();
+    static final ServerRemove INSTANCE = new ServerRemove();
 
     @Override
     public void execute(final OperationContext context, final ModelNode operation) throws OperationFailedException {
@@ -101,7 +101,7 @@ class HornetQServerRemove implements OperationStepHandler {
             context.removeService(GroupBindingService.getDiscoveryBaseServiceName(hqServiceName).append(divertGroup.getName()));
         }
         for (ResourceEntry path : resource.getChildren(PATH)) {
-            context.removeService(hqServiceName.append(HornetQServerAdd.PATH_BASE).append(path.getName()));
+            context.removeService(hqServiceName.append(ServerAdd.PATH_BASE).append(path.getName()));
         }
     }
 }

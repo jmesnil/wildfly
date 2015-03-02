@@ -79,7 +79,7 @@ import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryDefin
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class HornetQServerResourceDefinition extends PersistentResourceDefinition {
+public class ServerDefinition extends PersistentResourceDefinition {
 
     public static final SimpleAttributeDefinition CLUSTER_PASSWORD = create("cluster-password", ModelType.STRING)
             .setAttributeGroup("cluster")
@@ -483,14 +483,14 @@ public class HornetQServerResourceDefinition extends PersistentResourceDefinitio
             PooledConnectionFactoryDefinition.INSTANCE
     };
 
-    protected static final PersistentResourceDefinition INSTANCE = new HornetQServerResourceDefinition(false);
+    protected static final PersistentResourceDefinition INSTANCE = new ServerDefinition(false);
     private final boolean registerRuntimeOnly;
 
-    HornetQServerResourceDefinition(boolean registerRuntimeOnly) {
+    ServerDefinition(boolean registerRuntimeOnly) {
         super(MessagingExtension.SERVER_PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.SERVER),
-                HornetQServerAdd.INSTANCE,
-                HornetQServerRemove.INSTANCE);
+                ServerAdd.INSTANCE,
+                ServerRemove.INSTANCE);
         this.registerRuntimeOnly = registerRuntimeOnly;
     }
 
