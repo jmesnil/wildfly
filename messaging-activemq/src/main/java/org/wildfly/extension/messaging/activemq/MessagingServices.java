@@ -38,9 +38,6 @@ public class MessagingServices {
      */
     static final ServiceName JBOSS_MESSAGING_ACTIVEMQ = ServiceName.JBOSS.append(MessagingExtension.SUBSYSTEM_NAME);
 
-    /** The core queue name base. */
-    private static final String CORE_QUEUE_BASE = "queue";
-
    public static ServiceName getActiveMQServiceName(PathAddress pathAddress) {
          // We need to figure out what ActiveMQ this operation is targeting.
         // We can get that from the "address" element of the operation, as the "server=x" part of
@@ -72,7 +69,7 @@ public class MessagingServices {
    }
 
    public static ServiceName getQueueBaseServiceName(ServiceName serverServiceName) {
-       return serverServiceName.append(CORE_QUEUE_BASE);
+       return serverServiceName.append(CommonAttributes.QUEUE);
    }
 
    public static ServiceName getJMSBridgeServiceName(String bridgeName) {
