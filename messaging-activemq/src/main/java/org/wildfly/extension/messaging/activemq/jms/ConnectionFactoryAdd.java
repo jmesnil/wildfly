@@ -118,7 +118,6 @@ public class ConnectionFactoryAdd extends AbstractAddStepHandler {
         config.setConfirmationWindowSize(Common.CONFIRMATION_WINDOW_SIZE.resolveModelAttribute(context, model).asInt());
         config.setConnectionTTL(Common.CONNECTION_TTL.resolveModelAttribute(context, model).asLong());
         List<String> connectorNames = Common.CONNECTORS.unwrap(context, model);
-        System.out.println("connectorNames = " + connectorNames);
         config.setConnectorNames(connectorNames);
         config.setConsumerMaxRate(Common.CONSUMER_MAX_RATE.resolveModelAttribute(context, model).asInt());
         config.setConsumerWindowSize(Common.CONSUMER_WINDOW_SIZE.resolveModelAttribute(context, model).asInt());

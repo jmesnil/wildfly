@@ -45,8 +45,6 @@ public class HTTPAcceptorAdd extends ActiveMQReloadRequiredHandlers.AddStepHandl
 
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
-        System.out.println("HTTPAcceptorAdd.performRuntime");
-        System.out.println("context = [" + context + "], operation = [" + operation + "], model = [" + model + "]");
         super.performRuntime(context, operation, model);
 
         PathAddress address = PathAddress.pathAddress(operation.get(OP_ADDR));

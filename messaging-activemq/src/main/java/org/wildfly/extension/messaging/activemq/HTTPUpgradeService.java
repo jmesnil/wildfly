@@ -91,8 +91,6 @@ public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
 
     @Override
     public void start(StartContext context) throws StartException {
-        System.out.println("HTTPUpgradeService.start");
-        System.out.println("context = [" + context + "]");
         ListenerRegistry.Listener listenerInfo = listenerRegistry.getValue().getListener(httpListenerName);
         assert listenerInfo != null;
         httpUpgradeMetadata = new ListenerRegistry.HttpUpgradeMetadata(ACTIVEMQ_REMOTING, CORE);
@@ -101,8 +99,6 @@ public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
         MESSAGING_LOGGER.registeredHTTPUpgradeHandler(ACTIVEMQ_REMOTING, acceptorName);
         ServiceController<?> hornetqService = context.getController().getServiceContainer().getService(MessagingServices.getActiveMQServiceName(hornetQServerName));
         ActiveMQServer hornetQServer = ActiveMQServer.class.cast(hornetqService.getValue());
-
-        System.out.println(">>>>>> hornetQServer = " + hornetQServer);
 
         injectedRegistry.getValue().addProtocol(ACTIVEMQ_REMOTING,
                 switchToHornetQProtocol(hornetQServer, acceptorName),
@@ -115,12 +111,9 @@ public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
                      */
                     @Override
                     public boolean handleUpgrade(HttpServerExchange exchange) throws IOException {
-                        System.out.println("HTTPUpgradeService.handleUpgrade");
 
                         if (super.handleUpgrade(exchange)) {
                             final String endpoint = exchange.getRequestHeaders().getFirst(HTTP_UPGRADE_ENDPOINT_PROP_NAME);
-                            System.out.println("endpoint = " + endpoint);
-                            System.out.println("acceptorName = " + acceptorName);
                             if (endpoint == null) {
                                 return true;
                             } else {
@@ -149,7 +142,6 @@ public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
         return new ChannelListener<StreamConnection>() {
             @Override
             public void handleEvent(final StreamConnection connection) {
-                System.out.println(">>>>>>>> HTTPUpgradeService.handleEvent");
                 MESSAGING_LOGGER.debugf("Switching to %s protocol for %s http-acceptor", ACTIVEMQ_REMOTING, acceptorName);
                 SocketChannel channel = new WrappingXnioSocketChannel(connection);
                 RemotingService remotingService = hornetqServer.getRemotingService();
