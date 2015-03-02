@@ -93,9 +93,8 @@ public class SharedStoreColocatedDefinition extends PersistentResourceDefinition
     @Override
     protected List<? extends PersistentResourceDefinition> getChildren() {
         return Collections.unmodifiableList(Arrays.asList(
-                new SharedStoreMasterDefinition(PathElement.pathElement(CONFIGURATION, MASTER), true),
-                new SharedStoreSlaveDefinition(PathElement.pathElement(CONFIGURATION, SLAVE), true)
-        ));
+                SharedStoreMasterDefinition.CONFIGURATION_INSTANCE,
+                SharedStoreSlaveDefinition.CONFIGURATION_INSTANCE));
     }
 
     static HAPolicyConfiguration buildConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {

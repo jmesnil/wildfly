@@ -43,6 +43,7 @@ import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
 import org.wildfly.extension.messaging.activemq.ActiveMQReloadRequiredHandlers;
+import org.wildfly.extension.messaging.activemq.CommonAttributes;
 import org.wildfly.extension.messaging.activemq.MessagingExtension;
 
 /**
@@ -55,7 +56,11 @@ public class SharedStoreMasterDefinition extends PersistentResourceDefinition {
             FAILOVER_ON_SERVER_SHUTDOWN
     ));
 
-    public SharedStoreMasterDefinition(PathElement path, boolean allowSibling) {
+    public static final SharedStoreMasterDefinition INSTANCE = new SharedStoreMasterDefinition(MessagingExtension.SHARED_STORE_MASTER_PATH, false);
+    public static final SharedStoreMasterDefinition CONFIGURATION_INSTANCE = new SharedStoreMasterDefinition(PathElement.pathElement(CommonAttributes.CONFIGURATION, CommonAttributes.MASTER), true);
+
+
+    private SharedStoreMasterDefinition(PathElement path, boolean allowSibling) {
         super(path,
                 MessagingExtension.getResourceDescriptionResolver(HA_POLICY),
                 createAddOperation(path.getKey(), allowSibling, ATTRIBUTES),

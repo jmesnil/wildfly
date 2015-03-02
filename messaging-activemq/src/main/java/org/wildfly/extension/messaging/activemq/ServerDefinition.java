@@ -22,7 +22,6 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import static org.jboss.as.controller.PathElement.pathElement;
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.BYTES;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.DAYS;
@@ -34,11 +33,6 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PAT
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.HA_POLICY;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_MASTER;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_SLAVE;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_MASTER;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_SLAVE;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -452,23 +446,30 @@ public class ServerDefinition extends PersistentResourceDefinition {
     };
 
     private static PersistentResourceDefinition[] CHILDREN = {
+            // HA policy
             LiveOnlyDefinition.INSTANCE,
-            new ReplicationMasterDefinition(pathElement(HA_POLICY, REPLICATION_MASTER), false),
-            new ReplicationSlaveDefinition(pathElement(HA_POLICY, REPLICATION_SLAVE), false),
+            ReplicationMasterDefinition.INSTANCE,
+            ReplicationSlaveDefinition.INSTANCE,
             ReplicationColocatedDefinition.INSTANCE,
-            new SharedStoreMasterDefinition(pathElement(HA_POLICY, SHARED_STORE_MASTER), false),
-            new SharedStoreSlaveDefinition(pathElement(HA_POLICY, SHARED_STORE_SLAVE), false),
+            SharedStoreMasterDefinition.INSTANCE,
+            SharedStoreSlaveDefinition.INSTANCE,
             SharedStoreColocatedDefinition.INSTANCE,
+
             AddressSettingDefinition.INSTANCE,
             SecuritySettingDefinition.INSTANCE,
+
+            // Connectors
             HTTPConnectorDefinition.INSTANCE,
             RemoteTransportDefinition.CONNECTOR_INSTANCE,
             InVMTransportDefinition.CONNECTOR_INSTANCE,
             GenericTransportDefinition.CONNECTOR_INSTANCE,
+
+            // Acceptors
             HTTPAcceptorDefinition.INSTANCE,
             RemoteTransportDefinition.ACCEPTOR_INSTANCE,
             InVMTransportDefinition.ACCEPTOR_INSTANCE,
             GenericTransportDefinition.ACCEPTOR_INSTANCE,
+
             QueueDefinition.INSTANCE,
             BroadcastGroupDefinition.INSTANCE,
             DiscoveryGroupDefinition.INSTANCE,
@@ -477,6 +478,8 @@ public class ServerDefinition extends PersistentResourceDefinition {
             DivertDefinition.INSTANCE,
             ConnectorServiceDefinition.INSTANCE,
             GroupingHandlerDefinition.INSTANCE,
+
+            // JMS resources
             JMSQueueDefinition.INSTANCE,
             JMSTopicDefinition.INSTANCE,
             ConnectionFactoryDefinition.INSTANCE,

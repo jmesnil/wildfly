@@ -25,9 +25,8 @@ package org.wildfly.extension.messaging.activemq.ha;
 import static org.jboss.as.controller.OperationContext.Stage.MODEL;
 import static org.wildfly.extension.messaging.activemq.AlternativeAttributeCheckHandler.checkAlternatives;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.HA_POLICY;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.LIVE_ONLY;
 import static org.wildfly.extension.messaging.activemq.ha.ScaleDownAttributes.SCALE_DOWN_CONNECTORS;
-import static org.wildfly.extension.messaging.activemq.ha.ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP_NAME;
+import static org.wildfly.extension.messaging.activemq.ha.ScaleDownAttributes.SCALE_DOWN_DISCOVERY_GROUP;
 
 import java.util.Collection;
 
@@ -39,7 +38,6 @@ import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -53,8 +51,6 @@ import org.wildfly.extension.messaging.activemq.MessagingExtension;
  */
 public class LiveOnlyDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(HA_POLICY, LIVE_ONLY);
-
     private static Collection<AttributeDefinition> ATTRIBUTES = ScaleDownAttributes.SCALE_DOWN_ATTRIBUTES;
 
     private static final AbstractAddStepHandler ADD  = new ActiveMQReloadRequiredHandlers.AddStepHandler(ATTRIBUTES) {
@@ -66,7 +62,7 @@ public class LiveOnlyDefinition extends PersistentResourceDefinition {
 
         @Override
         protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-            checkAlternatives(operation, SCALE_DOWN_CONNECTORS.getName(), SCALE_DOWN_DISCOVERY_GROUP_NAME.getName(), true);
+            checkAlternatives(operation, SCALE_DOWN_CONNECTORS.getName(), SCALE_DOWN_DISCOVERY_GROUP.getName(), true);
 
             super.populateModel(operation, model);
         }
@@ -84,7 +80,7 @@ public class LiveOnlyDefinition extends PersistentResourceDefinition {
     public static final LiveOnlyDefinition INSTANCE = new LiveOnlyDefinition();
 
     private LiveOnlyDefinition() {
-        super(PATH,
+        super(MessagingExtension.LIVE_ONLY_PATH,
                 MessagingExtension.getResourceDescriptionResolver(HA_POLICY),
                 ADD,
                 ReloadRequiredRemoveStepHandler.INSTANCE);

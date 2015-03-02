@@ -53,7 +53,7 @@ public class ScaleDownAttributes {
 
     // if the scale-down attribute is not defined, the whole scale down configuration is ignored
     public static SimpleAttributeDefinition SCALE_DOWN = SimpleAttributeDefinitionBuilder.create(CommonAttributes.SCALE_DOWN, BOOLEAN)
-            // scale-down attribute is represented with the "enabled" attribute of the "scale-down" XML element
+            .setAttributeGroup(CommonAttributes.SCALE_DOWN)
             .setXmlName(CommonAttributes.ENABLED)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -61,6 +61,7 @@ public class ScaleDownAttributes {
             .build();
 
     public static SimpleAttributeDefinition SCALE_DOWN_CLUSTER_NAME = SimpleAttributeDefinitionBuilder.create("scale-down-cluster-name", STRING)
+            .setAttributeGroup(CommonAttributes.SCALE_DOWN)
             .setXmlName(CommonAttributes.CLUSTER_NAME)
             .setAllowNull(true)
             .setAllowExpression(true)
@@ -68,21 +69,26 @@ public class ScaleDownAttributes {
             .build();
 
     public static SimpleAttributeDefinition SCALE_DOWN_GROUP_NAME = SimpleAttributeDefinitionBuilder.create("scale-down-group-name", STRING)
+            .setAttributeGroup(CommonAttributes.SCALE_DOWN)
             .setXmlName(CommonAttributes.GROUP_NAME)
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
 
-    public static SimpleAttributeDefinition SCALE_DOWN_DISCOVERY_GROUP_NAME =  SimpleAttributeDefinitionBuilder.create(SCALE_DOWN_DISCOVERY_GROUP_STR, STRING)
-            .setXmlName(CommonAttributes.DISCOVERY_GROUP_NAME)
+    public static SimpleAttributeDefinition SCALE_DOWN_DISCOVERY_GROUP =  SimpleAttributeDefinitionBuilder.create(SCALE_DOWN_DISCOVERY_GROUP_STR, STRING)
+            .setAttributeGroup(CommonAttributes.SCALE_DOWN)
+            .setXmlName(CommonAttributes.DISCOVERY_GROUP)
             .setAllowNull(true)
             .setAlternatives(SCALE_DOWN_CONNECTORS_STR)
             .setRestartAllServices()
             .build();
 
     public static AttributeDefinition SCALE_DOWN_CONNECTORS = new StringListAttributeDefinition.Builder(SCALE_DOWN_CONNECTORS_STR)
+            .setAttributeGroup(CommonAttributes.SCALE_DOWN)
+            .setXmlName(CommonAttributes.CONNECTORS)
             .setAlternatives(SCALE_DOWN_DISCOVERY_GROUP_STR)
+            .setAllowNull(true)
             .setAttributeMarshaller(AttributeMarshaller.STRING_LIST)
             .setAttributeParser(AttributeParser.STRING_LIST)
             .setRestartAllServices()
@@ -92,7 +98,7 @@ public class ScaleDownAttributes {
             SCALE_DOWN,
             SCALE_DOWN_CLUSTER_NAME,
             SCALE_DOWN_GROUP_NAME,
-            SCALE_DOWN_DISCOVERY_GROUP_NAME,
+            SCALE_DOWN_DISCOVERY_GROUP,
             SCALE_DOWN_CONNECTORS
     ));
 
@@ -114,7 +120,7 @@ public class ScaleDownAttributes {
         if (groupName.isDefined()) {
             scaleDownConfiguration.setGroupName(groupName.asString());
         }
-        ModelNode discoveryGroupName = SCALE_DOWN_DISCOVERY_GROUP_NAME.resolveModelAttribute(context, model);
+        ModelNode discoveryGroupName = SCALE_DOWN_DISCOVERY_GROUP.resolveModelAttribute(context, model);
         if (discoveryGroupName.isDefined()) {
             scaleDownConfiguration.setDiscoveryGroup(discoveryGroupName.asString());
         }
