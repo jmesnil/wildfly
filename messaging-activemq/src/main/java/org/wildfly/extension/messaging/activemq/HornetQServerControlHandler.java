@@ -25,7 +25,7 @@ package org.wildfly.extension.messaging.activemq;
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_ATTRIBUTE_OPERATION;
-import static org.wildfly.extension.messaging.activemq.HornetQActivationService.rollbackOperationIfServerNotActive;
+import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.rollbackOperationIfServerNotActive;
 import static org.wildfly.extension.messaging.activemq.ManagementUtil.reportListOfStrings;
 import static org.wildfly.extension.messaging.activemq.ManagementUtil.reportRoles;
 import static org.wildfly.extension.messaging.activemq.ManagementUtil.reportRolesAsJSON;
@@ -128,7 +128,7 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
     protected void executeRuntimeStep(OperationContext context, ModelNode operation) throws OperationFailedException {
         final String operationName = operation.require(OP).asString();
 
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
         if (hqService == null || hqService.getState() != ServiceController.State.UP) {
             throw MessagingLogger.ROOT_LOGGER.hornetQServerNotInstalled(hqServiceName.getSimpleName());
@@ -370,7 +370,7 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
     }
 
     private ActiveMQServerControl getServerControl(final OperationContext context, ModelNode operation) throws OperationFailedException {
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
         if (hqService == null || hqService.getState() != ServiceController.State.UP) {
             throw MessagingLogger.ROOT_LOGGER.hornetQServerNotInstalled(hqServiceName.getSimpleName());

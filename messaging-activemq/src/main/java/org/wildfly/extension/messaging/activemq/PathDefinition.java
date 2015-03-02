@@ -153,7 +153,7 @@ public class PathDefinition extends PersistentResourceDefinition {
             context.addStep(new OperationStepHandler() {
                 @Override
                 public void execute(final OperationContext context, final ModelNode operation) throws OperationFailedException {
-                    final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+                    final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
                     final ServiceController<?> controller = context.getServiceRegistry(false).getService(hqServiceName);
                     OperationContext.RollbackHandler rh;
                     if(controller != null) {

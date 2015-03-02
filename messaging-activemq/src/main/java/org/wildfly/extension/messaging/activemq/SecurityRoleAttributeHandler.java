@@ -22,7 +22,7 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import static org.wildfly.extension.messaging.activemq.HornetQActivationService.getHornetQServer;
+import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.getActiveMQServer;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -53,7 +53,7 @@ class SecurityRoleAttributeHandler extends AbstractWriteAttributeHandler<Set<Rol
                                            ModelNode newValue, ModelNode currentValue,
                                            HandbackHolder<Set<Role>> handbackHolder) throws OperationFailedException {
 
-        final ActiveMQServer server = getHornetQServer(context, operation);
+        final ActiveMQServer server = getActiveMQServer(context, operation);
         if(server != null) {
             final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
             final String match = address.getElement(address.size() - 2).getValue();
@@ -78,7 +78,7 @@ class SecurityRoleAttributeHandler extends AbstractWriteAttributeHandler<Set<Rol
     @Override
     protected void revertUpdateToRuntime(OperationContext context, ModelNode operation, String attributeName, ModelNode valueToRestore, ModelNode valueToRevert, Set<Role> handback) throws OperationFailedException {
         if (handback != null) {
-            final ActiveMQServer server = getHornetQServer(context, operation);
+            final ActiveMQServer server = getActiveMQServer(context, operation);
             if(server != null) {
                 final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
                 final String match = address.getElement(address.size() - 2).getValue();

@@ -24,7 +24,7 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DEAD_LETTER_ADDRESS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.EXPIRY_ADDRESS;
-import static org.wildfly.extension.messaging.activemq.HornetQActivationService.getHornetQServer;
+import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.getActiveMQServer;
 
 import java.util.List;
 
@@ -69,7 +69,7 @@ class AddressSettingAdd extends AbstractAddStepHandler {
     protected void performRuntime(final OperationContext context, final ModelNode operation, final ModelNode model,
                                   final ServiceVerificationHandler verificationHandler,
                                   final List<ServiceController<?>> newControllers) throws OperationFailedException {
-        final ActiveMQServer server = getHornetQServer(context, operation);
+        final ActiveMQServer server = getActiveMQServer(context, operation);
         if(server != null) {
             final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
             final AddressSettings settings = createSettings(context, model);

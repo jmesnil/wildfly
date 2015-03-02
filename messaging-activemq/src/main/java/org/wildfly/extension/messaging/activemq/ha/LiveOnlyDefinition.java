@@ -45,7 +45,7 @@ import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
 import org.wildfly.extension.messaging.activemq.AlternativeAttributeCheckHandler;
-import org.wildfly.extension.messaging.activemq.HornetQReloadRequiredHandlers;
+import org.wildfly.extension.messaging.activemq.ActiveMQReloadRequiredHandlers;
 import org.wildfly.extension.messaging.activemq.MessagingExtension;
 
 /**
@@ -57,7 +57,7 @@ public class LiveOnlyDefinition extends PersistentResourceDefinition {
 
     private static Collection<AttributeDefinition> ATTRIBUTES = ScaleDownAttributes.SCALE_DOWN_ATTRIBUTES;
 
-    private static final AbstractAddStepHandler ADD  = new HornetQReloadRequiredHandlers.AddStepHandler(ATTRIBUTES) {
+    private static final AbstractAddStepHandler ADD  = new ActiveMQReloadRequiredHandlers.AddStepHandler(ATTRIBUTES) {
         @Override
         public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
             super.execute(context, operation);
@@ -72,7 +72,7 @@ public class LiveOnlyDefinition extends PersistentResourceDefinition {
         }
     };
 
-    private static final AbstractWriteAttributeHandler WRITE_ATTRIBUTE = new HornetQReloadRequiredHandlers.WriteAttributeHandler(ATTRIBUTES) {
+    private static final AbstractWriteAttributeHandler WRITE_ATTRIBUTE = new ActiveMQReloadRequiredHandlers.WriteAttributeHandler(ATTRIBUTES) {
         @Override
         public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
             context.addStep(new AlternativeAttributeCheckHandler(ATTRIBUTES), MODEL);

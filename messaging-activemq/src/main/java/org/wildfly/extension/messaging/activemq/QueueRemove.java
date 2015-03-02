@@ -47,7 +47,7 @@ class QueueRemove extends AbstractRemoveStepHandler {
     }
 
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) {
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         PathAddress address = PathAddress.pathAddress(operation.require(OP_ADDR));
         final String name = address.getLastElement().getValue();
         final ServiceName queueServiceName = MessagingServices.getQueueBaseServiceName(hqServiceName).append(name);

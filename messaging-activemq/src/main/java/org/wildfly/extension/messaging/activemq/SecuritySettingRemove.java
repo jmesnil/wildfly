@@ -52,7 +52,7 @@ class SecuritySettingRemove extends AbstractRemoveStepHandler {
     }
 
     static ActiveMQServer getServer(final OperationContext context, ModelNode operation) {
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         final ServiceController<?> controller = context.getServiceRegistry(true).getService(hqServiceName);
         if(controller != null) {
             return ActiveMQServer.class.cast(controller.getValue());

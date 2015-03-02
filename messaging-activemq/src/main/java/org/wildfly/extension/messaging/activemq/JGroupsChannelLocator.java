@@ -18,7 +18,7 @@ public class JGroupsChannelLocator {
         String[] split = channelRefName.split("/");
         String hornetQServerName = split[0];
         String channelName = split[1];
-        ServiceController<ActiveMQServer> controller = (ServiceController<ActiveMQServer>) currentServiceContainer().getService(MessagingServices.getHornetQServiceName(hornetQServerName));
+        ServiceController<ActiveMQServer> controller = (ServiceController<ActiveMQServer>) currentServiceContainer().getService(MessagingServices.getActiveMQServiceName(hornetQServerName));
         ActiveMQServerService service = (ActiveMQServerService) controller.getService();
         return service.getChannels().get(channelName);
     }

@@ -31,7 +31,7 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.MESSAGE_
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.PAUSED;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SCHEDULED_COUNT;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.TEMPORARY;
-import static org.wildfly.extension.messaging.activemq.HornetQActivationService.ignoreOperationIfServerNotActive;
+import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.ignoreOperationIfServerNotActive;
 import static org.wildfly.extension.messaging.activemq.QueueDefinition.ADDRESS;
 import static org.wildfly.extension.messaging.activemq.QueueDefinition.DEAD_LETTER_ADDRESS;
 import static org.wildfly.extension.messaging.activemq.QueueDefinition.EXPIRY_ADDRESS;
@@ -101,7 +101,7 @@ public class QueueReadAttributeHandler extends AbstractRuntimeOnlyHandler {
             return;
         }
 
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(address);
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(address);
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
         ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
         QueueControl control = QueueControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.CORE_QUEUE + queueName));

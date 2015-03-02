@@ -30,7 +30,7 @@ import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.FILTER;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.QUEUE;
-import static org.wildfly.extension.messaging.activemq.HornetQActivationService.rollbackOperationIfServerNotActive;
+import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.rollbackOperationIfServerNotActive;
 import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.createNonEmptyStringAttribute;
 import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.resolveFilter;
 import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.runtimeOnlyOperation;
@@ -222,7 +222,7 @@ public abstract class AbstractQueueControlHandler<T> extends AbstractRuntimeOnly
 
         final String operationName = operation.require(ModelDescriptionConstants.OP).asString();
         final String queueName = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR)).getLastElement().getValue();
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
         ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
         final DelegatingQueueControl<T> control = getQueueControl(hqServer, queueName);

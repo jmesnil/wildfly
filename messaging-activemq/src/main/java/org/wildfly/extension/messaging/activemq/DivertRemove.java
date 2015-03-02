@@ -52,7 +52,7 @@ public class DivertRemove extends AbstractRemoveStepHandler {
 
         final String name = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR)).getLastElement().getValue();
         final ServiceRegistry registry = context.getServiceRegistry(true);
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         final ServiceController<?> hqService = registry.getService(hqServiceName);
         if (hqService != null && hqService.getState() == ServiceController.State.UP) {
 
@@ -72,7 +72,7 @@ public class DivertRemove extends AbstractRemoveStepHandler {
     protected void recoverServices(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
 
         final ServiceRegistry registry = context.getServiceRegistry(true);
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         final ServiceController<?> hqService = registry.getService(hqServiceName);
         if (hqService != null && hqService.getState() == ServiceController.State.UP) {
 

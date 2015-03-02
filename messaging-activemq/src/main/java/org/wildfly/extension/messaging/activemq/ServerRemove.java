@@ -74,7 +74,7 @@ class ServerRemove implements OperationStepHandler {
 
     static void removeHornetQServer(String serverName, OperationContext context, Resource resource) {
 
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(serverName);
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(serverName);
 
         for(final Resource.ResourceEntry jmsQueue : resource.getChildren(CommonAttributes.JMS_QUEUE)) {
             context.removeService(JMSServices.getJmsQueueBaseServiceName(hqServiceName).append(jmsQueue.getName()));
@@ -93,7 +93,7 @@ class ServerRemove implements OperationStepHandler {
         }
 
         context.removeService(JMSServices.getJmsManagerBaseServiceName(hqServiceName));
-        context.removeService(MessagingServices.getHornetQServiceName(serverName));
+        context.removeService(MessagingServices.getActiveMQServiceName(serverName));
         for(final Resource.ResourceEntry broadcastGroup : resource.getChildren(CommonAttributes.BROADCAST_GROUP)) {
             context.removeService(GroupBindingService.getBroadcastBaseServiceName(hqServiceName).append(broadcastGroup.getName()));
         }

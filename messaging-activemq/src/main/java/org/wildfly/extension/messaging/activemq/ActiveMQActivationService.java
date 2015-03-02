@@ -39,28 +39,28 @@ import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 
 /**
- * A service that can be dependent on to ensure the HornetQ server is active.
+ * A service that can be dependent on to ensure the ActiveMQ server is active.
  *
- * HornetQ server can be passive when they are configured as backup and wait for a live node to fail.
+ * ActiveMQ servers can be passive when they are configured as backup and wait for a live node to fail.
  * In this passive state, the server does not accept connections or create resources.
  *
- * This service must be used by any service depending on a HornetQ server being active.
+ * This service must be used by any service depending on an ActiveMQ server being active.
  *
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */
-public class HornetQActivationService implements Service<Void> {
+public class ActiveMQActivationService implements Service<Void> {
 
-    public static ServiceName getHornetQActivationServiceName(ServiceName hqServerName) {
-        return hqServerName.append("activation");
+    public static ServiceName getServiceName(ServiceName serverName) {
+        return serverName.append("activation");
     }
 
-    public static boolean isHornetQServerActive(OperationContext context, ModelNode operation) {
+    public static boolean isActiveMQServerActive(OperationContext context, ModelNode operation) {
         PathAddress address = pathAddress(operation.get(OP_ADDR));
-        return isHornetQServerActive(context.getServiceRegistry(false), MessagingServices.getHornetQServiceName(address));
+        return isActiveMQServerActive(context.getServiceRegistry(false), MessagingServices.getActiveMQServiceName(address));
     }
 
-    public static boolean isHornetQServerActive(ServiceRegistry serviceRegistry, ServiceName hqServiceName) {
-        ServiceController<?> service = serviceRegistry.getService(hqServiceName);
+    public static boolean isActiveMQServerActive(ServiceRegistry serviceRegistry, ServiceName activeMQServerServiceName) {
+        ServiceController<?> service = serviceRegistry.getService(activeMQServerServiceName);
         if (service != null) {
             ActiveMQServer server = ActiveMQServer.class.cast(service.getValue());
             if (server.isStarted() && server.isActive()) {
@@ -71,28 +71,26 @@ public class HornetQActivationService implements Service<Void> {
     }
 
     public static boolean rollbackOperationIfServerNotActive(OperationContext context, ModelNode operation) {
-        if (isHornetQServerActive(context, operation)) {
+        if (isActiveMQServerActive(context, operation)) {
             return false;
         }
         context.getFailureDescription().set(MessagingLogger.ROOT_LOGGER.hqServerInBackupMode(pathAddress(operation.require(OP_ADDR))));
         context.setRollbackOnly();
-        context.stepCompleted();
         return true;
     }
 
     public static boolean ignoreOperationIfServerNotActive(OperationContext context, ModelNode operation) {
-        if (isHornetQServerActive(context, operation)) {
+        if (isActiveMQServerActive(context, operation)) {
             return false;
         }
         // undefined result
         context.getResult();
-        context.stepCompleted();
         return true;
     }
 
-    static ActiveMQServer getHornetQServer(final OperationContext context, ModelNode operation) {
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(pathAddress(operation.get(OP_ADDR)));
-        final ServiceController<?> controller = context.getServiceRegistry(false).getService(hqServiceName);
+    static ActiveMQServer getActiveMQServer(final OperationContext context, ModelNode operation) {
+        final ServiceName activMQServerServiceName = MessagingServices.getActiveMQServiceName(pathAddress(operation.get(OP_ADDR)));
+        final ServiceController<?> controller = context.getServiceRegistry(false).getService(activMQServerServiceName);
         if(controller != null) {
             return ActiveMQServer.class.cast(controller.getValue());
         }

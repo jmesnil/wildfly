@@ -27,7 +27,7 @@ import org.apache.activemq.core.server.ActivateCallback;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.wildfly.extension.messaging.activemq.HornetQActivationService;
+import org.wildfly.extension.messaging.activemq.ActiveMQActivationService;
 import org.wildfly.extension.messaging.activemq.DefaultCredentials;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.msc.service.Service;
@@ -150,7 +150,7 @@ public class JMSService implements Service<JMSServerManager> {
                     // but the JMS service start must not be completed until the JMSServerManager wrappee is indeed started (and has deployed the JMS resources, etc.).
                     // It is possible that the activation service has already been installed but becomes passive when a backup server has failed over (-> ACTIVE) and failed back (-> PASSIVE)
                     if (hornetqActivationController == null) {
-                        hornetqActivationController = serviceContainer.addService(HornetQActivationService.getHornetQActivationServiceName(hqServiceName), new HornetQActivationService())
+                        hornetqActivationController = serviceContainer.addService(ActiveMQActivationService.getServiceName(hqServiceName), new ActiveMQActivationService())
                                 .setInitialMode(Mode.ACTIVE)
                                 .install();
                     } else {

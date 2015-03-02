@@ -76,7 +76,7 @@ public class DiscoveryGroupAdd extends AbstractAddStepHandler {
         final PathAddress address = PathAddress.pathAddress(operation.require(OP_ADDR));
         final String name = address.getLastElement().getValue();
         ServiceRegistry registry = context.getServiceRegistry(false);
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = registry.getService(hqServiceName);
         if (hqService != null) {
             context.reloadRequired();

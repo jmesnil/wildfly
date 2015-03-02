@@ -30,8 +30,8 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.NUMBER_O
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.NUMBER_OF_PAGES;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.QUEUE_NAMES;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ROLES_ATTR_NAME;
-import static org.wildfly.extension.messaging.activemq.HornetQActivationService.ignoreOperationIfServerNotActive;
-import static org.wildfly.extension.messaging.activemq.HornetQActivationService.rollbackOperationIfServerNotActive;
+import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.ignoreOperationIfServerNotActive;
+import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.rollbackOperationIfServerNotActive;
 import static org.wildfly.extension.messaging.activemq.ManagementUtil.reportListOfStrings;
 import static org.wildfly.extension.messaging.activemq.ManagementUtil.reportRoles;
 import static org.wildfly.extension.messaging.activemq.ManagementUtil.reportRolesAsJSON;
@@ -140,7 +140,7 @@ class AddressControlHandler extends AbstractRuntimeOnlyHandler {
 
     private AddressControl getAddressControl(final OperationContext context, final ModelNode operation) {
         final String addressName = PathAddress.pathAddress(operation.require(OP_ADDR)).getLastElement().getValue();
-        final ServiceName hqServiceName = MessagingServices.getHornetQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
         ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
         return AddressControl.class.cast(hqServer.getManagementService().getResource(ResourceNames.CORE_ADDRESS + addressName));

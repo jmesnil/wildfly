@@ -34,7 +34,7 @@ import javax.jms.Queue;
 import org.apache.activemq.jms.client.ActiveMQQueue;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.jboss.as.controller.ServiceVerificationHandler;
-import org.wildfly.extension.messaging.activemq.HornetQActivationService;
+import org.wildfly.extension.messaging.activemq.ActiveMQActivationService;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceBuilder;
@@ -129,7 +129,7 @@ public class JMSQueueService implements Service<Queue> {
 
         final ServiceName serviceName = JMSServices.getJmsQueueBaseServiceName(hqServiceName).append(name);
         final ServiceBuilder<Queue> serviceBuilder = serviceTarget.addService(serviceName, service)
-                .addDependency(HornetQActivationService.getHornetQActivationServiceName(hqServiceName))
+                .addDependency(ActiveMQActivationService.getServiceName(hqServiceName))
                 .addDependency(JMSServices.getJmsManagerBaseServiceName(hqServiceName), JMSServerManager.class, service.jmsServer)
                 .setInitialMode(ServiceController.Mode.PASSIVE);
         addServerExecutorDependency(serviceBuilder, service.executorInjector, false);

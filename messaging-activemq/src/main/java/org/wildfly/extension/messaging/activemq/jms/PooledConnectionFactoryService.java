@@ -25,7 +25,7 @@ package org.wildfly.extension.messaging.activemq.jms;
 import static java.util.Collections.EMPTY_LIST;
 import static org.jboss.as.naming.deployment.ContextNames.BindInfo;
 import static org.wildfly.extension.messaging.activemq.BinderServiceUtil.installAliasBinderService;
-import static org.wildfly.extension.messaging.activemq.MessagingServices.getHornetQServiceName;
+import static org.wildfly.extension.messaging.activemq.MessagingServices.getActiveMQServiceName;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -116,7 +116,7 @@ import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
 import org.jboss.security.SubjectFactory;
-import org.wildfly.extension.messaging.activemq.HornetQActivationService;
+import org.wildfly.extension.messaging.activemq.ActiveMQActivationService;
 import org.wildfly.extension.messaging.activemq.JGroupsChannelLocator;
 import org.wildfly.extension.messaging.activemq.MessagingServices;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
@@ -240,7 +240,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
                                       int maxPoolSize,
                                       boolean pickAnyConnectors) {
 
-        ServiceName hqServiceName = MessagingServices.getHornetQServiceName(hqServerName);
+        ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(hqServerName);
         ServiceName serviceName = JMSServices.getPooledConnectionFactoryBaseServiceName(hqServiceName).append(name);
 
         PooledConnectionFactoryService service = new PooledConnectionFactoryService(name,
@@ -269,7 +269,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
                                       int minPoolSize,
                                       int maxPoolSize) {
 
-        ServiceName hqServiceName = MessagingServices.getHornetQServiceName(hqServerName);
+        ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(hqServerName);
         ServiceName serviceName = JMSServices.getPooledConnectionFactoryBaseServiceName(hqServiceName).append(name);
         PooledConnectionFactoryService service = new PooledConnectionFactoryService(name,
                 connectors, discoveryGroupName, hqServerName, jgroupsChannelName, adapterParams,
@@ -288,7 +288,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
                 .addService(serviceName, service)
                 .addDependency(TxnServices.JBOSS_TXN_TRANSACTION_MANAGER, service.transactionManager)
                 .addDependency(hqServiceName, ActiveMQServer.class, service.hornetQService)
-                .addDependency(HornetQActivationService.getHornetQActivationServiceName(hqServiceName))
+                .addDependency(ActiveMQActivationService.getServiceName(hqServiceName))
                 .addDependency(JMSServices.getJmsManagerBaseServiceName(hqServiceName))
                 .setInitialMode(ServiceController.Mode.PASSIVE);
         if (verificationHandler != null) {
@@ -413,7 +413,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
                     Services.addServerExecutorDependency(
                         serviceTarget.addService(ConnectorServices.RESOURCE_ADAPTER_ACTIVATOR_SERVICE.append(name), activator),
                             activator.getExecutorServiceInjector(), false)
-                    .addDependency(HornetQActivationService.getHornetQActivationServiceName(getHornetQServiceName(hqServerName)))
+                    .addDependency(ActiveMQActivationService.getServiceName(getActiveMQServiceName(hqServerName)))
                     .addDependency(ConnectorServices.IRONJACAMAR_MDR, AS7MetadataRepository.class,
                             activator.getMdrInjector())
                     .addDependency(ConnectorServices.RA_REPOSITORY_SERVICE, ResourceAdapterRepository.class,

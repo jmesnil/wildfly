@@ -22,7 +22,7 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import static org.wildfly.extension.messaging.activemq.HornetQActivationService.getHornetQServer;
+import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.getActiveMQServer;
 
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.HierarchicalRepository;
@@ -58,7 +58,7 @@ class AddressSettingsWriteHandler extends AbstractWriteAttributeHandler<AddressS
     protected boolean applyUpdateToRuntime(final OperationContext context, final ModelNode operation, final String attributeName, final ModelNode resolvedValue,
                                            final ModelNode currentValue, final HandbackHolder<RevertHandback> handbackHolder) throws OperationFailedException {
         final Resource resource = context.readResource(PathAddress.EMPTY_ADDRESS);
-        final ActiveMQServer server = getHornetQServer(context, operation);
+        final ActiveMQServer server = getActiveMQServer(context, operation);
         if(server != null) {
             final ModelNode model = resource.getModel();
             final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));

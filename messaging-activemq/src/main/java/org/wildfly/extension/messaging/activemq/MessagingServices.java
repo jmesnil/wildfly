@@ -33,29 +33,31 @@ import org.jboss.msc.service.ServiceName;
  */
 public class MessagingServices {
 
-    /** The service name "jboss.messaging". */
-    static final ServiceName JBOSS_MESSAGING = ServiceName.JBOSS.append("messaging");
+    /**
+     * The service name is "jboss.messaging-activemq"
+     */
+    static final ServiceName JBOSS_MESSAGING_ACTIVEMQ = ServiceName.JBOSS.append(MessagingExtension.SUBSYSTEM_NAME);
 
     /** The core queue name base. */
     private static final String CORE_QUEUE_BASE = "queue";
 
-   public static ServiceName getHornetQServiceName(PathAddress pathAddress) {
-         // We need to figure out what HornetQServer this operation is targeting.
-        // We can get that from the "address" element of the operation, as the "hornetq-server=x" part of
-        // the address will specify the name of the HornetQServer
+   public static ServiceName getActiveMQServiceName(PathAddress pathAddress) {
+         // We need to figure out what ActiveMQ this operation is targeting.
+        // We can get that from the "address" element of the operation, as the "server=x" part of
+        // the address will specify the name of the ActiveMQ server
 
-       // We are a handler for requests related to a jms-topic resource. Those reside on level below the hornetq-server
+       // We are a handler for requests related to a jms-topic resource. Those reside on level below the server
         // resources in the resource tree. So we could look for the hornetq-server in the 2nd to last element
         // in the PathAddress. But to be more generic and future-proof, we'll walk the tree looking
-       String hornetQServerName = null;
-       PathAddress hornetQServerPathAddress = getHornetQServerPathAddress(pathAddress);
-       if (hornetQServerPathAddress != null) {
-           hornetQServerName = hornetQServerPathAddress.getLastElement().getValue();
+       String serverName = null;
+       PathAddress serverPathAddress = getActiveMQServerPathAddress(pathAddress);
+       if (serverPathAddress != null) {
+           serverName = serverPathAddress.getLastElement().getValue();
        }
-       return JBOSS_MESSAGING.append(hornetQServerName);
+       return JBOSS_MESSAGING_ACTIVEMQ.append(serverName);
    }
 
-   public static PathAddress getHornetQServerPathAddress(PathAddress pathAddress) {
+   public static PathAddress getActiveMQServerPathAddress(PathAddress pathAddress) {
        for (int i = pathAddress.size() - 1; i >=0; i--) {
            PathElement pe = pathAddress.getElement(i);
            if (CommonAttributes.SERVER.equals(pe.getKey())) {
@@ -65,16 +67,16 @@ public class MessagingServices {
        return PathAddress.EMPTY_ADDRESS;
    }
 
-   public static ServiceName getHornetQServiceName(String serverName) {
-      return JBOSS_MESSAGING.append(serverName);
+   public static ServiceName getActiveMQServiceName(String serverName) {
+      return JBOSS_MESSAGING_ACTIVEMQ.append(serverName);
    }
 
-   public static ServiceName getQueueBaseServiceName(ServiceName hornetqServiceName) {
-       return hornetqServiceName.append(CORE_QUEUE_BASE);
+   public static ServiceName getQueueBaseServiceName(ServiceName serverServiceName) {
+       return serverServiceName.append(CORE_QUEUE_BASE);
    }
 
    public static ServiceName getJMSBridgeServiceName(String bridgeName) {
-       return JBOSS_MESSAGING.append(JMS_BRIDGE).append(bridgeName);
+       return JBOSS_MESSAGING_ACTIVEMQ.append(JMS_BRIDGE).append(bridgeName);
    }
 
 }
