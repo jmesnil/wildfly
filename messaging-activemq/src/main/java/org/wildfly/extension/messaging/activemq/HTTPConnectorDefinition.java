@@ -57,9 +57,9 @@ public class HTTPConnectorDefinition extends AbstractTransportDefinition {
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.SOCKET_BINDING_REF)
             .build();
 
-    static final HTTPConnectorDefinition INSTANCE = new HTTPConnectorDefinition(false);
+    static final HTTPConnectorDefinition INSTANCE = new HTTPConnectorDefinition();
 
-    public HTTPConnectorDefinition(final boolean registerRuntimeOnly) {
+    public HTTPConnectorDefinition() {
         super(false, CommonAttributes.HTTP_CONNECTOR, SOCKET_BINDING, PARAMS);
     }
 

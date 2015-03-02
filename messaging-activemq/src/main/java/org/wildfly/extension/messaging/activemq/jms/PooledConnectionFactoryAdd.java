@@ -23,7 +23,6 @@
 package org.wildfly.extension.messaging.activemq.jms;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTORS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.LOCAL;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.LOCAL_TX;
@@ -104,9 +103,7 @@ public class PooledConnectionFactoryAdd extends AbstractAddStepHandler {
         }
 
         ServiceTarget serviceTarget = context.getServiceTarget();
-
-        List<String> connectors = getConnectors(resolvedModel);
-
+        List<String> connectors = Common.CONNECTORS.unwrap(context, model);
         String discoveryGroupName = getDiscoveryGroup(resolvedModel);
         String jgroupsChannelName = null;
         if (discoveryGroupName != null) {
@@ -122,16 +119,6 @@ public class PooledConnectionFactoryAdd extends AbstractAddStepHandler {
         PooledConnectionFactoryService.installService(verificationHandler, newControllers, serviceTarget,
                 name, hqServiceAddress.getLastElement().getValue(), connectors, discoveryGroupName, jgroupsChannelName,
                 adapterParams, jndiNames, txSupport, minPoolSize, maxPoolSize);
-    }
-
-    static List<String> getConnectors(final ModelNode model) {
-        List<String> connectorNames = new ArrayList<String>();
-        if (model.hasDefined(CONNECTORS)) {
-            for (ModelNode connectorName : model.get(CONNECTORS).asList()) {
-                connectorNames.add(connectorName.asString());
-            }
-        }
-        return connectorNames;
     }
 
     static String getDiscoveryGroup(final ModelNode model) {

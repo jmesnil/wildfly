@@ -51,10 +51,14 @@ import org.jboss.msc.service.StopContext;
 public class ActiveMQActivationService implements Service<Void> {
 
     public static ServiceName getServiceName(ServiceName serverName) {
+        System.out.println("ActiveMQActivationService.getServiceName");
+        System.out.println("serverName = [" + serverName + "]");
         return serverName.append("activation");
     }
 
     public static boolean isActiveMQServerActive(OperationContext context, ModelNode operation) {
+        System.out.println("ActiveMQActivationService.isActiveMQServerActive");
+        System.out.println("context = [" + context + "], operation = [" + operation + "]");
         PathAddress address = pathAddress(operation.get(OP_ADDR));
         return isActiveMQServerActive(context.getServiceRegistry(false), MessagingServices.getActiveMQServiceName(address));
     }
