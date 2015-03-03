@@ -42,10 +42,8 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.Resource;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
@@ -54,6 +52,7 @@ import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
 import org.jboss.msc.service.ServiceTarget;
 import org.jgroups.JChannel;
+import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
  * Handler for adding a broadcast group.
@@ -79,7 +78,6 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
                 @Override
                 public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
                     validateConnectors(context, operation, connectorRefs);
-                    context.stepCompleted();
                 }
             }, OperationContext.Stage.MODEL);
         }
@@ -93,7 +91,7 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
     }
 
     @Override
-    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
+    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
 
         ServiceRegistry registry = context.getServiceRegistry(false);
         final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));

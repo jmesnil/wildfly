@@ -22,37 +22,35 @@
 
 package org.wildfly.extension.messaging.activemq.jms;
 
+import static org.jboss.as.server.Services.addServerExecutorDependency;
+import static org.jboss.msc.service.ServiceController.Mode.ACTIVE;
+import static org.jboss.msc.service.ServiceController.Mode.REMOVE;
+import static org.jboss.msc.service.ServiceController.State.REMOVED;
+import static org.jboss.msc.service.ServiceController.State.STOPPING;
+import static org.wildfly.extension.messaging.activemq.logging.MessagingLogger.MESSAGING_LOGGER;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+
 import org.apache.activemq.core.security.ActiveMQPrincipal;
 import org.apache.activemq.core.server.ActivateCallback;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.wildfly.extension.messaging.activemq.ActiveMQActivationService;
-import org.wildfly.extension.messaging.activemq.DefaultCredentials;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceContainer;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceController.Mode;
-import org.jboss.msc.service.ServiceListener;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceTarget;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
-
-import static org.wildfly.extension.messaging.activemq.logging.MessagingLogger.MESSAGING_LOGGER;
-import static org.jboss.as.server.Services.addServerExecutorDependency;
-import static org.jboss.msc.service.ServiceController.Mode.ACTIVE;
-import static org.jboss.msc.service.ServiceController.Mode.REMOVE;
-import static org.jboss.msc.service.ServiceController.State.REMOVED;
-import static org.jboss.msc.service.ServiceController.State.STOPPING;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionException;
-
+import org.wildfly.extension.messaging.activemq.ActiveMQActivationService;
+import org.wildfly.extension.messaging.activemq.DefaultCredentials;
+import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.wildfly.security.manager.WildFlySecurityManager;
 
 /**
@@ -67,11 +65,10 @@ public class JMSService implements Service<JMSServerManager> {
     private final boolean overrideInVMSecurity;
     private JMSServerManager jmsServer;
 
-    public static ServiceController<JMSServerManager> addService(final ServiceTarget target, ServiceName hqServiceName, boolean overrideInVMSecurity, final ServiceListener<Object>... listeners) {
+    public static ServiceController<JMSServerManager> addService(final ServiceTarget target, ServiceName hqServiceName, boolean overrideInVMSecurity) {
         final JMSService service = new JMSService(hqServiceName, overrideInVMSecurity);
         ServiceBuilder<JMSServerManager> builder = target.addService(JMSServices.getJmsManagerBaseServiceName(hqServiceName), service)
                 .addDependency(hqServiceName, ActiveMQServer.class, service.hornetQServer)
-                .addListener(listeners)
                 .setInitialMode(Mode.ACTIVE);
         addServerExecutorDependency(builder, service.serverExecutor, false);
         return builder.install();

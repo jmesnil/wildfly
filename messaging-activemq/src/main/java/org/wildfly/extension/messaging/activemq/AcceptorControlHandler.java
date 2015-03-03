@@ -32,7 +32,7 @@ import org.jboss.as.controller.PathAddress;
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class AcceptorControlHandler extends AbstractHornetQComponentControlHandler<AcceptorControl> {
+public class AcceptorControlHandler extends AbstractActiveMQComponentControlHandler<AcceptorControl> {
 
     public static final AcceptorControlHandler INSTANCE = new AcceptorControlHandler();
 

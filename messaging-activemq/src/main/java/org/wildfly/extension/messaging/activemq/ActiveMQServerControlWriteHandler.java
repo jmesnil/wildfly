@@ -49,11 +49,11 @@ import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class HornetQServerControlWriteHandler extends AbstractWriteAttributeHandler<Void> {
+public class ActiveMQServerControlWriteHandler extends AbstractWriteAttributeHandler<Void> {
 
-    public static final HornetQServerControlWriteHandler INSTANCE = new HornetQServerControlWriteHandler();
+    public static final ActiveMQServerControlWriteHandler INSTANCE = new ActiveMQServerControlWriteHandler();
 
-    private HornetQServerControlWriteHandler() {
+    private ActiveMQServerControlWriteHandler() {
         super(ServerDefinition.ATTRIBUTES);
     }
 
@@ -154,7 +154,6 @@ public class HornetQServerControlWriteHandler extends AbstractWriteAttributeHand
         public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
             ModelNode aliased = getAliasedOperation(operation);
             context.addStep(aliased, getHandlerForOperation(context, operation), OperationContext.Stage.MODEL, true);
-            context.stepCompleted();
         }
 
         private static ModelNode getAliasedOperation(ModelNode operation) {

@@ -22,11 +22,9 @@
 
 package org.wildfly.extension.messaging.activemq;
 
+import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.getActiveMQServer;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DEAD_LETTER_ADDRESS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.EXPIRY_ADDRESS;
-import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.getActiveMQServer;
-
-import java.util.List;
 
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.server.ActiveMQServer;
@@ -38,12 +36,10 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
-import org.jboss.msc.service.ServiceController;
 
 /**
  * {@code OperationStepHandler} adding a new address setting.
@@ -66,9 +62,7 @@ class AddressSettingAdd extends AbstractAddStepHandler {
     }
 
     @Override
-    protected void performRuntime(final OperationContext context, final ModelNode operation, final ModelNode model,
-                                  final ServiceVerificationHandler verificationHandler,
-                                  final List<ServiceController<?>> newControllers) throws OperationFailedException {
+    protected void performRuntime(final OperationContext context, final ModelNode operation, final ModelNode model) throws OperationFailedException {
         final ActiveMQServer server = getActiveMQServer(context, operation);
         if(server != null) {
             final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));

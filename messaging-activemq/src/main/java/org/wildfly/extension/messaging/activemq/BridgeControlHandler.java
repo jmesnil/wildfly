@@ -32,7 +32,7 @@ import org.jboss.as.controller.PathAddress;
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class BridgeControlHandler extends AbstractHornetQComponentControlHandler<BridgeControl> {
+public class BridgeControlHandler extends AbstractActiveMQComponentControlHandler<BridgeControl> {
 
     public static final BridgeControlHandler INSTANCE = new BridgeControlHandler();
 

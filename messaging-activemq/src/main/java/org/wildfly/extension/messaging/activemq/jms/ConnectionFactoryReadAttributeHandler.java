@@ -96,6 +96,5 @@ public class ConnectionFactoryReadAttributeHandler extends AbstractRuntimeOnlyHa
             // Bug
             throw MessagingLogger.ROOT_LOGGER.unsupportedAttribute(attributeName);
         }
-        context.stepCompleted();
     }
 }

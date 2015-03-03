@@ -47,7 +47,6 @@ import org.jboss.as.connector.services.resourceadapters.ResourceAdapterActivator
 import org.jboss.as.connector.services.resourceadapters.deployment.registry.ResourceAdapterDeploymentRegistry;
 import org.jboss.as.connector.subsystems.jca.JcaSubsystemConfiguration;
 import org.jboss.as.connector.util.ConnectorServices;
-import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.as.naming.service.NamingService;
 import org.jboss.as.network.SocketBinding;
@@ -219,15 +218,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
         }
     }
 
-    /**
-     *
-     * @param verificationHandler can be {@code null}
-     * @param newControllers  can be {@code null}
-     */
-
-    public static void installService(final ServiceVerificationHandler verificationHandler,
-                                      final List<ServiceController<?>> newControllers,
-                                      ServiceTarget serviceTarget,
+    public static void installService(ServiceTarget serviceTarget,
                                       String name,
                                       String hqServerName,
                                       List<String> connectors,
@@ -247,17 +238,10 @@ public class PooledConnectionFactoryService implements Service<Void> {
                 connectors, discoveryGroupName, hqServerName, jgroupsChannelName, adapterParams,
                 bindInfo, txSupport, minPoolSize, maxPoolSize, pickAnyConnectors);
 
-        installService0(verificationHandler, newControllers, serviceTarget, hqServiceName, serviceName, service);
+        installService0(serviceTarget, hqServiceName, serviceName, service);
     }
 
-    /**
-     *
-     * @param verificationHandler can be {@code null}
-     * @param newControllers  can be {@code null}
-     */
-    public static void installService(final ServiceVerificationHandler verificationHandler,
-                                      final List<ServiceController<?>> newControllers,
-                                      ServiceTarget serviceTarget,
+    public static void installService(ServiceTarget serviceTarget,
                                       String name,
                                       String hqServerName,
                                       List<String> connectors,
@@ -275,12 +259,10 @@ public class PooledConnectionFactoryService implements Service<Void> {
                 connectors, discoveryGroupName, hqServerName, jgroupsChannelName, adapterParams,
                 jndiNames, txSupport, minPoolSize, maxPoolSize);
 
-        installService0(verificationHandler, newControllers, serviceTarget, hqServiceName, serviceName, service);
+        installService0(serviceTarget, hqServiceName, serviceName, service);
     }
 
-    private static void installService0(ServiceVerificationHandler verificationHandler,
-                                        List<ServiceController<?>> newControllers,
-                                        ServiceTarget serviceTarget,
+    private static void installService0(ServiceTarget serviceTarget,
                                         ServiceName hqServiceName,
                                         ServiceName serviceName,
                                         PooledConnectionFactoryService service) {
@@ -291,14 +273,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
                 .addDependency(ActiveMQActivationService.getServiceName(hqServiceName))
                 .addDependency(JMSServices.getJmsManagerBaseServiceName(hqServiceName))
                 .setInitialMode(ServiceController.Mode.PASSIVE);
-        if (verificationHandler != null) {
-            serviceBuilder.addListener(verificationHandler);
-        }
-
-        final ServiceController<Void> controller = serviceBuilder.install();
-        if (newControllers != null) {
-            newControllers.add(controller);
-        }
+        serviceBuilder.install();
     }
 
     public Void getValue() throws IllegalStateException, IllegalArgumentException {

@@ -22,12 +22,13 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import java.util.List;
-
 import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.as.server.AbstractDeploymentChainStep;
+import org.jboss.as.server.DeploymentProcessorTarget;
+import org.jboss.as.server.deployment.Phase;
+import org.jboss.dmr.ModelNode;
 import org.wildfly.extension.messaging.activemq.deployment.CDIDeploymentProcessor;
 import org.wildfly.extension.messaging.activemq.deployment.DefaultJMSConnectionFactoryBindingProcessor;
 import org.wildfly.extension.messaging.activemq.deployment.DefaultJMSConnectionFactoryResourceReferenceProcessor;
@@ -38,11 +39,6 @@ import org.wildfly.extension.messaging.activemq.deployment.JMSDestinationDefinit
 import org.wildfly.extension.messaging.activemq.deployment.MessagingDependencyProcessor;
 import org.wildfly.extension.messaging.activemq.deployment.MessagingXmlInstallDeploymentUnitProcessor;
 import org.wildfly.extension.messaging.activemq.deployment.MessagingXmlParsingDeploymentUnitProcessor;
-import org.jboss.as.server.AbstractDeploymentChainStep;
-import org.jboss.as.server.DeploymentProcessorTarget;
-import org.jboss.as.server.deployment.Phase;
-import org.jboss.dmr.ModelNode;
-import org.jboss.msc.service.ServiceController;
 
 /**
  * Add handler for the messaging subsystem.
@@ -62,7 +58,7 @@ class MessagingSubsystemAdd extends AbstractBoottimeAddStepHandler {
     }
 
     @Override
-    protected void performBoottime(final OperationContext context, ModelNode operation, final ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
+    protected void performBoottime(final OperationContext context, ModelNode operation, final ModelNode model) throws OperationFailedException {
         context.addStep(new AbstractDeploymentChainStep() {
             @Override
             protected void execute(DeploymentProcessorTarget processorTarget) {

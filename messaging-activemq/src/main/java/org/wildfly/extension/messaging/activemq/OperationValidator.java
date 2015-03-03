@@ -23,10 +23,9 @@
 package org.wildfly.extension.messaging.activemq;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.dmr.ModelNode;
+import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
  * @author Emanuel Muckenhuber
@@ -40,15 +39,6 @@ interface OperationValidator {
      * @throws org.jboss.as.controller.OperationFailedException
      */
     void validate(ModelNode operation) throws OperationFailedException;
-
-    /**
-     * Validate resolved.
-     *
-     * @param context the operation context
-     * @param operation the operation to validate
-     * @throws OperationFailedException
-     */
-    void validateResolved(OperationContext context, ModelNode operation) throws OperationFailedException;
 
     /**
      * Validate and Set
@@ -72,30 +62,13 @@ interface OperationValidator {
                 final String attributeName = definition.getName();
                 final boolean has = operation.has(attributeName);
                 if(! has && definition.isRequired(operation)) {
-                    throw new OperationFailedException(new ModelNode().set(MessagingLogger.ROOT_LOGGER.required(definition.getName())));
+                    throw new OperationFailedException(MessagingLogger.ROOT_LOGGER.required(definition.getName()));
                 }
                 if(has) {
                     if(! definition.isAllowed(operation)) {
-                        throw new OperationFailedException(new ModelNode().set(MessagingLogger.ROOT_LOGGER.invalid(definition.getName())));
+                        throw new OperationFailedException(MessagingLogger.ROOT_LOGGER.invalid(definition.getName()));
                     }
                     definition.validateOperation(operation);
-                }
-            }
-        }
-
-        @Override
-        public void validateResolved(final OperationContext context, final ModelNode operation) throws OperationFailedException {
-            for(final AttributeDefinition definition : attributes) {
-                final String attributeName = definition.getName();
-                final boolean has = operation.has(attributeName);
-                if(! has && definition.isRequired(operation)) {
-                    throw new OperationFailedException(new ModelNode().set(MessagingLogger.ROOT_LOGGER.required(definition.getName())));
-                }
-                if(has) {
-                    if(! definition.isAllowed(operation)) {
-                        throw new OperationFailedException(new ModelNode().set(MessagingLogger.ROOT_LOGGER.invalid(definition.getName())));
-                    }
-                    definition.resolveModelAttribute(context, operation);
                 }
             }
         }
@@ -106,11 +79,11 @@ interface OperationValidator {
                 final String attributeName = definition.getName();
                 final boolean has = operation.has(attributeName);
                 if(! has && definition.isRequired(operation)) {
-                    throw new OperationFailedException(new ModelNode().set(MessagingLogger.ROOT_LOGGER.required(definition.getName())));
+                    throw new OperationFailedException(MessagingLogger.ROOT_LOGGER.required(definition.getName()));
                 }
                 if(has) {
                     if(! definition.isAllowed(operation)) {
-                        throw new OperationFailedException(new ModelNode().set(MessagingLogger.ROOT_LOGGER.invalid(definition.getName())));
+                        throw new OperationFailedException(MessagingLogger.ROOT_LOGGER.invalid(definition.getName()));
                     }
                     definition.validateAndSet(operation, subModel);
                 }

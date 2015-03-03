@@ -24,7 +24,6 @@ package org.wildfly.extension.messaging.activemq.jms;
 
 import static org.wildfly.extension.messaging.activemq.logging.MessagingLogger.MESSAGING_LOGGER;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -32,9 +31,6 @@ import javax.jms.Topic;
 
 import org.apache.activemq.jms.client.ActiveMQTopic;
 import org.apache.activemq.jms.server.JMSServerManager;
-import org.jboss.as.controller.ServiceVerificationHandler;
-import org.wildfly.extension.messaging.activemq.ActiveMQActivationService;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
@@ -44,6 +40,8 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
+import org.wildfly.extension.messaging.activemq.ActiveMQActivationService;
+import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
  * Service responsible for creating and destroying a {@code javax.jms.Topic}.
@@ -119,7 +117,7 @@ public class JMSTopicService implements Service<Topic> {
         return topic;
     }
 
-    public static JMSTopicService installService(final ServiceVerificationHandler verificationHandler, final List<ServiceController<?>> newControllers, final String name, final ServiceName hqServiceName, final ServiceTarget serviceTarget, final String[] jndiBindings) {
+    public static JMSTopicService installService(final String name, final ServiceName hqServiceName, final ServiceTarget serviceTarget, final String[] jndiBindings) {
         final JMSTopicService service = new JMSTopicService(name, jndiBindings);
         final ServiceName serviceName = JMSServices.getJmsTopicBaseServiceName(hqServiceName).append(name);
 
@@ -128,14 +126,7 @@ public class JMSTopicService implements Service<Topic> {
                 .addDependency(JMSServices.getJmsManagerBaseServiceName(hqServiceName), JMSServerManager.class, service.jmsServer)
                 .setInitialMode(ServiceController.Mode.PASSIVE);
         org.jboss.as.server.Services.addServerExecutorDependency(serviceBuilder, service.executorInjector, false);
-        if(verificationHandler != null) {
-            serviceBuilder.addListener(verificationHandler);
-        }
-
-        final ServiceController<Topic> controller = serviceBuilder.install();
-        if(newControllers != null) {
-            newControllers.add(controller);
-        }
+        serviceBuilder.install();
 
         return service;
     }

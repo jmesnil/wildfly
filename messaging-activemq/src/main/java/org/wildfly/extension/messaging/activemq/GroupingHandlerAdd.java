@@ -27,8 +27,6 @@ import static org.wildfly.extension.messaging.activemq.GroupingHandlerDefinition
 import static org.wildfly.extension.messaging.activemq.GroupingHandlerDefinition.REAPER_PERIOD;
 import static org.wildfly.extension.messaging.activemq.GroupingHandlerDefinition.TIMEOUT;
 
-import java.util.List;
-
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.server.ActiveMQServer;
@@ -39,14 +37,13 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
+import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
  * Handler for adding a grouping handler.
@@ -70,8 +67,7 @@ public class GroupingHandlerAdd extends AbstractAddStepHandler {
     }
 
     @Override
-    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model,
-                                  ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
+    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model)
             throws OperationFailedException {
         ServiceRegistry registry = context.getServiceRegistry(true);
         final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
@@ -79,7 +75,7 @@ public class GroupingHandlerAdd extends AbstractAddStepHandler {
         if (hqService != null) {
             final ActiveMQServer hqServer = ActiveMQServer.class.cast(hqService.getValue());
             if (hqServer.getGroupingHandler() != null) {
-                throw new OperationFailedException(new ModelNode().set(MessagingLogger.ROOT_LOGGER.childResourceAlreadyExists(CommonAttributes.GROUPING_HANDLER)));
+                throw new OperationFailedException(MessagingLogger.ROOT_LOGGER.childResourceAlreadyExists(CommonAttributes.GROUPING_HANDLER));
             }
             // the groupingHandler is added as a child of the hornetq-server resource. Requires a reload to restart the hornetq server with the grouping-handler
             if (context.isNormalServer()) {
@@ -90,7 +86,6 @@ public class GroupingHandlerAdd extends AbstractAddStepHandler {
                     }
                 }, OperationContext.Stage.RUNTIME);
             }
-            context.stepCompleted();
         }
         // else the initial subsystem install is not complete and the grouping handler will be added in HornetQServerAdd
     }

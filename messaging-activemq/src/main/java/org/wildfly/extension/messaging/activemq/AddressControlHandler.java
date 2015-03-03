@@ -77,8 +77,6 @@ class AddressControlHandler extends AbstractRuntimeOnlyHandler {
         final String operationName = operation.require(OP).asString();
         if (READ_ATTRIBUTE_OPERATION.equals(operationName)) {
             handleReadAttribute(context, operation);
-        } else if (CoreAddressDefinition.GET_ROLES_AS_JSON.equals(operationName)) {
-            handleGetRolesAsJson(context, operation);
         }
     }
 
@@ -121,8 +119,6 @@ class AddressControlHandler extends AbstractRuntimeOnlyHandler {
         } catch (Exception e) {
             context.getFailureDescription().set(e.getLocalizedMessage());
         }
-
-        context.stepCompleted();
     }
 
     private void handleGetRolesAsJson(final OperationContext context, final ModelNode operation) {
@@ -130,7 +126,6 @@ class AddressControlHandler extends AbstractRuntimeOnlyHandler {
         try {
             String json = addressControl.getRolesAsJSON();
             reportRolesAsJSON(context, json);
-            context.stepCompleted();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

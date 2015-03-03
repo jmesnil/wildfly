@@ -171,18 +171,6 @@ public class AddressControlManagementTestCase {
         Assert.assertTrue(foundOther);
     }
 
-    @Test
-    public void testGetRolesAsJson() throws Exception {
-
-        ModelNode result = execute(getAddressOperation("get-roles-as-json"), true);
-        Assert.assertEquals(ModelType.STRING, result.getType());
-        ModelNode converted = ModelNode.fromJSONString(result.asString());
-        Assert.assertEquals(ModelType.LIST, converted.getType());
-        if (converted.asInt() > 0) {
-            Assert.assertEquals(ModelType.OBJECT, converted.get(0).getType());
-        }
-    }
-
     private ModelNode getSubsystemOperation(String operationName) {
         return getEmptyOperation(operationName, jmsOperations.getServerAddress().clone());
     }

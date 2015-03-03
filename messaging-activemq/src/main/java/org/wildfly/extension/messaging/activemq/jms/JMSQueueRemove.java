@@ -24,8 +24,6 @@ package org.wildfly.extension.messaging.activemq.jms;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 
-import java.util.ArrayList;
-
 import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.core.server.ActiveMQServer;
@@ -33,14 +31,13 @@ import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
-import org.wildfly.extension.messaging.activemq.CommonAttributes;
-import org.wildfly.extension.messaging.activemq.MessagingServices;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
+import org.wildfly.extension.messaging.activemq.CommonAttributes;
+import org.wildfly.extension.messaging.activemq.MessagingServices;
 
 /**
  * Update handler removing a queue from the JMS subsystem. The
@@ -89,6 +86,6 @@ public class JMSQueueRemove extends AbstractRemoveStepHandler {
     }
 
     protected void recoverServices(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
-        addOperation.performRuntime(context, operation, model, new ServiceVerificationHandler(), new ArrayList<ServiceController<?>>());
+        addOperation.performRuntime(context, operation, model);
     }
 }

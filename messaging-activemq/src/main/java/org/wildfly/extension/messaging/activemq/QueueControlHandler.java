@@ -139,7 +139,6 @@ public class QueueControlHandler extends AbstractQueueControlHandler<QueueContro
     @Override
     protected void executeRuntimeStep(OperationContext context, ModelNode operation) throws OperationFailedException {
         if (forwardToRuntimeQueue(context, operation, INSTANCE)) {
-            context.stepCompleted();
         } else {
             super.executeRuntimeStep(context, operation);
         }

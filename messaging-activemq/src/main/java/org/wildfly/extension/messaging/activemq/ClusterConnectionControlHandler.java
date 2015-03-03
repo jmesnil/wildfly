@@ -37,7 +37,7 @@ import org.jboss.dmr.ModelNode;
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class ClusterConnectionControlHandler extends AbstractHornetQComponentControlHandler<ClusterConnectionControl> {
+public class ClusterConnectionControlHandler extends AbstractActiveMQComponentControlHandler<ClusterConnectionControl> {
 
     public static final ClusterConnectionControlHandler INSTANCE = new ClusterConnectionControlHandler();
 
@@ -70,14 +70,7 @@ public class ClusterConnectionControlHandler extends AbstractHornetQComponentCon
 
     @Override
     protected Object handleOperation(String operationName, OperationContext context, ModelNode operation) throws OperationFailedException {
-        if (ClusterConnectionDefinition.GET_STATIC_CONNECTORS_AS_JSON.equals(operationName)) {
-            ClusterConnectionControl control = getHornetQComponentControl(context, operation, false);
-            try {
-                context.getResult().set(control.getStaticConnectorsAsJSON());
-            } catch (Exception e) {
-                context.getFailureDescription().set(e.getLocalizedMessage());
-            }
-        } else if (ClusterConnectionDefinition.GET_NODES.equals(operationName)) {
+        if (ClusterConnectionDefinition.GET_NODES.equals(operationName)) {
             ClusterConnectionControl control = getHornetQComponentControl(context, operation, false);
             try {
                 Map<String, String> nodes = control.getNodes();

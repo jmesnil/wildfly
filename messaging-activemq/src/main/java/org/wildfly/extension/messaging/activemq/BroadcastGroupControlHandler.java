@@ -37,7 +37,7 @@ import org.jboss.dmr.ModelNode;
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class BroadcastGroupControlHandler extends AbstractHornetQComponentControlHandler<BroadcastGroupControl> {
+public class BroadcastGroupControlHandler extends AbstractActiveMQComponentControlHandler<BroadcastGroupControl> {
 
     public static final BroadcastGroupControlHandler INSTANCE = new BroadcastGroupControlHandler();
 
