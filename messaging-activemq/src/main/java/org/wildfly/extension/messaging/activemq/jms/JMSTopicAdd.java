@@ -24,22 +24,18 @@ package org.wildfly.extension.messaging.activemq.jms;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 
-import java.util.List;
-
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
+import org.jboss.dmr.ModelNode;
+import org.jboss.msc.service.ServiceName;
+import org.jboss.msc.service.ServiceTarget;
 import org.wildfly.extension.messaging.activemq.BinderServiceUtil;
 import org.wildfly.extension.messaging.activemq.CommonAttributes;
 import org.wildfly.extension.messaging.activemq.MessagingServices;
-import org.jboss.dmr.ModelNode;
-import org.jboss.msc.service.ServiceController;
-import org.jboss.msc.service.ServiceName;
-import org.jboss.msc.service.ServiceTarget;
 
 /**
  * Update handler adding a topic to the JMS subsystem. The
@@ -57,7 +53,7 @@ public class JMSTopicAdd extends AbstractAddStepHandler {
     }
 
     @Override
-    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model, ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
+    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
         final PathAddress address = PathAddress.pathAddress(operation.get(OP_ADDR));
         final String name = address.getLastElement().getValue();
         final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
@@ -65,19 +61,12 @@ public class JMSTopicAdd extends AbstractAddStepHandler {
 
         // Do not pass the JNDI bindings to HornetQ but install them directly instead so that the
         // dependencies from the BinderServices to the JMSQueueService are not broken
-        JMSTopicService jmsTopicService = JMSTopicService.installService(verificationHandler, newControllers, name, hqServiceName, serviceTarget, new String[0]);
+        JMSTopicService jmsTopicService = JMSTopicService.installService(name, hqServiceName, serviceTarget, new String[0]);
 
         final ModelNode entries = CommonAttributes.DESTINATION_ENTRIES.resolveModelAttribute(context, model);
         final String[] jndiBindings = JMSServices.getJndiBindings(entries);
         for (String jndiBinding : jndiBindings) {
             BinderServiceUtil.installBinderService(serviceTarget, jndiBinding, jmsTopicService);
         }
-    }
-
-    /**
-     * @deprecated use {@link JMSTopicService#installService(org.jboss.as.controller.ServiceVerificationHandler, java.util.List, String, org.jboss.msc.service.ServiceName, org.jboss.msc.service.ServiceTarget, String[])} instead.
-     */
-    public void installServices(final ServiceVerificationHandler verificationHandler, final List<ServiceController<?>> newControllers, final String name, final ServiceName hqServiceName, final ServiceTarget serviceTarget, final String[] jndiBindings) {
-        JMSTopicService.installService(verificationHandler, newControllers, name, hqServiceName, serviceTarget, jndiBindings);
     }
 }

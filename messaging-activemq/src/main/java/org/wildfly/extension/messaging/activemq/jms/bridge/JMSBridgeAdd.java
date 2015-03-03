@@ -25,7 +25,6 @@ package org.wildfly.extension.messaging.activemq.jms.bridge;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.server.Services.addServerExecutorDependency;
 
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
@@ -41,10 +40,7 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.wildfly.extension.messaging.activemq.CommonAttributes;
-import org.wildfly.extension.messaging.activemq.MessagingServices;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.as.txn.service.TxnServices;
 import org.jboss.dmr.ModelNode;
@@ -53,9 +49,10 @@ import org.jboss.modules.Module;
 import org.jboss.modules.ModuleIdentifier;
 import org.jboss.modules.ModuleLoadException;
 import org.jboss.msc.service.ServiceBuilder;
-import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceController.Mode;
 import org.jboss.msc.service.ServiceName;
+import org.wildfly.extension.messaging.activemq.CommonAttributes;
+import org.wildfly.extension.messaging.activemq.MessagingServices;
 import org.wildfly.security.manager.WildFlySecurityManager;
 
 /**
@@ -83,8 +80,7 @@ public class JMSBridgeAdd extends AbstractAddStepHandler {
     }
 
     @Override
-    protected void performRuntime(final OperationContext context, final ModelNode operation, final ModelNode model,
-            final ServiceVerificationHandler verificationHandler, final List<ServiceController<?>> newControllers)
+    protected void performRuntime(final OperationContext context, final ModelNode operation, final ModelNode model)
                     throws OperationFailedException {
         context.addStep(new OperationStepHandler() {
 
@@ -100,7 +96,6 @@ public class JMSBridgeAdd extends AbstractAddStepHandler {
                 final ServiceName bridgeServiceName = MessagingServices.getJMSBridgeServiceName(bridgeName);
 
                 final ServiceBuilder<JMSBridge> jmsBridgeServiceBuilder = context.getServiceTarget().addService(bridgeServiceName, bridgeService)
-                        .addListener(verificationHandler)
                         .addDependency(TxnServices.JBOSS_TXN_TRANSACTION_MANAGER)
                         .setInitialMode(Mode.ACTIVE);
                 addServerExecutorDependency(jmsBridgeServiceBuilder, bridgeService.getExecutorInjector(), false);
@@ -113,7 +108,7 @@ public class JMSBridgeAdd extends AbstractAddStepHandler {
                     addDependencyForJNDIResource(jmsBridgeServiceBuilder, model, context, JMSBridgeDefinition.TARGET_DESTINATION);
                 }
 
-                newControllers.add(jmsBridgeServiceBuilder.install());
+                jmsBridgeServiceBuilder.install();
 
                 context.completeStep(OperationContext.RollbackHandler.NOOP_ROLLBACK_HANDLER);
             }

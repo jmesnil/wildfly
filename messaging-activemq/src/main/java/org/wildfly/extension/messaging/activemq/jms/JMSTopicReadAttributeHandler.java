@@ -118,6 +118,5 @@ public class JMSTopicReadAttributeHandler extends AbstractRuntimeOnlyHandler {
         } else {
             throw MessagingLogger.ROOT_LOGGER.unsupportedAttribute(attributeName);
         }
-        context.stepCompleted();
     }
 }

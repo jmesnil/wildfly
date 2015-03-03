@@ -24,13 +24,13 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.STATIC_CONNECTORS;
 import static org.jboss.dmr.ModelType.BIG_DECIMAL;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.OBJECT;
 import static org.jboss.dmr.ModelType.STRING;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.STATIC_CONNECTORS;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -62,11 +62,9 @@ public class ClusterConnectionDefinition extends PersistentResourceDefinition {
 
     public static final String GET_NODES = "get-nodes";
 
-    // we keep the operation for backwards compatibility but it duplicates the "static-connectors" writable attribute
-    @Deprecated
-    public static final String GET_STATIC_CONNECTORS_AS_JSON = "get-static-connectors-as-json";
-
-    public static final String[] OPERATIONS = {GET_NODES, GET_STATIC_CONNECTORS_AS_JSON};
+    public static final String[] OPERATIONS = {
+            GET_NODES
+    };
 
     public static final SimpleAttributeDefinition ADDRESS = create("cluster-connection-address", STRING)
             .setXmlName(CommonAttributes.ADDRESS)
@@ -267,11 +265,5 @@ public class ClusterConnectionDefinition extends PersistentResourceDefinition {
                 .setReplyValueType(STRING)
                 .build();
         registry.registerOperationHandler(getNodesDef, ClusterConnectionControlHandler.INSTANCE);
-        SimpleOperationDefinition getStaticConnectorsAsJson = new SimpleOperationDefinitionBuilder(ClusterConnectionDefinition.GET_STATIC_CONNECTORS_AS_JSON, getResourceDescriptionResolver())
-                .withFlags(flags)
-                .setReplyType(STRING)
-                .build();
-        registry.registerOperationHandler(getStaticConnectorsAsJson, ClusterConnectionControlHandler.INSTANCE);
-
     }
 }

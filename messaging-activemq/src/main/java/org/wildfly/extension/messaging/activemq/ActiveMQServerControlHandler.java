@@ -61,9 +61,9 @@ import org.jboss.msc.service.ServiceName;
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
+public class ActiveMQServerControlHandler extends AbstractRuntimeOnlyHandler {
 
-    static final HornetQServerControlHandler INSTANCE = new HornetQServerControlHandler();
+    static final ActiveMQServerControlHandler INSTANCE = new ActiveMQServerControlHandler();
 
     public static final AttributeDefinition ACTIVE = create("active", BOOLEAN)
             .setStorageRuntime()
@@ -121,7 +121,7 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
             .setValidator(new StringLengthValidator(1, Integer.MAX_VALUE, true, false))
             .build();
 
-    private HornetQServerControlHandler() {
+    private ActiveMQServerControlHandler() {
     }
 
     @Override
@@ -137,7 +137,6 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
 
         if (READ_ATTRIBUTE_OPERATION.equals(operationName)) {
             handleReadAttribute(context, operation, hqServer);
-            context.stepCompleted();
             return;
         }
 
@@ -230,8 +229,6 @@ public class HornetQServerControlHandler extends AbstractRuntimeOnlyHandler {
         } catch (Exception e) {
             context.getFailureDescription().set(e.getLocalizedMessage());
         }
-
-        context.stepCompleted();
     }
 
     public void registerAttributes(final ManagementResourceRegistration registry) {

@@ -74,7 +74,6 @@ public class ManagementHelper {
                 if (children.size() > 1) {
                     throw MessagingLogger.ROOT_LOGGER.onlyOneChildIsAllowed(childType, children);
                 }
-                context.stepCompleted();
             }
         };
     }

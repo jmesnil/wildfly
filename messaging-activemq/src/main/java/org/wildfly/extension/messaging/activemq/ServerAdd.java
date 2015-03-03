@@ -27,24 +27,23 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PAT
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ADDRESS_SETTING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BINDINGS_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BROADCAST_GROUP;
-import static org.wildfly.extension.messaging.activemq.ServerDefinition.CREATE_BINDINGS_DIR;
-import static org.wildfly.extension.messaging.activemq.ServerDefinition.CREATE_JOURNAL_DIR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DISCOVERY_GROUP;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_ACCEPTOR;
-import static org.wildfly.extension.messaging.activemq.ServerDefinition.ID_CACHE_SIZE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_STACK;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.LARGE_MESSAGES_DIRECTORY;
-import static org.wildfly.extension.messaging.activemq.ServerDefinition.PAGE_MAX_CONCURRENT_IO;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.PAGING_DIRECTORY;
-import static org.wildfly.extension.messaging.activemq.ServerDefinition.PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY;
-import static org.wildfly.extension.messaging.activemq.ServerDefinition.PERSIST_ID_CACHE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_SETTING;
+import static org.wildfly.extension.messaging.activemq.PathDefinition.PATHS;
+import static org.wildfly.extension.messaging.activemq.PathDefinition.RELATIVE_TO;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.ASYNC_CONNECTION_EXECUTION_ENABLED;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.CLUSTER_PASSWORD;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.CLUSTER_USER;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.CONNECTION_TTL_OVERRIDE;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.CREATE_BINDINGS_DIR;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.CREATE_JOURNAL_DIR;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.ID_CACHE_SIZE;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.JMX_DOMAIN;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.JMX_MANAGEMENT_ENABLED;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_BUFFER_SIZE;
@@ -67,8 +66,11 @@ import static org.wildfly.extension.messaging.activemq.ServerDefinition.MESSAGE_
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.MESSAGE_EXPIRY_SCAN_PERIOD;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.MESSAGE_EXPIRY_THREAD_PRIORITY;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.OVERRIDE_IN_VM_SECURITY;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.PAGE_MAX_CONCURRENT_IO;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.PERF_BLAST_PAGES;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.PERSISTENCE_ENABLED;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.PERSIST_ID_CACHE;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.RUN_SYNC_SPEED_TEST;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.SCHEDULED_THREAD_POOL_MAX_SIZE;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.SECURITY_DOMAIN;
@@ -80,8 +82,6 @@ import static org.wildfly.extension.messaging.activemq.ServerDefinition.THREAD_P
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.TRANSACTION_TIMEOUT;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.TRANSACTION_TIMEOUT_SCAN_PERIOD;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.WILD_CARD_ROUTING_ENABLED;
-import static org.wildfly.extension.messaging.activemq.PathDefinition.PATHS;
-import static org.wildfly.extension.messaging.activemq.PathDefinition.RELATIVE_TO;
 import static org.wildfly.extension.messaging.activemq.ha.HAPolicyConfigurationBuilder.addHAPolicyConfiguration;
 
 import java.util.ArrayList;
@@ -108,7 +108,6 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
-import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.controller.services.path.PathManager;
@@ -171,34 +170,17 @@ class ServerAdd implements OperationStepHandler {
                             context.createResource(pathAddress);
                         }
                     }
-                    context.stepCompleted();
                 }
             }, OperationContext.Stage.MODEL);
             context.addStep(new OperationStepHandler() {
                 public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
-                    final List<ServiceController<?>> controllers = new ArrayList<ServiceController<?>>();
-                    final ServiceVerificationHandler verificationHandler = new ServiceVerificationHandler();
-                    performRuntime(context, resource, verificationHandler, controllers);
-
-                    context.addStep(verificationHandler, OperationContext.Stage.VERIFY);
-
-                    context.completeStep(new OperationContext.RollbackHandler() {
-                        @Override
-                        public void handleRollback(OperationContext context, ModelNode operation) {
-                            for(ServiceController<?> controller : controllers) {
-                                context.removeService(controller.getName());
-                            }
-                        }
-                    });
+                    performRuntime(context, resource);
                 }
             }, OperationContext.Stage.RUNTIME);
         }
-        context.stepCompleted();
     }
 
-    private void performRuntime(final OperationContext context, final ActiveMQServerResource resource,
-                                  final ServiceVerificationHandler verificationHandler,
-                                  final List<ServiceController<?>> newControllers) throws OperationFailedException {
+    private void performRuntime(final OperationContext context, final ActiveMQServerResource resource) throws OperationFailedException {
         // Add a RUNTIME step to actually install the HQ Service. This will execute after the runtime step
         // added by any child resources whose ADD handler executes after this one in the model stage.
         context.addStep(new OperationStepHandler() {
@@ -229,7 +211,7 @@ class ServerAdd implements OperationStepHandler {
                 // Add the HornetQ Service
                 ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(serverName);
                 final ServiceBuilder<ActiveMQServer> serviceBuilder = serviceTarget.addService(hqServiceName, hqService)
-                        .addDependency(DependencyType.OPTIONAL, ServiceName.JBOSS.append("mbean", "server"), MBeanServer.class, hqService.getMBeanServer());
+                        .addDependency(ServiceName.JBOSS.append("mbean", "server"), MBeanServer.class, hqService.getMBeanServer());
 
                 serviceBuilder.addDependency(PathManagerService.SERVICE_NAME, PathManager.class, hqService.getPathManagerInjector());
 
@@ -265,14 +247,12 @@ class ServerAdd implements OperationStepHandler {
                     final ServiceName outboundSocketName = OutboundSocketBinding.OUTBOUND_SOCKET_BINDING_BASE_SERVICE_NAME.append(outboundSocketBinding);
                     // Optional dependency so it won't fail if the user used a ref to socket-binding instead of
                     // outgoing-socket-binding
-                    serviceBuilder.addDependency(DependencyType.OPTIONAL, outboundSocketName, OutboundSocketBinding.class,
-                            hqService.getOutboundSocketBindingInjector(outboundSocketBinding));
+                    serviceBuilder.addDependency(DependencyType.OPTIONAL, outboundSocketName, OutboundSocketBinding.class, hqService.getOutboundSocketBindingInjector(outboundSocketBinding));
                     if (!socketBindings.contains(outboundSocketBinding)) {
                         // Add a dependency on the regular socket binding as well so users don't have to use
                         // outgoing-socket-binding to configure a ref to the local server socket
                         final ServiceName socketName = SocketBinding.JBOSS_BINDING_NAME.append(outboundSocketBinding);
-                        serviceBuilder.addDependency(DependencyType.OPTIONAL, socketName, SocketBinding.class,
-                                hqService.getSocketBindingInjector(outboundSocketBinding));
+                        serviceBuilder.addDependency(DependencyType.OPTIONAL, socketName, SocketBinding.class, hqService.getSocketBindingInjector(outboundSocketBinding));
                     }
                 }
                 //this requires connectors
@@ -315,16 +295,13 @@ class ServerAdd implements OperationStepHandler {
                     }
                 }
 
-                serviceBuilder.addListener(verificationHandler);
-
                 // Install the HornetQ Service
                 ServiceController<ActiveMQServer> hqServerServiceController = serviceBuilder.install();
                 // Provide our custom Resource impl a ref to the HornetQServer so it can create child runtime resources
                 resource.setHornetQServerServiceController(hqServerServiceController);
 
-                newControllers.add(hqServerServiceController);
                 boolean overrideInVMSecurity = OVERRIDE_IN_VM_SECURITY.resolveModelAttribute(context, operation).asBoolean();
-                newControllers.add(JMSService.addService(serviceTarget, hqServiceName, overrideInVMSecurity, verificationHandler));
+                JMSService.addService(serviceTarget, hqServiceName, overrideInVMSecurity);
 
                 context.completeStep(OperationContext.RollbackHandler.NOOP_ROLLBACK_HANDLER);
             }

@@ -124,8 +124,6 @@ public class AddressSettingsResolveHandler extends AbstractRuntimeOnlyHandler {
         result.get(REDELIVERY_MULTIPLIER.getName()).set(settings.getRedeliveryMultiplier());
         result.get(REDISTRIBUTION_DELAY.getName()).set(settings.getRedistributionDelay());
         result.get(SEND_TO_DLA_ON_NO_ROUTE.getName()).set(settings.isSendToDLAOnNoRoute());
-
-        context.stepCompleted();
     }
 
     public static void registerOperationHandler(ManagementResourceRegistration registry, ResourceDescriptionResolver resolver) {

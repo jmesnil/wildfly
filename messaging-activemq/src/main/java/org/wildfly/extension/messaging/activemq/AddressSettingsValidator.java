@@ -59,8 +59,6 @@ class AddressSettingsValidator {
 
             checkExpiryAddress(context, operation, hornetqServer, addressSetting);
             checkDeadLetterAddress(context, operation, hornetqServer, addressSetting);
-
-            context.stepCompleted();
         }
     };
 
@@ -76,8 +74,6 @@ class AddressSettingsValidator {
 
         checkExpiryAddress(context, resource.getModel(), hornetqServer, addressSetting);
         checkDeadLetterAddress(context, resource.getModel(), hornetqServer, addressSetting);
-
-        context.stepCompleted();
     }
 
     private static void checkExpiryAddress(OperationContext context, ModelNode model, Resource hornetqServer, String addressSetting) throws OperationFailedException {

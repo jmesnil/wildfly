@@ -22,7 +22,6 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import java.util.List;
 import java.util.Set;
 
 import org.apache.activemq.core.security.Role;
@@ -32,8 +31,8 @@ import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
+import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
@@ -52,8 +51,7 @@ class SecurityRoleAdd extends AbstractAddStepHandler {
     }
 
     @Override
-    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model,
-            ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
+    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model)
                     throws OperationFailedException {
         if(context.isNormalServer()) {
             final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
@@ -71,8 +69,7 @@ class SecurityRoleAdd extends AbstractAddStepHandler {
     }
 
     @Override
-    protected void rollbackRuntime(OperationContext context, ModelNode operation, ModelNode model,
-            List<ServiceController<?>> controllers) {
+    protected void rollbackRuntime(OperationContext context, ModelNode operation, Resource resource) {
         final PathAddress address = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR));
         final ActiveMQServer server = getServer(context, operation);
         final String match = address.getElement(address.size() - 2).getValue();

@@ -60,7 +60,7 @@ import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public abstract class AbstractHornetQComponentControlHandler<T extends ActiveMQComponentControl> extends AbstractRuntimeOnlyHandler {
+public abstract class AbstractActiveMQComponentControlHandler<T extends ActiveMQComponentControl> extends AbstractRuntimeOnlyHandler {
 
     private static final SimpleAttributeDefinition STARTED = create(CommonAttributes.STARTED, BOOLEAN)
             .setFlags(AttributeAccess.Flag.STORAGE_RUNTIME)
@@ -68,7 +68,7 @@ public abstract class AbstractHornetQComponentControlHandler<T extends ActiveMQC
 
     private ParametersValidator readAttributeValidator = new ParametersValidator();
 
-    protected AbstractHornetQComponentControlHandler() {
+    protected AbstractActiveMQComponentControlHandler() {
         readAttributeValidator.registerValidator(NAME, new StringLengthValidator(1));
     }
 
@@ -89,7 +89,6 @@ public abstract class AbstractHornetQComponentControlHandler<T extends ActiveMQC
             } else {
                 handleReadAttribute(name, context, operation);
             }
-            context.stepCompleted();
             return;
         }
 

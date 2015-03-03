@@ -101,7 +101,6 @@ public class PathDefinition extends PersistentResourceDefinition {
                 attribute.validateAndSet(operation, model);
             }
             reloadRequiredStep(context);
-            context.stepCompleted();
         }
     };
 
@@ -111,7 +110,6 @@ public class PathDefinition extends PersistentResourceDefinition {
         public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
             context.removeResource(PathAddress.EMPTY_ADDRESS);
             reloadRequiredStep(context);
-            context.stepCompleted();
         }
     };
 

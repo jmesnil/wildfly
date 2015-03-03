@@ -87,7 +87,7 @@ public abstract class AbstractUpdateJndiHandler implements OperationStepHandler 
         if (addOperation) {
             for (ModelNode entry : entries.asList()) {
                 if (jndiName.equals(entry.asString())) {
-                    throw new OperationFailedException(new ModelNode().set(ROOT_LOGGER.jndiNameAlreadyRegistered(jndiName)));
+                    throw new OperationFailedException(ROOT_LOGGER.jndiNameAlreadyRegistered(jndiName));
                 }
             }
             entries.add(jndiName);
@@ -97,7 +97,8 @@ public abstract class AbstractUpdateJndiHandler implements OperationStepHandler 
             for (ModelNode entry : entries.asList()) {
                 if (jndiName.equals(entry.asString())) {
                     if (entries.asList().size() == 1) {
-                        throw new OperationFailedException(new ModelNode().set(ROOT_LOGGER.canNotRemoveLastJNDIName(jndiName)));
+                        throw new OperationFailedException(
+                                ROOT_LOGGER.canNotRemoveLastJNDIName(jndiName));
                     }
                     updated = true;
                 } else {
@@ -172,7 +173,6 @@ public abstract class AbstractUpdateJndiHandler implements OperationStepHandler 
                 }
             }, OperationContext.Stage.RUNTIME);
         }
-        context.stepCompleted();
     }
 
     protected abstract void addJndiName(JMSServerManager jmsServerManager, String resourceName, String jndiName) throws Exception;

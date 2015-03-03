@@ -68,8 +68,6 @@ class ServerRemove implements OperationStepHandler {
 
             }
         }, OperationContext.Stage.RUNTIME);
-
-        context.stepCompleted();
     }
 
     static void removeHornetQServer(String serverName, OperationContext context, Resource resource) {

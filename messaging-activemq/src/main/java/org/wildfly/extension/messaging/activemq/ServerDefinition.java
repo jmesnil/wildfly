@@ -501,7 +501,7 @@ public class ServerDefinition extends PersistentResourceDefinition {
     public void registerOperations(ManagementResourceRegistration resourceRegistration) {
         super.registerOperations(resourceRegistration);
         if (registerRuntimeOnly) {
-            HornetQServerControlHandler.INSTANCE.registerOperations(resourceRegistration, getResourceDescriptionResolver());
+            ActiveMQServerControlHandler.INSTANCE.registerOperations(resourceRegistration, getResourceDescriptionResolver());
             JMSServerControlHandler.INSTANCE.registerOperations(resourceRegistration, getResourceDescriptionResolver());
 
             AddressSettingsResolveHandler.registerOperationHandler(resourceRegistration, getResourceDescriptionResolver());
@@ -510,9 +510,9 @@ public class ServerDefinition extends PersistentResourceDefinition {
 
     @Override
     public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
-        HornetQServerControlWriteHandler.INSTANCE.registerAttributes(resourceRegistration, registerRuntimeOnly);
+        ActiveMQServerControlWriteHandler.INSTANCE.registerAttributes(resourceRegistration, registerRuntimeOnly);
         if (registerRuntimeOnly) {
-            HornetQServerControlHandler.INSTANCE.registerAttributes(resourceRegistration);
+            ActiveMQServerControlHandler.INSTANCE.registerAttributes(resourceRegistration);
         }
     }
 

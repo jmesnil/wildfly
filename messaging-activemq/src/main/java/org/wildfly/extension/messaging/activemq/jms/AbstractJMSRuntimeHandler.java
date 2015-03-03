@@ -56,7 +56,6 @@ public abstract class AbstractJMSRuntimeHandler<T> extends AbstractRuntimeOnlyHa
         if (ModelDescriptionConstants.READ_ATTRIBUTE_OPERATION.equals(opName)) {
             final String attributeName = operation.require(ModelDescriptionConstants.NAME).asString();
             executeReadAttribute(attributeName, context, dataSource, address, includeDefault);
-            context.stepCompleted();
         } else {
             throw unknownOperation(opName);
         }
@@ -84,8 +83,7 @@ public abstract class AbstractJMSRuntimeHandler<T> extends AbstractRuntimeOnlyHa
         T config = resources.get(new ResourceConfig(server, name));
 
         if (config == null) {
-            String exceptionMessage = MessagingLogger.ROOT_LOGGER.noDestinationRegisteredForAddress(operationAddress);
-            throw new OperationFailedException(new ModelNode().set(exceptionMessage));
+            throw new OperationFailedException(MessagingLogger.ROOT_LOGGER.noDestinationRegisteredForAddress(operationAddress));
         }
 
         return config;

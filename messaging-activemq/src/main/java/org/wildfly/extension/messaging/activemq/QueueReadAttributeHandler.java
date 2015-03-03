@@ -97,7 +97,6 @@ public class QueueReadAttributeHandler extends AbstractRuntimeOnlyHandler {
         String queueName = address.getLastElement().getValue();
 
         if (forwardToRuntimeQueue(context, operation, RUNTIME_INSTANCE)) {
-            context.stepCompleted();
             return;
         }
 
@@ -151,8 +150,6 @@ public class QueueReadAttributeHandler extends AbstractRuntimeOnlyHandler {
         } else {
             throw MessagingLogger.ROOT_LOGGER.unsupportedAttribute(attributeName);
         }
-
-        context.stepCompleted();
     }
 
     private static List<String> getStorageAttributeNames() {

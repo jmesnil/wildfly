@@ -137,8 +137,6 @@ public class JMSServerControlHandler extends AbstractRuntimeOnlyHandler {
         } catch (Exception e) {
             context.getFailureDescription().set(e.getLocalizedMessage());
         }
-
-        context.stepCompleted();
     }
 
     public void registerOperations(final ManagementResourceRegistration registry, ResourceDescriptionResolver resolver) {
