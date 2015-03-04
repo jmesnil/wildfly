@@ -64,7 +64,7 @@
                                 connectors="http-connector"
                                 entries="java:jboss/exported/jms/RemoteConnectionFactory" />
             <?HA-REMOTE-CONNECTION-FACTORY?>
-            <pooled-connection-factory name="hornetq-ra"
+            <pooled-connection-factory name="activemq-ra"
                                        transaction="xa"
                                        connectors="in-vm"
                                        entries="java:/JmsXA java:jboss/DefaultJMSConnectionFactory"/>
