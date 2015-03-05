@@ -8,6 +8,21 @@
                     file-size="102400" />
             <?CLUSTERED?>
 
+            <security-setting name="#">
+                <role name="guest"
+                      send="true"
+                      consume="true"
+                      create-non-durable-queue="true"
+                      delete-non-durable-queue="true"/>
+            </security-setting>
+
+            <address-setting name="#"
+                             dead-letter-address="jms.queue.DLQ"
+                             expiry-address="jms.queue.ExpiryQueue"
+                             max-size-bytes="10485760"
+                             page-size-bytes="2097152"
+                             message-counter-history-day-limit="10" />
+
             <http-connector name="http-connector"
                             socket-binding="http">
                 <param name="http-upgrade-endpoint"
@@ -39,23 +54,14 @@
             <?DISCOVERY-GROUPS?>
             <?CLUSTER-CONNECTIONS?>
 
-            <security-setting name="#">
-                <role name="guest"
-                      send="true"
-                      consume="true"
-                      create-non-durable-queue="true"
-                      delete-non-durable-queue="true"/>
-            </security-setting>
-
-            <address-setting name="#"
-                             dead-letter-address="jms.queue.DLQ"
-                             expiry-address="jms.queue.ExpiryQueue"
-                             max-size-bytes="10485760"
-                             page-size-bytes="2097152"
-                             message-counter-history-day-limit="10" />
             <!--
            <?REDISTRIBUTION-DELAY?>
            -->
+
+            <jms-queue name="ExpiryQueue"
+                       entries="java:/jms/queue/ExpiryQueue" />
+            <jms-queue name="DLQ"
+                       entries="java:/jms/queue/DLQ" />
 
             <connection-factory name="InVmConnectionFactory"
                                 connectors="in-vm"
@@ -68,10 +74,6 @@
                                        transaction="xa"
                                        connectors="in-vm"
                                        entries="java:/JmsXA java:jboss/DefaultJMSConnectionFactory"/>
-            <jms-queue name="ExpiryQueue"
-                       entries="java:/jms/queue/ExpiryQueue" />
-            <jms-queue name="DLQ"
-                       entries="java:/jms/queue/DLQ" />
         </server>
     </subsystem>
     <supplement name="ha">
