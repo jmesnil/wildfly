@@ -43,10 +43,16 @@ public class MessagingActivemQ6Subsystem_1_1_TestCase extends AbstractSubsystemB
         return readResource("subsystem_1_1.xml");
     }
 
-    /*
     @Override
     protected String getSubsystemXsdPath() throws IOException {
         return "schema/wildfly-messaging-activemq_1_1.xsd";
+    }
+
+    @Override
+    protected String[] getSubsystemTemplatePaths() throws IOException {
+        return new String[] {
+                "/subsystem-templates/messaging-activemq.xml"
+        };
     }
 
     @Override
@@ -56,7 +62,7 @@ public class MessagingActivemQ6Subsystem_1_1_TestCase extends AbstractSubsystemB
         properties.put("messaging.cluster.user.password", "myClusterPassword");
         return properties;
     }
-*/
+
     /////////////////////////////////////////
     //  Tests for HA Policy Configuration  //
     /////////////////////////////////////////

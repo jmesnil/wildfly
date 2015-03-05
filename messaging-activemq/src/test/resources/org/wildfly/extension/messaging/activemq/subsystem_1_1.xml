@@ -12,8 +12,8 @@
             async-connection-execution-enabled="${async.connection.execution.enabled:false}">
 
         <security
-                domain="someDomain"
                 enabled="${security.enabled:false}"
+                domain="someDomain"
                 invalidation-interval="${security.invalidation.interval:1234}"
                 override-in-vm-security="${override.in-vm.security:false}"/>
 
@@ -235,7 +235,7 @@
                 confirmation-window-size="${confirmation.window.size:350}"
                 user="${user:Brian}"
                 password="${password:secret}"
-                static-connectors="in-vm, netty" />
+                static-connectors="in-vm netty" />
         <bridge name="bridge2"
                 queue-name="coreQueueB"
                 discovery-group="groupC" />
@@ -260,12 +260,12 @@
                    entries="${jms-topic.entry:topic/test}" />
 
         <connection-factory name="InVmConnectionFactory"
-                            connectors="in-vm, netty"
+                            connectors="in-vm netty"
                             entries="${connection-factory.entries.entry:java:/ConnectionFactory}" />
         <connection-factory name="RemoteConnectionFactory"
                             factory-type="XA_QUEUE"
                             client-id="testClient"
-                            connectors="http, netty"
+                            connectors="http netty"
                             entries="RemoteConnectionFactory java:/global/jms/RemoteConnectionFactory" />
         <connection-factory name="otherConnectionFactory"
                             discovery-group="groupC"
