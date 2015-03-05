@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -44,8 +43,6 @@ import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
 public class ConnectionFactoryDefinition extends PersistentResourceDefinition {
-
-    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.CONNECTION_FACTORY);
 
     static final AttributeDefinition[] concat(AttributeDefinition[] common, AttributeDefinition... specific) {
         int size = common.length + specific.length;
@@ -64,7 +61,7 @@ public class ConnectionFactoryDefinition extends PersistentResourceDefinition {
     public static final ConnectionFactoryDefinition INSTANCE = new ConnectionFactoryDefinition(false);
 
     public ConnectionFactoryDefinition(final boolean registerRuntimeOnly) {
-        super(PATH,
+        super(MessagingExtension.CONNECTION_FACTORY_PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.CONNECTION_FACTORY),
                 ConnectionFactoryAdd.INSTANCE,
                 ConnectionFactoryRemove.INSTANCE);

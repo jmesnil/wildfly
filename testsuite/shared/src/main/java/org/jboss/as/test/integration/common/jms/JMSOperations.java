@@ -63,7 +63,12 @@ public interface JMSOperations {
 
     void close();
 
-    void setSystemProperties(String destination, String destinationType);
+    /**
+     * Set system properties for the given destination and resourceAdapter.
+     *
+     * The system property for the given destination is {@code destination} and the one for the resourceAdapter is {@code resource.adapter}.
+     */
+    void setSystemProperties(String destination, String resourceAdapter);
 
     void removeSystemProperties();
 
