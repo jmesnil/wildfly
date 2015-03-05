@@ -47,7 +47,6 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.SERVER;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_MASTER;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_SLAVE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SLAVE;
-import static org.wildfly.extension.messaging.activemq.Namespace.MESSAGING_ACTIVEMQ6_1_1;
 
 import org.jboss.as.controller.Extension;
 import org.jboss.as.controller.ExtensionContext;
@@ -113,6 +112,10 @@ public class MessagingExtension implements Extension {
     static final PathElement ADDRESS_SETTING_PATH = pathElement(ADDRESS_SETTING);
     static final PathElement ROLE_PATH = pathElement(ROLE);
     static final PathElement SECURITY_SETTING_PATH =  pathElement(SECURITY_SETTING);
+    public static final PathElement JMS_QUEUE_PATH = pathElement(JMS_QUEUE);
+    public static final PathElement JMS_TOPIC_PATH = pathElement(JMS_TOPIC);
+    public static final PathElement POOLED_CONNECTION_FACTORY_PATH = pathElement(CommonAttributes.POOLED_CONNECTION_FACTORY);
+    public static final PathElement CONNECTION_FACTORY_PATH = pathElement(CommonAttributes.CONNECTION_FACTORY);
     public static final PathElement JMS_BRIDGE_PATH = pathElement(CommonAttributes.JMS_BRIDGE);
 
     public static final SensitiveTargetAccessConstraintDefinition MESSAGING_SECURITY_SENSITIVE_TARGET = new SensitiveTargetAccessConstraintDefinition(new SensitivityClassification(SUBSYSTEM_NAME, "messaging-security", false, false, true));
@@ -121,9 +124,6 @@ public class MessagingExtension implements Extension {
     static final AccessConstraintDefinition SECURITY_SETTING_ACCESS_CONSTRAINT = new ApplicationTypeAccessConstraintDefinition( new ApplicationTypeConfig(SUBSYSTEM_NAME, SECURITY_SETTING));
     static final AccessConstraintDefinition QUEUE_ACCESS_CONSTRAINT = new ApplicationTypeAccessConstraintDefinition(new ApplicationTypeConfig(SUBSYSTEM_NAME, QUEUE));
     public static final AccessConstraintDefinition JMS_DESTINATION_ACCESS_CONSTRAINT = new ApplicationTypeAccessConstraintDefinition(new ApplicationTypeConfig(SUBSYSTEM_NAME, CommonAttributes.JMS_DESTINATION));
-
-    public static final PathElement JMS_QUEUE_PATH = pathElement(JMS_QUEUE);
-    public static final PathElement JMS_TOPIC_PATH = pathElement(JMS_TOPIC);
 
     static final String RESOURCE_NAME = MessagingExtension.class.getPackage().getName() + ".LocalDescriptions";
 
@@ -146,7 +146,7 @@ public class MessagingExtension implements Extension {
 
     public void initialize(ExtensionContext context) {
         final SubsystemRegistration subsystemRegistration = context.registerSubsystem(SUBSYSTEM_NAME, CURRENT_MODEL_VERSION);
-        subsystemRegistration.registerXMLElementWriter(MessagingSubsystemParser_1_1.INSTANCE);
+        subsystemRegistration.registerXMLElementWriter(MessagingSubsystemParser_1_0.INSTANCE);
 
         boolean registerRuntimeOnly = context.isRuntimeOnlyRegistrationValid();
 
@@ -183,6 +183,6 @@ public class MessagingExtension implements Extension {
     }
 
     public void initializeParsers(ExtensionParsingContext context) {
-        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MESSAGING_ACTIVEMQ6_1_1.getUriString(), MessagingSubsystemParser_1_1.INSTANCE);
+        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MessagingSubsystemParser_1_0.NAMESPACE, MessagingSubsystemParser_1_0.INSTANCE);
     }
 }

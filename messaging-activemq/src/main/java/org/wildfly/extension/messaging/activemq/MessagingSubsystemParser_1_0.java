@@ -54,7 +54,7 @@ import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryDefin
 import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
 
 /**
- * Parser and Marshaller for {@code "urn:jboss:domain:messaging-activemq:1.1"}.
+ * Parser and Marshaller for messaging-activemq's {@link #NAMESPACE}.
  *
  * <em>All resources and attributes must be listed explicitly and not through any collections.</em>
  * This ensures that if the resource definitions change in later version (e.g. a new attribute is added),
@@ -62,9 +62,11 @@ import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
  *
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2015 Red Hat inc.
  */
-public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLElementReader<List<ModelNode>>, XMLElementWriter<SubsystemMarshallingContext> {
+public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElementReader<List<ModelNode>>, XMLElementWriter<SubsystemMarshallingContext> {
 
-    protected static final MessagingSubsystemParser_1_1 INSTANCE = new MessagingSubsystemParser_1_1();
+    static final String NAMESPACE = "urn:jboss:domain:messaging-activemq:1.0";
+
+    protected static final MessagingSubsystemParser_1_0 INSTANCE = new MessagingSubsystemParser_1_0();
 
     private static final PersistentResourceXMLDescription xmlDescription;
 
@@ -540,14 +542,14 @@ public class MessagingSubsystemParser_1_1  implements XMLStreamConstants, XMLEle
                 .build();
     }
 
-    private MessagingSubsystemParser_1_1() {
+    private MessagingSubsystemParser_1_0() {
     }
 
     @Override
     public void writeContent(XMLExtendedStreamWriter writer, SubsystemMarshallingContext context) throws XMLStreamException {
         ModelNode model = new ModelNode();
         model.get(MessagingSubsystemRootResourceDefinition.INSTANCE.getPathElement().getKeyValuePair()).set(context.getModelNode());
-        xmlDescription.persist(writer, model, Namespace.CURRENT.getUriString());
+        xmlDescription.persist(writer, model, NAMESPACE);
     }
 
     @Override

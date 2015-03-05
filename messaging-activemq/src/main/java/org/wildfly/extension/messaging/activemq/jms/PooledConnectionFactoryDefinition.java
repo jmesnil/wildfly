@@ -32,7 +32,6 @@ import java.util.Map;
 
 import org.jboss.as.controller.AbstractAttributeDefinitionBuilder;
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
@@ -53,14 +52,10 @@ import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.
  */
 public class PooledConnectionFactoryDefinition extends PersistentResourceDefinition {
 
-    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.POOLED_CONNECTION_FACTORY);
-
-
     // the generation of the Pooled CF attributes is a bit ugly but it is with purpose:
     // * factorize the attributes which are common between the regular CF and the pooled CF
     // * keep in a single place the subtle differences (e.g. different default values for reconnect-attempts between
     //   the regular and pooled CF
-    // * define the attributes in the *same order than the XSD* to write them to the XML configuration by simply iterating over the array
     private static ConnectionFactoryAttribute[] define(ConnectionFactoryAttribute[] specific, ConnectionFactoryAttribute... common) {
         int size = common.length + specific.length;
         ConnectionFactoryAttribute[] result = new ConnectionFactoryAttribute[size];
@@ -112,18 +107,16 @@ public class PooledConnectionFactoryDefinition extends PersistentResourceDefinit
         return attrs;
     }
 
-    private final boolean registerRuntimeOnly;
     private final boolean deployed;
 
-    public static final PooledConnectionFactoryDefinition INSTANCE = new PooledConnectionFactoryDefinition(false, false);
+    public static final PooledConnectionFactoryDefinition INSTANCE = new PooledConnectionFactoryDefinition(false);
 
-    public static final PooledConnectionFactoryDefinition DEPLOYMENT_INSTANCE = new PooledConnectionFactoryDefinition(false, true);
+    public static final PooledConnectionFactoryDefinition DEPLOYMENT_INSTANCE = new PooledConnectionFactoryDefinition(true);
 
-    public PooledConnectionFactoryDefinition(final boolean registerRuntimeOnly, final boolean deployed) {
-        super(PATH, MessagingExtension.getResourceDescriptionResolver(CommonAttributes.POOLED_CONNECTION_FACTORY),
+    public PooledConnectionFactoryDefinition(final boolean deployed) {
+        super(MessagingExtension.POOLED_CONNECTION_FACTORY_PATH, MessagingExtension.getResourceDescriptionResolver(CommonAttributes.POOLED_CONNECTION_FACTORY),
                 PooledConnectionFactoryAdd.INSTANCE,
                 PooledConnectionFactoryRemove.INSTANCE);
-        this.registerRuntimeOnly = registerRuntimeOnly;
         this.deployed = deployed;
     }
 
@@ -135,7 +128,7 @@ public class PooledConnectionFactoryDefinition extends PersistentResourceDefinit
     @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
         for (AttributeDefinition attr : getDefinitions(ATTRIBUTES)) {
-            if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
+            if (!attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 if (deployed) {
                     registry.registerReadOnlyAttribute(attr, PooledConnectionFactoryConfigurationRuntimeHandler.INSTANCE);
                 } else {
