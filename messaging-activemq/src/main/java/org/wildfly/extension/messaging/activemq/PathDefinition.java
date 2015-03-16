@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.ExtensionContext;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
@@ -48,6 +49,7 @@ import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.controller.services.path.PathResourceDefinition;
+import org.jboss.as.controller.services.path.ResolvePathHandler;
 import org.jboss.as.server.ServerEnvironment;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
@@ -74,7 +76,7 @@ public class PathDefinition extends PersistentResourceDefinition {
             .setRestartAllServices()
             .build();
 
-    public static final Map<String, SimpleAttributeDefinition> PATHS = new HashMap<String, SimpleAttributeDefinition>();
+    protected static final Map<String, SimpleAttributeDefinition> PATHS = new HashMap<String, SimpleAttributeDefinition>();
 
     private static final String DEFAULT_PATH = "activemq";
     static final String DEFAULT_BINDINGS_DIR = DEFAULT_PATH + File.separator + "bindings";
@@ -119,10 +121,10 @@ public class PathDefinition extends PersistentResourceDefinition {
         return new AttributeDefinition[] { PATHS.get(path), RELATIVE_TO };
     }
 
-    static final PathDefinition BINDINGS_INSTANCE = new PathDefinition(PathElement.pathElement(ModelDescriptionConstants.PATH, BINDINGS_DIRECTORY));
-    static final PathDefinition LARGE_MESSAGES_INSTANCE = new PathDefinition(PathElement.pathElement(ModelDescriptionConstants.PATH, LARGE_MESSAGES_DIRECTORY));
-    static final PathDefinition PAGING_INSTANCE = new PathDefinition(PathElement.pathElement(ModelDescriptionConstants.PATH, PAGING_DIRECTORY));
-    static final PathDefinition JOURNAL_INSTANCE = new PathDefinition(PathElement.pathElement(ModelDescriptionConstants.PATH, JOURNAL_DIRECTORY));
+    static final PathDefinition BINDINGS_INSTANCE = new PathDefinition(MessagingExtension.BINDINGS_DIRECTORY_PATH);
+    static final PathDefinition LARGE_MESSAGES_INSTANCE = new PathDefinition(MessagingExtension.LARGE_MESSAGES_DIRECTORY_PATH);
+    static final PathDefinition PAGING_INSTANCE = new PathDefinition(MessagingExtension.PAGING_DIRECTORY_PATH);
+    static final PathDefinition JOURNAL_INSTANCE = new PathDefinition(MessagingExtension.JOURNAL_DIRECTORY_PATH);
 
     public PathDefinition(PathElement path) {
         super(path,
@@ -144,6 +146,17 @@ public class PathDefinition extends PersistentResourceDefinition {
         for (AttributeDefinition attribute : attributes) {
             registry.registerReadWriteAttribute(attribute, null, attributeHandler);
         }
+    }
+
+    protected static void registerResolveOperationHandler(ExtensionContext context, ManagementResourceRegistration registry) {
+        if (context.getProcessType().isServer()) {
+            final ResolvePathHandler resolvePathHandler = ResolvePathHandler.Builder.of(context.getPathManager())
+                    .setPathAttribute(PATHS.get(registry.getPathAddress().getLastElement().getValue()))
+                    .setRelativeToAttribute(PathDefinition.RELATIVE_TO)
+                    .build();
+            registry.registerOperationHandler(resolvePathHandler.getOperationDefinition(), resolvePathHandler);
+        }
+
     }
 
     static void reloadRequiredStep(final OperationContext context) {
