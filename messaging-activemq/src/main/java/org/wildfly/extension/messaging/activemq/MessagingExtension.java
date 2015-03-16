@@ -23,8 +23,10 @@
 package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.PathElement.pathElement;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PATH;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ADDRESS_SETTING;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.BINDINGS_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BRIDGE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BROADCAST_GROUP;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CLUSTER_CONNECTION;
@@ -35,8 +37,11 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.HA_POLIC
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_ACCEPTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JMS_QUEUE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JMS_TOPIC;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_DIRECTORY;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.LARGE_MESSAGES_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.LIVE_ONLY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.MASTER;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.PAGING_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.QUEUE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_MASTER;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.REPLICATION_SLAVE;
@@ -59,13 +64,11 @@ import org.jboss.as.controller.access.constraint.SensitivityClassification;
 import org.jboss.as.controller.access.management.AccessConstraintDefinition;
 import org.jboss.as.controller.access.management.ApplicationTypeAccessConstraintDefinition;
 import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
-import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
 import org.jboss.as.controller.descriptions.StandardResourceDescriptionResolver;
 import org.jboss.as.controller.operations.common.GenericSubsystemDescribeHandler;
 import org.jboss.as.controller.parsing.ExtensionParsingContext;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
-import org.jboss.as.controller.services.path.ResolvePathHandler;
 import org.wildfly.extension.messaging.activemq.jms.JMSQueueDefinition;
 import org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition;
 import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryDefinition;
@@ -101,6 +104,10 @@ public class MessagingExtension implements Extension {
     public static final PathElement SHARED_STORE_SLAVE_PATH = pathElement(HA_POLICY, SHARED_STORE_SLAVE);
     public static final PathElement CONFIGURATION_MASTER_PATH = pathElement(CONFIGURATION, MASTER);
     public static final PathElement CONFIGURATION_SLAVE_PATH = pathElement(CONFIGURATION, SLAVE);
+    static final PathElement BINDINGS_DIRECTORY_PATH = pathElement(PATH, BINDINGS_DIRECTORY);
+    static final PathElement JOURNAL_DIRECTORY_PATH = pathElement(PATH, JOURNAL_DIRECTORY);
+    static final PathElement PAGING_DIRECTORY_PATH = pathElement(PATH, PAGING_DIRECTORY);
+    static final PathElement LARGE_MESSAGES_DIRECTORY_PATH = pathElement(PATH, LARGE_MESSAGES_DIRECTORY);
     static final PathElement CONNECTOR_SERVICE_PATH = pathElement(CONNECTOR_SERVICE);
     static final PathElement QUEUE_PATH = pathElement(QUEUE);
     static final PathElement RUNTIME_QUEUE_PATH = pathElement(RUNTIME_QUEUE);
@@ -157,18 +164,14 @@ public class MessagingExtension implements Extension {
         // ActiveMQ Servers
         final ManagementResourceRegistration server = subsystem.registerSubModel(new ServerDefinition(registerRuntimeOnly));
 
-        // Messaging paths
-        //todo, shouldn't we leverage Path service from AS? see: package org.jboss.as.controller.services.path
-        for (final String path : PathDefinition.PATHS.keySet()) {
-            ManagementResourceRegistration binding = server.registerSubModel(new PathDefinition(pathElement(ModelDescriptionConstants.PATH, path)));
-            // Create the path resolver operation
-            if (context.getProcessType().isServer()) {
-                final ResolvePathHandler resolvePathHandler = ResolvePathHandler.Builder.of(context.getPathManager())
-                        .setPathAttribute(PathDefinition.PATHS.get(path))
-                        .setRelativeToAttribute(PathDefinition.RELATIVE_TO)
-                        .build();
-                binding.registerOperationHandler(resolvePathHandler.getOperationDefinition(), resolvePathHandler);
-            }
+        for (PathDefinition path : new PathDefinition[] {
+                PathDefinition.JOURNAL_INSTANCE,
+                PathDefinition.BINDINGS_INSTANCE,
+                PathDefinition.LARGE_MESSAGES_INSTANCE,
+                PathDefinition.PAGING_INSTANCE
+        }) {
+            ManagementResourceRegistration pathRegistry = server.registerSubModel(path);
+            PathDefinition.registerResolveOperationHandler(context, pathRegistry);
         }
 
         subsystem.registerSubModel(JMSBridgeDefinition.INSTANCE);

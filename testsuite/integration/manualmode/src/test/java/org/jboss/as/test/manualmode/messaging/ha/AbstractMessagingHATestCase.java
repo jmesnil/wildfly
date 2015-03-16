@@ -24,16 +24,20 @@ package org.jboss.as.test.manualmode.messaging.ha;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.FAILED;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.FAILURE_DESCRIPTION;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.INCLUDE_RUNTIME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OUTCOME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_ATTRIBUTE_OPERATION;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RECURSIVE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RESULT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +51,7 @@ import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.as.controller.client.ModelControllerClient;
+import org.jboss.as.test.integration.common.jms.JMSOperations;
 import org.jboss.as.test.shared.TestSuiteEnvironment;
 import org.jboss.as.test.shared.TimeoutUtil;
 import org.jboss.dmr.ModelNode;
@@ -64,6 +69,11 @@ public abstract class AbstractMessagingHATestCase {
 
     public static final String SERVER1 = "jbossas-messaging-ha-server1";
     public static final String SERVER2 = "jbossas-messaging-ha-server2";
+
+    // maximum time for HornetQ activation to detect node failover/failback
+    protected static int ACTIVATION_TIMEOUT = 10000;
+    // maximum time to reload a server
+    protected static int RELOAD_TIMEOUT = 10000;
 
     private String snapshotForServer1;
     private String snapshotForServer2;
@@ -89,6 +99,48 @@ public abstract class AbstractMessagingHATestCase {
         return snapshot;
     }
 
+    protected static void waitForHornetQServerActivation(JMSOperations operations, boolean expectedActive) throws IOException {
+        long start = System.currentTimeMillis();
+        long now;
+        do {
+            ModelNode operation = new ModelNode();
+            operation.get(OP_ADDR).set(operations.getServerAddress());
+            operation.get(OP).set(READ_RESOURCE_OPERATION);
+            operation.get(INCLUDE_RUNTIME).set(true);
+            operation.get(RECURSIVE).set(true);
+            try {
+                ModelNode result = execute(operations.getControllerClient(), operation);
+                boolean started = result.get("started").asBoolean();
+                boolean active = result.get("active").asBoolean();
+                if (started && expectedActive == active) {
+                    // leave some time to the hornetq children resources to be installed after the server is activated
+                    Thread.sleep(TimeoutUtil.adjust(500));
+
+                    return;
+                }
+            } catch (Exception e) {
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+            }
+            now = System.currentTimeMillis();
+        } while (now - start < ACTIVATION_TIMEOUT);
+
+        fail("Server did not become active in the imparted time.");
+    }
+
+    protected static void checkHornetQServerStartedAndActiveAttributes(JMSOperations operations, boolean expectedStarted, boolean expectedActive) throws Exception {
+        ModelNode operation = new ModelNode();
+        ModelNode address = operations.getServerAddress();
+        operation.get(OP_ADDR).set(address);
+        operation.get(OP).set(READ_RESOURCE_OPERATION);
+        operation.get(INCLUDE_RUNTIME).set(true);
+        ModelNode result = execute(operations.getControllerClient(), operation);
+        assertEquals(expectedStarted, result.get("started").asBoolean());
+        assertEquals(expectedActive, result.get("active").asBoolean());
+    }
+
     private void restoreSnapshot(String snapshot) {
         System.out.println("snapshot = " + snapshot);
         File snapshotFile = new File(snapshot);
@@ -112,7 +164,7 @@ public abstract class AbstractMessagingHATestCase {
     protected static void executeWithFailure(ModelControllerClient client, ModelNode operation) throws IOException {
         ModelNode result = client.execute(operation);
         assertEquals(result.toJSONString(true), FAILED, result.get(OUTCOME).asString());
-        assertTrue(result.toJSONString(true), result.get(FAILURE_DESCRIPTION).asString().contains("WFLYMSG0066"));
+        assertTrue(result.toJSONString(true), result.get(FAILURE_DESCRIPTION).asString().contains("WFLYMSGAMQ0066"));
         assertFalse(result.has(RESULT));
     }
 
@@ -122,10 +174,10 @@ public abstract class AbstractMessagingHATestCase {
         ModelControllerClient client1 = createClient1();
         snapshotForServer1 = takeSnapshot(client1);
         reload(client1, true);
-        client1 = waitFoServer1ToReload(client1, 10000);
+        client1 = waitFoServer1ToReload(client1);
         setUpServer1(client1);
         reload(client1, false);
-        client1 = waitFoServer1ToReload(client1, 10000);
+        client1 = waitFoServer1ToReload(client1);
         assertTrue(container.isStarted(SERVER1));
         client1.close();
 
@@ -133,10 +185,10 @@ public abstract class AbstractMessagingHATestCase {
         ModelControllerClient client2 = createClient2();
         snapshotForServer2 = takeSnapshot(client2);
         reload(client2, true);
-        client2 = waitFoServer2ToReload(client2, 10000);
+        client2 = waitFoServer2ToReload(client2);
         setUpServer2(client2);
         reload(client2, false);
-        client2 = waitFoServer2ToReload(client2, 10000);
+        client2 = waitFoServer2ToReload(client2);
         assertTrue(container.isStarted(SERVER2));
         client2.close();
     }
@@ -173,7 +225,7 @@ public abstract class AbstractMessagingHATestCase {
         return operation;
     }
 
-    protected ModelControllerClient waitFoServer1ToReload(ModelControllerClient initialClient, long timeout) throws Exception {
+    private ModelControllerClient waitFoServer1ToReload(ModelControllerClient initialClient) throws Exception {
         // FIXME use the CLI high-level reload operation that blocks instead of
         // fiddling with timeouts...
         // leave some time to have the server starts its reload process and change
@@ -202,12 +254,12 @@ public abstract class AbstractMessagingHATestCase {
             } catch (InterruptedException e) {
             }
             now = System.currentTimeMillis();
-        } while (now - start < timeout);
+        } while (now - start < RELOAD_TIMEOUT);
 
         throw new Exception("Server did not reload in the imparted time.");
     }
 
-    private ModelControllerClient waitFoServer2ToReload(ModelControllerClient initialClient, long timeout) throws Exception {
+    private ModelControllerClient waitFoServer2ToReload(ModelControllerClient initialClient) throws Exception {
         // FIXME use the CLI high-level reload operation that blocks instead of
         // fiddling with timeouts...
         // leave some time to have the server starts its reload process and change
@@ -236,7 +288,7 @@ public abstract class AbstractMessagingHATestCase {
             } catch (InterruptedException e) {
             }
             now = System.currentTimeMillis();
-        } while (now - start < timeout);
+        } while (now - start < RELOAD_TIMEOUT);
 
         throw new Exception("Server did not reload in the imparted time.");
     }
