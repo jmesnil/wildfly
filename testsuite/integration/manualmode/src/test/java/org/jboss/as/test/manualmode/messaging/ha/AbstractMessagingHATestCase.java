@@ -36,6 +36,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RES
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -43,8 +44,18 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.JMSConsumer;
+import javax.jms.JMSContext;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.jboss.arquillian.container.test.api.ContainerController;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -139,6 +150,78 @@ public abstract class AbstractMessagingHATestCase {
         ModelNode result = execute(operations.getControllerClient(), operation);
         assertEquals(expectedStarted, result.get("started").asBoolean());
         assertEquals(expectedActive, result.get("active").asBoolean());
+    }
+
+    protected static InitialContext createJNDIContextFromServer1() throws NamingException {
+        final Properties env = new Properties();
+        env.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
+        env.put(Context.PROVIDER_URL, System.getProperty(Context.PROVIDER_URL, "http-remoting://127.0.0.1:8080"));
+        env.put(Context.SECURITY_PRINCIPAL, "guest");
+        env.put(Context.SECURITY_CREDENTIALS, "guest");
+        return new InitialContext(env);
+    }
+
+    protected static  InitialContext createJNDIContextFromServer2() throws NamingException {
+        final Properties env = new Properties();
+        env.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
+        env.put(Context.PROVIDER_URL, System.getProperty(Context.PROVIDER_URL, "http-remoting://127.0.0.1:8180"));
+        env.put(Context.SECURITY_PRINCIPAL, "guest");
+        env.put(Context.SECURITY_CREDENTIALS, "guest");
+        return new InitialContext(env);
+    }
+
+    protected static  void sendMessage(Context ctx, String destinationLookup, String text) throws NamingException {
+        ConnectionFactory cf = (ConnectionFactory) ctx.lookup("jms/RemoteConnectionFactory");
+        assertNotNull(cf);
+        Destination destination = (Destination) ctx.lookup(destinationLookup);
+        assertNotNull(destination);
+
+        try (JMSContext context = cf.createContext("guest", "guest")) {
+            context.createProducer().send(destination, text);
+        }
+    }
+
+    protected static  void receiveMessage(Context ctx, String destinationLookup, String expectedText) throws NamingException {
+        ConnectionFactory cf = (ConnectionFactory) ctx.lookup("jms/RemoteConnectionFactory");
+        assertNotNull(cf);
+        Destination destination = (Destination) ctx.lookup(destinationLookup);
+        assertNotNull(destination);
+
+        try (JMSContext context = cf.createContext("guest", "guest")) {
+            JMSConsumer consumer = context.createConsumer(destination);
+            String text = consumer.receiveBody(String.class, 5000);
+            assertNotNull(text);
+            assertEquals(expectedText, text);
+        }
+    }
+
+    protected static  void sendAndReceiveMessage(Context ctx, String destinationLookup) throws NamingException {
+        String text = UUID.randomUUID().toString();
+        sendMessage(ctx, destinationLookup, text);
+        receiveMessage(ctx, destinationLookup, text);
+    }
+
+    protected static void checkJMSQueue(JMSOperations operations, String jmsQueueName, boolean active) throws Exception {
+        ModelNode address = operations.getServerAddress().add("jms-queue", jmsQueueName);
+        checkQueue0(operations.getControllerClient(), address, "queue-address", active);
+    }
+
+    protected static void checkQueue0(ModelControllerClient client, ModelNode address, String runtimeAttributeName, boolean active) throws Exception {
+        ModelNode operation = new ModelNode();
+        operation.get(OP_ADDR).set(address);
+        operation.get(OP).set(READ_RESOURCE_OPERATION);
+        operation.get(INCLUDE_RUNTIME).set(true);
+       // ModelNode result = execute(client, operation);
+       // System.out.println(runtimeAttributeName + " = " + result.get(runtimeAttributeName));
+        //assertEquals(result.toJSONString(true), active, result.get(runtimeAttributeName).isDefined());
+
+        // runtime operation
+        operation.get(OP).set("list-messages");
+        if (active) {
+            execute(client, operation);
+        } else {
+            executeWithFailure(client, operation);
+        }
     }
 
     private void restoreSnapshot(String snapshot) {
