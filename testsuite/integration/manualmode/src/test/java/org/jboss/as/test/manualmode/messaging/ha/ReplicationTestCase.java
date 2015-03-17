@@ -27,7 +27,11 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.INC
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PATH;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PORT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SOCKET_BINDING;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SOCKET_BINDING_GROUP;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
 
 import java.io.File;
 
@@ -38,30 +42,57 @@ import org.jboss.as.test.integration.common.jms.JMSOperations;
 import org.jboss.as.test.integration.common.jms.JMSOperationsProvider;
 import org.jboss.dmr.ModelNode;
 import org.jboss.util.file.Files;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2015 Red Hat inc.
  */
-public class SharedStoreTestCase extends AbstractMessagingHATestCase {
+@Ignore
+public class ReplicationTestCase extends AbstractMessagingHATestCase {
 
-    private final String jmsQueueName = "SharedStoreTestCase-Queue";
+    private final String jmsQueueName = "ReplicationTestCase-Queue";
     private final String jmsQueueLookup = "jms/" + jmsQueueName;
-
-    private static final File SHARED_STORE_DIR = new File("activemq", System.getProperty("java.io.tmpdir"));
 
     @Override
     protected void setUpServer1(ModelControllerClient client) throws Exception {
-        // /subsystem=messaging-activemq/server=default/ha-policy=shared-store-master:add(failover-on-server-shutdown=true)
+        // /socket-binding-group=standard-sockets/socket-binding=http-slave:add(port=8180)
+        // /subsystem=messaging-activemq/server=default/http-connector=slave-connector:add(socket-binding=http-slave)
+        // /subsystem=messaging-activemq/server=default/cluster-connection=my-cluster:add(connector-name=http-connector, static-connectors=[slave-connector], cluster-connection-address=jms)
+        // /subsystem=messaging-activemq/server=default/ha-policy=replication-master:add(cluster-name=my-cluster)
+
         ModelNode operation = new ModelNode();
-        operation.get(OP_ADDR).add("subsystem", "messaging-activemq");
-        operation.get(OP_ADDR).add("server", "default");
-        operation.get(OP_ADDR).add("ha-policy", "shared-store-master");
+        operation.get(OP_ADDR).add(SOCKET_BINDING_GROUP, "standard-sockets");
+        operation.get(OP_ADDR).add(SOCKET_BINDING, "http-slave");
         operation.get(OP).set(ADD);
-        operation.get("failover-on-server-shutdown").set(true);
+        operation.get(PORT).set("8180");
         execute(client, operation);
 
-        configureSharedStore(client);
+        operation = new ModelNode();
+        operation.get(OP_ADDR).add(SUBSYSTEM, "messaging-activemq");
+        operation.get(OP_ADDR).add("server", "default");
+        operation.get(OP_ADDR).add("http-connector", "slave-connector");
+        operation.get(OP).set(ADD);
+        operation.get(SOCKET_BINDING).set("http-slave");
+        execute(client, operation);
+
+        operation = new ModelNode();
+        operation.get(OP_ADDR).add(SUBSYSTEM, "messaging-activemq");
+        operation.get(OP_ADDR).add("server", "default");
+        operation.get(OP_ADDR).add("cluster-connection", "my-cluster");
+        operation.get(OP).set(ADD);
+        operation.get("cluster-connection-address").set("jms");
+        operation.get("connector-name").set("http-connector");
+        operation.get("static-connectors").add("slave-connector");
+        execute(client, operation);
+
+        operation = new ModelNode();
+        operation.get(OP_ADDR).add(SUBSYSTEM, "messaging-activemq");
+        operation.get(OP_ADDR).add("server", "default");
+        operation.get(OP_ADDR).add("ha-policy", "replication-master");
+        operation.get(OP).set(ADD);
+        operation.get("cluster-name").set("my-cluster");
+        execute(client, operation);
 
         JMSOperations jmsOperations = JMSOperationsProvider.getInstance(client);
         jmsOperations.createJmsQueue(jmsQueueName, "java:jboss/exported/" + jmsQueueLookup);
@@ -69,53 +100,48 @@ public class SharedStoreTestCase extends AbstractMessagingHATestCase {
 
     @Override
     protected void setUpServer2(ModelControllerClient client) throws Exception {
-        // /subsystem=messaging-activemq/server=default/ha-policy=shared-store-slave:add(restart-backup=true)
+        // /socket-binding-group=standard-sockets/socket-binding=http-master:add(port=8080)
+        // /subsystem=messaging-activemq/server=default/http-connector=master-connector:add(socket-binding=http-master)
+        // /subsystem=messaging-activemq/server=default/cluster-connection=my-cluster:add(connector-name=http-connector, static-connectors=[master-connector], cluster-connection-address=jms)
+        // /subsystem=messaging-activemq/server=default/ha-policy=replication-slave:add(cluster-name=my-cluster)
+
         ModelNode operation = new ModelNode();
-        operation.get(OP_ADDR).add("subsystem", "messaging-activemq");
-        operation.get(OP_ADDR).add("server", "default");
-        operation.get(OP_ADDR).add("ha-policy", "shared-store-slave");
+        operation.get(OP_ADDR).add(SOCKET_BINDING_GROUP, "standard-sockets");
+        operation.get(OP_ADDR).add(SOCKET_BINDING, "http-master");
         operation.get(OP).set(ADD);
-        operation.get("restart-backup").set(true);
+        operation.get(PORT).set("8080");
         execute(client, operation);
 
-        configureSharedStore(client);
+        operation = new ModelNode();
+        operation.get(OP_ADDR).add(SUBSYSTEM, "messaging-activemq");
+        operation.get(OP_ADDR).add("server", "default");
+        operation.get(OP_ADDR).add("http-connector", "master-connector");
+        operation.get(OP).set(ADD);
+        operation.get(SOCKET_BINDING).set("http-master");
+        execute(client, operation);
+
+        operation = new ModelNode();
+        operation.get(OP_ADDR).add(SUBSYSTEM, "messaging-activemq");
+        operation.get(OP_ADDR).add("server", "default");
+        operation.get(OP_ADDR).add("cluster-connection", "my-cluster");
+        operation.get(OP).set(ADD);
+        operation.get("cluster-connection-address").set("jms");
+        operation.get("connector-name").set("http-connector");
+        operation.get("static-connectors").add("master-connector");
+        execute(client, operation);
+
+        operation = new ModelNode();
+        operation.get(OP_ADDR).add("subsystem", "messaging-activemq");
+        operation.get(OP_ADDR).add("server", "default");
+        operation.get(OP_ADDR).add("ha-policy", "replication-slave");
+        operation.get(OP).set(ADD);
+        operation.get("cluster-name").set("my-cluster");
+        operation.get("restart-backup").set(true);
+        execute(client, operation);
 
         JMSOperations jmsOperations = JMSOperationsProvider.getInstance(client);
         jmsOperations.createJmsQueue(jmsQueueName, "java:jboss/exported/" + jmsQueueLookup);
 
-    }
-
-    @Override
-    public void tearDown() {
-        // remove shared store files
-        Files.delete(SHARED_STORE_DIR);
-
-        super.tearDown();
-    }
-
-    private void configureSharedStore(ModelControllerClient client) throws Exception {
-        ModelNode operation = new ModelNode();
-        operation.get(OP_ADDR).add("subsystem", "messaging-activemq");
-        operation.get(OP_ADDR).add("server", "default");
-        operation.get(OP).set(READ_RESOURCE_OPERATION);
-        operation.get(INCLUDE_RUNTIME).set(true);
-        execute(client, operation);
-
-        for (String path : new String[] {"journal-directory",
-                "large-messages-directory",
-                "bindings-directory",
-                "paging-directory"
-        }) {
-            // /subsystem=messaging-activemq/server=default/path=XXX:add(path=YYY)
-            ModelNode undefineRelativeToAttribute = new ModelNode();
-            undefineRelativeToAttribute.get(OP_ADDR).add("subsystem", "messaging-activemq");
-            undefineRelativeToAttribute.get(OP_ADDR).add("server", "default");
-            undefineRelativeToAttribute.get(OP_ADDR).add("path", path);
-            undefineRelativeToAttribute.get(OP).set(ADD);
-            File f = new File(SHARED_STORE_DIR, path);
-            undefineRelativeToAttribute.get(PATH).set(f.getAbsolutePath());
-            execute(client, undefineRelativeToAttribute);
-        }
     }
 
     @Test
