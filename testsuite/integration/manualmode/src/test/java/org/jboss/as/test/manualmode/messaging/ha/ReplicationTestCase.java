@@ -48,7 +48,6 @@ import org.junit.Test;
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2015 Red Hat inc.
  */
-@Ignore
 public class ReplicationTestCase extends AbstractMessagingHATestCase {
 
     private final String jmsQueueName = "ReplicationTestCase-Queue";
