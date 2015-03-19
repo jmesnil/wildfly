@@ -82,9 +82,9 @@ public abstract class AbstractMessagingHATestCase {
     public static final String SERVER2 = "jbossas-messaging-ha-server2";
 
     // maximum time for HornetQ activation to detect node failover/failback
-    protected static int ACTIVATION_TIMEOUT = 10000;
+    protected static int ACTIVATION_TIMEOUT = 30000;
     // maximum time to reload a server
-    protected static int RELOAD_TIMEOUT = 10000;
+    protected static int RELOAD_TIMEOUT = 30000;
 
     private String snapshotForServer1;
     private String snapshotForServer2;
@@ -253,25 +253,35 @@ public abstract class AbstractMessagingHATestCase {
 
     @Before
     public void setUp() throws Exception {
+        // start server1 and reload it in admin-only
         container.start(SERVER1);
         ModelControllerClient client1 = createClient1();
         snapshotForServer1 = takeSnapshot(client1);
         reload(client1, true);
         client1 = waitFoServer1ToReload(client1);
-        setUpServer1(client1);
-        reload(client1, false);
-        client1 = waitFoServer1ToReload(client1);
-        assertTrue(container.isStarted(SERVER1));
-        client1.close();
 
+        // start server2 and reload it in admin-only
         container.start(SERVER2);
         ModelControllerClient client2 = createClient2();
         snapshotForServer2 = takeSnapshot(client2);
         reload(client2, true);
         client2 = waitFoServer2ToReload(client2);
+
+        // setup both servers
+        setUpServer1(client1);
         setUpServer2(client2);
+
+        // reload server1
+        reload(client1, false);
+        client1 = waitFoServer1ToReload(client1);
+
+        // reload server2
         reload(client2, false);
         client2 = waitFoServer2ToReload(client2);
+
+        // both servers are started and configured
+        assertTrue(container.isStarted(SERVER1));
+        client1.close();
         assertTrue(container.isStarted(SERVER2));
         client2.close();
     }
