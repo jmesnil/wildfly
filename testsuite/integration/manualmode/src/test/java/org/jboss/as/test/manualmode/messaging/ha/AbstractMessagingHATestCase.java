@@ -33,6 +33,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REA
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RECURSIVE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RESULT;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -253,6 +254,7 @@ public abstract class AbstractMessagingHATestCase {
 
     @Before
     public void setUp() throws Exception {
+
         // start server1 and reload it in admin-only
         container.start(SERVER1);
         ModelControllerClient client1 = createClient1();
@@ -268,8 +270,13 @@ public abstract class AbstractMessagingHATestCase {
         client2 = waitFoServer2ToReload(client2);
 
         // setup both servers
-        setUpServer1(client1);
-        setUpServer2(client2);
+        try {
+            setUpServer1(client1);
+            setUpServer2(client2);
+        } catch (Exception e) {
+            tearDown();
+            throw e;
+        }
 
         // reload server1
         reload(client1, false);
