@@ -52,6 +52,12 @@
         </standalone>
         <standalone
                 template="configuration/standalone/template.xml"
+                subsystems="configuration/standalone/subsystems-full-ha-activemq.xml"
+                output-file="standalone/configuration/standalone-full-ha-activemq.xml">
+            <property name="jgroups.supplement" value="" />
+        </standalone>
+        <standalone
+                template="configuration/standalone/template.xml"
                 subsystems="configuration/standalone/subsystems-full-ha.xml"
                 output-file="docs/examples/configs/standalone-ec2-full-ha.xml">
             <property name="jgroups.supplement" value="ec2" />

@@ -6,6 +6,7 @@
         <server name="default">
             <journal
                     file-size="102400" />
+
             <?CLUSTERED?>
 
             <security-setting name="#">
@@ -16,12 +17,7 @@
                       delete-non-durable-queue="true"/>
             </security-setting>
 
-            <address-setting name="#"
-                             dead-letter-address="jms.queue.DLQ"
-                             expiry-address="jms.queue.ExpiryQueue"
-                             max-size-bytes="10485760"
-                             page-size-bytes="2097152"
-                             message-counter-history-day-limit="10" />
+            <?ADDRESS-SETTINGS?>
 
             <http-connector name="http-connector"
                             socket-binding="http">
@@ -54,10 +50,6 @@
             <?DISCOVERY-GROUPS?>
             <?CLUSTER-CONNECTIONS?>
 
-            <!--
-           <?REDISTRIBUTION-DELAY?>
-           -->
-
             <jms-queue name="ExpiryQueue"
                        entries="java:/jms/queue/ExpiryQueue" />
             <jms-queue name="DLQ"
@@ -66,51 +58,65 @@
             <connection-factory name="InVmConnectionFactory"
                                 connectors="in-vm"
                                 entries="java:/ConnectionFactory" />
-            <connection-factory name="RemoteConnectionFactory"
-                                connectors="http-connector"
-                                entries="java:jboss/exported/jms/RemoteConnectionFactory" />
-            <?HA-REMOTE-CONNECTION-FACTORY?>
+            <?REMOTE-CONNECTION-FACTORY?>
             <pooled-connection-factory name="activemq-ra"
                                        transaction="xa"
                                        connectors="in-vm"
                                        entries="java:/JmsXA java:jboss/DefaultJMSConnectionFactory"/>
         </server>
     </subsystem>
+    <supplement name="default">
+        <replacement placeholder="ADDRESS-SETTINGS">
+            <address-setting name="#"
+                             dead-letter-address="jms.queue.DLQ"
+                             expiry-address="jms.queue.ExpiryQueue"
+                             max-size-bytes="10485760"
+                             page-size-bytes="2097152"
+                             message-counter-history-day-limit="10" />
+        </replacement>
+        <replacement placeholder="REMOTE-CONNECTION-FACTORY">
+            <connection-factory name="RemoteConnectionFactory"
+                                connectors="http-connector"
+                                entries="java:jboss/exported/jms/RemoteConnectionFactory" />
+        </replacement>
+    </supplement>
     <supplement name="ha">
         <replacement placeholder="CLUSTERED">
-            <cluster-password>${jboss.messaging.cluster.password:CHANGE ME!!}</cluster-password>
+            <cluster password="${jboss.messaging.cluster.password:CHANGE ME!!}" />
+        </replacement>
+        <replacement placeholder="ADDRESS-SETTINGS">
+            <address-setting name="#"
+                             dead-letter-address="jms.queue.DLQ"
+                             expiry-address="jms.queue.ExpiryQueue"
+                             max-size-bytes="10485760"
+                             page-size-bytes="2097152"
+                             message-counter-history-day-limit="10"
+                             redistribution-delay="1000" />
         </replacement>
         <replacement placeholder="BROADCAST-GROUPS">
-            <broadcast-groups>
-                <broadcast-group name="bg-group1">
-                    <socket-binding>messaging-group</socket-binding>
-                    <connector-ref>http-connector</connector-ref>
-                </broadcast-group>
-            </broadcast-groups>
+            <broadcast-group name="bg-group1"
+                             connectors="http-connector"
+                             jgroups-stack="udp"
+                             jgroups-channel="activemq-cluster"/>
         </replacement>
         <replacement placeholder="DISCOVERY-GROUPS">
-            <discovery-groups>
-                <discovery-group name="dg-group1">
-                    <socket-binding>messaging-group</socket-binding>
-                </discovery-group>
-            </discovery-groups>
+            <discovery-group name="dg-group1"
+                             jgroups-stack="udp"
+                             jgroups-channel="activemq-cluster"/>
         </replacement>
         <replacement placeholder="CLUSTER-CONNECTIONS">
-            <cluster-connections>
-                <cluster-connection name="my-cluster">
-                    <address>jms</address>
-                    <connector-ref>http-connector</connector-ref>
-                    <discovery-group-ref discovery-group-name="dg-group1"/>
-                </cluster-connection>
-            </cluster-connections>
+                <cluster-connection name="my-cluster"
+                                    address="jms"
+                                    connector-name="http-connector"
+                                    discovery-group="dg-group1" />
         </replacement>
-        <replacement placeholder="REDISTRIBUTION-DELAY">
-            <redistribution-delay>1000</redistribution-delay>
-        </replacement>
-        <replacement placeholder="HA-REMOTE-CONNECTION-FACTORY">
-            <ha>true</ha>
-            <block-on-acknowledge>true</block-on-acknowledge>
-            <reconnect-attempts>-1</reconnect-attempts>
+        <replacement placeholder="REMOTE-CONNECTION-FACTORY">
+            <connection-factory name="RemoteConnectionFactory"
+                                ha="true"
+                                block-on-acknowledge="true"
+                                reconnect-attempts="-1"
+                                connectors="http-connector"
+                                entries="java:jboss/exported/jms/RemoteConnectionFactory" />
         </replacement>
     </supplement>
 
