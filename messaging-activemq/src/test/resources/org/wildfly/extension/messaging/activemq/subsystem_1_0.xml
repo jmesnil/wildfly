@@ -364,58 +364,58 @@
         </pooled-connection-factory>
     </server>
 
+    <!--
     <server name="empty"/>
 
     <jms-bridge name="default"
-                quality-of-service="${quality.of.service:AT_MOST_ONCE}"
-                failure-retry-interval="${failure.retry.interval:45678}"
-                max-retries="${max.retries:7890}"
-                max-batch-size="${max.batch.size:12345}"
-                max-batch-time="${max.batch.time:10000}"
+                    quality-of-service="${quality.of.service:AT_MOST_ONCE}"
+                    failure-retry-interval="${failure.retry.interval:45678}"
+                    max-retries="${max.retries:7890}"
+                    max-batch-size="${max.batch.size:12345}"
+                    max-batch-time="${max.batch.time:10000}"
 
-                source-connection-factory="/cf/sourceCF"
-                source-destination="/topic/anotherSourceTopic"
-                source-user="myUser"
-                source-password="myPassword"
+                    source-connection-factory="/cf/sourceCF"
+                    source-destination="/topic/anotherSourceTopic"
+                    source-user="myUser"
+                    source-password="myPassword"
 
-                target-connection-factory="/cf/targetCF"
-                target-destination="anotherMQ/jms/queue/anotherTargetQueue"
-                target-user="myUser"
-                target-password="myPassword"/>
+                    target-connection-factory="/cf/targetCF"
+                    target-destination="anotherMQ/jms/queue/anotherTargetQueue"
+                    target-user="myUser"
+                    target-password="myPassword"/>
 
-    <!--
     <jms-bridge name="another-bridge"
-                module="org.another.mq.broker"
-                quality-of-service="ONCE_AND_ONLY_ONCE"
-                failure-retry-interval="-1"
-                max-retries="-1"
-                max-batch-size="1"
-                max-batch-time="-1"
-                selector="${selector:color='red'}"
-                subscription-name="${subscription.name:mySubscription}"
-                client-id="${client.id:myClientID}"
-                add-messageID-in-header="${add.messageID.in.header:true}"
+                    module="org.another.mq.broker"
+                    quality-of-service="ONCE_AND_ONLY_ONCE"
+                    failure-retry-interval="-1"
+                    max-retries="-1"
+                    max-batch-size="1"
+                    max-batch-time="-1"
+                    selector="${selector:color='red'}"
+                    subscription-name="${subscription.name:mySubscription}"
+                    client-id="${client.id:myClientID}"
+                    add-messageID-in-header="${add.messageID.in.header:true}"
 
-                source-connection-factory="/cf/sourceCF"
-                source-destination="/topic/sourceTopic"
-                source-user="myUser"
-                source-password="myPassword"
+                    source-connection-factory="/cf/sourceCF"
+                    source-destination="/topic/sourceTopic"
+                    source-user="myUser"
+                    source-password="myPassword"
 
-                target-connection-factory="anotherAS7/jms/cf/targetCF"
-                target-destination="anotherAS7/jms/queue/targetQueue"
-                target-user="${userInExpression:user}"
-                target-password="${passwordInExpression:password}">
+                    target-connection-factory="anotherAS7/jms/cf/targetCF"
+                    target-destination="anotherAS7/jms/queue/targetQueue"
+                    target-user="${userInExpression:user}"
+                    target-password="${passwordInExpression:password}">
 
-        <source-context-property name="java.naming.factory.initial"
-                                 value="${java.naming.factory.initial:org.jnp.interfaces.NamingContextFactory}" />
-        <source-context-property name="java.naming.provider.url"
-                                 value="${java.naming.provider.url:jnp://localhost:1099}" />
-        <source-context-property name="java.naming.factory.url.pkgs" value="${java.naming.factory.url.pkgs:org.jboss.naming:org.jnp.interfaces}"/>
-        <target-context-property name="java.naming.factory.initial"
-                                 value="${java.naming.factory.initial:org.jnp.interfaces.NamingContextFactory}" />
-        <target-context-property name="java.naming.provider.url"
-                                 value="${java.naming.provider.url:jnp://localhost:1099}" />
-        <target-context-property name="java.naming.factory.url.pkgs" value="${java.naming.factory.url.pkgs:org.jboss.naming:org.jnp.interfaces}"/>
-    </jms-bridge>
-        -->
+            <source-context-property name="java.naming.factory.initial"
+                                     value="${java.naming.factory.initial:org.jnp.interfaces.NamingContextFactory}" />
+            <source-context-property name="java.naming.provider.url"
+                                     value="${java.naming.provider.url:jnp://localhost:1099}" />
+            <source-context-property name="java.naming.factory.url.pkgs" value="${java.naming.factory.url.pkgs:org.jboss.naming:org.jnp.interfaces}"/>
+            <target-context-property name="java.naming.factory.initial"
+                                     value="${java.naming.factory.initial:org.jnp.interfaces.NamingContextFactory}" />
+            <target-context-property name="java.naming.provider.url"
+                                     value="${java.naming.provider.url:jnp://localhost:1099}" />
+            <target-context-property name="java.naming.factory.url.pkgs" value="${java.naming.factory.url.pkgs:org.jboss.naming:org.jnp.interfaces}"/>
+        </jms-bridge>
+            -->
 </subsystem>
