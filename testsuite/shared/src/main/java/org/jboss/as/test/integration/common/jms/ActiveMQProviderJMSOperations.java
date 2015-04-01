@@ -34,7 +34,6 @@ import static org.jboss.as.test.integration.common.jms.JMSOperationsProvider.exe
 
 import org.jboss.as.arquillian.container.ManagementClient;
 import org.jboss.as.controller.client.ModelControllerClient;
-
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
 
@@ -48,6 +47,10 @@ public class ActiveMQProviderJMSOperations implements JMSOperations {
 
     public ActiveMQProviderJMSOperations(ModelControllerClient client) {
         this.client = client;
+    }
+
+    public ActiveMQProviderJMSOperations(ManagementClient client) {
+        this.client = client.getControllerClient();
     }
 
     private static final ModelNode serverAddress = new ModelNode();
