@@ -305,10 +305,14 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
                 // server.stop();
 
                 for (SocketBinding binding : socketBindings.values()) {
-                    binding.getSocketBindings().getNamedRegistry().unregisterBinding(binding.getName());
+                    if (binding != null) {
+                        binding.getSocketBindings().getNamedRegistry().unregisterBinding(binding.getName());
+                    }
                 }
                 for (SocketBinding binding : groupBindings.values()) {
-                    binding.getSocketBindings().getNamedRegistry().unregisterBinding(binding.getName());
+                    if (binding != null) {
+                        binding.getSocketBindings().getNamedRegistry().unregisterBinding(binding.getName());
+                    }
                 }
             }
             pathConfig.closeCallbacks(pathManager.getValue());
