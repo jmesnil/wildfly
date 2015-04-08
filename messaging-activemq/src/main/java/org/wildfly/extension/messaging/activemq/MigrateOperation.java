@@ -27,6 +27,8 @@ import static org.jboss.as.controller.PathAddress.pathAddress;
 import static org.jboss.as.controller.PathElement.pathElement;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REMOVE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.BRIDGE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.CLUSTER_CONNECTION;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTION_FACTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.POOLED_CONNECTION_FACTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SERVER;
@@ -94,8 +96,12 @@ public class MigrateOperation implements OperationStepHandler {
                     Resource server = context.createResource(pathAddress(pathElement(SERVER, serverProp.getName())));
                     server.writeModel(serverProp.getValue());
 
-                    migrateConnectionFactory(server.getModel());
-                    migratePooledConnectionFactory(server.getModel());
+                    ModelNode serverModel = server.getModel();
+
+                    migrateConnectionFactory(serverModel);
+                    migratePooledConnectionFactory(serverModel);
+                    migrateClusterConnection(serverModel);
+                    migrateBridge(serverModel);
                 }
             }
         }
@@ -107,24 +113,65 @@ public class MigrateOperation implements OperationStepHandler {
     }
 
     private void migrateConnectionFactory(ModelNode serverModel) {
-        for (Property connectionFactory : serverModel.get(CONNECTION_FACTORY).asPropertyList()) {
-            // legacy connector is a property list where the name is the connector and the value is undefined
-            List<Property> connector = connectionFactory.getValue().get("connector").asPropertyList();
-            for (Property connectorProp : connector) {
-                serverModel.get(CONNECTION_FACTORY, connectionFactory.getName()).get("connectors").add(connectorProp.getName());
-            }
-            serverModel.get(CONNECTION_FACTORY, connectionFactory.getName()).remove("connector");
+        for (Property connectionFactoryProp : serverModel.get(CONNECTION_FACTORY).asPropertyList()) {
+            ModelNode connectionFactory = connectionFactoryProp.getValue();
+
+            migrateConnectorAttribute(connectionFactory);
+            migrateDiscoveryGroupNameAttribute(connectionFactory);
+
+            serverModel.get(CONNECTION_FACTORY, connectionFactoryProp.getName()).set(connectionFactory);
         }
     }
 
     private void migratePooledConnectionFactory(ModelNode serverModel) {
-        for (Property pooledConnectionFactory : serverModel.get(POOLED_CONNECTION_FACTORY).asPropertyList()) {
+        for (Property pooledConnectionFactoryProp : serverModel.get(POOLED_CONNECTION_FACTORY).asPropertyList()) {
+            ModelNode pooledConnectionFactory = pooledConnectionFactoryProp.getValue();
+
+            migrateConnectorAttribute(pooledConnectionFactory);
+            migrateDiscoveryGroupNameAttribute(pooledConnectionFactory);
+
+            serverModel.get(POOLED_CONNECTION_FACTORY, pooledConnectionFactoryProp.getName()).set(pooledConnectionFactory);
+        }
+    }
+
+    private void migrateClusterConnection(ModelNode serverModel) {
+        for (Property clusterConnectionProp: serverModel.get(CLUSTER_CONNECTION).asPropertyList()) {
+            ModelNode clusterConnection = clusterConnectionProp.getValue();
+            // connector-ref attribute has been renamed to connector-name
+            clusterConnection.get("connector-name").set(clusterConnection.get("connector-ref"));
+            clusterConnection.remove("connector-ref");
+            serverModel.get(CLUSTER_CONNECTION, clusterConnectionProp.getName()).set(clusterConnection);
+        }
+    }
+
+    private void migrateConnectorAttribute(ModelNode model) {
+        ModelNode connector = model.get("connector");
+        if (connector.isDefined()) {
             // legacy connector is a property list where the name is the connector and the value is undefined
-            List<Property> connector = pooledConnectionFactory.getValue().get("connector").asPropertyList();
-            for (Property connectorProp : connector) {
-                serverModel.get(POOLED_CONNECTION_FACTORY, pooledConnectionFactory.getName()).get("connectors").add(connectorProp.getName());
+            List<Property> connectorProps = connector.asPropertyList();
+            for (Property connectorProp : connectorProps) {
+                model.get("connectors").add(connectorProp.getName());
             }
-            serverModel.get(POOLED_CONNECTION_FACTORY, pooledConnectionFactory.getName()).remove("connector");
+            model.remove("connector");
+        }
+    }
+    private void migrateDiscoveryGroupNameAttribute(ModelNode model) {
+        ModelNode discoveryGroup = model.get("discovery-group-name");
+        if (discoveryGroup.isDefined()) {
+            // discovery-group-name attribute has been renamed to discovery-group
+            model.get("discovery-group").set(discoveryGroup);
+            model.remove("discovery-group-name");
+        }
+    }
+
+    private void migrateBridge(ModelNode serverModel) {
+        for (Property bridgeProp: serverModel.get(BRIDGE).asPropertyList()) {
+            ModelNode bridge = bridgeProp.getValue();
+
+            migrateDiscoveryGroupNameAttribute(bridge);
+
+            serverModel.get(BRIDGE, bridgeProp.getName()).set(bridge);
+
         }
     }
 }
