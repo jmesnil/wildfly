@@ -24,12 +24,11 @@ package org.wildfly.extension.messaging.activemq.jms.bridge;
 
 import static org.jboss.as.controller.OperationContext.Stage.MODEL;
 
-import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
-import org.wildfly.extension.messaging.activemq.AlternativeAttributeCheckHandler;
 import org.jboss.dmr.ModelNode;
+import org.wildfly.extension.messaging.activemq.AlternativeAttributeCheckHandler;
 
 /**
  * Write attribute handler for attributes that update a JMS bridge resource.
@@ -38,30 +37,15 @@ import org.jboss.dmr.ModelNode;
  */
 public class JMSBridgeWriteAttributeHandler extends ReloadRequiredWriteAttributeHandler {
 
-    private static final AttributeDefinition[] ATTRIBUTES = mergeAttributes();
-
-    private static AttributeDefinition[] mergeAttributes() {
-        AttributeDefinition[] merged = new AttributeDefinition[JMSBridgeDefinition.JMS_BRIDGE_ATTRIBUTES.length
-                + JMSBridgeDefinition.JMS_SOURCE_ATTRIBUTES.length
-                + JMSBridgeDefinition.JMS_TARGET_ATTRIBUTES.length];
-        System.arraycopy(JMSBridgeDefinition.JMS_BRIDGE_ATTRIBUTES, 0, merged, 0, JMSBridgeDefinition.JMS_BRIDGE_ATTRIBUTES.length);
-        System.arraycopy(JMSBridgeDefinition.JMS_SOURCE_ATTRIBUTES, 0, merged,
-                JMSBridgeDefinition.JMS_BRIDGE_ATTRIBUTES.length, JMSBridgeDefinition.JMS_SOURCE_ATTRIBUTES.length);
-        System.arraycopy(JMSBridgeDefinition.JMS_TARGET_ATTRIBUTES, 0, merged,
-                JMSBridgeDefinition.JMS_BRIDGE_ATTRIBUTES.length + JMSBridgeDefinition.JMS_SOURCE_ATTRIBUTES.length,
-                JMSBridgeDefinition.JMS_TARGET_ATTRIBUTES.length);
-        return merged;
-    }
-
-    public static final JMSBridgeWriteAttributeHandler INSTANCE = new JMSBridgeWriteAttributeHandler();
+    static final JMSBridgeWriteAttributeHandler INSTANCE = new JMSBridgeWriteAttributeHandler();
 
     private JMSBridgeWriteAttributeHandler() {
-        super(ATTRIBUTES);
+        super(JMSBridgeDefinition.ATTRIBUTES);
     }
 
     @Override
     public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
-        context.addStep(new AlternativeAttributeCheckHandler(ATTRIBUTES), MODEL);
+        context.addStep(new AlternativeAttributeCheckHandler(JMSBridgeDefinition.ATTRIBUTES), MODEL);
 
         super.execute(context, operation);
     }

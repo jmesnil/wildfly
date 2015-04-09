@@ -67,19 +67,6 @@ public class JMSBridgeAdd extends AbstractAddStepHandler {
     }
 
     @Override
-    protected void populateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
-        for (final AttributeDefinition attributeDefinition : JMSBridgeDefinition.JMS_BRIDGE_ATTRIBUTES) {
-            attributeDefinition.validateAndSet(operation, model);
-        }
-        for (final AttributeDefinition attributeDefinition : JMSBridgeDefinition.JMS_TARGET_ATTRIBUTES) {
-            attributeDefinition.validateAndSet(operation, model);
-        }
-        for (final AttributeDefinition attributeDefinition : JMSBridgeDefinition.JMS_SOURCE_ATTRIBUTES) {
-            attributeDefinition.validateAndSet(operation, model);
-        }
-    }
-
-    @Override
     protected void performRuntime(final OperationContext context, final ModelNode operation, final ModelNode model)
                     throws OperationFailedException {
         context.addStep(new OperationStepHandler() {
