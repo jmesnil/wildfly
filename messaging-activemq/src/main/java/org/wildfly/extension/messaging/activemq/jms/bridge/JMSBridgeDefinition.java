@@ -28,11 +28,18 @@ import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTION_FACTORY;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.DESTINATION;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.PASSWORD;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.SOURCE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.TARGET;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.USER;
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 import org.jboss.as.controller.AttributeDefinition;
@@ -65,36 +72,54 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition SOURCE_CONNECTION_FACTORY = create("source-connection-factory", STRING)
+            .setAttributeGroup(SOURCE)
+            .setXmlName(CONNECTION_FACTORY)
             .build();
 
     public static final SimpleAttributeDefinition SOURCE_DESTINATION = create("source-destination", STRING)
+            .setAttributeGroup(SOURCE)
+            .setXmlName(DESTINATION)
             .build();
 
     public static final SimpleAttributeDefinition SOURCE_USER = create("source-user", STRING)
-            .setAllowNull(true)
-            .setAllowExpression(true)
-            .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
-            .addAccessConstraint(MESSAGING_SECURITY_SENSITIVE_TARGET)
-            .build();
-    public static final SimpleAttributeDefinition SOURCE_PASSWORD = create("source-password", STRING)
+            .setAttributeGroup(SOURCE)
+            .setXmlName("user")
             .setAllowNull(true)
             .setAllowExpression(true)
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
             .addAccessConstraint(MESSAGING_SECURITY_SENSITIVE_TARGET)
             .build();
 
-    public static final PropertiesAttributeDefinition SOURCE_CONTEXT = new PropertiesAttributeDefinition.Builder("source-context-property", true)
-            .setWrapXmlElement(false)
+    public static final SimpleAttributeDefinition SOURCE_PASSWORD = create("source-password", STRING)
+            .setAttributeGroup(SOURCE)
+            .setXmlName(PASSWORD)
+            .setAllowNull(true)
+            .setAllowExpression(true)
+            .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
+            .addAccessConstraint(MESSAGING_SECURITY_SENSITIVE_TARGET)
+            .build();
+
+    public static final PropertiesAttributeDefinition SOURCE_CONTEXT = new PropertiesAttributeDefinition.Builder("source-context", true)
+            .setAttributeGroup(SOURCE)
+            .setWrapXmlElement(true)
+            .setWrapperElement("context")
+            .setXmlName("property")
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition TARGET_CONNECTION_FACTORY = create("target-connection-factory", STRING)
+            .setAttributeGroup(TARGET)
+            .setXmlName(CONNECTION_FACTORY)
             .build();
 
     public static final SimpleAttributeDefinition TARGET_DESTINATION = create("target-destination", STRING)
+            .setAttributeGroup(TARGET)
+            .setXmlName(DESTINATION)
             .build();
 
     public static final SimpleAttributeDefinition TARGET_USER = create("target-user", STRING)
+            .setAttributeGroup(TARGET)
+            .setXmlName("user")
             .setAllowNull(true)
             .setAllowExpression(true)
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
@@ -102,14 +127,19 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition TARGET_PASSWORD = create("target-password", STRING)
+            .setAttributeGroup(TARGET)
+            .setXmlName(PASSWORD)
             .setAllowNull(true)
             .setAllowExpression(true)
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.CREDENTIAL)
             .addAccessConstraint(MESSAGING_SECURITY_SENSITIVE_TARGET)
             .build();
 
-    public static final PropertiesAttributeDefinition TARGET_CONTEXT = new PropertiesAttributeDefinition.Builder("target-context-property", true)
-            .setWrapXmlElement(false)
+    public static final PropertiesAttributeDefinition TARGET_CONTEXT = new PropertiesAttributeDefinition.Builder("target-context", true)
+            .setAttributeGroup(SOURCE)
+            .setWrapXmlElement(true)
+            .setWrapperElement("context")
+            .setXmlName("property")
             .setAllowExpression(true)
             .build();
 
@@ -152,25 +182,24 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
             .setFlags(AttributeAccess.Flag.STORAGE_RUNTIME)
             .build();
 
-    public static final AttributeDefinition[] JMS_BRIDGE_ATTRIBUTES = {
+    public static final AttributeDefinition[] ATTRIBUTES = {
             MODULE,
             QUALITY_OF_SERVICE,
             FAILURE_RETRY_INTERVAL, MAX_RETRIES,
             MAX_BATCH_SIZE, MAX_BATCH_TIME,
             CommonAttributes.SELECTOR,
-            SUBSCRIPTION_NAME, CommonAttributes.CLIENT_ID,
-            ADD_MESSAGE_ID_IN_HEADER
-    };
-
-    public static final AttributeDefinition[] JMS_SOURCE_ATTRIBUTES = {
-            SOURCE_CONNECTION_FACTORY, SOURCE_DESTINATION,
-            SOURCE_USER, SOURCE_PASSWORD,
-            SOURCE_CONTEXT
-    };
-
-    public static final AttributeDefinition[] JMS_TARGET_ATTRIBUTES = {
-            TARGET_CONNECTION_FACTORY, TARGET_DESTINATION,
-            TARGET_USER, TARGET_PASSWORD,
+            SUBSCRIPTION_NAME,
+            CommonAttributes.CLIENT_ID,
+            ADD_MESSAGE_ID_IN_HEADER,
+            SOURCE_CONNECTION_FACTORY,
+            SOURCE_DESTINATION,
+            SOURCE_USER,
+            SOURCE_PASSWORD,
+            SOURCE_CONTEXT,
+            TARGET_CONNECTION_FACTORY,
+            TARGET_DESTINATION,
+            TARGET_USER,
+            TARGET_PASSWORD,
             TARGET_CONTEXT
     };
 
@@ -192,22 +221,12 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
 
     @Override
     public Collection<AttributeDefinition> getAttributes() {
-        Collection<AttributeDefinition> attributes = new ArrayList<>();
-        attributes.addAll(Arrays.asList(JMS_BRIDGE_ATTRIBUTES));
-        attributes.addAll(Arrays.asList(JMS_SOURCE_ATTRIBUTES));
-        attributes.addAll(Arrays.asList(JMS_TARGET_ATTRIBUTES));
-        return attributes;
+        return Arrays.asList(ATTRIBUTES);
     }
 
     @Override
     public void registerAttributes(ManagementResourceRegistration registry) {
-        for (AttributeDefinition attr : JMS_BRIDGE_ATTRIBUTES) {
-            registry.registerReadWriteAttribute(attr, null, JMSBridgeWriteAttributeHandler.INSTANCE);
-        }
-        for (AttributeDefinition attr : JMS_SOURCE_ATTRIBUTES) {
-            registry.registerReadWriteAttribute(attr, null, JMSBridgeWriteAttributeHandler.INSTANCE);
-        }
-        for (AttributeDefinition attr : JMS_TARGET_ATTRIBUTES) {
+        for (AttributeDefinition attr : ATTRIBUTES) {
             registry.registerReadWriteAttribute(attr, null, JMSBridgeWriteAttributeHandler.INSTANCE);
         }
         for (AttributeDefinition attr : READONLY_ATTRIBUTES) {

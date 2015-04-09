@@ -362,6 +362,7 @@ public interface CommonAttributes {
     String NUMBER_OF_PAGES = "number-of-pages";
     String PAGING_DIRECTORY = "paging-directory";
     String PARAM = "param";
+    String PASSWORD = "password";
     String PERMISSION_ELEMENT_NAME = "permission";
     String POOLED_CONNECTION_FACTORY = "pooled-connection-factory";
     String QUEUE = "queue";
@@ -392,11 +393,13 @@ public interface CommonAttributes {
     String SHARED_STORE_MASTER = "shared-store-master";
     String SHARED_STORE_SLAVE = "shared-store-slave";
     String SLAVE = "slave";
+    String SOURCE = "source";
     String STARTED = "started";
     String STATIC_CONNECTORS = "static-connectors";
     String STRING = "string";
     String SUBSCRIPTION_COUNT = "subscription-count";
     String SUBSYSTEM = "subsystem";
+    String TARGET = "target";
     String TOPIC_ADDRESS = "topic-address";
     String TYPE_ATTR_NAME = "type";
     String USE_INVM = "use-invm";
