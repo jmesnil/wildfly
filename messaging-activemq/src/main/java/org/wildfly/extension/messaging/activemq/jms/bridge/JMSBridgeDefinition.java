@@ -33,13 +33,10 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.DESTINAT
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.PASSWORD;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SOURCE;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.TARGET;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.USER;
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 import org.jboss.as.controller.AttributeDefinition;
@@ -61,8 +58,6 @@ import org.wildfly.extension.messaging.activemq.MessagingExtension;
  * @author Jeff Mesnil (c) 2012 Red Hat Inc.
  */
 public class JMSBridgeDefinition extends PersistentResourceDefinition {
-
-    public static final JMSBridgeDefinition INSTANCE = new JMSBridgeDefinition();
 
     public static final String PAUSE = "pause";
     public static final String RESUME = "resume";
@@ -136,7 +131,7 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
             .build();
 
     public static final PropertiesAttributeDefinition TARGET_CONTEXT = new PropertiesAttributeDefinition.Builder("target-context", true)
-            .setAttributeGroup(SOURCE)
+            .setAttributeGroup(TARGET)
             .setWrapXmlElement(true)
             .setWrapperElement("context")
             .setXmlName("property")
@@ -211,6 +206,8 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
             ModelDescriptionConstants.START, ModelDescriptionConstants.STOP,
             PAUSE, RESUME
     };
+
+    public static final JMSBridgeDefinition INSTANCE = new JMSBridgeDefinition();
 
     private JMSBridgeDefinition() {
         super(MessagingExtension.JMS_BRIDGE_PATH,
