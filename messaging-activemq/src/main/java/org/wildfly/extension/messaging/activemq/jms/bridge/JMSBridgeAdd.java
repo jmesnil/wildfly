@@ -64,6 +64,7 @@ public class JMSBridgeAdd extends AbstractAddStepHandler {
     public static final JMSBridgeAdd INSTANCE = new JMSBridgeAdd();
 
     private JMSBridgeAdd() {
+        super(JMSBridgeDefinition.ATTRIBUTES);
     }
 
     @Override
