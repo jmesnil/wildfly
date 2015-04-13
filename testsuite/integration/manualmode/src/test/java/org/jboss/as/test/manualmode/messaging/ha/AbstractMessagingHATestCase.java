@@ -230,7 +230,7 @@ public abstract class AbstractMessagingHATestCase {
         File snapshotFile = new File(snapshot);
         File configurationDir = snapshotFile.getParentFile().getParentFile().getParentFile();
         System.out.println("configurationDir = " + configurationDir);
-        File standaloneConfiguration = new File(configurationDir, "standalone-full-activemq.xml");
+        File standaloneConfiguration = new File(configurationDir, "standalone-full-ha.xml");
         snapshotFile.renameTo(standaloneConfiguration);
     }
 

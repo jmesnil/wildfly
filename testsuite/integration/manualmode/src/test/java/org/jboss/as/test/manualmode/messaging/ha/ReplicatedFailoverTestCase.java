@@ -90,9 +90,6 @@ public class ReplicatedFailoverTestCase extends FailoverTestCase {
     private void configureCluster(ModelControllerClient client) throws Exception {
         // /subsystem=messaging-activemq/server=default:write-attribute(name=cluster-user, value=clusteruser)
         // /subsystem=messaging-activemq/server=default:write-attribute(name=cluster-password, value=clusterpwd)
-        // /subsystem=messaging-activemq/server=default/broadcast-group=bg-group1:add(socket-binding=messaging-group, connectors=[http-connector]
-        // /subsystem=messaging-activemq/server=default/discovery-group=dg-group1:add(socket-binding=messaging-group)
-        // /subsystem=messaging-activemq/server=default/cluster-connection=my-cluster:add(connector-name=http-connector, discovery-group=dg-group1, cluster-connection-address=jms)
 
         ModelNode operation = new ModelNode();
         operation.get(OP_ADDR).add(SUBSYSTEM, "messaging-activemq");
@@ -108,33 +105,6 @@ public class ReplicatedFailoverTestCase extends FailoverTestCase {
         operation.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
         operation.get(NAME).set("cluster-user");
         operation.get(VALUE).set("clusteruser");
-        execute(client, operation);
-
-        operation = new ModelNode();
-        operation.get(OP_ADDR).add(SUBSYSTEM, "messaging-activemq");
-        operation.get(OP_ADDR).add("server", "default");
-        operation.get(OP_ADDR).add("broadcast-group", "bg-group1");
-        operation.get(OP).set(ADD);
-        operation.get(SOCKET_BINDING).set("messaging-group");
-        operation.get("connectors").add("http-connector");
-        execute(client, operation);
-
-        operation = new ModelNode();
-        operation.get(OP_ADDR).add(SUBSYSTEM, "messaging-activemq");
-        operation.get(OP_ADDR).add("server", "default");
-        operation.get(OP_ADDR).add("discovery-group", "dg-group1");
-        operation.get(OP).set(ADD);
-        operation.get(SOCKET_BINDING).set("messaging-group");
-        execute(client, operation);
-
-        operation = new ModelNode();
-        operation.get(OP_ADDR).add(SUBSYSTEM, "messaging-activemq");
-        operation.get(OP_ADDR).add("server", "default");
-        operation.get(OP_ADDR).add("cluster-connection", "my-cluster");
-        operation.get(OP).set(ADD);
-        operation.get("cluster-connection-address").set("jms");
-        operation.get("connector-name").set("http-connector");
-        operation.get("discovery-group").set("dg-group1");
         execute(client, operation);
     }
 }

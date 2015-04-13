@@ -34,7 +34,7 @@ import org.junit.Test;
  */
 public abstract class FailoverTestCase extends AbstractMessagingHATestCase {
 
-    protected final String jmsQueueName = "SharedStoreTestCase-Queue";
+    protected final String jmsQueueName = "FailoverTestCase-Queue";
     protected final String jmsQueueLookup = "jms/" + jmsQueueName;
 
     @Test
