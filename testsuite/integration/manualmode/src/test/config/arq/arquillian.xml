@@ -58,7 +58,7 @@
             <configuration>
                 <property name="jbossHome">${basedir}/target/jbossas-messaging-failover</property>
                 <property name="javaVmArguments">${server.jvm.args} -Djboss.inst=${basedir}/target/jbossas-messaging-failover -Djboss.node.name=default-jbossas-messaging-failover</property>
-                <property name="serverConfig">standalone-full-activemq.xml</property>
+                <property name="serverConfig">standalone-full.xml</property>
                 <property name="jbossArguments">${jboss.args}</property>
                 <property name="allowConnectingToRunningServer">true</property>
                 <property name="managementAddress">${node0:127.0.0.1}</property>
@@ -90,7 +90,7 @@
             <configuration>
                 <property name="jbossHome">${basedir}/target/jbossas-messaging-ha-server1</property>
                 <property name="javaVmArguments">${server.jvm.args} -Djboss.inst=${basedir}/target/jbossas-messaging-ha-server1 -Djboss.node.name=default-jbossas-messaging-ha-server1</property>
-                <property name="serverConfig">standalone-full-activemq.xml</property>
+                <property name="serverConfig">standalone-full-ha.xml</property>
                 <property name="jbossArguments">${jboss.args}</property>
                 <property name="allowConnectingToRunningServer">true</property>
                 <property name="managementAddress">${node0:127.0.0.1}</property>
@@ -106,7 +106,7 @@
             <configuration>
                 <property name="jbossHome">${basedir}/target/jbossas-messaging-ha-server2</property>
                 <property name="javaVmArguments">${server.jvm.args} -Djboss.socket.binding.port-offset=100 -Djboss.inst=${basedir}/target/jbossas-messaging-ha-server2 -Djboss.node.name=default-jbossas-messaging-ha-server2</property>
-                <property name="serverConfig">standalone-full-activemq.xml</property>
+                <property name="serverConfig">standalone-full-ha.xml</property>
                 <property name="jbossArguments">${jboss.args}</property>
                 <property name="allowConnectingToRunningServer">true</property>
                 <property name="managementAddress">${node0:127.0.0.1}</property>

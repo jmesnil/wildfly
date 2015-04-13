@@ -108,8 +108,8 @@ public class StandardConfigsXMLValidationUnitTestCase extends AbstractValidation
     }
 
     @Test
-    public void testStandaloneFullActiveMQ() throws Exception {
-        parseXml("standalone/configuration/standalone-full-activemq.xml");
+    public void testStandaloneFullHornetQ() throws Exception {
+        parseXml("standalone/configuration/standalone-full-hornetq.xml");
     }
 
     //TODO Leave commented out until domain-jts.xml is definitely removed from the configuration

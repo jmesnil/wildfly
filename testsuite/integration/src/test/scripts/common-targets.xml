@@ -287,7 +287,7 @@
 
         <sequential>
             <echo message="Make default messagingserver fails over on shutdown"/>
-            <copy file="@{output.dir}/@{name}/@{config.dir.name}/standalone-full-activemq.xml"
+            <copy file="@{output.dir}/@{name}/@{config.dir.name}/standalone-full.xml"
                   tofile="@{output.dir}/@{name}/@{config.dir.name}/standalone-full-backup.xml" />
 
             <!-- Process *.xml to *.xml.mod. -->
@@ -296,7 +296,7 @@
                   extension=".xml.mod"
                   useImplicitFileset="false">
                 <fileset dir="@{output.dir}/@{name}/@{config.dir.name}">
-                    <include name="**/standalone-full-activemq.xml"/>
+                    <include name="**/standalone-full.xml"/>
                 </fileset>
             </xslt>
             <xslt destdir="@{output.dir}/@{name}-tmp/@{config.dir.name}"
@@ -311,7 +311,7 @@
             <!-- Move processed files back. -->
             <move todir="@{output.dir}/@{name}/@{config.dir.name}">
                 <fileset dir="@{output.dir}/@{name}-tmp/@{config.dir.name}">
-                    <include name="**/standalone-full-activemq.xml.mod"/>
+                    <include name="**/standalone-full.xml.mod"/>
                     <include name="**/standalone-full-backup.xml.mod"/>
                 </fileset>
                 <mapper type="glob" from="*.mod" to="*"/>
