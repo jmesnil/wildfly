@@ -55,7 +55,5 @@ public class MessagingSubsystemRootResourceDefinition extends PersistentResource
     @Override
     public void registerOperations(ManagementResourceRegistration resourceRegistration) {
         super.registerOperations(resourceRegistration);
-
-        MigrateOperation.registerOperation(resourceRegistration, getResourceDescriptionResolver());
     }
 }
