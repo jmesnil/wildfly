@@ -71,10 +71,14 @@ public class JMSTopicRemove extends AbstractRemoveStepHandler {
 
         context.removeService(JMSServices.getJmsTopicBaseServiceName(hqServiceName).append(name));
 
-        final ModelNode entries = CommonAttributes.DESTINATION_ENTRIES.resolveModelAttribute(context, model);
-        final String[] jndiBindings = JMSServices.getJndiBindings(entries);
-        for (String jndiBinding : jndiBindings) {
-            final ContextNames.BindInfo bindInfo = ContextNames.bindInfoFor(jndiBinding);
+        for (String entry : CommonAttributes.DESTINATION_ENTRIES.unwrap(context, model)) {
+            final ContextNames.BindInfo bindInfo = ContextNames.bindInfoFor(entry);
+            ServiceName binderServiceName = bindInfo.getBinderServiceName();
+            context.removeService(binderServiceName);
+        }
+
+        for (String legacyEntry : CommonAttributes.LEGACY_ENTRIES.unwrap(context, model)) {
+            final ContextNames.BindInfo bindInfo = ContextNames.bindInfoFor(legacyEntry);
             ServiceName binderServiceName = bindInfo.getBinderServiceName();
             context.removeService(binderServiceName);
         }

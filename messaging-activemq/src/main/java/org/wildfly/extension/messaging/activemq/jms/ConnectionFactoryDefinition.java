@@ -36,6 +36,7 @@ import org.wildfly.extension.messaging.activemq.CommonAttributes;
 import org.wildfly.extension.messaging.activemq.MessagingExtension;
 import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Common;
 import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Regular;
+import org.wildfly.extension.messaging.activemq.jms.legacy.LegacyConnectionFactoryDefinition;
 
 /**
  * JMS Connection Factory resource definition
@@ -96,4 +97,11 @@ public class ConnectionFactoryDefinition extends PersistentResourceDefinition {
             ConnectionFactoryUpdateJndiHandler.registerOperations(registry, getResourceDescriptionResolver());
         }
    }
+
+    @Override
+    public void registerChildren(ManagementResourceRegistration registry) {
+        super.registerChildren(registry);
+
+        registry.registerSubModel(LegacyConnectionFactoryDefinition.INSTANCE);
+    }
 }
