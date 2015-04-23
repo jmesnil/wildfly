@@ -254,10 +254,11 @@
                    selector="${selector:color='red'}"
                    durable="${durable:true}" />
         <jms-queue name="testQueue2"
-                   entries="java:/global/queue/test java:/global/queue/test2" />
-
+                   entries="java:/global/queue/test java:/global/queue/test2"
+                   legacy-entries="java:/global/queue/legacy/test java:/global/queue/legacy/test2" />
         <jms-topic name="testTopic"
-                   entries="${jms-topic.entry:topic/test}" />
+                   entries="${jms-topic.entry:topic/test}"
+                   legacy-entries="${jms-topic.entry:topic/legacy/test}" />
 
         <connection-factory name="InVmConnectionFactory"
                             connectors="in-vm netty"
