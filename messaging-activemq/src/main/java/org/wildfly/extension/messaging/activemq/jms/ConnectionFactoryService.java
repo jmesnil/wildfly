@@ -22,19 +22,19 @@
 
 package org.wildfly.extension.messaging.activemq.jms;
 
+import static org.wildfly.extension.messaging.activemq.logging.MessagingLogger.MESSAGING_LOGGER;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
-
-import static org.wildfly.extension.messaging.activemq.logging.MessagingLogger.MESSAGING_LOGGER;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionException;
+import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
  * {@code Service} responsible for creating and destroying a {@code javax.jms.ConnectionFactory}.
@@ -116,4 +116,5 @@ class ConnectionFactoryService implements Service<Void> {
     public InjectedValue<ExecutorService> getExecutorInjector() {
         return executorInjector;
     }
+
 }

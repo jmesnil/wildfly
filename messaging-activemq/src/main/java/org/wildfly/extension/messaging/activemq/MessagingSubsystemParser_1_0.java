@@ -52,7 +52,6 @@ import org.wildfly.extension.messaging.activemq.jms.JMSQueueDefinition;
 import org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition;
 import org.wildfly.extension.messaging.activemq.jms.PooledConnectionFactoryDefinition;
 import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
-import org.wildfly.extension.messaging.activemq.jms.legacy.LegacyConnectionFactoryDefinition;
 
 /**
  * Parser and Marshaller for messaging-activemq's {@link #NAMESPACE}.
@@ -466,12 +465,8 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                                         ConnectionFactoryAttributes.Common.THREAD_POOL_MAX_SIZE,
                                                         ConnectionFactoryAttributes.Common.GROUP_ID,
                                                         // regular
-                                                        ConnectionFactoryAttributes.Regular.FACTORY_TYPE)
-                                                .addChild(
-                                                        builder(LegacyConnectionFactoryDefinition.INSTANCE)
-                                                                .addAttributes(
-                                                                        LegacyConnectionFactoryDefinition.HA,
-                                                                        LegacyConnectionFactoryDefinition.LEGACY_ENTRIES)))
+                                                        ConnectionFactoryAttributes.Regular.FACTORY_TYPE,
+                                                        CommonAttributes.LEGACY_ENTRIES))
                                 .addChild(
                                         builder(PooledConnectionFactoryDefinition.INSTANCE)
                                                 .addAttributes(

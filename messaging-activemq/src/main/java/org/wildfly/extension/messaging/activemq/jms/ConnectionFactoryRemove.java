@@ -28,14 +28,12 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.PathAddress;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-
-import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
-import org.wildfly.extension.messaging.activemq.MessagingServices;
+import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
+import org.wildfly.extension.messaging.activemq.CommonAttributes;
+import org.wildfly.extension.messaging.activemq.MessagingServices;
 
 /**
  * Update handler removing a connection factory from the JMS subsystem. The
@@ -49,9 +47,8 @@ public class ConnectionFactoryRemove extends AbstractRemoveStepHandler {
     public static final ConnectionFactoryRemove INSTANCE = new ConnectionFactoryRemove();
 
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
-        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR)));
-        final PathAddress address = PathAddress.pathAddress(operation.require(OP_ADDR));
-        final String name = address.getLastElement().getValue();
+        final String name = context.getCurrentAddressValue();
+        final ServiceName hqServiceName = MessagingServices.getActiveMQServiceName(context.getCurrentAddress());
         context.removeService(JMSServices.getConnectionFactoryBaseServiceName(hqServiceName).append(name));
 
         ServiceController<?> hqService = context.getServiceRegistry(false).getService(hqServiceName);
@@ -63,9 +60,16 @@ public class ConnectionFactoryRemove extends AbstractRemoveStepHandler {
             } catch (Exception e) {
                 throw new OperationFailedException(e);
             }
-        }    }
+        }
 
-    protected void recoverServices(OperationContext context, ModelNode operation, ModelNode model) {
-        // TODO:  RE-ADD SERVICES
+        for (String legacyEntry : CommonAttributes.LEGACY_ENTRIES.unwrap(context, model)) {
+            final ContextNames.BindInfo bindInfo = ContextNames.bindInfoFor(legacyEntry);
+            ServiceName binderServiceName = bindInfo.getBinderServiceName();
+            context.removeService(binderServiceName);
+        }
+    }
+
+    protected void recoverServices(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
+        ConnectionFactoryAdd.INSTANCE.performRuntime(context, operation, model);
     }
 }

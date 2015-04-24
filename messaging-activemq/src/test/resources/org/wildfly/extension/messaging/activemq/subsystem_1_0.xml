@@ -267,7 +267,8 @@
                             factory-type="XA_QUEUE"
                             client-id="testClient"
                             connectors="http netty"
-                            entries="RemoteConnectionFactory java:/global/jms/RemoteConnectionFactory" />
+                            entries="RemoteConnectionFactory java:/global/jms/RemoteConnectionFactory"
+                            legacy-entries="legacy/RemoteConnectionFactory java:/global/jms/legacy/RemoteConnectionFactory" />
         <connection-factory name="otherConnectionFactory"
                             discovery-group="groupC"
                             entries="otherConnectionFactory"

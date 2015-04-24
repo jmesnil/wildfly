@@ -54,7 +54,7 @@ import org.xnio.StreamConnection;
 import org.xnio.netty.transport.WrappingXnioSocketChannel;
 
 /**
- * Service that handles HTTP upgrade for HornetQ remoting protocol.
+ * Service that handles HTTP upgrade for ActiveMQ remoting protocol.
  *
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */
