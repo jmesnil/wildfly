@@ -469,6 +469,7 @@
                             </xs:restriction>
                         </xs:simpleType>
                     </xs:attribute>
+                    <xs:attribute name="legacy-entries" type="stringList" use="optional" />
                 </xs:complexType>
             </xs:element>
 

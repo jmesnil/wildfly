@@ -36,8 +36,9 @@
     <dependencies>
         <module name="javax.api"/>
         <module name="javax.jms.api" />
-        <module name="io.netty"/>
-        <module name="org.jgroups"/>
         <module name="javax.resource.api"/>
+        <module name="io.netty"/>
+        <module name="org.jboss.logging"/>
+        <module name="org.jgroups"/>
     </dependencies>
 </module>

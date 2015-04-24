@@ -31,6 +31,8 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.HA;
 
 import java.util.List;
 
+import javax.jms.ConnectionFactory;
+
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.jms.server.JMSServerManager;
@@ -43,11 +45,14 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
+import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController.Mode;
 import org.jboss.msc.service.ServiceName;
 import org.wildfly.extension.messaging.activemq.ActiveMQActivationService;
 import org.wildfly.extension.messaging.activemq.AlternativeAttributeCheckHandler;
+import org.wildfly.extension.messaging.activemq.BinderServiceUtil;
+import org.wildfly.extension.messaging.activemq.CommonAttributes;
 import org.wildfly.extension.messaging.activemq.MessagingServices;
 import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Common;
 
@@ -86,17 +91,24 @@ public class ConnectionFactoryAdd extends AbstractAddStepHandler {
                 .setInitialMode(Mode.PASSIVE);
         org.jboss.as.server.Services.addServerExecutorDependency(serviceBuilder, service.getExecutorInjector(), false);
         serviceBuilder.install();
+
+        List<String> legacyEntries = CommonAttributes.LEGACY_ENTRIES.unwrap(context, model);
+        if (!legacyEntries.isEmpty()) {
+            Service<ConnectionFactory> legacyConnectionFactoryService = LegacyConnectionFactoryService.installService(name, context.getServiceTarget(), hqServiceName, configuration);
+            for (String legacyEntry : legacyEntries) {
+                BinderServiceUtil.installBinderService(context.getServiceTarget(), legacyEntry, legacyConnectionFactoryService);
+            }
+        }
     }
 
     static ConnectionFactoryConfiguration createConfiguration(final OperationContext context, final String name, final ModelNode model) throws OperationFailedException {
 
-        final ModelNode entries = Common.ENTRIES.resolveModelAttribute(context, model);
-        final String[] jndiBindings = JMSServices.getJndiBindings(entries);
+        final List<String> entries = Common.ENTRIES.unwrap(context, model);
 
         final ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl()
                 .setName(name)
                 .setHA(ActiveMQClient.DEFAULT_HA)
-                .setBindings(jndiBindings);
+                .setBindings(entries.toArray(new String[entries.size()]));
 
         config.setHA(HA.resolveModelAttribute(context, model).asBoolean());
         config.setAutoGroup(Common.AUTO_GROUP.resolveModelAttribute(context, model).asBoolean());

@@ -47,12 +47,30 @@ public enum ConnectionFactoryType {
     XA_TOPIC(TOPIC_XA_CF);
 
     private final JMSFactoryType type;
-    private ConnectionFactoryType(JMSFactoryType type) {
+
+    ConnectionFactoryType(JMSFactoryType type) {
         this.type = type;
     }
 
     public JMSFactoryType getType() {
         return type;
+    }
+
+    public org.hornetq.api.jms.JMSFactoryType getLegacyType() {
+        switch (type) {
+            case TOPIC_CF:
+                return org.hornetq.api.jms.JMSFactoryType.CF;
+            case QUEUE_CF:
+                return org.hornetq.api.jms.JMSFactoryType.CF;
+            case XA_CF:
+                return org.hornetq.api.jms.JMSFactoryType.CF;
+            case QUEUE_XA_CF:
+                return org.hornetq.api.jms.JMSFactoryType.CF;
+            case TOPIC_XA_CF:
+                return org.hornetq.api.jms.JMSFactoryType.CF;
+            default:
+                return org.hornetq.api.jms.JMSFactoryType.CF;
+        }
     }
 
     public static final ParameterValidator VALIDATOR = new EnumValidator<>(ConnectionFactoryType.class, true, false);
