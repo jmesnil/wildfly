@@ -278,6 +278,7 @@
                     <xs:sequence>
                         <xs:element name="param" minOccurs="0" maxOccurs="unbounded" type="paramType" />
                     </xs:sequence>
+                    <xs:attribute name="upgrade-legacy" type="xs:boolean" use="optional" />
                     <xs:attribute name="name" type="xs:string" use="required" />
                     <xs:attribute name="http-listener" type="xs:string" use="required" />
                 </xs:complexType>
