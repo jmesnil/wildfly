@@ -31,9 +31,13 @@ import java.util.Map;
 
 import javax.jms.ConnectionFactory;
 
+import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.api.jms.HornetQJMSClient;
+import org.hornetq.jms.client.HornetQConnectionFactory;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
@@ -50,22 +54,122 @@ import org.wildfly.extension.messaging.activemq.ActiveMQActivationService;
  */
 public class LegacyConnectionFactoryService implements Service<ConnectionFactory> {
 
+    /**
+     * Map ActiveMQ parameters key (using CameCalse convention) to HornetQ parameter keys (using lisp-case convention)
+     */
     private static final Map<String, String> PARAM_KEY_MAPPING = new HashMap<>();
+
+    private static final Map<String, String> LOAD_BALANCING_CLASS_NAME_MAPPING = new HashMap<>();
 
     static {
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.BACKLOG_PROP_NAME,
-                org.hornetq.core.remoting.impl.netty.TransportConstants.BACKLOG_PROP_NAME);
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.SSL_ENABLED_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.SSL_ENABLED_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_ENABLED_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.HTTP_ENABLED_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_CLIENT_IDLE_SCAN_PERIOD,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.HTTP_CLIENT_IDLE_SCAN_PERIOD);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_REQUIRES_SESSION_ID,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.HTTP_REQUIRES_SESSION_ID);
         PARAM_KEY_MAPPING.put(
                 org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.USE_SERVLET_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.USE_SERVLET_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.SERVLET_PATH,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.SERVLET_PATH);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.USE_NIO_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.USE_NIO_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.LOCAL_ADDRESS_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.LOCAL_ADDRESS_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.KEYSTORE_PROVIDER_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.KEYSTORE_PROVIDER_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.KEYSTORE_PATH_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.KEYSTORE_PATH_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.KEYSTORE_PASSWORD_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.KEYSTORE_PASSWORD_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PATH_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PATH_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.ENABLED_PROTOCOLS_PROP_NAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.ENABLED_PROTOCOLS_PROP_NAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.TCP_NODELAY_PROPNAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.TCP_NODELAY_PROPNAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.NIO_REMOTING_THREADS_PROPNAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.NIO_REMOTING_THREADS_PROPNAME);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.BATCH_DELAY,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.BATCH_DELAY);
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.NIO_REMOTING_THREADS_PROPNAME,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.NIO_REMOTING_THREADS_PROPNAME);
+        PARAM_KEY_MAPPING.put(
+                ActiveMQDefaultConfiguration.getPropMaskPassword(),
+                HornetQDefaultConfiguration.getPropMaskPassword());
+        PARAM_KEY_MAPPING.put(
+                ActiveMQDefaultConfiguration.getPropPasswordCodec(),
+                HornetQDefaultConfiguration.getPropPasswordCodec());
+        PARAM_KEY_MAPPING.put(
+                org.apache.activemq.core.remoting.impl.netty.TransportConstants.NETTY_CONNECT_TIMEOUT,
+                org.hornetq.core.remoting.impl.netty.TransportConstants.NETTY_CONNECT_TIMEOUT);
+
+        LOAD_BALANCING_CLASS_NAME_MAPPING.put(
+                org.apache.activemq.api.core.client.loadbalance.FirstElementConnectionLoadBalancingPolicy.class.getCanonicalName(),
+                org.hornetq.api.core.client.loadbalance.FirstElementConnectionLoadBalancingPolicy.class.getCanonicalName());
+        LOAD_BALANCING_CLASS_NAME_MAPPING.put(
+                org.apache.activemq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy.class.getCanonicalName(),
+                org.hornetq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy.class.getCanonicalName());
+        LOAD_BALANCING_CLASS_NAME_MAPPING.put(
+                org.apache.activemq.api.core.client.loadbalance.RandomStickyConnectionLoadBalancingPolicy.class.getCanonicalName(),
+                org.hornetq.api.core.client.loadbalance.RandomStickyConnectionLoadBalancingPolicy.class.getCanonicalName());
+        LOAD_BALANCING_CLASS_NAME_MAPPING.put(
+                org.apache.activemq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy.class.getCanonicalName(),
+                org.hornetq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy.class.getCanonicalName());
 
     }
+
     private final InjectedValue<JMSServerManager> jmsServer = new InjectedValue<>();
 
     private final ConnectionFactoryConfiguration newConfiguration;
 
-    private ConnectionFactory connectionFactory;
+    private HornetQConnectionFactory connectionFactory;
 
     private LegacyConnectionFactoryService(ConnectionFactoryConfiguration newConfiguration) {
         this.newConfiguration = newConfiguration;
@@ -73,15 +177,79 @@ public class LegacyConnectionFactoryService implements Service<ConnectionFactory
 
     @Override
     public void start(StartContext context) throws StartException {
-        Map<String, org.apache.activemq.api.core.TransportConfiguration> newConnectorConfigurations = jmsServer.getValue().getActiveMQServer().getConfiguration().getConnectorConfigurations();
+        ActiveMQServer activeMQServer = jmsServer.getValue().getActiveMQServer();
+        Map<String, org.apache.activemq.api.core.TransportConfiguration> newConnectorConfigurations = activeMQServer.getConfiguration().getConnectorConfigurations();
 
+
+        String newDiscoveryGroupName = newConfiguration.getDiscoveryGroupName();
+        org.hornetq.api.core.DiscoveryGroupConfiguration legacyDiscoveryGroupConfiguration = null;
+        if (newDiscoveryGroupName != null) {
+            org.apache.activemq.api.core.DiscoveryGroupConfiguration newDiscoveryGroupConfiguration = activeMQServer.getConfiguration().getDiscoveryGroupConfigurations().get(newDiscoveryGroupName);
+            legacyDiscoveryGroupConfiguration = translateDiscoveryGroupConfiguration(newDiscoveryGroupConfiguration);
+        }
         List<String> connectorNames = newConfiguration.getConnectorNames();
-        boolean ha = newConfiguration.isHA();
+        org.hornetq.api.core.TransportConfiguration[] legacyConnectorConfigurations = translateConnectorConfigurations(connectorNames, newConnectorConfigurations);
 
         org.hornetq.api.jms.JMSFactoryType legacyFactoryType = translateFactoryType(newConfiguration.getFactoryType());
-        org.hornetq.api.core.TransportConfiguration[] legacyConnectorConfigurations = translateConnectorConfigurations(connectorNames, newConnectorConfigurations);
-        connectionFactory = HornetQJMSClient.createConnectionFactoryWithoutHA(legacyFactoryType, legacyConnectorConfigurations);
+
+        if (newConfiguration.isHA()) {
+            if (legacyDiscoveryGroupConfiguration != null) {
+                connectionFactory = HornetQJMSClient.createConnectionFactoryWithHA(legacyDiscoveryGroupConfiguration, legacyFactoryType);
+            } else {
+                connectionFactory = HornetQJMSClient.createConnectionFactoryWithHA(legacyFactoryType, legacyConnectorConfigurations);
+            }
+        } else {
+            if (legacyDiscoveryGroupConfiguration != null) {
+                connectionFactory = HornetQJMSClient.createConnectionFactoryWithoutHA(legacyDiscoveryGroupConfiguration, legacyFactoryType);
+            } else {
+                connectionFactory = HornetQJMSClient.createConnectionFactoryWithoutHA(legacyFactoryType, legacyConnectorConfigurations);
+            }
+        }
+
+        connectionFactory.setAutoGroup(newConfiguration.isAutoGroup());
+        connectionFactory.setBlockOnAcknowledge(newConfiguration.isBlockOnAcknowledge());
+        connectionFactory.setBlockOnDurableSend(newConfiguration.isBlockOnDurableSend());
+        connectionFactory.setBlockOnNonDurableSend(newConfiguration.isBlockOnNonDurableSend());
+        connectionFactory.setCacheLargeMessagesClient(newConfiguration.isCacheLargeMessagesClient());
+        connectionFactory.setCallFailoverTimeout(newConfiguration.getCallFailoverTimeout());
+        connectionFactory.setCallTimeout(newConfiguration.getCallTimeout());
+        connectionFactory.setClientFailureCheckPeriod(newConfiguration.getClientFailureCheckPeriod());
+        connectionFactory.setClientID(newConfiguration.getClientID());
+        connectionFactory.setCompressLargeMessage(newConfiguration.isCompressLargeMessages());
+        connectionFactory.setConfirmationWindowSize(newConfiguration.getConfirmationWindowSize());
+        connectionFactory.setConnectionLoadBalancingPolicyClassName(LOAD_BALANCING_CLASS_NAME_MAPPING.get(newConfiguration.getLoadBalancingPolicyClassName()));
+        connectionFactory.setConnectionTTL(newConfiguration.getConnectionTTL());
+        connectionFactory.setConsumerMaxRate(newConfiguration.getConsumerMaxRate());
+        connectionFactory.setConsumerWindowSize(newConfiguration.getConsumerWindowSize());
+        connectionFactory.setDupsOKBatchSize(newConfiguration.getDupsOKBatchSize());
+        connectionFactory.setFailoverOnInitialConnection(newConfiguration.isFailoverOnInitialConnection());
+        connectionFactory.setGroupID(newConfiguration.getGroupID());
+        // no equivalent:
+        // connectionFactory.setInitialConnectAttempts( ? );
+        // connectionFactory.setInitialMessagePacketSize( ? );
+        connectionFactory.setMaxRetryInterval(newConfiguration.getMaxRetryInterval());
+        connectionFactory.setMinLargeMessageSize(newConfiguration.getMinLargeMessageSize());
+        connectionFactory.setPreAcknowledge(newConfiguration.isPreAcknowledge());
+        connectionFactory.setProducerMaxRate(newConfiguration.getProducerMaxRate());
+        connectionFactory.setProducerWindowSize(newConfiguration.getProducerWindowSize());
+        connectionFactory.setReconnectAttempts(newConfiguration.getReconnectAttempts());
+        connectionFactory.setRetryInterval(newConfiguration.getRetryInterval());
+        connectionFactory.setRetryIntervalMultiplier(newConfiguration.getRetryIntervalMultiplier());
+        connectionFactory.setScheduledThreadPoolMaxSize(newConfiguration.getScheduledThreadPoolMaxSize());
+        connectionFactory.setThreadPoolMaxSize(newConfiguration.getThreadPoolMaxSize());
+        connectionFactory.setTransactionBatchSize(newConfiguration.getTransactionBatchSize());
+        connectionFactory.setUseGlobalPools(newConfiguration.isUseGlobalPools());
+
+
     }
+
+    private org.hornetq.api.core.DiscoveryGroupConfiguration translateDiscoveryGroupConfiguration(org.apache.activemq.api.core.DiscoveryGroupConfiguration newDiscoveryGroupConfiguration) {
+        return new org.hornetq.api.core.DiscoveryGroupConfiguration(newDiscoveryGroupConfiguration.getName(),
+                newDiscoveryGroupConfiguration.getRefreshTimeout(),
+                newDiscoveryGroupConfiguration.getDiscoveryInitialWaitTimeout(),
+                null);
+    }
+
 
     private org.hornetq.api.core.TransportConfiguration[] translateConnectorConfigurations(List<String> connectorNames,
                                                                                            Map<String, org.apache.activemq.api.core.TransportConfiguration> newConnectorConfigurations) throws StartException {

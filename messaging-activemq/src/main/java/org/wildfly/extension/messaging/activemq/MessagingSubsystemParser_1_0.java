@@ -312,6 +312,7 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                         builder(HTTPAcceptorDefinition.INSTANCE)
                                                 .addAttributes(
                                                         HTTPAcceptorDefinition.HTTP_LISTENER,
+                                                        HTTPAcceptorDefinition.UPGRADE_LEGACY,
                                                         CommonAttributes.PARAMS))
                                 .addChild(
                                         builder(RemoteTransportDefinition.ACCEPTOR_INSTANCE)
