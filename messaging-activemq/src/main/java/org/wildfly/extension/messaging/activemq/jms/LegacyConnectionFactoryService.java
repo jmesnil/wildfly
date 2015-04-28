@@ -318,12 +318,12 @@ public class LegacyConnectionFactoryService implements Service<ConnectionFactory
         return connectionFactory;
     }
 
-    public static Service<ConnectionFactory> installService(final String name, final ServiceTarget serviceTarget, final ServiceName hqServiceName, final ConnectionFactoryConfiguration newConnectionFactoryConfiguration) {
+    public static Service<ConnectionFactory> installService(final String name, final ServiceTarget serviceTarget, final ServiceName activeMQServerServiceName, final ConnectionFactoryConfiguration newConnectionFactoryConfiguration) {
         final LegacyConnectionFactoryService service = new LegacyConnectionFactoryService(newConnectionFactoryConfiguration);
-        final ServiceName serviceName = JMSServices.getConnectionFactoryBaseServiceName(hqServiceName).append(name, LEGACY);
+        final ServiceName serviceName = JMSServices.getConnectionFactoryBaseServiceName(activeMQServerServiceName).append(name, LEGACY);
         final ServiceBuilder<ConnectionFactory> serviceBuilder = serviceTarget.addService(serviceName, service)
-                .addDependency(ActiveMQActivationService.getServiceName(hqServiceName))
-                .addDependency(JMSServices.getJmsManagerBaseServiceName(hqServiceName), JMSServerManager.class, service.jmsServer)
+                .addDependency(ActiveMQActivationService.getServiceName(activeMQServerServiceName))
+                .addDependency(JMSServices.getJmsManagerBaseServiceName(activeMQServerServiceName), JMSServerManager.class, service.jmsServer)
                 .setInitialMode(ServiceController.Mode.PASSIVE);
         serviceBuilder.install();
 
