@@ -22,6 +22,8 @@
 
 package org.wildfly.extension.messaging.activemq.jms;
 
+import java.util.List;
+
 import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.core.server.ActiveMQServer;
@@ -62,11 +64,16 @@ public class ConnectionFactoryRemove extends AbstractRemoveStepHandler {
             }
         }
 
-        for (String legacyEntry : CommonAttributes.LEGACY_ENTRIES.unwrap(context, model)) {
-            final ContextNames.BindInfo bindInfo = ContextNames.bindInfoFor(legacyEntry);
-            ServiceName binderServiceName = bindInfo.getBinderServiceName();
-            context.removeService(binderServiceName);
+        List<String> legacyEntries = CommonAttributes.LEGACY_ENTRIES.unwrap(context, model);
+        if (!legacyEntries.isEmpty()) {
+            context.removeService(JMSServices.getConnectionFactoryBaseServiceName(hqServiceName).append(name, CommonAttributes.LEGACY));
+            for (String legacyEntry : legacyEntries) {
+                final ContextNames.BindInfo bindInfo = ContextNames.bindInfoFor(legacyEntry);
+                ServiceName binderServiceName = bindInfo.getBinderServiceName();
+                context.removeService(binderServiceName);
+            }
         }
+
     }
 
     protected void recoverServices(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
