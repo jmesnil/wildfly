@@ -243,11 +243,36 @@ public class LegacyConnectionFactoryService implements Service<ConnectionFactory
 
     }
 
-    private org.hornetq.api.core.DiscoveryGroupConfiguration translateDiscoveryGroupConfiguration(org.apache.activemq.api.core.DiscoveryGroupConfiguration newDiscoveryGroupConfiguration) {
+    private org.hornetq.api.core.DiscoveryGroupConfiguration translateDiscoveryGroupConfiguration(org.apache.activemq.api.core.DiscoveryGroupConfiguration newDiscoveryGroupConfiguration) throws StartException {
+        org.apache.activemq.api.core.BroadcastEndpointFactory newBroadcastEndpointFactory = newDiscoveryGroupConfiguration.getBroadcastEndpointFactory();
+        org.hornetq.api.core.BroadcastEndpointFactoryConfiguration legacyBroadcastEndpointFactory;
+
+        if (newBroadcastEndpointFactory instanceof org.apache.activemq.api.core.UDPBroadcastEndpointFactory) {
+            org.apache.activemq.api.core.UDPBroadcastEndpointFactory factory = (org.apache.activemq.api.core.UDPBroadcastEndpointFactory) newBroadcastEndpointFactory;
+            legacyBroadcastEndpointFactory = new org.hornetq.api.core.UDPBroadcastGroupConfiguration(
+                    factory.getGroupAddress(),
+                    factory.getGroupPort(),
+                    factory.getLocalBindAddress(),
+                    factory.getLocalBindPort());
+        } else if (newBroadcastEndpointFactory instanceof org.apache.activemq.api.core.ChannelBroadcastEndpointFactory) {
+            org.apache.activemq.api.core.ChannelBroadcastEndpointFactory factory = (org.apache.activemq.api.core.ChannelBroadcastEndpointFactory) newBroadcastEndpointFactory;
+            //FIXME
+            legacyBroadcastEndpointFactory = null;
+            /*
+            legacyBroadcastEndpointFactory = new org.hornetq.api.core.JGroupsBroadcastGroupConfiguration(
+                    (String)null,
+                    null
+            );
+            */
+        } else {
+            // FIXME I18N
+            throw new StartException("unsupported broadcast group configuration: " + newBroadcastEndpointFactory);
+        }
+
         return new org.hornetq.api.core.DiscoveryGroupConfiguration(newDiscoveryGroupConfiguration.getName(),
                 newDiscoveryGroupConfiguration.getRefreshTimeout(),
                 newDiscoveryGroupConfiguration.getDiscoveryInitialWaitTimeout(),
-                null);
+                legacyBroadcastEndpointFactory);
     }
 
 
