@@ -256,14 +256,9 @@ public class LegacyConnectionFactoryService implements Service<ConnectionFactory
                     factory.getLocalBindPort());
         } else if (newBroadcastEndpointFactory instanceof org.apache.activemq.api.core.ChannelBroadcastEndpointFactory) {
             org.apache.activemq.api.core.ChannelBroadcastEndpointFactory factory = (org.apache.activemq.api.core.ChannelBroadcastEndpointFactory) newBroadcastEndpointFactory;
-            //FIXME
-            legacyBroadcastEndpointFactory = null;
-            /*
             legacyBroadcastEndpointFactory = new org.hornetq.api.core.JGroupsBroadcastGroupConfiguration(
-                    (String)null,
-                    null
-            );
-            */
+                    factory.getChannel(),
+                    factory.getChannelName());
         } else {
             // FIXME I18N
             throw new StartException("unsupported broadcast group configuration: " + newBroadcastEndpointFactory);
