@@ -24,9 +24,9 @@ package org.wildfly.extension.messaging.activemq.jms;
 
 import java.util.List;
 
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.api.jms.management.JMSServerControl;
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;

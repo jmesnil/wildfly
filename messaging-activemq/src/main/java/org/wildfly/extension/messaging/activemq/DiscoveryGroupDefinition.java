@@ -31,7 +31,7 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.SOCKET_B
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.activemq.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;

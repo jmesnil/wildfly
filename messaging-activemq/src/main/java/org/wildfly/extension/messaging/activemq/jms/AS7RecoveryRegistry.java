@@ -22,7 +22,7 @@
 package org.wildfly.extension.messaging.activemq.jms;
 
 
-import org.apache.activemq.wildfly.integration.recovery.WildFlyActiveMQRegistry;
+import org.apache.activemq.artemis.wildfly.integration.recovery.WildFlyActiveMQRegistry;
 import org.jboss.as.txn.service.TxnServices;
 import org.jboss.msc.service.ServiceContainer;
 import org.jboss.msc.service.ServiceController;

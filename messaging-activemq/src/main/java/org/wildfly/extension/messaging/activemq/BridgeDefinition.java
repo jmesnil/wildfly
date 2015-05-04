@@ -32,7 +32,7 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.STATIC_C
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.AttributeMarshaller;
 import org.jboss.as.controller.AttributeParser;

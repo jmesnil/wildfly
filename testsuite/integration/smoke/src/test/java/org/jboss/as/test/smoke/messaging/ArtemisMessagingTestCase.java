@@ -35,16 +35,16 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.MessageHandler;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -66,10 +66,10 @@ import org.junit.runner.RunWith;
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  */
 @RunWith(Arquillian.class)
-public class ActiveMQ6MessagingTestCase {
+public class ArtemisMessagingTestCase {
     private static final String QUEUE_EXAMPLE_QUEUE = "queue.exampleQueue";
 
-    static final Logger log = Logger.getLogger(ActiveMQ6MessagingTestCase.class);
+    static final Logger log = Logger.getLogger(ArtemisMessagingTestCase.class);
 
     private static final String BODY = "msg.body";
 
@@ -84,8 +84,8 @@ public class ActiveMQ6MessagingTestCase {
     public static JavaArchive createDeployment() throws Exception {
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class, "messaging-example.jar");
         jar.addAsManifestResource(new StringAsset("Manifest-Version: 1.0\n" +
-                "Dependencies: org.apache.activemq, org.jboss.dmr, org.jboss.as.controller-client\n"), "MANIFEST.MF");
-        jar.addClass(ActiveMQ6MessagingTestCase.class);
+                "Dependencies: org.apache.activemq.artemis, org.jboss.dmr, org.jboss.as.controller-client\n"), "MANIFEST.MF");
+        jar.addClass(ArtemisMessagingTestCase.class);
         return jar;
     }
 

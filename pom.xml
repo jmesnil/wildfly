@@ -111,8 +111,8 @@
         <version.jsoup>1.8.1</version.jsoup>
         <version.net.jcip>1.0</version.net.jcip>
         <version.org.antlr-34>3.4</version.org.antlr-34>
-        <version.org.apache.activemq.integration.wildfly>0.1.0-SNAPSHOT</version.org.apache.activemq.integration.wildfly>
-        <version.org.apache.activemq6>10.0.0-SNAPSHOT</version.org.apache.activemq6>
+        <version.org.apache.activemq.artemis.integration.wildfly>0.1.0-SNAPSHOT</version.org.apache.activemq.artemis.integration.wildfly>
+        <version.org.apache.activemq.artemis>1.0.0-SNAPSHOT</version.org.apache.activemq.artemis>
         <version.org.apache.avro>1.7.6</version.org.apache.avro>
         <version.org.apache.cxf>3.0.4</version.org.apache.cxf>
         <version.org.apache.cxf.xjcplugins>3.0.3</version.org.apache.cxf.xjcplugins>
@@ -2004,9 +2004,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.activemq.integration.wildfly</groupId>
-                <artifactId>activemq-wildfly-integration</artifactId>
-                <version>${version.org.apache.activemq.integration.wildfly}</version>
+                <groupId>org.apache.activemq.artemis.integration.wildfly</groupId>
+                <artifactId>artemis-wildfly-integration</artifactId>
+                <version>${version.org.apache.activemq.artemis.integration.wildfly}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>*</groupId>
@@ -2018,38 +2018,38 @@
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-amqp-protocol</artifactId>
-                <version>${version.org.apache.activemq6}</version>
+                <artifactId>artemis-amqp-protocol</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-tools</artifactId>
-                <version>${version.org.apache.activemq6}</version>
+                <artifactId>artemis-tools</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-selector</artifactId>
-                <version>${version.org.apache.activemq6}</version>
+                <artifactId>artemis-selector</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-server</artifactId>
-                <version>${version.org.apache.activemq6}</version>
+                <artifactId>artemis-server</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-service-extensions</artifactId>
-                <version>${version.org.apache.activemq6}</version>
+                <artifactId>artemis-service-extensions</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-commons</artifactId>
-                <version>${version.org.apache.activemq6}</version>
+                <artifactId>artemis-commons</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -2060,8 +2060,8 @@
 
             <dependency>
                <groupId>org.apache.activemq</groupId>
-               <artifactId>activemq-journal</artifactId>
-               <version>${version.org.apache.activemq6}</version>
+               <artifactId>artemis-journal</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
                <exclusions>
                    <exclusion>
                        <groupId>org.jboss.logmanager</groupId>
@@ -2072,8 +2072,8 @@
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-core-client</artifactId>
-                <version>${version.org.apache.activemq6}</version>
+                <artifactId>artemis-core-client</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -2084,8 +2084,8 @@
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-jms-server</artifactId>
-                <version>${version.org.apache.activemq6}</version>
+                <artifactId>artemis-jms-server</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>io.netty</groupId>
@@ -2110,20 +2110,20 @@
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-jms-client</artifactId>
-                <version>${version.org.apache.activemq6}</version>
+                <artifactId>artemis-jms-client</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-native</artifactId>
-                <version>${version.org.apache.activemq6}</version>
+                <artifactId>artemis-native</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-proton-plug</artifactId>
-                <version>${version.org.apache.activemq6}</version>
+                <artifactId>artemis-proton-plug</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.jboss.logging</groupId>
@@ -2134,14 +2134,14 @@
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-ra</artifactId>
-                <version>${version.org.apache.activemq6}</version>
+                <artifactId>artemis-ra</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-stomp-protocol</artifactId>
-                <version>${version.org.apache.activemq6}</version>
+                <artifactId>artemis-stomp-protocol</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
             </dependency>
 
             <dependency>

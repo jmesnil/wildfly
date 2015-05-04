@@ -24,9 +24,9 @@ package org.wildfly.extension.messaging.activemq.jms;
 
 import static org.jboss.as.controller.OperationContext.Stage.MODEL;
 
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.api.jms.management.ConnectionFactoryControl;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;

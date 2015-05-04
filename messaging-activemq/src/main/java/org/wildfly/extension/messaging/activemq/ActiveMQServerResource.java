@@ -30,11 +30,11 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.activemq.api.core.management.AddressControl;
-import org.apache.activemq.api.core.management.QueueControl;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.registry.PlaceholderResource;

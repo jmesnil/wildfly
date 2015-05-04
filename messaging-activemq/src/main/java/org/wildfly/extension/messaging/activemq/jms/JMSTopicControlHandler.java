@@ -36,9 +36,9 @@ import static org.jboss.dmr.ModelType.LIST;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
 
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.api.jms.management.TopicControl;
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.api.jms.management.TopicControl;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.ObjectListAttributeDefinition;

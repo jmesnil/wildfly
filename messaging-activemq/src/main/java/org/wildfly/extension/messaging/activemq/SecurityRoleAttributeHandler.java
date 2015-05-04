@@ -27,8 +27,8 @@ import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;

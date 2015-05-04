@@ -33,8 +33,8 @@ import static org.jboss.dmr.ModelType.STRING;
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET;
 import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttribute.create;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.AttributeMarshaller;
 import org.jboss.as.controller.AttributeParser;
@@ -353,7 +353,7 @@ public interface ConnectionFactoryAttributes {
                 .build();
 
         /**
-         * By default, the resource adapter must reconnect infinitely (see {@link org.apache.activemq.ra.ActiveMQResourceAdapter#setParams})
+         * By default, the resource adapter must reconnect infinitely (see {@link org.apache.activemq.artemis.ra.ActiveMQResourceAdapter#setParams})
          */
         AttributeDefinition RECONNECT_ATTEMPTS = create("reconnect-attempts", INT)
                 .setDefaultValue(new ModelNode().set(-1))

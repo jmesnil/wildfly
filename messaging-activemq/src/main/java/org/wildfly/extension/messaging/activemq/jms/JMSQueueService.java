@@ -30,8 +30,8 @@ import java.util.concurrent.RejectedExecutionException;
 
 import javax.jms.Queue;
 
-import org.apache.activemq.jms.client.ActiveMQQueue;
-import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;

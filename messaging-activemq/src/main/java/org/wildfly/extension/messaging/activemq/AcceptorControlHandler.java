@@ -22,9 +22,9 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import org.apache.activemq.api.core.management.AcceptorControl;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.api.core.management.AcceptorControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.PathAddress;
 
 /**

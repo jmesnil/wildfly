@@ -32,8 +32,8 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_S
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_MASTER;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SHARED_STORE_SLAVE;
 
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.dmr.ModelNode;

@@ -28,7 +28,7 @@ import static org.wildfly.extension.messaging.activemq.logging.MessagingLogger.R
 
 import java.util.Locale;
 
-import org.apache.activemq.spi.core.naming.BindingRegistry;
+import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.as.naming.ManagedReferenceFactory;
 import org.jboss.as.naming.deployment.ContextNames;

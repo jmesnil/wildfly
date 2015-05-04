@@ -25,7 +25,7 @@ package org.wildfly.extension.messaging.activemq;
 import static org.jboss.as.controller.PathAddress.pathAddress;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.PathAddress;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;

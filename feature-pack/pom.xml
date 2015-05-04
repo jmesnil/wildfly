@@ -1369,8 +1369,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.activemq.integration.wildfly</groupId>
-            <artifactId>activemq-wildfly-integration</artifactId>
+            <groupId>org.apache.activemq.artemis.integration.wildfly</groupId>
+            <artifactId>artemis-wildfly-integration</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -1381,7 +1381,7 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-amqp-protocol</artifactId>
+            <artifactId>artemis-amqp-protocol</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -1392,7 +1392,7 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-commons</artifactId>
+            <artifactId>artemis-commons</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -1403,7 +1403,7 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-tools</artifactId>
+            <artifactId>artemis-tools</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -1414,7 +1414,7 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-core-client</artifactId>
+            <artifactId>artemis-core-client</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -1425,7 +1425,7 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-jms-client</artifactId>
+            <artifactId>artemis-jms-client</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -1436,7 +1436,7 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-jms-server</artifactId>
+            <artifactId>artemis-jms-server</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -1447,7 +1447,7 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-journal</artifactId>
+            <artifactId>artemis-journal</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -1458,12 +1458,12 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-native</artifactId>
+            <artifactId>artemis-native</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-proton-plug</artifactId>
+            <artifactId>artemis-proton-plug</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -1474,7 +1474,7 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-ra</artifactId>
+            <artifactId>artemis-ra</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -1485,7 +1485,7 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-selector</artifactId>
+            <artifactId>artemis-selector</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -1496,7 +1496,7 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-server</artifactId>
+            <artifactId>artemis-server</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -1507,7 +1507,7 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-service-extensions</artifactId>
+            <artifactId>artemis-service-extensions</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -1518,7 +1518,7 @@
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-stomp-protocol</artifactId>
+            <artifactId>artemis-stomp-protocol</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

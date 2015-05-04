@@ -175,8 +175,8 @@ public class JMSResourceManagementTestCase {
     @Test
     public void testRuntimeQueues() throws Exception {
         //Tests https://issues.jboss.org/browse/WFLY-2807
-        PathAddress addr = PathAddress.pathAddress("subsystem", "messaging");
-        addr = addr.append("hornetq-server", "default");
+        PathAddress addr = PathAddress.pathAddress("subsystem", "messaging-activemq");
+        addr = addr.append("server", "default");
         ModelNode readResource = Util.createEmptyOperation("read-resource", addr);
         readResource.get("recursive").set(true);
 

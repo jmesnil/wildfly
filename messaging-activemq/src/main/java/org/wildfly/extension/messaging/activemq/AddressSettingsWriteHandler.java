@@ -24,9 +24,9 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.getActiveMQServer;
 
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.settings.HierarchicalRepository;
-import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;

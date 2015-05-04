@@ -22,11 +22,11 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.ACTIVEMQ_REMOTING;
-import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.MAGIC_NUMBER;
-import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_ACCEPT;
-import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_KEY;
-import static org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.ACTIVEMQ_REMOTING;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.MAGIC_NUMBER;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_ACCEPT;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_KEY;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME;
 import static org.hornetq.core.remoting.impl.netty.NettyConnector.HORNETQ_REMOTING;
 import static org.hornetq.core.remoting.impl.netty.NettyConnector.SEC_HORNETQ_REMOTING_ACCEPT;
 import static org.hornetq.core.remoting.impl.netty.NettyConnector.SEC_HORNETQ_REMOTING_KEY;
@@ -40,9 +40,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.ListenerRegistry;
 import io.undertow.server.handlers.ChannelUpgradeHandler;
-import org.apache.activemq.core.remoting.impl.netty.NettyAcceptor;
-import org.apache.activemq.core.remoting.server.RemotingService;
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
+import org.apache.activemq.artemis.core.remoting.server.RemotingService;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.remoting.HttpListenerRegistryService;
 import org.jboss.as.remoting.SimpleHttpUpgradeHandshake;
 import org.jboss.msc.service.Service;

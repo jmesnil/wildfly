@@ -31,10 +31,10 @@ import java.util.Map;
 
 import javax.jms.ConnectionFactory;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 import org.hornetq.api.config.HornetQDefaultConfiguration;
 import org.hornetq.api.jms.HornetQJMSClient;
 import org.hornetq.jms.client.HornetQConnectionFactory;
@@ -63,82 +63,82 @@ public class LegacyConnectionFactoryService implements Service<ConnectionFactory
 
     static {
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.SSL_ENABLED_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.SSL_ENABLED_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.SSL_ENABLED_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_ENABLED_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.HTTP_ENABLED_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.HTTP_ENABLED_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_CLIENT_IDLE_SCAN_PERIOD,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.HTTP_CLIENT_IDLE_SCAN_PERIOD,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.HTTP_CLIENT_IDLE_SCAN_PERIOD);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_REQUIRES_SESSION_ID,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.HTTP_REQUIRES_SESSION_ID,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.HTTP_REQUIRES_SESSION_ID);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.USE_SERVLET_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.USE_SERVLET_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.USE_SERVLET_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.SERVLET_PATH,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.SERVLET_PATH,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.SERVLET_PATH);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.USE_NIO_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.USE_NIO_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.USE_NIO_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.LOCAL_ADDRESS_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.LOCAL_ADDRESS_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.LOCAL_ADDRESS_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.KEYSTORE_PROVIDER_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.KEYSTORE_PROVIDER_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.KEYSTORE_PROVIDER_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.KEYSTORE_PATH_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.KEYSTORE_PATH_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.KEYSTORE_PATH_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.KEYSTORE_PASSWORD_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.KEYSTORE_PASSWORD_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.KEYSTORE_PASSWORD_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PATH_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PATH_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PATH_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.ENABLED_PROTOCOLS_PROP_NAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.ENABLED_PROTOCOLS_PROP_NAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.ENABLED_PROTOCOLS_PROP_NAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.TCP_NODELAY_PROPNAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TCP_NODELAY_PROPNAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.TCP_NODELAY_PROPNAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.NIO_REMOTING_THREADS_PROPNAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.NIO_REMOTING_THREADS_PROPNAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.NIO_REMOTING_THREADS_PROPNAME);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.BATCH_DELAY,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.BATCH_DELAY,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.BATCH_DELAY);
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.NIO_REMOTING_THREADS_PROPNAME,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.NIO_REMOTING_THREADS_PROPNAME,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.NIO_REMOTING_THREADS_PROPNAME);
         PARAM_KEY_MAPPING.put(
                 ActiveMQDefaultConfiguration.getPropMaskPassword(),
@@ -147,20 +147,20 @@ public class LegacyConnectionFactoryService implements Service<ConnectionFactory
                 ActiveMQDefaultConfiguration.getPropPasswordCodec(),
                 HornetQDefaultConfiguration.getPropPasswordCodec());
         PARAM_KEY_MAPPING.put(
-                org.apache.activemq.core.remoting.impl.netty.TransportConstants.NETTY_CONNECT_TIMEOUT,
+                org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.NETTY_CONNECT_TIMEOUT,
                 org.hornetq.core.remoting.impl.netty.TransportConstants.NETTY_CONNECT_TIMEOUT);
 
         LOAD_BALANCING_CLASS_NAME_MAPPING.put(
-                org.apache.activemq.api.core.client.loadbalance.FirstElementConnectionLoadBalancingPolicy.class.getCanonicalName(),
+                org.apache.activemq.artemis.api.core.client.loadbalance.FirstElementConnectionLoadBalancingPolicy.class.getCanonicalName(),
                 org.hornetq.api.core.client.loadbalance.FirstElementConnectionLoadBalancingPolicy.class.getCanonicalName());
         LOAD_BALANCING_CLASS_NAME_MAPPING.put(
-                org.apache.activemq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy.class.getCanonicalName(),
+                org.apache.activemq.artemis.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy.class.getCanonicalName(),
                 org.hornetq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy.class.getCanonicalName());
         LOAD_BALANCING_CLASS_NAME_MAPPING.put(
-                org.apache.activemq.api.core.client.loadbalance.RandomStickyConnectionLoadBalancingPolicy.class.getCanonicalName(),
+                org.apache.activemq.artemis.api.core.client.loadbalance.RandomStickyConnectionLoadBalancingPolicy.class.getCanonicalName(),
                 org.hornetq.api.core.client.loadbalance.RandomStickyConnectionLoadBalancingPolicy.class.getCanonicalName());
         LOAD_BALANCING_CLASS_NAME_MAPPING.put(
-                org.apache.activemq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy.class.getCanonicalName(),
+                org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy.class.getCanonicalName(),
                 org.hornetq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy.class.getCanonicalName());
 
     }
@@ -178,13 +178,13 @@ public class LegacyConnectionFactoryService implements Service<ConnectionFactory
     @Override
     public void start(StartContext context) throws StartException {
         ActiveMQServer activeMQServer = jmsServer.getValue().getActiveMQServer();
-        Map<String, org.apache.activemq.api.core.TransportConfiguration> newConnectorConfigurations = activeMQServer.getConfiguration().getConnectorConfigurations();
+        Map<String, org.apache.activemq.artemis.api.core.TransportConfiguration> newConnectorConfigurations = activeMQServer.getConfiguration().getConnectorConfigurations();
 
 
         String newDiscoveryGroupName = newConfiguration.getDiscoveryGroupName();
         org.hornetq.api.core.DiscoveryGroupConfiguration legacyDiscoveryGroupConfiguration = null;
         if (newDiscoveryGroupName != null) {
-            org.apache.activemq.api.core.DiscoveryGroupConfiguration newDiscoveryGroupConfiguration = activeMQServer.getConfiguration().getDiscoveryGroupConfigurations().get(newDiscoveryGroupName);
+            org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration newDiscoveryGroupConfiguration = activeMQServer.getConfiguration().getDiscoveryGroupConfigurations().get(newDiscoveryGroupName);
             legacyDiscoveryGroupConfiguration = translateDiscoveryGroupConfiguration(newDiscoveryGroupConfiguration);
         }
         List<String> connectorNames = newConfiguration.getConnectorNames();
@@ -243,22 +243,26 @@ public class LegacyConnectionFactoryService implements Service<ConnectionFactory
 
     }
 
-    private org.hornetq.api.core.DiscoveryGroupConfiguration translateDiscoveryGroupConfiguration(org.apache.activemq.api.core.DiscoveryGroupConfiguration newDiscoveryGroupConfiguration) throws StartException {
-        org.apache.activemq.api.core.BroadcastEndpointFactory newBroadcastEndpointFactory = newDiscoveryGroupConfiguration.getBroadcastEndpointFactory();
+    private org.hornetq.api.core.DiscoveryGroupConfiguration translateDiscoveryGroupConfiguration(org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration newDiscoveryGroupConfiguration) throws StartException {
+        org.apache.activemq.artemis.api.core.BroadcastEndpointFactory newBroadcastEndpointFactory = newDiscoveryGroupConfiguration.getBroadcastEndpointFactory();
         org.hornetq.api.core.BroadcastEndpointFactoryConfiguration legacyBroadcastEndpointFactory;
 
-        if (newBroadcastEndpointFactory instanceof org.apache.activemq.api.core.UDPBroadcastEndpointFactory) {
-            org.apache.activemq.api.core.UDPBroadcastEndpointFactory factory = (org.apache.activemq.api.core.UDPBroadcastEndpointFactory) newBroadcastEndpointFactory;
+        if (newBroadcastEndpointFactory instanceof org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory) {
+            org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory factory = (org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory) newBroadcastEndpointFactory;
             legacyBroadcastEndpointFactory = new org.hornetq.api.core.UDPBroadcastGroupConfiguration(
                     factory.getGroupAddress(),
                     factory.getGroupPort(),
                     factory.getLocalBindAddress(),
                     factory.getLocalBindPort());
-        } else if (newBroadcastEndpointFactory instanceof org.apache.activemq.api.core.ChannelBroadcastEndpointFactory) {
-            org.apache.activemq.api.core.ChannelBroadcastEndpointFactory factory = (org.apache.activemq.api.core.ChannelBroadcastEndpointFactory) newBroadcastEndpointFactory;
+        } else if (newBroadcastEndpointFactory instanceof org.apache.activemq.artemis.api.core.ChannelBroadcastEndpointFactory) {
+            org.apache.activemq.artemis.api.core.ChannelBroadcastEndpointFactory factory = (org.apache.activemq.artemis.api.core.ChannelBroadcastEndpointFactory) newBroadcastEndpointFactory;
+            legacyBroadcastEndpointFactory = null;
+            // FIXME
+            /*
             legacyBroadcastEndpointFactory = new org.hornetq.api.core.JGroupsBroadcastGroupConfiguration(
                     factory.getChannel(),
                     factory.getChannelName());
+                    */
         } else {
             // FIXME I18N
             throw new StartException("unsupported broadcast group configuration: " + newBroadcastEndpointFactory);
@@ -272,11 +276,11 @@ public class LegacyConnectionFactoryService implements Service<ConnectionFactory
 
 
     private org.hornetq.api.core.TransportConfiguration[] translateConnectorConfigurations(List<String> connectorNames,
-                                                                                           Map<String, org.apache.activemq.api.core.TransportConfiguration> newConnectorConfigurations) throws StartException {
+                                                                                           Map<String, org.apache.activemq.artemis.api.core.TransportConfiguration> newConnectorConfigurations) throws StartException {
         List<org.hornetq.api.core.TransportConfiguration> legacyConnectorConfigurations = new ArrayList<>();
 
         for (String connectorName : connectorNames) {
-            org.apache.activemq.api.core.TransportConfiguration newTransportConfiguration = newConnectorConfigurations.get(connectorName);
+            org.apache.activemq.artemis.api.core.TransportConfiguration newTransportConfiguration = newConnectorConfigurations.get(connectorName);
             String legacyFactoryClassName = translateFactoryClassName(newTransportConfiguration.getFactoryClassName());
             Map legacyParams = translateParams(newTransportConfiguration.getParams());
             org.hornetq.api.core.TransportConfiguration legacyTransportConfiguration = new org.hornetq.api.core.TransportConfiguration(
@@ -291,7 +295,7 @@ public class LegacyConnectionFactoryService implements Service<ConnectionFactory
     }
 
     private String translateFactoryClassName(String newFactoryClassName) throws StartException {
-        if (newFactoryClassName.equals(org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory.class.getName())) {
+        if (newFactoryClassName.equals(org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory.class.getName())) {
             return org.hornetq.core.remoting.impl.netty.NettyConnectorFactory.class.getName();
         } else {
             throw new StartException("can not translate new connector factory class " + newFactoryClassName + " to a legacy class");
@@ -310,7 +314,7 @@ public class LegacyConnectionFactoryService implements Service<ConnectionFactory
         return legacyParams;
     }
 
-    private org.hornetq.api.jms.JMSFactoryType translateFactoryType(org.apache.activemq.api.jms.JMSFactoryType newFactoryType) {
+    private org.hornetq.api.jms.JMSFactoryType translateFactoryType(org.apache.activemq.artemis.api.jms.JMSFactoryType newFactoryType) {
         switch (newFactoryType) {
             case XA_CF:
                 return org.hornetq.api.jms.JMSFactoryType.CF;

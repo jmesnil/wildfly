@@ -22,9 +22,9 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import org.apache.activemq.core.security.CheckType;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.security.SecurityContext;

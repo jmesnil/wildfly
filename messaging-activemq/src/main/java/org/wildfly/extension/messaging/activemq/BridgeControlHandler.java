@@ -22,13 +22,13 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import org.apache.activemq.api.core.management.BridgeControl;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.api.core.management.BridgeControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.PathAddress;
 
 /**
- * Handler for runtime operations that interact with a HornetQ {@link org.apache.activemq.api.core.management.BridgeControl}.
+ * Handler for runtime operations that interact with a HornetQ {@link org.apache.activemq.artemis.api.core.management.BridgeControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */

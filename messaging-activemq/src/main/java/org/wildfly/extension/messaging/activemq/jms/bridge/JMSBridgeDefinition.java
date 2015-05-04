@@ -38,7 +38,7 @@ import static org.wildfly.extension.messaging.activemq.MessagingExtension.MESSAG
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.activemq.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PropertiesAttributeDefinition;

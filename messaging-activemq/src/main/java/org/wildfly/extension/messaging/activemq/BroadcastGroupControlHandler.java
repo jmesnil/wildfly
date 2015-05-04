@@ -24,16 +24,16 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.wildfly.extension.messaging.activemq.BroadcastGroupDefinition.GET_CONNECTOR_PAIRS_AS_JSON;
 
-import org.apache.activemq.api.core.management.BroadcastGroupControl;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.dmr.ModelNode;
 
 /**
- * Handler for runtime operations that interact with a HornetQ {@link org.apache.activemq.api.core.management.BroadcastGroupControl}.
+ * Handler for runtime operations that interact with a HornetQ {@link org.apache.activemq.artemis.api.core.management.BroadcastGroupControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */

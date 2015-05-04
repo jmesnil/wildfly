@@ -22,7 +22,7 @@
 
 package org.wildfly.extension.messaging.activemq.jms;
 
-import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 

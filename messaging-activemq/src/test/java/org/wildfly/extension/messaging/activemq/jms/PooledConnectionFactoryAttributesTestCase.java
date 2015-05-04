@@ -3,7 +3,7 @@ package org.wildfly.extension.messaging.activemq.jms;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Pooled;
 import org.junit.Test;
 

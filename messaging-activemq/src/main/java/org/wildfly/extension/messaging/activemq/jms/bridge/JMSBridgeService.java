@@ -29,7 +29,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import javax.transaction.TransactionManager;
 
-import org.apache.activemq.jms.bridge.JMSBridge;
+import org.apache.activemq.artemis.jms.bridge.JMSBridge;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.as.txn.service.TxnServices;
 import org.jboss.modules.Module;

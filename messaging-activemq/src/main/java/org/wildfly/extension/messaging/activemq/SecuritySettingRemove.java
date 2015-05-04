@@ -22,7 +22,7 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;

@@ -31,9 +31,9 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.FILTER;
 
 import java.util.List;
 
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.CoreQueueConfiguration;
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;

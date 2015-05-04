@@ -29,7 +29,7 @@ import static org.jboss.dmr.ModelType.STRING;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.activemq.core.security.Role;
+import org.apache.activemq.artemis.core.security.Role;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.ObjectTypeAttributeDefinition;
 import org.jboss.as.controller.OperationContext;

@@ -29,7 +29,7 @@
 
     <resources>
         <artifact name="${org.wildfly:wildfly-messaging-activemq}"/>
-        <artifact name="${org.apache.activemq.integration.wildfly:activemq-wildfly-integration}"/>
+        <artifact name="${org.apache.activemq.artemis.integration.wildfly:artemis-wildfly-integration}"/>
     </resources>
 
     <dependencies>
@@ -40,8 +40,8 @@
         <module name="javax.enterprise.api"/>
         <module name="javax.jms.api"/>
         <module name="javax.transaction.api"/>
-        <module name="org.apache.activemq"/>
-        <module name="org.apache.activemq.ra"/>
+        <module name="org.apache.activemq.artemis"/>
+        <module name="org.apache.activemq.artemis.ra"/>
         <module name="org.jboss.common-beans"/>
         <module name="org.jboss.as.transactions"/>
         <module name="org.jboss.staxmapper"/>

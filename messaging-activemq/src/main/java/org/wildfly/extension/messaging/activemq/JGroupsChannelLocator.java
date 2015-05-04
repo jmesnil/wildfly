@@ -2,7 +2,7 @@ package org.wildfly.extension.messaging.activemq;
 
 import java.security.AccessController;
 
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.server.CurrentServiceContainer;
 import org.jboss.msc.service.ServiceContainer;
 import org.jboss.msc.service.ServiceController;

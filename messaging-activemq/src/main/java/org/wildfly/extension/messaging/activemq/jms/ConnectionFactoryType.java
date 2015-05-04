@@ -22,14 +22,14 @@
 
 package org.wildfly.extension.messaging.activemq.jms;
 
-import static org.apache.activemq.api.jms.JMSFactoryType.CF;
-import static org.apache.activemq.api.jms.JMSFactoryType.QUEUE_CF;
-import static org.apache.activemq.api.jms.JMSFactoryType.QUEUE_XA_CF;
-import static org.apache.activemq.api.jms.JMSFactoryType.TOPIC_CF;
-import static org.apache.activemq.api.jms.JMSFactoryType.TOPIC_XA_CF;
-import static org.apache.activemq.api.jms.JMSFactoryType.XA_CF;
+import static org.apache.activemq.artemis.api.jms.JMSFactoryType.CF;
+import static org.apache.activemq.artemis.api.jms.JMSFactoryType.QUEUE_CF;
+import static org.apache.activemq.artemis.api.jms.JMSFactoryType.QUEUE_XA_CF;
+import static org.apache.activemq.artemis.api.jms.JMSFactoryType.TOPIC_CF;
+import static org.apache.activemq.artemis.api.jms.JMSFactoryType.TOPIC_XA_CF;
+import static org.apache.activemq.artemis.api.jms.JMSFactoryType.XA_CF;
 
-import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.jboss.as.controller.operations.validation.EnumValidator;
 import org.jboss.as.controller.operations.validation.ParameterValidator;
 

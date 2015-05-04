@@ -22,8 +22,8 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import static org.apache.activemq.jms.client.ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX;
-import static org.apache.activemq.jms.client.ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX;
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX;
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX;
 import static org.jboss.as.controller.PathAddress.pathAddress;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DEAD_LETTER_ADDRESS;

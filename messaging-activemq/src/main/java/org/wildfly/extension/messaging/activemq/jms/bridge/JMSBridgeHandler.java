@@ -33,7 +33,7 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.STARTED;
 import static org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition.PAUSE;
 import static org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition.RESUME;
 
-import org.apache.activemq.jms.bridge.JMSBridge;
+import org.apache.activemq.artemis.jms.bridge.JMSBridge;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;

@@ -36,7 +36,7 @@
     <artifactId>wildfly-messaging-activemq</artifactId>
     <version>9.0.0.CR2-SNAPSHOT</version>
 
-    <name>WildFly: Messaging Subsystem With ActiveMQ</name>
+    <name>WildFly: Messaging Subsystem With ActiveMQ Artemis</name>
 
     <dependencies>
         <dependency>
@@ -55,48 +55,48 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.activemq.integration.wildfly</groupId>
-            <artifactId>activemq-wildfly-integration</artifactId>
+            <groupId>org.apache.activemq.artemis.integration.wildfly</groupId>
+            <artifactId>artemis-wildfly-integration</artifactId>
         </dependency>
 
         <dependency>
               <groupId>org.apache.activemq</groupId>
-              <artifactId>activemq-core-client</artifactId>
+              <artifactId>artemis-core-client</artifactId>
         </dependency>
 
         <dependency>
               <groupId>org.apache.activemq</groupId>
-              <artifactId>activemq-server</artifactId>
+              <artifactId>artemis-server</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-commons</artifactId>
+            <artifactId>artemis-commons</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-tools</artifactId>
+            <artifactId>artemis-tools</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-journal</artifactId>
+            <artifactId>artemis-journal</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-jms-client</artifactId>
+            <artifactId>artemis-jms-client</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-jms-server</artifactId>
+            <artifactId>artemis-jms-server</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-ra</artifactId>
+            <artifactId>artemis-ra</artifactId>
         </dependency>
 
         <dependency>

@@ -29,7 +29,7 @@ import static org.jboss.dmr.ModelType.STRING;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;

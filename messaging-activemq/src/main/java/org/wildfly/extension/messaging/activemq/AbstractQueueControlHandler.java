@@ -37,7 +37,7 @@ import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper
 import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.runtimeReadOnlyOperation;
 import static org.wildfly.extension.messaging.activemq.logging.MessagingLogger.ROOT_LOGGER;
 
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -56,8 +56,8 @@ import org.jboss.msc.service.ServiceName;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
- * Base class for handlers that interact with either a HornetQ {@link org.apache.activemq.api.core.management.QueueControl}
- * or a {@link org.apache.activemq.api.jms.management.JMSQueueControl}.
+ * Base class for handlers that interact with either a HornetQ {@link org.apache.activemq.artemis.api.core.management.QueueControl}
+ * or a {@link org.apache.activemq.artemis.api.jms.management.JMSQueueControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2014 Red Hat Inc.

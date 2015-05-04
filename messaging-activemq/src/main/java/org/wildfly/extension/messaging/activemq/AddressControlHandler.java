@@ -36,9 +36,9 @@ import static org.wildfly.extension.messaging.activemq.ManagementUtil.reportList
 import static org.wildfly.extension.messaging.activemq.ManagementUtil.reportRoles;
 import static org.wildfly.extension.messaging.activemq.ManagementUtil.reportRolesAsJSON;
 
-import org.apache.activemq.api.core.management.AddressControl;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;

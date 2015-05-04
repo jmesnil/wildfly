@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.jboss.as.controller.AttributeDefinition;
 import org.junit.Ignore;
 import org.junit.Test;
