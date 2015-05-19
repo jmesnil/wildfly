@@ -24,6 +24,7 @@ package org.jboss.as.messaging;
 
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.SimpleResourceDefinition;
+import org.jboss.as.controller.registry.ManagementResourceRegistration;
 
 /**
  * {@link org.jboss.as.controller.ResourceDefinition} for the messaging subsystem root resource.
@@ -41,4 +42,13 @@ public class MessagingSubsystemRootResourceDefinition extends SimpleResourceDefi
                 ReloadRequiredRemoveStepHandler.INSTANCE);
         setDeprecated(MessagingExtension.DEPRECATED_SINCE);
     }
+
+    @Override
+    public void registerOperations(ManagementResourceRegistration resourceRegistration) {
+        super.registerOperations(resourceRegistration);
+
+        MigrateOperation.registerOperations(resourceRegistration, getResourceDescriptionResolver());
+    }
+
+
 }
