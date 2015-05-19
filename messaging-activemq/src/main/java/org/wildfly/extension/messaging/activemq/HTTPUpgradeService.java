@@ -27,7 +27,11 @@ import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnecto
 import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_ACCEPT;
 import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_KEY;
 import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME;
+import static org.hornetq.core.remoting.impl.netty.NettyConnector.HORNETQ_REMOTING;
+import static org.hornetq.core.remoting.impl.netty.NettyConnector.SEC_HORNETQ_REMOTING_ACCEPT;
+import static org.hornetq.core.remoting.impl.netty.NettyConnector.SEC_HORNETQ_REMOTING_KEY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CORE;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.LEGACY;
 import static org.wildfly.extension.messaging.activemq.logging.MessagingLogger.MESSAGING_LOGGER;
 
 import java.io.IOException;
@@ -54,7 +58,7 @@ import org.xnio.StreamConnection;
 import org.xnio.netty.transport.WrappingXnioSocketChannel;
 
 /**
- * Service that handles HTTP upgrade for HornetQ remoting protocol.
+ * Service that handles HTTP upgrade for ActiveMQ remoting protocol.
  *
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */
@@ -63,28 +67,28 @@ public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
     public static final ServiceName HTTP_UPGRADE_REGISTRY = ServiceName.JBOSS.append("http-upgrade-registry");
     public static final ServiceName UPGRADE_SERVICE_NAME = MessagingServices.JBOSS_MESSAGING_ACTIVEMQ.append("http-upgrade-service");
 
-    private final String hornetQServerName;
+    private final String activeMQServerName;
     private final String acceptorName;
     private final String httpListenerName;
-    private InjectedValue<ChannelUpgradeHandler> injectedRegistry = new InjectedValue<>();
-    private InjectedValue<ListenerRegistry> listenerRegistry = new InjectedValue<>();
+    protected InjectedValue<ChannelUpgradeHandler> injectedRegistry = new InjectedValue<>();
+    protected InjectedValue<ListenerRegistry> listenerRegistry = new InjectedValue<>();
 
     private ListenerRegistry.HttpUpgradeMetadata httpUpgradeMetadata;
 
-    public HTTPUpgradeService(String hornetQServerName, String acceptorName, String httpListenerName) {
-        this.hornetQServerName = hornetQServerName;
+    public HTTPUpgradeService(String activeMQServerName, String acceptorName, String httpListenerName) {
+        this.activeMQServerName = activeMQServerName;
         this.acceptorName = acceptorName;
         this.httpListenerName = httpListenerName;
     }
 
-    public static void installService(final ServiceTarget serviceTarget, String hornetQServerName, final String acceptorName, final String httpListenerName) {
+    public static void installService(final ServiceTarget serviceTarget, String activeMQServerName, final String acceptorName, final String httpListenerName) {
 
-        final HTTPUpgradeService service = new HTTPUpgradeService(hornetQServerName, acceptorName, httpListenerName);
+        final HTTPUpgradeService service = new HTTPUpgradeService(activeMQServerName, acceptorName, httpListenerName);
 
         serviceTarget.addService(UPGRADE_SERVICE_NAME.append(acceptorName), service)
                 .addDependency(HTTP_UPGRADE_REGISTRY.append(httpListenerName), ChannelUpgradeHandler.class, service.injectedRegistry)
                 .addDependency(HttpListenerRegistryService.SERVICE_NAME, ListenerRegistry.class, service.listenerRegistry)
-                .addDependency(ActiveMQActivationService.getServiceName(MessagingServices.getActiveMQServiceName(hornetQServerName)))
+                .addDependency(ActiveMQActivationService.getServiceName(MessagingServices.getActiveMQServiceName(activeMQServerName)))
                 .setInitialMode(ServiceController.Mode.PASSIVE)
                 .install();
     }
@@ -93,16 +97,16 @@ public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
     public void start(StartContext context) throws StartException {
         ListenerRegistry.Listener listenerInfo = listenerRegistry.getValue().getListener(httpListenerName);
         assert listenerInfo != null;
-        httpUpgradeMetadata = new ListenerRegistry.HttpUpgradeMetadata(ACTIVEMQ_REMOTING, CORE);
+        httpUpgradeMetadata = new ListenerRegistry.HttpUpgradeMetadata(getProtocol(), CORE);
         listenerInfo.addHttpUpgradeMetadata(httpUpgradeMetadata);
 
-        MESSAGING_LOGGER.registeredHTTPUpgradeHandler(ACTIVEMQ_REMOTING, acceptorName);
-        ServiceController<?> hornetqService = context.getController().getServiceContainer().getService(MessagingServices.getActiveMQServiceName(hornetQServerName));
-        ActiveMQServer hornetQServer = ActiveMQServer.class.cast(hornetqService.getValue());
+        MESSAGING_LOGGER.registeredHTTPUpgradeHandler(getProtocol(), acceptorName);
+        ServiceController<?> activeMQServerService = context.getController().getServiceContainer().getService(MessagingServices.getActiveMQServiceName(activeMQServerName));
+        ActiveMQServer hornetQServer = ActiveMQServer.class.cast(activeMQServerService.getValue());
 
-        injectedRegistry.getValue().addProtocol(ACTIVEMQ_REMOTING,
-                switchToHornetQProtocol(hornetQServer, acceptorName),
-                new SimpleHttpUpgradeHandshake(MAGIC_NUMBER, SEC_ACTIVEMQ_REMOTING_KEY, SEC_ACTIVEMQ_REMOTING_ACCEPT) {
+        injectedRegistry.getValue().addProtocol(getProtocol(),
+                switchToMessagingProtocol(hornetQServer, acceptorName, getProtocol()),
+                new SimpleHttpUpgradeHandshake(MAGIC_NUMBER, getSecKeyHeader(), getSecAcceptHeader()) {
                     /**
                      * override the default upgrade handshake to take into account the {@code TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME} header
                      * to select the correct acceptors among all that are configured in HornetQ.
@@ -130,7 +134,7 @@ public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
     public void stop(StopContext context) {
         listenerRegistry.getValue().getListener(httpListenerName).removeHttpUpgradeMetadata(httpUpgradeMetadata);
         httpUpgradeMetadata = null;
-        injectedRegistry.getValue().removeProtocol(ACTIVEMQ_REMOTING);
+        injectedRegistry.getValue().removeProtocol(getProtocol());
     }
 
     @Override
@@ -138,19 +142,70 @@ public class HTTPUpgradeService implements Service<HTTPUpgradeService> {
         return this;
     }
 
-    private static ChannelListener<StreamConnection> switchToHornetQProtocol(final ActiveMQServer hornetqServer, final String acceptorName) {
+    private static ChannelListener<StreamConnection> switchToMessagingProtocol(final ActiveMQServer activemqServer, final String acceptorName, final String protocolName) {
         return new ChannelListener<StreamConnection>() {
             @Override
             public void handleEvent(final StreamConnection connection) {
-                MESSAGING_LOGGER.debugf("Switching to %s protocol for %s http-acceptor", ACTIVEMQ_REMOTING, acceptorName);
+                MESSAGING_LOGGER.debugf("Switching to %s protocol for %s http-acceptor", protocolName, acceptorName);
                 SocketChannel channel = new WrappingXnioSocketChannel(connection);
-                RemotingService remotingService = hornetqServer.getRemotingService();
+                RemotingService remotingService = activemqServer.getRemotingService();
 
                 NettyAcceptor acceptor = (NettyAcceptor)remotingService.getAcceptor(acceptorName);
                 acceptor.transfer(channel);
                 connection.getSourceChannel().resumeReads();
             }
         };
+    }
+
+    protected String getProtocol() {
+        return ACTIVEMQ_REMOTING;
+    }
+
+    protected String getSecKeyHeader() {
+        return SEC_ACTIVEMQ_REMOTING_KEY;
+    }
+
+    protected String getSecAcceptHeader() {
+        return SEC_ACTIVEMQ_REMOTING_ACCEPT;
+    }
+
+    /**
+     * Service to handle HTTP upgrade for legacy (HornetQ) clients.
+     *
+     * Legacy clients use different protocol and security key and accept headers during the HTTP Upgrade handshake.
+     */
+    static class LegacyHttpUpgradeService extends HTTPUpgradeService {
+
+        public static void installService(final ServiceTarget serviceTarget, String activeMQServerName, final String acceptorName, final String httpListenerName) {
+
+            final LegacyHttpUpgradeService service = new LegacyHttpUpgradeService(activeMQServerName, acceptorName, httpListenerName);
+
+            serviceTarget.addService(UPGRADE_SERVICE_NAME.append(acceptorName, LEGACY), service)
+                    .addDependency(HTTP_UPGRADE_REGISTRY.append(httpListenerName), ChannelUpgradeHandler.class, service.injectedRegistry)
+                    .addDependency(HttpListenerRegistryService.SERVICE_NAME, ListenerRegistry.class, service.listenerRegistry)
+                    .addDependency(ActiveMQActivationService.getServiceName(MessagingServices.getActiveMQServiceName(activeMQServerName)))
+                    .setInitialMode(ServiceController.Mode.PASSIVE)
+                    .install();
+        }
+
+        private LegacyHttpUpgradeService(String activeMQServerName, String acceptorName, String httpListenerName) {
+            super(activeMQServerName, acceptorName, httpListenerName);
+        }
+
+        @Override
+        protected String getProtocol() {
+            return HORNETQ_REMOTING;
+        }
+
+        @Override
+        protected String getSecKeyHeader() {
+            return SEC_HORNETQ_REMOTING_KEY;
+        }
+
+        @Override
+        protected String getSecAcceptHeader() {
+            return SEC_HORNETQ_REMOTING_ACCEPT;
+        }
     }
 
 }

@@ -52,7 +52,6 @@ public class DiscoveryGroupDefinition extends PersistentResourceDefinition {
    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.DISCOVERY_GROUP);
 
     public static final SimpleAttributeDefinition REFRESH_TIMEOUT = create("refresh-timeout", ModelType.LONG)
-            // FIXME the default value should be set to HornetQDefaultConfiguration.DEFAULT_BROADCAST_REFRESH_TIMEOUT,
             .setDefaultValue(new ModelNode(ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT))
             .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)

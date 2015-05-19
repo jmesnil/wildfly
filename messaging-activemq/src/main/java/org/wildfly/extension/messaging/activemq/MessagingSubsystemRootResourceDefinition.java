@@ -28,11 +28,13 @@ import java.util.Collections;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
+import org.jboss.as.controller.registry.ManagementResourceRegistration;
 
 /**
  * {@link org.jboss.as.controller.ResourceDefinition} for the messaging subsystem root resource.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
+ *
  */
 public class MessagingSubsystemRootResourceDefinition extends PersistentResourceDefinition {
 
@@ -48,5 +50,10 @@ public class MessagingSubsystemRootResourceDefinition extends PersistentResource
     @Override
     public Collection<AttributeDefinition> getAttributes() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public void registerOperations(ManagementResourceRegistration resourceRegistration) {
+        super.registerOperations(resourceRegistration);
     }
 }

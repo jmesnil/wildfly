@@ -33,7 +33,6 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRI
 import static org.jboss.as.test.integration.common.jms.JMSOperationsProvider.execute;
 
 import org.jboss.as.arquillian.container.ManagementClient;
-import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
@@ -80,18 +79,26 @@ public class DefaultHornetQProviderJMSOperations implements JMSOperations {
 
     @Override
     public void createJmsQueue(String queueName, String jndiName) {
+        createJmsQueue(queueName, jndiName, new ModelNode());
+    }
+
+    @Override
+    public void createJmsQueue(String queueName, String jndiName, ModelNode attributes) {
         ModelNode address = getServerAddress()
                 .add("jms-queue", queueName);
-        ModelNode attributes = new ModelNode();
         attributes.get("entries").add(jndiName);
         executeOperation(address, ADD, attributes);
     }
 
     @Override
     public void createJmsTopic(String topicName, String jndiName) {
+        createJmsTopic(topicName, jndiName, new ModelNode());
+    }
+
+    @Override
+    public void createJmsTopic(String topicName, String jndiName, ModelNode attributes) {
         ModelNode address = getServerAddress()
                 .add("jms-topic", topicName);
-        ModelNode attributes = new ModelNode();
         attributes.get("entries").add(jndiName);
         executeOperation(address, ADD, attributes);
     }
