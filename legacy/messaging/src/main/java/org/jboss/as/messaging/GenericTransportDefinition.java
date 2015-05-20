@@ -48,16 +48,16 @@ public class GenericTransportDefinition extends AbstractTransportDefinition {
 
     static AttributeDefinition[] ATTRIBUTES = { CommonAttributes.FACTORY_CLASS, SOCKET_BINDING };
 
-    public static SimpleResourceDefinition createAcceptorDefinition(final boolean registerRuntimeOnly) {
-        return new GenericTransportDefinition(registerRuntimeOnly, true, CommonAttributes.ACCEPTOR);
+    public static SimpleResourceDefinition createAcceptorDefinition() {
+        return new GenericTransportDefinition(true, CommonAttributes.ACCEPTOR);
     }
 
-    public static SimpleResourceDefinition createConnectorDefinition(final boolean registerRuntimeOnly) {
-        return new GenericTransportDefinition(registerRuntimeOnly, false, CommonAttributes.CONNECTOR);
+    public static SimpleResourceDefinition createConnectorDefinition() {
+        return new GenericTransportDefinition(false, CommonAttributes.CONNECTOR);
     }
 
-    private GenericTransportDefinition(final boolean registerRuntimeOnly, boolean isAcceptor, String specificType) {
-        super(registerRuntimeOnly, isAcceptor, specificType, ATTRIBUTES);
+    private GenericTransportDefinition(boolean isAcceptor, String specificType) {
+        super(isAcceptor, specificType, ATTRIBUTES);
     }
 
     @Override

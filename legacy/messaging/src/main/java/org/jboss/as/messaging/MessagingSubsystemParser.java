@@ -68,10 +68,10 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.logging.ControllerLogger;
 import org.jboss.as.controller.ListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
+import org.jboss.as.controller.logging.ControllerLogger;
 import org.jboss.as.controller.parsing.ParseUtils;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Common;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Pooled;

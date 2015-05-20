@@ -22,8 +22,7 @@
 
 package org.jboss.as.messaging;
 
-import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
-import org.jboss.as.controller.SimpleResourceDefinition;
+import org.jboss.as.controller.ModelOnlyResourceDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 
 /**
@@ -31,15 +30,13 @@ import org.jboss.as.controller.registry.ManagementResourceRegistration;
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class MessagingSubsystemRootResourceDefinition extends SimpleResourceDefinition {
+public class MessagingSubsystemRootResourceDefinition extends ModelOnlyResourceDefinition {
 
     public static final MessagingSubsystemRootResourceDefinition INSTANCE = new MessagingSubsystemRootResourceDefinition();
 
     private MessagingSubsystemRootResourceDefinition() {
         super(MessagingExtension.SUBSYSTEM_PATH,
-                MessagingExtension.getResourceDescriptionResolver(MessagingExtension.SUBSYSTEM_NAME),
-                MessagingSubsystemAdd.INSTANCE,
-                ReloadRequiredRemoveStepHandler.INSTANCE);
+                MessagingExtension.getResourceDescriptionResolver(MessagingExtension.SUBSYSTEM_NAME));
         setDeprecated(MessagingExtension.DEPRECATED_SINCE);
     }
 

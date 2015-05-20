@@ -59,16 +59,16 @@ public class InVMTransportDefinition extends AbstractTransportDefinition {
 
     static AttributeDefinition[] ATTRIBUTES = { SERVER_ID };
 
-    public static SimpleResourceDefinition createAcceptorDefinition(final boolean registerRuntimeOnly) {
-        return new InVMTransportDefinition(registerRuntimeOnly, true, CommonAttributes.IN_VM_ACCEPTOR);
+    public static SimpleResourceDefinition createAcceptorDefinition() {
+        return new InVMTransportDefinition(true, CommonAttributes.IN_VM_ACCEPTOR);
     }
 
-    public static SimpleResourceDefinition createConnectorDefinition(final boolean registerRuntimeOnly) {
-        return new InVMTransportDefinition(registerRuntimeOnly, false, CommonAttributes.IN_VM_CONNECTOR);
+    public static SimpleResourceDefinition createConnectorDefinition() {
+        return new InVMTransportDefinition(false, CommonAttributes.IN_VM_CONNECTOR);
     }
 
-    private InVMTransportDefinition(final boolean registerRuntimeOnly, boolean isAcceptor, String specificType) {
-        super(registerRuntimeOnly, isAcceptor, specificType, ATTRIBUTES);
+    private InVMTransportDefinition(boolean isAcceptor, String specificType) {
+        super(isAcceptor, specificType, ATTRIBUTES);
         setDeprecated(MessagingExtension.DEPRECATED_SINCE);
     }
 

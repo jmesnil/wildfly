@@ -67,27 +67,29 @@ import java.util.Map;
 
 import org.jboss.as.controller.AbstractAttributeDefinitionBuilder;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.ModelOnlyAddStepHandler;
+import org.jboss.as.controller.ModelOnlyResourceDefinition;
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.SimpleListAttributeDefinition;
 import org.jboss.as.controller.SimpleMapAttributeDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.AttributeAccess;
-import org.jboss.as.controller.registry.ManagementResourceRegistration;
+import org.jboss.as.messaging.AlternativeAttributeCheckHandler;
 import org.jboss.as.messaging.CommonAttributes;
-import org.jboss.as.messaging.DeprecatedAttributeWriteHandler;
 import org.jboss.as.messaging.MessagingExtension;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Common;
 import org.jboss.as.messaging.jms.ConnectionFactoryAttributes.Pooled;
+import org.jboss.dmr.ModelNode;
 
 /**
  * JMS pooled Connection Factory resource definition.
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class PooledConnectionFactoryDefinition extends SimpleResourceDefinition {
+public class PooledConnectionFactoryDefinition extends ModelOnlyResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.POOLED_CONNECTION_FACTORY);
 
@@ -164,36 +166,16 @@ public class PooledConnectionFactoryDefinition extends SimpleResourceDefinition 
         return attrs;
     }
 
-    private final boolean registerRuntimeOnly;
-    private final boolean deployed;
-
-    public PooledConnectionFactoryDefinition(final boolean registerRuntimeOnly, final boolean deployed) {
+    public PooledConnectionFactoryDefinition() {
         super(PATH, MessagingExtension.getResourceDescriptionResolver(CommonAttributes.POOLED_CONNECTION_FACTORY),
-                PooledConnectionFactoryAdd.INSTANCE,
-                PooledConnectionFactoryRemove.INSTANCE);
-        this.registerRuntimeOnly = registerRuntimeOnly;
-        setDeprecated(MessagingExtension.DEPRECATED_SINCE);
-        this.deployed = deployed;
-    }
+                new ModelOnlyAddStepHandler(getDefinitions(PooledConnectionFactoryDefinition.ATTRIBUTES)) {
+                    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
+                        super.populateModel(operation, model);
 
-    @Override
-    public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
-
-        for (AttributeDefinition attr : getDefinitions(ATTRIBUTES)) {
-            // deprecated attribute
-            if (attr == Common.DISCOVERY_INITIAL_WAIT_TIMEOUT ||
-                    attr == Common.FAILOVER_ON_SERVER_SHUTDOWN) {
-                registry.registerReadWriteAttribute(attr, null, DeprecatedAttributeWriteHandler.INSTANCE);
-            } else {
-                if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
-                    if (deployed) {
-                        registry.registerReadOnlyAttribute(attr, PooledConnectionFactoryConfigurationRuntimeHandler.INSTANCE);
-                    } else {
-                        registry.registerReadWriteAttribute(attr, null, PooledConnectionFactoryWriteAttributeHandler.INSTANCE);
+                        AlternativeAttributeCheckHandler.checkAlternatives(operation, Common.CONNECTOR.getName(), Common.DISCOVERY_GROUP_NAME.getName(), false);
                     }
-                }
-            }
-        }
+                },
+                getDefinitions(PooledConnectionFactoryDefinition.ATTRIBUTES));
+        setDeprecated(MessagingExtension.DEPRECATED_SINCE);
     }
 }

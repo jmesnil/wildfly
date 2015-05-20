@@ -34,12 +34,14 @@ import org.hornetq.core.settings.impl.AddressFullMessagePolicy;
 import org.hornetq.core.settings.impl.AddressSettings;
 import org.hornetq.core.settings.impl.SlowConsumerPolicy;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.ModelOnlyAddStepHandler;
+import org.jboss.as.controller.ModelOnlyResourceDefinition;
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.operations.validation.EnumValidator;
-import org.jboss.as.controller.registry.AttributeAccess;
-import org.jboss.as.controller.registry.ManagementResourceRegistration;
+import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 
@@ -48,9 +50,7 @@ import org.jboss.dmr.ModelType;
  *
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
-public class AddressSettingDefinition extends SimpleResourceDefinition {
-
-    private final boolean registerRuntimeOnly;
+public class AddressSettingDefinition extends ModelOnlyResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.ADDRESS_SETTING);
 
@@ -191,22 +191,18 @@ public class AddressSettingDefinition extends SimpleResourceDefinition {
         SLOW_CONSUMER_THRESHOLD
     };
 
-    public AddressSettingDefinition(final boolean registerRuntimeOnly) {
+    public AddressSettingDefinition() {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.ADDRESS_SETTING),
-                AddressSettingAdd.INSTANCE,
-                AddressSettingRemove.INSTANCE);
-        this.registerRuntimeOnly = registerRuntimeOnly;
-        setDeprecated(MessagingExtension.DEPRECATED_SINCE);
-    }
+                new ModelOnlyAddStepHandler(ATTRIBUTES) {
+                    @Override
+                    protected void populateModel(OperationContext context, ModelNode operation, final Resource resource) throws OperationFailedException {
+                        super.populateModel(context, operation, resource);
 
-    @Override
-    public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
-        for (AttributeDefinition attr : ATTRIBUTES) {
-            if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
-                registry.registerReadWriteAttribute(attr, null, AddressSettingsWriteHandler.INSTANCE);
-            }
-        }
+                        context.addStep(AddressSettingsValidator.ADD_VALIDATOR, OperationContext.Stage.MODEL);
+                    }
+                },
+                ATTRIBUTES);
+        setDeprecated(MessagingExtension.DEPRECATED_SINCE);
     }
 }

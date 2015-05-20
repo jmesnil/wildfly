@@ -22,38 +22,13 @@
 
 package org.jboss.as.messaging;
 
-import static org.jboss.as.messaging.CommonAttributes.JMS_BRIDGE;
-
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
-import org.jboss.msc.service.ServiceName;
 
 /**
  * @author Emanuel Muckenhuber
  */
 public class MessagingServices {
-
-    /** The service name "jboss.messaging". */
-    static final ServiceName JBOSS_MESSAGING = ServiceName.JBOSS.append("messaging");
-
-    /** The core queue name base. */
-    private static final String CORE_QUEUE_BASE = "queue";
-
-   public static ServiceName getHornetQServiceName(PathAddress pathAddress) {
-         // We need to figure out what HornetQServer this operation is targeting.
-        // We can get that from the "address" element of the operation, as the "hornetq-server=x" part of
-        // the address will specify the name of the HornetQServer
-
-       // We are a handler for requests related to a jms-topic resource. Those reside on level below the hornetq-server
-        // resources in the resource tree. So we could look for the hornetq-server in the 2nd to last element
-        // in the PathAddress. But to be more generic and future-proof, we'll walk the tree looking
-       String hornetQServerName = null;
-       PathAddress hornetQServerPathAddress = getHornetQServerPathAddress(pathAddress);
-       if (hornetQServerPathAddress != null) {
-           hornetQServerName = hornetQServerPathAddress.getLastElement().getValue();
-       }
-       return JBOSS_MESSAGING.append(hornetQServerName);
-   }
 
    public static PathAddress getHornetQServerPathAddress(PathAddress pathAddress) {
        for (int i = pathAddress.size() - 1; i >=0; i--) {
@@ -64,17 +39,4 @@ public class MessagingServices {
        }
        return PathAddress.EMPTY_ADDRESS;
    }
-
-   public static ServiceName getHornetQServiceName(String serverName) {
-      return JBOSS_MESSAGING.append(serverName);
-   }
-
-   public static ServiceName getQueueBaseServiceName(ServiceName hornetqServiceName) {
-       return hornetqServiceName.append(CORE_QUEUE_BASE);
-   }
-
-   public static ServiceName getJMSBridgeServiceName(String bridgeName) {
-       return JBOSS_MESSAGING.append(JMS_BRIDGE).append(bridgeName);
-   }
-
 }

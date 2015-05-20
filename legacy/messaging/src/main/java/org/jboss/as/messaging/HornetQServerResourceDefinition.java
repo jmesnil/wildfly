@@ -73,13 +73,11 @@ import static org.jboss.as.messaging.CommonAttributes.WILD_CARD_ROUTING_ENABLED;
 import java.util.Locale;
 
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.ModelOnlyResourceDefinition;
 import org.jboss.as.controller.PathElement;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.descriptions.DefaultResourceDescriptionProvider;
 import org.jboss.as.controller.descriptions.DescriptionProvider;
 import org.jboss.as.controller.registry.ImmutableManagementResourceRegistration;
-import org.jboss.as.controller.registry.ManagementResourceRegistration;
-import org.jboss.as.messaging.jms.JMSServerControlHandler;
 import org.jboss.dmr.ModelNode;
 
 /**
@@ -87,7 +85,7 @@ import org.jboss.dmr.ModelNode;
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class HornetQServerResourceDefinition extends SimpleResourceDefinition {
+public class HornetQServerResourceDefinition extends ModelOnlyResourceDefinition {
 
     public static final PathElement HORNETQ_SERVER_PATH = PathElement.pathElement(CommonAttributes.HORNETQ_SERVER);
 
@@ -103,48 +101,11 @@ public class HornetQServerResourceDefinition extends SimpleResourceDefinition {
             JOURNAL_FILE_SIZE, JOURNAL_MIN_FILES, JOURNAL_COMPACT_PERCENTAGE, JOURNAL_COMPACT_MIN_FILES, JOURNAL_MAX_IO,
             PERF_BLAST_PAGES, RUN_SYNC_SPEED_TEST, SERVER_DUMP_INTERVAL};
 
-    private final boolean registerRuntimeOnly;
-
-    HornetQServerResourceDefinition(boolean registerRuntimeOnly) {
+    HornetQServerResourceDefinition() {
         super(HORNETQ_SERVER_PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.HORNETQ_SERVER),
-                HornetQServerAdd.INSTANCE,
-                HornetQServerRemove.INSTANCE);
-        this.registerRuntimeOnly = registerRuntimeOnly;
+                CommonAttributes.SIMPLE_ROOT_RESOURCE_ATTRIBUTES);
         setDeprecated(MessagingExtension.DEPRECATED_SINCE);
-    }
-
-    @Override
-    public void registerOperations(ManagementResourceRegistration resourceRegistration) {
-        super.registerOperations(resourceRegistration);
-        if (registerRuntimeOnly) {
-            HornetQServerControlHandler.INSTANCE.registerOperations(resourceRegistration, getResourceDescriptionResolver());
-            JMSServerControlHandler.INSTANCE.registerOperations(resourceRegistration, getResourceDescriptionResolver());
-
-            AddressSettingsResolveHandler.registerOperationHandler(resourceRegistration, getResourceDescriptionResolver());
-        }
-
-        // unsupported runtime operations exposed by HornetQServerControl
-        // enableMessageCounters, disableMessageCounters
-    }
-
-    @Override
-    public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
-        HornetQServerControlWriteHandler.INSTANCE.registerAttributes(resourceRegistration, registerRuntimeOnly);
-        if (registerRuntimeOnly) {
-            HornetQServerControlHandler.INSTANCE.registerAttributes(resourceRegistration);
-        }
-        // unsupported READ-ATTRIBUTES
-        // getConnectors, getAddressNames, getQueueNames, getDivertNames, getBridgeNames,
-        // unsupported JMSServerControlHandler READ-ATTRIBUTES
-        // getTopicNames, getQueueNames, getConnectionFactoryNames,
-    }
-
-
-
-    @Override
-    public void registerChildren(ManagementResourceRegistration resourceRegistration) {
-        super.registerChildren(resourceRegistration);
     }
 
     /**
@@ -154,19 +115,15 @@ public class HornetQServerResourceDefinition extends SimpleResourceDefinition {
      */
     @Override
     public DescriptionProvider getDescriptionProvider(ImmutableManagementResourceRegistration resourceRegistration) {
-        if (registerRuntimeOnly) {
-            return super.getDescriptionProvider(resourceRegistration);
-        } else {
-            return new DefaultResourceDescriptionProvider(resourceRegistration, getResourceDescriptionResolver()) {
-                @Override
-                public ModelNode getModelDescription(Locale locale) {
-                    ModelNode result = super.getModelDescription(locale);
-                    result.get(CHILDREN, PATH, MIN_OCCURS).set(4);
-                    result.get(CHILDREN, PATH, MAX_OCCURS).set(4);
-                    return result;
-                }
-            };
-        }
+        return new DefaultResourceDescriptionProvider(resourceRegistration, getResourceDescriptionResolver()) {
+            @Override
+            public ModelNode getModelDescription(Locale locale) {
+                ModelNode result = super.getModelDescription(locale);
+                result.get(CHILDREN, PATH, MIN_OCCURS).set(4);
+                result.get(CHILDREN, PATH, MAX_OCCURS).set(4);
+                return result;
+            }
+        };
     }
 
 

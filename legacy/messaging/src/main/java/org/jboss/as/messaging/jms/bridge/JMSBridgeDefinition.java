@@ -30,19 +30,20 @@ import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.hornetq.jms.bridge.QualityOfServiceMode;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.ModelOnlyResourceDefinition;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PropertiesAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.SimpleOperationDefinition;
-import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
-import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.operations.validation.EnumValidator;
 import org.jboss.as.controller.operations.validation.IntRangeValidator;
 import org.jboss.as.controller.registry.AttributeAccess;
-import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.messaging.AttributeMarshallers;
 import org.jboss.as.messaging.CommonAttributes;
 import org.jboss.as.messaging.MessagingExtension;
@@ -51,18 +52,13 @@ import org.jboss.dmr.ModelNode;
 /**
  * @author Jeff Mesnil (c) 2012 Red Hat Inc.
  */
-public class JMSBridgeDefinition extends SimpleResourceDefinition {
+public class JMSBridgeDefinition extends ModelOnlyResourceDefinition {
 
     public static final PathElement PATH = PathElement.pathElement(CommonAttributes.JMS_BRIDGE);
-
-    public static final JMSBridgeDefinition INSTANCE = new JMSBridgeDefinition();
 
     public static final String SOURCE = "source";
     public static final String TARGET = "target";
     public static final String CONTEXT = "context";
-
-    public static final String PAUSE = "pause";
-    public static final String RESUME = "resume";
 
     public static final SimpleAttributeDefinition MODULE = create("module", STRING)
             .setAllowNull(true)
@@ -192,46 +188,20 @@ public class JMSBridgeDefinition extends SimpleResourceDefinition {
             TARGET_CONTEXT
     };
 
-    public static final AttributeDefinition[] READONLY_ATTRIBUTES = {
-            STARTED, CommonAttributes.PAUSED
-    };
+    private static AttributeDefinition[] getAllAttributes() {
+        List<AttributeDefinition> allAttributes = new ArrayList<>();
+        allAttributes.addAll(Arrays.asList(JMS_BRIDGE_ATTRIBUTES));
+        allAttributes.addAll(Arrays.asList(JMS_SOURCE_ATTRIBUTES));
+        allAttributes.addAll(Arrays.asList(JMS_TARGET_ATTRIBUTES));
+        return allAttributes.toArray(new AttributeDefinition[allAttributes.size()]);
+    }
 
-    public static final String[] OPERATIONS = {
-            ModelDescriptionConstants.START, ModelDescriptionConstants.STOP,
-            PAUSE, RESUME
-    };
+    public static final JMSBridgeDefinition INSTANCE = new JMSBridgeDefinition();
 
     public JMSBridgeDefinition() {
         super(PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.JMS_BRIDGE),
-                JMSBridgeAdd.INSTANCE,
-                JMSBridgeRemove.INSTANCE);
+                getAllAttributes());
         setDeprecated(MessagingExtension.DEPRECATED_SINCE);
     }
-
-    @Override
-    public void registerAttributes(ManagementResourceRegistration registry) {
-        super.registerAttributes(registry);
-        for (AttributeDefinition attr : JMS_BRIDGE_ATTRIBUTES) {
-            registry.registerReadWriteAttribute(attr, null, JMSBridgeWriteAttributeHandler.INSTANCE);
-        }
-        for (AttributeDefinition attr : JMS_SOURCE_ATTRIBUTES) {
-            registry.registerReadWriteAttribute(attr, null, JMSBridgeWriteAttributeHandler.INSTANCE);
-        }
-        for (AttributeDefinition attr : JMS_TARGET_ATTRIBUTES) {
-            registry.registerReadWriteAttribute(attr, null, JMSBridgeWriteAttributeHandler.INSTANCE);
-        }
-        for (AttributeDefinition attr : READONLY_ATTRIBUTES) {
-            registry.registerReadOnlyAttribute(attr, JMSBridgeHandler.INSTANCE);
-        }
-    }
-
-    @Override
-    public void registerOperations(ManagementResourceRegistration registry) {
-        super.registerOperations(registry);
-        for (final String operationName : OPERATIONS) {
-            registry.registerOperationHandler(new SimpleOperationDefinition(operationName, getResourceDescriptionResolver()), JMSBridgeHandler.INSTANCE);
-        }
-    }
-
 }

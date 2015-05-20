@@ -59,16 +59,16 @@ public class RemoteTransportDefinition extends AbstractTransportDefinition {
     static AttributeDefinition[] ATTRIBUTES = { SOCKET_BINDING };
 
 
-    public static SimpleResourceDefinition createAcceptorDefinition(final boolean registerRuntimeOnly) {
-        return new RemoteTransportDefinition(registerRuntimeOnly, true, CommonAttributes.REMOTE_ACCEPTOR);
+    public static SimpleResourceDefinition createAcceptorDefinition() {
+        return new RemoteTransportDefinition(true, CommonAttributes.REMOTE_ACCEPTOR);
     }
 
-    public static SimpleResourceDefinition createConnectorDefinition(final boolean registerRuntimeOnly) {
-        return new RemoteTransportDefinition(registerRuntimeOnly, false, CommonAttributes.REMOTE_CONNECTOR);
+    public static SimpleResourceDefinition createConnectorDefinition() {
+        return new RemoteTransportDefinition(false, CommonAttributes.REMOTE_CONNECTOR);
     }
 
-    private RemoteTransportDefinition(final boolean registerRuntimeOnly, boolean isAcceptor, String specificType) {
-        super(registerRuntimeOnly, isAcceptor, specificType, ATTRIBUTES);
+    private RemoteTransportDefinition(boolean isAcceptor, String specificType) {
+        super(isAcceptor, specificType, ATTRIBUTES);
     }
 
     @Override
