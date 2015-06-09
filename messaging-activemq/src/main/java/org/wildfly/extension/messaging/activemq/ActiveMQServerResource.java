@@ -274,4 +274,14 @@ public class ActiveMQServerResource implements Resource {
             return hornetQServerServiceController.getValue().getManagementService();
         }
     }
+
+    @Override
+    public void registerChild(PathElement pathElement, int i, Resource resource) {
+
+    }
+
+    @Override
+    public Set<String> getOrderedChildTypes() {
+        return Collections.emptySet();
+    }
 }

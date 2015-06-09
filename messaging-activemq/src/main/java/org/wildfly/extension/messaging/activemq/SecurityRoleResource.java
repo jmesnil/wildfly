@@ -123,6 +123,17 @@ public class SecurityRoleResource implements Resource {
         return new SecurityRoleResource();
     }
 
+
+    @Override
+    public void registerChild(PathElement pathElement, int i, Resource resource) {
+
+    }
+
+    @Override
+    public Set<String> getOrderedChildTypes() {
+        return Collections.emptySet();
+    }
+
     public static class SecurityRoleResourceEntry extends SecurityRoleResource implements ResourceEntry {
 
         final PathElement path;

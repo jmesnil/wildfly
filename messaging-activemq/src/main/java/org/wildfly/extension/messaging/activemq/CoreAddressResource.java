@@ -206,4 +206,15 @@ public class CoreAddressResource implements Resource {
             return new CoreAddressResourceEntry(path.getValue(), managementService2);
         }
     }
+
+
+    @Override
+    public void registerChild(PathElement pathElement, int i, Resource resource) {
+
+    }
+
+    @Override
+    public Set<String> getOrderedChildTypes() {
+        return Collections.emptySet();
+    }
 }
