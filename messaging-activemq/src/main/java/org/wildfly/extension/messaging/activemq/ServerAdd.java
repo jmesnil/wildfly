@@ -22,7 +22,6 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PATH;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ADDRESS_SETTING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BINDINGS_DIRECTORY;
@@ -108,6 +107,7 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.capability.RuntimeCapability;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.controller.services.path.PathManager;
@@ -137,6 +137,12 @@ import org.wildfly.extension.messaging.activemq.jms.JMSService;
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
 class ServerAdd implements OperationStepHandler {
+
+    private static final String JMX_CAPABILITY = "org.wildfly.management.jmx";
+
+    private static final RuntimeCapability<Void> ACTIVEMQ_SERVER_CAPABILITY = RuntimeCapability.Builder.of("org.wildfly.messaging.activemq.server", true)
+            .addRuntimeOnlyRequirements(JMX_CAPABILITY)
+            .build();
 
     static final String PATH_BASE = "paths";
 
@@ -188,7 +194,7 @@ class ServerAdd implements OperationStepHandler {
             public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
                 final ServiceTarget serviceTarget = context.getServiceTarget();
 
-                final String serverName = PathAddress.pathAddress(operation.require(OP_ADDR)).getLastElement().getValue();
+                final String serverName = context.getCurrentAddressValue();
 
                 // Transform the configuration based on the recursive model
                 final ModelNode model = Resource.Tools.readModel(resource);
@@ -210,8 +216,11 @@ class ServerAdd implements OperationStepHandler {
 
                 // Add the ActiveMQ Service
                 ServiceName activeMQServiceName = MessagingServices.getActiveMQServiceName(serverName);
-                final ServiceBuilder<ActiveMQServer> serviceBuilder = serviceTarget.addService(activeMQServiceName, serverService)
-                        .addDependency(ServiceName.JBOSS.append("mbean", "server"), MBeanServer.class, serverService.getMBeanServer());
+                final ServiceBuilder<ActiveMQServer> serviceBuilder = serviceTarget.addService(activeMQServiceName, serverService);
+                if (context.hasOptionalCapability(JMX_CAPABILITY, ACTIVEMQ_SERVER_CAPABILITY.getDynamicName(serverName), null)) {
+                    ServiceName jmxCapability = context.getCapabilityServiceName(JMX_CAPABILITY, MBeanServer.class);
+                    serviceBuilder.addDependency(jmxCapability, MBeanServer.class, serverService.getMBeanServer());
+                }
 
                 serviceBuilder.addDependency(PathManagerService.SERVICE_NAME, PathManager.class, serverService.getPathManagerInjector());
 
