@@ -40,6 +40,8 @@ import static org.wildfly.extension.messaging.activemq.logging.MessagingLogger.R
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.ObjectListAttributeDefinition;
+import org.jboss.as.controller.ObjectTypeAttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
@@ -90,6 +92,10 @@ public abstract class AbstractQueueControlHandler<T> extends AbstractRuntimeOnly
     public static final String RESUME = "resume";
     public static final String LIST_CONSUMERS = "list-consumers";
     public static final String LIST_CONSUMERS_AS_JSON = "list-consumers-as-json";
+    public static final String LIST_SCHEDULED_MESSAGES = "list-scheduled-messages";
+    public static final String LIST_SCHEDULED_MESSAGES_AS_JSON = LIST_SCHEDULED_MESSAGES + "-as-json";
+    public static final String LIST_DELIVERING_MESSAGES = "list-delivering-messages";
+    public static final String LIST_DELIVERING_MESSAGES_AS_JSON = LIST_DELIVERING_MESSAGES + "-as-json";
 
     public static final ParameterValidator PRIORITY_VALIDATOR = new IntRangeValidator(0, 9, false, false);
 
@@ -108,108 +114,127 @@ public abstract class AbstractQueueControlHandler<T> extends AbstractRuntimeOnly
     public void registerOperations(final ManagementResourceRegistration registry, ResourceDescriptionResolver resolver) {
 
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_MESSAGES, resolver)
-                .setParameters(FILTER)
-                .setReplyType(LIST)
-                .setReplyParameters(getReplyMessageParameterDefinitions())
-                .build(),
+                        .setParameters(FILTER)
+                        .setReplyType(LIST)
+                        .setReplyParameters(getReplyMessageParameterDefinitions())
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_MESSAGES_AS_JSON, RESOLVER)
-                .setParameters(FILTER)
-                .setReplyType(STRING)
-                .build(),
+                        .setParameters(FILTER)
+                        .setReplyType(STRING)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(COUNT_MESSAGES, RESOLVER)
-                .setParameters(FILTER)
-                .setReplyType(LONG)
-                .build(),
+                        .setParameters(FILTER)
+                        .setReplyType(LONG)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeOnlyOperation(REMOVE_MESSAGE, RESOLVER)
-                .setParameters(getMessageIDAttributeDefinition())
-                .setReplyType(BOOLEAN)
-                .build(),
+                        .setParameters(getMessageIDAttributeDefinition())
+                        .setReplyType(BOOLEAN)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeOnlyOperation(REMOVE_MESSAGES, RESOLVER)
-                .setParameters(CommonAttributes.FILTER)
-                .setReplyType(INT)
-                .build(),
+                        .setParameters(CommonAttributes.FILTER)
+                        .setReplyType(INT)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeOnlyOperation(EXPIRE_MESSAGE, RESOLVER)
-                .setParameters(getMessageIDAttributeDefinition())
-                .setReplyType(BOOLEAN)
-                .build(),
+                        .setParameters(getMessageIDAttributeDefinition())
+                        .setReplyType(BOOLEAN)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeOnlyOperation(EXPIRE_MESSAGES, RESOLVER)
-                .setParameters(FILTER)
-                .setReplyType(INT)
-                .build(),
+                        .setParameters(FILTER)
+                        .setReplyType(INT)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeOnlyOperation(SEND_MESSAGE_TO_DEAD_LETTER_ADDRESS, RESOLVER)
-                .setParameters(getMessageIDAttributeDefinition())
-                .setReplyType(BOOLEAN)
-                .build(),
+                        .setParameters(getMessageIDAttributeDefinition())
+                        .setReplyType(BOOLEAN)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeOnlyOperation(SEND_MESSAGES_TO_DEAD_LETTER_ADDRESS, RESOLVER)
-                .setParameters(FILTER)
-                .setReplyType(INT)
-                .build(),
+                        .setParameters(FILTER)
+                        .setReplyType(INT)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeOnlyOperation(CHANGE_MESSAGE_PRIORITY, RESOLVER)
-                .setParameters(getMessageIDAttributeDefinition(), NEW_PRIORITY)
-                .setReplyType(BOOLEAN)
-                .build(),
+                        .setParameters(getMessageIDAttributeDefinition(), NEW_PRIORITY)
+                        .setReplyType(BOOLEAN)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeOnlyOperation(CHANGE_MESSAGES_PRIORITY, RESOLVER)
-                .setParameters(FILTER, NEW_PRIORITY)
-                .setReplyType(INT)
-                .build(),
+                        .setParameters(FILTER, NEW_PRIORITY)
+                        .setReplyType(INT)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeOnlyOperation(MOVE_MESSAGE, RESOLVER)
-                .setParameters(getMessageIDAttributeDefinition(), OTHER_QUEUE_NAME, REJECT_DUPLICATES)
-                .setReplyType(INT)
-                .build(),
+                        .setParameters(getMessageIDAttributeDefinition(), OTHER_QUEUE_NAME, REJECT_DUPLICATES)
+                        .setReplyType(INT)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeOnlyOperation(MOVE_MESSAGES, RESOLVER)
-                .setParameters(FILTER, OTHER_QUEUE_NAME, REJECT_DUPLICATES)
-                .setReplyType(INT)
-                .build(),
+                        .setParameters(FILTER, OTHER_QUEUE_NAME, REJECT_DUPLICATES)
+                        .setReplyType(INT)
+                        .build(),
                 this);
 
         // TODO dmr-based LIST_MESSAGE_COUNTER
 
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_MESSAGE_COUNTER_AS_JSON, RESOLVER)
-                .setReplyType(STRING)
-                .build(),
+                        .setReplyType(STRING)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_MESSAGE_COUNTER_AS_HTML, RESOLVER)
-                .setReplyType(STRING)
-                .build(),
+                        .setReplyType(STRING)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeOnlyOperation(RESET_MESSAGE_COUNTER, RESOLVER)
-                .build(),
+                        .build(),
                 this);
 
         // TODO dmr-based LIST_MESSAGE_COUNTER_HISTORY
 
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_MESSAGE_COUNTER_HISTORY_AS_JSON, RESOLVER)
-                .setReplyType(STRING)
-                .build(),
+                        .setReplyType(STRING)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_MESSAGE_COUNTER_HISTORY_AS_HTML, RESOLVER)
-                .setReplyType(STRING)
-                .build(),
+                        .setReplyType(STRING)
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeOnlyOperation(PAUSE, RESOLVER)
-                .build(),
+                        .build(),
                 this);
         registry.registerOperationHandler(runtimeOnlyOperation(RESUME, RESOLVER)
-                .build(),
+                        .build(),
                 this);
 
         // TODO LIST_CONSUMERS
 
         registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_CONSUMERS_AS_JSON, RESOLVER)
-                .setReplyType(STRING)
-                .build(),
+                        .setReplyType(STRING)
+                        .build(),
+                this);
+
+        registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_DELIVERING_MESSAGES, resolver)
+                        .setReplyType(LIST)
+                        .setReplyParameters(getReplyMapConsumerMessageParameterDefinition())
+                        .build(),
+                this);
+        registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_DELIVERING_MESSAGES_AS_JSON, resolver)
+                        .setReplyType(STRING)
+                        .build(),
+                this);
+        registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_SCHEDULED_MESSAGES, resolver)
+                        .setReplyType(LIST)
+                        .setReplyParameters(getReplyMessageParameterDefinitions())
+                        .build(),
+                this);
+        registry.registerOperationHandler(runtimeReadOnlyOperation(LIST_SCHEDULED_MESSAGES_AS_JSON, resolver)
+                        .setReplyType(STRING)
+                        .build(),
                 this);
     }
 
@@ -242,6 +267,16 @@ public abstract class AbstractQueueControlHandler<T> extends AbstractRuntimeOnly
             } else if (LIST_MESSAGES_AS_JSON.equals(operationName)) {
                 String filter = resolveFilter(context, operation);
                 context.getResult().set(control.listMessagesAsJSON(filter));
+            } else if (LIST_DELIVERING_MESSAGES.equals(operationName)) {
+                String json = control.listDeliveringMessagesAsJSON();
+                context.getResult().set(ModelNode.fromJSONString(json));
+            } else if (LIST_DELIVERING_MESSAGES_AS_JSON.equals(operationName)) {
+                context.getResult().set(control.listDeliveringMessagesAsJSON());
+            } else if (LIST_SCHEDULED_MESSAGES.equals(operationName)) {
+                String json = control.listScheduledMessagesAsJSON();
+                context.getResult().set(ModelNode.fromJSONString(json));
+            } else if (LIST_SCHEDULED_MESSAGES_AS_JSON.equals(operationName)) {
+                context.getResult().set(control.listScheduledMessagesAsJSON());
             } else if (COUNT_MESSAGES.equals(operationName)) {
                 String filter = resolveFilter(context, operation);
                 context.getResult().set(control.countMessages(filter));
@@ -349,6 +384,15 @@ public abstract class AbstractQueueControlHandler<T> extends AbstractRuntimeOnly
         context.completeStep(rh);
     }
 
+    protected AttributeDefinition[] getReplyMapConsumerMessageParameterDefinition() {
+        return new AttributeDefinition[]{
+                createNonEmptyStringAttribute("consumerName"),
+                new ObjectListAttributeDefinition.Builder("elements",
+                        new ObjectTypeAttributeDefinition.Builder("element", getReplyMessageParameterDefinitions()).build())
+                        .build()
+        };
+    }
+
     protected abstract DelegatingQueueControl<T> getQueueControl(ActiveMQServer server, String queueName);
 
     protected abstract Object handleAdditionalOperation(final String operationName, final ModelNode operation,
@@ -413,5 +457,9 @@ public abstract class AbstractQueueControlHandler<T> extends AbstractRuntimeOnly
         void resume() throws Exception;
 
         String listConsumersAsJSON() throws Exception;
+
+        String listScheduledMessagesAsJSON() throws  Exception;
+
+        String listDeliveringMessagesAsJSON() throws Exception;
     }
 }
