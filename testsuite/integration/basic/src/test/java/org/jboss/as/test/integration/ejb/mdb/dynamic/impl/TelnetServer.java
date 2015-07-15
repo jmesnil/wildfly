@@ -33,6 +33,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -42,6 +44,8 @@ public class TelnetServer implements TtyCodes {
     private final TelnetListener listener;
 
     private final TelnetActivationSpec spec;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private final int port;
 
@@ -76,20 +80,22 @@ public class TelnetServer implements TtyCodes {
 
     public void activate() throws IOException {
         if (running.compareAndSet(false, true)) {
-            while (running.get()) {
-                final Socket accept = serverSocket.accept();
-                final Thread thread = new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            session(accept);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+            executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (!running.get()) {
+                            return;
                         }
+                        final Socket accept = serverSocket.accept();
+                        session(accept);
+                        executor.submit(this);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                };
-                thread.start();
-            }
+
+                }
+            });
         }
     }
 
@@ -99,6 +105,7 @@ public class TelnetServer implements TtyCodes {
                 serverSocket.close();
             } catch (IOException e) {
             }
+            executor.shutdown();
         }
     }
 
