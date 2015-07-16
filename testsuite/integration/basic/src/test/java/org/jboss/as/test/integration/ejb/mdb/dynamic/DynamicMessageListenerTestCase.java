@@ -24,6 +24,7 @@ package org.jboss.as.test.integration.ejb.mdb.dynamic;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.as.network.NetworkUtils;
 import org.jboss.as.test.integration.ejb.mdb.dynamic.adapter.TelnetResourceAdapter;
 import org.jboss.as.test.integration.ejb.mdb.dynamic.api.TelnetListener;
 import org.jboss.as.test.integration.ejb.mdb.dynamic.application.MyMdb;
@@ -41,6 +42,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.PropertyPermission;
 
@@ -79,6 +81,14 @@ public class DynamicMessageListenerTestCase {
 
     @Test
     public void test1() throws Exception {
+
+        InetAddress localHost = InetAddress.getLocalHost();
+        System.out.println("localHost = " + localHost);
+        String hostName = localHost.getHostName();
+        System.out.println("hostName = " + hostName);
+        String canonize = NetworkUtils.canonize(hostName);
+        System.out.println("canonize = " + canonize);
+
         final Socket socket = new Socket(EJBManagementUtil.getNodeName(), 2020);
         final OutputStream sockOut = socket.getOutputStream();
         final DataInputStream in = new DataInputStream(new TelnetInputStream(socket.getInputStream(), sockOut));
