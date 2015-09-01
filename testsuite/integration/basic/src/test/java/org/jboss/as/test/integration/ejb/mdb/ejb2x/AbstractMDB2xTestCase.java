@@ -88,16 +88,16 @@ public abstract class AbstractMDB2xTestCase {
         return null;
     }
 
-    protected void sendTextMessage(final String msg, final Destination destination) {
-        sendTextMessage(msg, destination, null);
+    protected Message sendTextMessage(final String msg, final Destination destination) {
+        return sendTextMessage(msg, destination, null);
     }
 
-    protected void sendTextMessage(final String msg, final Destination destination, final Destination replyDestination) {
-        sendTextMessage(msg, destination, replyDestination, null);
+    protected Message sendTextMessage(final String msg, final Destination destination, final Destination replyDestination) {
+        return sendTextMessage(msg, destination, replyDestination, null);
     }
 
-    protected void sendTextMessage(final String msg, final Destination destination, final Destination replyDestination, final String messageFormat) {
-        logger.debug("sending text message (" + msg + ") to " + destination);
+    protected Message sendTextMessage(final String msg, final Destination destination, final Destination replyDestination, final String messageFormat) {
+        logger.info("sending text message (" + msg + ") to " + destination);
         MessageProducer messageProducer = null;
         try {
             final TextMessage message = session.createTextMessage(msg);
@@ -109,10 +109,13 @@ public abstract class AbstractMDB2xTestCase {
             }
             messageProducer = session.createProducer(destination);
             messageProducer.send(message);
-            logger.debug("message sent");
+            logger.info("message sent");
+            return message;
         } catch (JMSException e) {
             e.printStackTrace();
             fail("Failed to send message to " + destination);
+            // will never be returned
+            return null;
         } finally {
             try {
                 if (messageProducer != null) {

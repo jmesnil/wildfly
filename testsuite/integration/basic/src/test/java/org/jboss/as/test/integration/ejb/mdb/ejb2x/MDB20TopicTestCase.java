@@ -21,6 +21,11 @@
  */
 package org.jboss.as.test.integration.ejb.mdb.ejb2x;
 
+import javax.jms.Message;
+import javax.jms.Queue;
+import javax.jms.Topic;
+import javax.naming.InitialContext;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.as.arquillian.api.ServerSetup;
@@ -35,14 +40,8 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.jms.Message;
-import javax.jms.Queue;
-import javax.jms.Topic;
-import javax.naming.InitialContext;
 
 /**
  * Tests EJB2.0 MDBs listening on a topic.
@@ -51,7 +50,6 @@ import javax.naming.InitialContext;
  */
 @RunWith(Arquillian.class)
 @ServerSetup({MDB20TopicTestCase.JmsQueueSetup.class})
-@Ignore
 public class MDB20TopicTestCase extends AbstractMDB2xTestCase {
 
     private Topic topic;
@@ -64,7 +62,7 @@ public class MDB20TopicTestCase extends AbstractMDB2xTestCase {
 
         @Override
         public void setup(ManagementClient managementClient, String containerId) throws Exception {
-            jmsAdminOperations = JMSOperationsProvider.getInstance(managementClient);
+            jmsAdminOperations = JMSOperationsProvider.getInstance(managementClient.getControllerClient());
             jmsAdminOperations.createJmsTopic("ejb2x/topic", "java:jboss/ejb2x/topic");
             jmsAdminOperations.createJmsQueue("ejb2x/replyQueueA", "java:jboss/ejb2x/replyQueueA");
             jmsAdminOperations.createJmsQueue("ejb2x/replyQueueB", "java:jboss/ejb2x/replyQueueB");
@@ -83,7 +81,7 @@ public class MDB20TopicTestCase extends AbstractMDB2xTestCase {
 
     @Deployment
     public static Archive getDeployment() {
-        final JavaArchive ejbJar = ShrinkWrap.create(JavaArchive.class, "mdb.jar");
+        final JavaArchive ejbJar = ShrinkWrap.create(JavaArchive.class, "mdb20topic.jar");
         ejbJar.addClasses(EJB2xMDB.class, AbstractMDB2xTestCase.class);
         ejbJar.addPackage(JMSOperations.class.getPackage());
         ejbJar.addClasses(JmsQueueSetup.class, TimeoutUtil.class);
@@ -112,11 +110,14 @@ public class MDB20TopicTestCase extends AbstractMDB2xTestCase {
      * Tests 2 MDBs both listening on a topic.
      */
     @Test
-    public void testEjb20TopicMDBs() {
-        sendTextMessage("Say hello to the topic", topic);
+    public void testEjb20TopicMDBs() throws Exception {
+        Message sentMessage = sendTextMessage("Say hello to the topic", topic);
         final Message replyA = receiveMessage(replyQueueA, TimeoutUtil.adjust(5000));
         Assert.assertNotNull("Reply message was null on reply queue: " + replyQueueA, replyA);
+        Assert.assertEquals(sentMessage.getJMSMessageID(), replyA.getJMSCorrelationID());
+
         final Message replyB = receiveMessage(replyQueueB, TimeoutUtil.adjust(5000));
         Assert.assertNotNull("Reply message was null on reply queue: " + replyQueueB, replyB);
+        Assert.assertEquals(sentMessage.getJMSMessageID(), replyB.getJMSCorrelationID());
     }
 }

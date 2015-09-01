@@ -26,14 +26,19 @@ import org.jboss.logging.Logger;
 import javax.ejb.EJBException;
 import javax.ejb.MessageDrivenBean;
 import javax.ejb.MessageDrivenContext;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
+import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
@@ -47,8 +52,8 @@ public class EJB2xMDB implements MessageDrivenBean, MessageListener {
     private static final Logger logger = Logger.getLogger(EJB2xMDB.class);
 
     private MessageDrivenContext ctx = null;
-    private QueueConnection connection;
-    private QueueSession session;
+    private Connection connection;
+    private Session session;
 
     public EJB2xMDB() {
     }
@@ -61,10 +66,10 @@ public class EJB2xMDB implements MessageDrivenBean, MessageListener {
     public void ejbCreate() {
         try {
             final InitialContext iniCtx = new InitialContext();
-            final QueueConnectionFactory factory = (QueueConnectionFactory) iniCtx.lookup("java:/ConnectionFactory");
-            connection = factory.createQueueConnection();
-            session = connection.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
-            connection.start();
+            final ConnectionFactory factory = (ConnectionFactory) iniCtx.lookup("java:/ConnectionFactory");
+            connection = factory.createConnection();
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            logger.info("MDB created and ready to send messages");
         } catch (Exception e) {
             throw new EJBException("Failed to init EJB2xMDB", e);
         }
@@ -92,21 +97,21 @@ public class EJB2xMDB implements MessageDrivenBean, MessageListener {
             if (message.getStringProperty("MessageFormat") != null)
                 logger.info("MessageFormat property = " + message.getStringProperty("MessageFormat"));
 
-            Queue destination = (Queue) message.getJMSReplyTo();
+            Destination destination = message.getJMSReplyTo();
             if (destination == null) {
                 try {
-                    destination = (Queue) this.ctx.lookup("jms/replyQueue");
+                    destination = (Destination) this.ctx.lookup("jms/replyQueue");
                 } catch (Throwable optional) {}
             }
             if (destination != null) {
                 logger.info("replying to " + destination);
                 final TextMessage tm = (TextMessage) message;
                 final String text = tm.getText() + "processed by: " + hashCode();
-                final QueueSender sender = session.createSender(destination);
+                final MessageProducer producer = session.createProducer(destination);
                 final TextMessage reply = session.createTextMessage(text);
                 reply.setJMSCorrelationID(message.getJMSMessageID());
-                sender.send(reply);
-                sender.close();
+                producer.send(reply);
+                producer.close();
             }
         } catch (Exception e) {
             logger.error(e);
