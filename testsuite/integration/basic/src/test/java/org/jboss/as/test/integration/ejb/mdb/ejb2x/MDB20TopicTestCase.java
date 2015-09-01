@@ -39,6 +39,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.Topic;
@@ -51,7 +52,6 @@ import javax.naming.InitialContext;
  */
 @RunWith(Arquillian.class)
 @ServerSetup({MDB20TopicTestCase.JmsQueueSetup.class})
-@Ignore
 public class MDB20TopicTestCase extends AbstractMDB2xTestCase {
 
     private Topic topic;
@@ -64,18 +64,18 @@ public class MDB20TopicTestCase extends AbstractMDB2xTestCase {
 
         @Override
         public void setup(ManagementClient managementClient, String containerId) throws Exception {
-            jmsAdminOperations = JMSOperationsProvider.getInstance(managementClient);
-            jmsAdminOperations.createJmsTopic("ejb2x/topic", "java:jboss/ejb2x/topic");
-            jmsAdminOperations.createJmsQueue("ejb2x/replyQueueA", "java:jboss/ejb2x/replyQueueA");
-            jmsAdminOperations.createJmsQueue("ejb2x/replyQueueB", "java:jboss/ejb2x/replyQueueB");
+            jmsAdminOperations = JMSOperationsProvider.getInstance(managementClient.getControllerClient());
+            jmsAdminOperations.createJmsTopic("ejb2x-topic", "java:jboss/ejb2x/topic");
+            jmsAdminOperations.createJmsQueue("ejb2x-replyQueueA", "java:jboss/ejb2x/replyQueueA");
+            jmsAdminOperations.createJmsQueue("ejb2x-replyQueueB", "java:jboss/ejb2x/replyQueueB");
         }
 
         @Override
         public void tearDown(ManagementClient managementClient, String containerId) throws Exception {
             if (jmsAdminOperations != null) {
-                jmsAdminOperations.removeJmsTopic("ejb2x/topic");
-                jmsAdminOperations.removeJmsQueue("ejb2x/replyQueueA");
-                jmsAdminOperations.removeJmsQueue("ejb2x/replyQueueB");
+                jmsAdminOperations.removeJmsTopic("ejb2x-topic");
+                jmsAdminOperations.removeJmsQueue("ejb2x-replyQueueA");
+                jmsAdminOperations.removeJmsQueue("ejb2x-replyQueueB");
                 jmsAdminOperations.close();
             }
         }
@@ -112,7 +112,13 @@ public class MDB20TopicTestCase extends AbstractMDB2xTestCase {
      * Tests 2 MDBs both listening on a topic.
      */
     @Test
-    public void testEjb20TopicMDBs() {
+    public void testEjb20TopicMDBs() throws JMSException {
+
+        // test was failing with the error message referencing replyQueueA with the name ActiveMQQueue[ejb2x/replyQueueB].
+        // I suppose using '/' in the resource names is somehow making the subsystem confused...
+        Assert.assertTrue(replyQueueA.getQueueName(), replyQueueA.getQueueName().endsWith("A"));
+        Assert.assertTrue(replyQueueB.getQueueName(), replyQueueB.getQueueName().endsWith("B"));
+
         sendTextMessage("Say hello to the topic", topic);
         final Message replyA = receiveMessage(replyQueueA, TimeoutUtil.adjust(5000));
         Assert.assertNotNull("Reply message was null on reply queue: " + replyQueueA, replyA);
