@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.wildfly</groupId>
+  <artifactId>wildfly-hornetq-client-all</artifactId>
+  <name>WildFly: EJB and JMS client combined jar</name>
+  <version>10.0.0.CR1-SNAPSHOT</version>
+  <description>This artifact provides a single jar that contains all classes required to use remote EJB and JMS, including
+        all dependencies. It is intended for use by those not using maven, maven users should just import the EJB and
+        JMS BOM's instead (shaded JAR's cause lots of problems with maven, as it is very easy to inadvertently end up
+        with different versions on classes on the class path).</description>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createSourcesJar>true</createSourcesJar>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.wildfly</groupId>
+      <artifactId>wildfly-ejb-client-bom</artifactId>
+      <version>10.0.0.CR1-SNAPSHOT</version>
+      <type>pom</type>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+  <properties>
+    <version.org.hornetq.2.3>2.3.25.Final</version.org.hornetq.2.3>
+    <version.io.netty.3.6>3.6.10.Final</version.io.netty.3.6>
+  </properties>
+</project>
+
