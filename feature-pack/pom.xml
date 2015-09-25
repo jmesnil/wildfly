@@ -1016,6 +1016,17 @@
         </dependency>
 
         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-mqtt</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-transport</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>io.undertow.js</groupId>
             <artifactId>undertow-js</artifactId>
         </dependency>
@@ -1569,6 +1580,17 @@
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-hornetq-protocol</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-mqtt-protocol</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
