@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.management.MBeanServer;
 
@@ -93,6 +94,7 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
     private final InjectedValue<PathManager> pathManager = new InjectedValue<PathManager>();
     private final InjectedValue<MBeanServer> mbeanServer = new InjectedValue<MBeanServer>();
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
+    private final InjectedValue<ScheduledExecutorService> scheduledExecutorService = new InjectedValue<>();
     private final PathConfig pathConfig;
     // mapping between the {broadcast|discovery}-groups and the *names* of the JGroups channel they use
     private final Map<String, String> jgroupsChannels = new HashMap<String, String>();
@@ -113,6 +115,10 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
 
     Injector<PathManager> getPathManagerInjector(){
         return pathManager;
+    }
+
+    Injector<ScheduledExecutorService> getScheduledExecutorService(){
+        return scheduledExecutorService;
     }
 
     Injector<SocketBinding> getSocketBindingInjector(String name) {
@@ -300,6 +306,11 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
             }
             for (Interceptor outgoingInterceptor : outgoingInterceptors) {
                 server.getServiceRegistry().addOutgoingInterceptor(outgoingInterceptor);
+            }
+
+            if (scheduledExecutorService.getOptionalValue() != null) {
+                System.out.println("scheduledExecutorService = " + scheduledExecutorService);
+                server.getServiceRegistry().setScheduledExecutorService(scheduledExecutorService.getValue());
             }
 
             // the server is actually started by the JMSService.

@@ -32,6 +32,7 @@ import javax.xml.stream.XMLStreamException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PersistentResourceXMLDescription;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
+import org.jboss.as.threads.PoolAttributeDefinitions;
 import org.jboss.dmr.ModelNode;
 import org.jboss.staxmapper.XMLElementReader;
 import org.jboss.staxmapper.XMLElementWriter;
@@ -82,6 +83,7 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                         ServerDefinition.PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY,
                                         ServerDefinition.ID_CACHE_SIZE,
                                         ServerDefinition.PAGE_MAX_CONCURRENT_IO,
+                                        ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL,
                                         ServerDefinition.SCHEDULED_THREAD_POOL_MAX_SIZE,
                                         ServerDefinition.THREAD_POOL_MAX_SIZE,
                                         ServerDefinition.WILD_CARD_ROUTING_ENABLED,
@@ -133,6 +135,12 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                         ServerDefinition.MEMORY_WARNING_THRESHOLD,
                                         CommonAttributes.INCOMING_INTERCEPTORS,
                                         CommonAttributes.OUTGOING_INTERCEPTORS)
+                                .addChild(
+                                        builder(ThreadPools.SCHEDULED_THREAD_POOL)
+                                                .addAttributes(
+                                                        PoolAttributeDefinitions.KEEPALIVE_TIME,
+                                                        PoolAttributeDefinitions.MAX_THREADS,
+                                                        PoolAttributeDefinitions.THREAD_FACTORY))
                                 .addChild(
                                         builder(LiveOnlyDefinition.INSTANCE)
                                                 .addAttributes(
