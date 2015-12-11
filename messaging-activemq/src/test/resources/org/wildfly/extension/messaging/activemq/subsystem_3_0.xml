@@ -7,6 +7,7 @@
             persist-delivery-count-before-delivery="${persist.delivery.count.before.delivery:true}"
             id-cache-size="${id.cache.size:102030}"
             page-max-concurrent-io="${page.max.concurrent.io:10}"
+            default-scheduled-thread-pool="default"
             scheduled-thread-pool-max-size="${messaging.scheduled.thread.pool.max.size:6}"
             thread-pool-max-size="${messaging.thread.pool.max.size:5}"
             wild-card-routing-enabled="${wild.card.routing.enabled:false}"
@@ -82,6 +83,9 @@
                 server-dump-interval="${server.dump.interval:8642}"
                 memory-warning-threshold="${memory.warning.threshold:1024}"
                 memory-measure-interval="${memory.measure.interval:2048}"/>
+
+        <scheduled-thread-pool name="default"
+                               max-threads="${scheduled.max.threads:35}" />
 
         <bindings-directory path="${my.bindings.dir:test}" relative-to="test"/>
         <journal-directory path="${my.journal.dir:test}" relative-to="test"/>

@@ -33,6 +33,7 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.REMOTE_C
 
 import org.jboss.as.controller.PersistentResourceXMLDescription;
 import org.jboss.as.controller.PersistentResourceXMLParser;
+import org.jboss.as.threads.PoolAttributeDefinitions;
 import org.wildfly.extension.messaging.activemq.ha.HAAttributes;
 import org.wildfly.extension.messaging.activemq.ha.LiveOnlyDefinition;
 import org.wildfly.extension.messaging.activemq.ha.ReplicationColocatedDefinition;
@@ -74,6 +75,7 @@ public class MessagingSubsystemParser_3_0 extends PersistentResourceXMLParser {
                                         ServerDefinition.PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY,
                                         ServerDefinition.ID_CACHE_SIZE,
                                         ServerDefinition.PAGE_MAX_CONCURRENT_IO,
+                                        ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL,
                                         ServerDefinition.SCHEDULED_THREAD_POOL_MAX_SIZE,
                                         ServerDefinition.THREAD_POOL_MAX_SIZE,
                                         ServerDefinition.WILD_CARD_ROUTING_ENABLED,
@@ -135,6 +137,12 @@ public class MessagingSubsystemParser_3_0 extends PersistentResourceXMLParser {
                                         ServerDefinition.MEMORY_WARNING_THRESHOLD,
                                         CommonAttributes.INCOMING_INTERCEPTORS,
                                         CommonAttributes.OUTGOING_INTERCEPTORS)
+                                .addChild(
+                                        builder(ThreadPools.SCHEDULED_THREAD_POOL_PATH)
+                                                .addAttributes(
+                                                        PoolAttributeDefinitions.KEEPALIVE_TIME,
+                                                        PoolAttributeDefinitions.MAX_THREADS,
+                                                        PoolAttributeDefinitions.THREAD_FACTORY))
                                 .addChild(
                                         builder(LiveOnlyDefinition.INSTANCE.getPathElement())
                                                 .addAttributes(

@@ -22,7 +22,6 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import static org.jboss.as.controller.PathAddress.pathAddress;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRITE_ATTRIBUTE_OPERATION;
 import static org.jboss.as.model.test.ModelTestControllerVersion.EAP_7_0_0;
@@ -135,7 +134,10 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                         ServerDefinition.JOURNAL_LARGE_MESSAGES_TABLE,
                                         ServerDefinition.JOURNAL_PAGE_STORE_TABLE,
                                         ServerDefinition.JOURNAL_DATABASE,
-                                        ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT))
+                                        ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT,
+                                        ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL))
+                        .addFailedAttribute(subsystemAddress.append(SERVER_PATH, ThreadPools.SCHEDULED_THREAD_POOL_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, REPLICATION_MASTER_PATH),
                                 new ChangeToTrueConfig(HAAttributes.CHECK_FOR_LIVE_SERVER.getName()))
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, REPLICATION_COLOCATED_PATH, MessagingExtension.CONFIGURATION_MASTER_PATH),
@@ -167,9 +169,16 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
 
     @Test
     public void testRejectingTransformersWildFly_11_0_0() throws Exception {
+        PathAddress serverAddress = PathAddress.pathAddress(SUBSYSTEM_PATH).append(SERVER_PATH);
+
         testRejectingTransformers(WF_11_0_0_CR1, MessagingExtension.VERSION_2_0_0,
                 new FailedOperationTransformationConfig()
-                        .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, CONNECTION_FACTORY_PATH),
+                        .addFailedAttribute(serverAddress,
+                                new FailedOperationTransformationConfig.NewAttributesConfig(
+                                        ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL))
+                        .addFailedAttribute(serverAddress.append(ThreadPools.SCHEDULED_THREAD_POOL_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
+                        .addFailedAttribute(serverAddress.append(CONNECTION_FACTORY_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE)));
     }

@@ -547,8 +547,14 @@ public class ServerDefinition extends PersistentResourceDefinition {
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
+    public static final SimpleAttributeDefinition DEFAULT_SCHEDULED_THREAD_POOL = create("default-scheduled-thread-pool", STRING)
+            .setAllowNull(true) // switch to false to enforce using only WFLY threads?
+            .setAllowExpression(false) // model reference
+            .setRestartAllServices()
+            .build();
 
-    public static final AttributeDefinition[] ATTRIBUTES = {PERSISTENCE_ENABLED, SCHEDULED_THREAD_POOL_MAX_SIZE,
+    public static final AttributeDefinition[] ATTRIBUTES = {PERSISTENCE_ENABLED,
+            DEFAULT_SCHEDULED_THREAD_POOL, SCHEDULED_THREAD_POOL_MAX_SIZE,
             THREAD_POOL_MAX_SIZE, SECURITY_DOMAIN, ELYTRON_DOMAIN, SECURITY_ENABLED, SECURITY_INVALIDATION_INTERVAL,
             OVERRIDE_IN_VM_SECURITY, WILD_CARD_ROUTING_ENABLED, MANAGEMENT_ADDRESS, MANAGEMENT_NOTIFICATION_ADDRESS,
             CLUSTER_USER, CLUSTER_PASSWORD, CREDENTIAL_REFERENCE, JMX_MANAGEMENT_ENABLED, JMX_DOMAIN, STATISTICS_ENABLED, MESSAGE_COUNTER_SAMPLE_PERIOD,
@@ -613,6 +619,8 @@ public class ServerDefinition extends PersistentResourceDefinition {
         List<PersistentResourceDefinition> children = new ArrayList();
         // Static resources
         children.addAll(Arrays.asList(
+                ThreadPools.SCHEDULED_THREAD_POOL,
+
                 // HA policy
                 LiveOnlyDefinition.INSTANCE,
                 ReplicationMasterDefinition.INSTANCE,

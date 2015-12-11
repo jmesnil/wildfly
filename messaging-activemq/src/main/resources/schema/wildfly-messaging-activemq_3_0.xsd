@@ -166,6 +166,13 @@
             </xs:element>
             <!-- end of server attribute groups -->
 
+            <xs:element name="scheduled-thread-pool" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="name" type="xs:string" use="required" />
+                    <xs:attribute name="max-threads" type="xs:int" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+
             <xs:choice>
                 <xs:element name="live-only" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
@@ -635,6 +642,7 @@
         <xs:attribute name="persist-delivery-count-before-delivery" type="xs:boolean" use="optional" />
         <xs:attribute name="id-cache-size" type="xs:int" use="optional" />
         <xs:attribute name="page-max-concurrent-io" type="xs:int" use="optional" />
+        <xs:attribute name="default-scheduled-thread-pool" type="xs:string" use="optional" />
         <xs:attribute name="scheduled-thread-pool-max-size" type="xs:int" use="optional" />
         <xs:attribute name="thread-pool-max-size" type="xs:int" use="optional" />
         <xs:attribute name="wild-card-routing-enabled" type="xs:boolean" use="optional" />

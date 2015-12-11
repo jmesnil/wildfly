@@ -102,6 +102,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.management.MBeanServer;
 import javax.sql.DataSource;
@@ -375,6 +376,12 @@ class ServerAdd extends AbstractAddStepHandler {
                             serviceBuilder.addDependency(groupBinding, SocketBinding.class, serverService.getGroupBindingInjector(key));
                         }
                     }
+                }
+
+                ModelNode scheduledTreadPoolName = ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL.resolveModelAttribute(context, model);
+                if (scheduledTreadPoolName.isDefined()) {
+                    // TODO: check that the scheduled-thread-pool exists in the model at the end of the MODEL stage.
+                    serviceBuilder.addDependency(ThreadPools.SCHEDULED_THREAD_POOL_BASE_NAME.append(scheduledTreadPoolName.asString()), ScheduledExecutorService.class, serverService.getScheduledExecutorService());
                 }
 
                 // Install the ActiveMQ Service
