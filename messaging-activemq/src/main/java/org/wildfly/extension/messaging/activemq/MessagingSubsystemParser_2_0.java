@@ -63,11 +63,11 @@ import org.wildfly.extension.messaging.activemq.jms.legacy.LegacyConnectionFacto
  *
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2015 Red Hat inc.
  */
-public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElementReader<List<ModelNode>>, XMLElementWriter<SubsystemMarshallingContext> {
+public class MessagingSubsystemParser_2_0 implements XMLStreamConstants, XMLElementReader<List<ModelNode>>, XMLElementWriter<SubsystemMarshallingContext> {
 
-    static final String NAMESPACE = "urn:jboss:domain:messaging-activemq:1.0";
+    static final String NAMESPACE = "urn:jboss:domain:messaging-activemq:2.0";
 
-    protected static final MessagingSubsystemParser_1_0 INSTANCE = new MessagingSubsystemParser_1_0();
+    protected static final MessagingSubsystemParser_2_0 INSTANCE = new MessagingSubsystemParser_2_0();
 
     private static final PersistentResourceXMLDescription xmlDescription;
 
@@ -418,19 +418,8 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                 .addChild(
                                         builder(ConnectorServiceDefinition.INSTANCE)
                                                 .addAttributes(
-                                                        CommonAttributes.FACTORY_CLASS,
-                                                        CommonAttributes.PARAMS)
-                                                .setAdditionalOperationsGenerator((address, addOperation, operations) -> {
-                                                    // WFLY-6269 the factory-class attribute has been replaced by an object attribute composed of
-                                                    // a name and module attributes
-                                                    ModelNode className = addOperation.remove(CommonAttributes.FACTORY_CLASS.getName());
-                                                    ModelNode classModel = new ModelNode();
-                                                    classModel.get(CommonAttributes.NAME).set(className);
-                                                    // hard-code the module definition to org.apache.activemq.artemis as the
-                                                    // class was necessarily loaded from this module by Artemis itself
-                                                    classModel.get(CommonAttributes.MODULE).set("org.apache.activemq.artemis");
-                                                    addOperation.get(ConnectorServiceDefinition.CLASS.getName()).set(classModel);
-                                                }))
+                                                        ConnectorServiceDefinition.CLASS,
+                                                        CommonAttributes.PARAMS))
                                 .addChild(
                                         builder(JMSQueueDefinition.INSTANCE)
                                                 .addAttributes(
@@ -606,7 +595,7 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                 .build();
     }
 
-    private MessagingSubsystemParser_1_0() {
+    private MessagingSubsystemParser_2_0() {
     }
 
     @Override

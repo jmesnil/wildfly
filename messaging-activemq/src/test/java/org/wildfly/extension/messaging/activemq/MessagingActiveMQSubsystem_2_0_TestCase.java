@@ -31,25 +31,27 @@ import org.junit.Test;
 /**
  *  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2012 Red Hat inc
  */
-public class MessagingActiveMQSubsystem_1_0_TestCase extends AbstractSubsystemBaseTest {
+public class MessagingActiveMQSubsystem_2_0_TestCase extends AbstractSubsystemBaseTest {
 
-    public MessagingActiveMQSubsystem_1_0_TestCase() {
+    public MessagingActiveMQSubsystem_2_0_TestCase() {
         super(MessagingExtension.SUBSYSTEM_NAME, new MessagingExtension());
     }
 
     @Override
-    protected void compareXml(String configId, String original, String marshalled) throws Exception {
-        return;
-    }
-
-    @Override
     protected String getSubsystemXml() throws IOException {
-        return readResource("subsystem_1_0.xml");
+        return readResource("subsystem_2_0.xml");
     }
 
     @Override
     protected String getSubsystemXsdPath() throws IOException {
-        return "schema/wildfly-messaging-activemq_1_0.xsd";
+        return "schema/wildfly-messaging-activemq_2_0.xsd";
+    }
+
+    @Override
+    protected String[] getSubsystemTemplatePaths() throws IOException {
+        return new String[] {
+                "/subsystem-templates/messaging-activemq.xml"
+        };
     }
 
     @Override
@@ -66,6 +68,6 @@ public class MessagingActiveMQSubsystem_1_0_TestCase extends AbstractSubsystemBa
 
     @Test
     public void testHAPolicyConfiguration() throws Exception {
-        standardSubsystemTest("subsystem_1_0_ha-policy.xml", false);
+        standardSubsystemTest("subsystem_2_0_ha-policy.xml", false);
     }
 }

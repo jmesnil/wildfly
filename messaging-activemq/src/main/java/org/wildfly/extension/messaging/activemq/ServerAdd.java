@@ -215,6 +215,7 @@ class ServerAdd extends AbstractAddStepHandler {
                         configuration, new ActiveMQServerService.PathConfig(bindingsPath, bindingsRelativeToPath, journalPath, journalRelativeToPath, largeMessagePath, largeMessageRelativeToPath, pagingPath, pagingRelativeToPath));
                 processIncomingInterceptors(INCOMING_INTERCEPTORS.resolveModelAttribute(context, operation), serverService);
                 processOutgoingInterceptors(OUTGOING_INTERCEPTORS.resolveModelAttribute(context, operation), serverService);
+                ConnectorServiceDefinition.processConnectorServices(context, model, serverService);
 
                 // Add the ActiveMQ Service
                 ServiceName activeMQServiceName = MessagingServices.getActiveMQServiceName(serverName);
@@ -413,7 +414,6 @@ class ServerAdd extends AbstractAddStepHandler {
         QueueAdd.addQueueConfigs(context, configuration, model);
         BridgeAdd.addBridgeConfigs(context, configuration, model);
         ClusterConnectionAdd.addClusterConnectionConfigs(context, configuration, model);
-        ConnectorServiceDefinition.addConnectorServiceConfigs(context, configuration, model);
 
         return configuration;
     }
@@ -442,7 +442,7 @@ class ServerAdd extends AbstractAddStepHandler {
         }
     }
 
-    private List<Class> unwrapClasses(List<ModelNode> classesModel) throws OperationFailedException {
+    List<Class> unwrapClasses(List<ModelNode> classesModel) throws OperationFailedException {
         List<Class> classes = new ArrayList<>();
 
         for (ModelNode classModel : classesModel) {

@@ -22,18 +22,22 @@
 
 package org.wildfly.extension.messaging.activemq;
 
+import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.registry.AttributeAccess.Flag.STORAGE_RUNTIME;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.artemis.core.config.Configuration;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.AttributeMarshaller;
+import org.jboss.as.controller.ObjectTypeAttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
@@ -41,7 +45,7 @@ import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.Property;
+import org.jboss.dmr.ModelType;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
@@ -51,8 +55,36 @@ import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
  */
 public class ConnectorServiceDefinition extends PersistentResourceDefinition {
 
+    static ObjectTypeAttributeDefinition CLASS = ObjectTypeAttributeDefinition.Builder.of("class",
+            create(CommonAttributes.NAME, ModelType.STRING, false)
+                    .setAllowExpression(false)
+                    .build(),
+            create(CommonAttributes.MODULE, ModelType.STRING, false)
+                    .setAllowExpression(false)
+                    .build())
+            .setRestartAllServices()
+            .setAllowNull(false)
+            .setAttributeMarshaller(new AttributeMarshaller() {
+                @Override
+                public boolean isMarshallableAsElement() {
+                    return true;
+                }
+
+                @Override
+                public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
+                    if (!resourceModel.hasDefined(attribute.getName())) {
+                        return;
+                    }
+                    resourceModel = resourceModel.get(attribute.getName());
+                    writer.writeEmptyElement(attribute.getXmlName());
+                    writer.writeAttribute(CommonAttributes.NAME, resourceModel.get(CommonAttributes.NAME).asString());
+                    writer.writeAttribute(CommonAttributes.MODULE, resourceModel.get(CommonAttributes.MODULE).asString());
+                }
+            })
+            .build();
+
     private static final AttributeDefinition[] ATTRIBUTES = {
-            CommonAttributes.FACTORY_CLASS,
+            CLASS,
             CommonAttributes.PARAMS };
 
     static final ConnectorServiceDefinition INSTANCE = new ConnectorServiceDefinition();
@@ -64,17 +96,16 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
                 new ActiveMQReloadRequiredHandlers.RemoveStepHandler());
     }
 
-    static void addConnectorServiceConfigs(final OperationContext context, final Configuration configuration, final ModelNode model)  throws OperationFailedException {
+    static void processConnectorServices(final OperationContext context, final ModelNode model, final ActiveMQServerService serverService)  throws OperationFailedException {
+        System.out.println("model = " + model);
         if (model.hasDefined(CommonAttributes.CONNECTOR_SERVICE)) {
-            final List<ConnectorServiceConfiguration> configs = configuration.getConnectorServiceConfigurations();
-            for (Property prop : model.get(CommonAttributes.CONNECTOR_SERVICE).asPropertyList()) {
-                configs.add(createConnectorServiceConfiguration(context, prop.getName(), prop.getValue()));
+            for (ModelNode connectorService : model.get(CommonAttributes.CONNECTOR_SERVICE).asList()) {
+                System.out.println("connectorService = " + connectorService);
             }
         }
     }
 
-    static ConnectorServiceConfiguration createConnectorServiceConfiguration(final OperationContext context, final String name, final ModelNode model) throws OperationFailedException {
-
+    private static ConnectorServiceConfiguration createConnectorServiceConfiguration(final OperationContext context, final String name, final ModelNode model) throws OperationFailedException {
         final String factoryClass = CommonAttributes.FACTORY_CLASS.resolveModelAttribute(context, model).asString();
         Map<String, String> unwrappedParameters = CommonAttributes.PARAMS.unwrap(context, model);
         Map<String, Object> parameters = new HashMap<String, Object>(unwrappedParameters);
