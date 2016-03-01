@@ -101,6 +101,13 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
         if (model.hasDefined(CommonAttributes.CONNECTOR_SERVICE)) {
             for (ModelNode connectorService : model.get(CommonAttributes.CONNECTOR_SERVICE).asList()) {
                 System.out.println("connectorService = " + connectorService);
+                String name = connectorService.require(CommonAttributes.NAME).asString();
+                ConnectorServiceConfiguration config = createConnectorServiceConfiguration(context, name, connectorService);
+                Class clazz = ServerAdd.unwrapClass(connectorService.get("class"));
+                System.out.println("name = " + name);
+                System.out.println("config = " + config);
+                System.out.println("clazz = " + clazz);
+//                serverService.putConnectorServices(name, config, clazz);
             }
         }
     }

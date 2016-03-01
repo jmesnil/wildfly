@@ -446,19 +446,24 @@ class ServerAdd extends AbstractAddStepHandler {
         List<Class> classes = new ArrayList<>();
 
         for (ModelNode classModel : classesModel) {
-            String className = classModel.get(NAME).asString();
-            String moduleName = classModel.get(MODULE).asString();
-            try {
-                ModuleIdentifier moduleID = ModuleIdentifier.fromString(moduleName);
-                Module module = Module.getCallerModuleLoader().loadModule(moduleID);
-                Class<?> clazz = module.getClassLoader().loadClass(className);
-                classes.add(clazz);
-            } catch (Exception e) {
-                throw MessagingLogger.ROOT_LOGGER.unableToLoadClassFromModule(className, moduleName);
-            }
+            Class clazz = unwrapClass(classModel);
+            classes.add(clazz);
         }
 
         return classes;
+    }
+
+    static Class unwrapClass(ModelNode classModel) throws OperationFailedException {
+        String className = classModel.get(NAME).asString();
+        String moduleName = classModel.get(MODULE).asString();
+        try {
+            ModuleIdentifier moduleID = ModuleIdentifier.create(moduleName);
+            Module module = Module.getCallerModuleLoader().loadModule(moduleID);
+            Class<?> clazz = module.getClassLoader().loadClass(className);
+            return clazz;
+        } catch (Exception e) {
+            throw MessagingLogger.ROOT_LOGGER.unableToLoadClassFromModule(className, moduleName);
+        }
     }
 
     private void processIncomingInterceptors(ModelNode model, ActiveMQServerService serverService) throws OperationFailedException {
