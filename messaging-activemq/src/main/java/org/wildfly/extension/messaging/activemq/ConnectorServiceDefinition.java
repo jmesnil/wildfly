@@ -102,22 +102,16 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
         if (model.hasDefined(CommonAttributes.CONNECTOR_SERVICE)) {
             for (Property connectorService : model.get(CommonAttributes.CONNECTOR_SERVICE).asPropertyList()) {
                 String name = connectorService.getName();
-                Class clazz = ServerAdd.unwrapClass(connectorService.getValue().get(CLASS.getName()));
-                try {
-                    ConnectorServiceFactory factory = ConnectorServiceFactory.class.cast(clazz.newInstance());
-                    Map<String, String> unwrappedParameters = CommonAttributes.PARAMS.unwrap(context, connectorService.getValue());
-                    Map<String, Object> parameters = new HashMap<>(unwrappedParameters);
+                ModelNode classModel = connectorService.getValue().get(CLASS.getName());
+                ConnectorServiceFactory factory = ConnectorServiceFactory.class.cast(ClassloaderUtil.instantiate(classModel));
+                Map<String, String> unwrappedParameters = CommonAttributes.PARAMS.unwrap(context, connectorService.getValue());
+                Map<String, Object> parameters = new HashMap<>(unwrappedParameters);
 
-                    ConnectorServiceConfiguration config = new ConnectorServiceConfiguration()
-                            .setFactoryClassName(clazz.getSimpleName())
-                            .setParams(parameters)
-                            .setName(name);
-                    serverService.addConnectorService(factory, config);
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
+                ConnectorServiceConfiguration config = new ConnectorServiceConfiguration()
+                        .setFactoryClassName(factory.getClass().getSimpleName())
+                        .setParams(parameters)
+                        .setName(name);
+                serverService.addConnectorService(factory, config);
             }
         }
     }

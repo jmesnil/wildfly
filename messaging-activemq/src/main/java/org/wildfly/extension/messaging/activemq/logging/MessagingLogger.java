@@ -819,4 +819,6 @@ public interface MessagingLogger extends BasicLogger {
     @Message(id = 87, value = "Unable to load connector service factory class: %s")
     OperationFailedException unableToLoadConnectorServiceFactoryClass(String factroyClass);
 
+    @Message(id = 88, value = "Unable to instantiate class %s")
+    OperationFailedException unableToInstantiateClass(Class clazz);
 }

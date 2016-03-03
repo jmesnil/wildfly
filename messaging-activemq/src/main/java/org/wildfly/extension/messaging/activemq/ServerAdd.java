@@ -33,8 +33,6 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_STACK;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.LARGE_MESSAGES_DIRECTORY;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MODULE;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.NAME;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.OUTGOING_INTERCEPTORS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.PAGING_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_SETTING;
@@ -90,7 +88,6 @@ import static org.wildfly.extension.messaging.activemq.ServerDefinition.TRANSACT
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.WILD_CARD_ROUTING_ENABLED;
 import static org.wildfly.extension.messaging.activemq.ha.HAPolicyConfigurationBuilder.addHAPolicyConfiguration;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -125,8 +122,6 @@ import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.security.service.SecurityDomainService;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
-import org.jboss.modules.Module;
-import org.jboss.modules.ModuleIdentifier;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceBuilder.DependencyType;
 import org.jboss.msc.service.ServiceController;
@@ -135,7 +130,6 @@ import org.jboss.msc.service.ServiceTarget;
 import org.wildfly.clustering.jgroups.spi.ChannelFactory;
 import org.wildfly.clustering.jgroups.spi.service.ProtocolStackServiceName;
 import org.wildfly.extension.messaging.activemq.jms.JMSService;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 
 /**
@@ -442,36 +436,12 @@ class ServerAdd extends AbstractAddStepHandler {
         }
     }
 
-    List<Class> unwrapClasses(List<ModelNode> classesModel) throws OperationFailedException {
-        List<Class> classes = new ArrayList<>();
-
-        for (ModelNode classModel : classesModel) {
-            Class clazz = unwrapClass(classModel);
-            classes.add(clazz);
-        }
-
-        return classes;
-    }
-
-    static Class unwrapClass(ModelNode classModel) throws OperationFailedException {
-        String className = classModel.get(NAME).asString();
-        String moduleName = classModel.get(MODULE).asString();
-        try {
-            ModuleIdentifier moduleID = ModuleIdentifier.create(moduleName);
-            Module module = Module.getCallerModuleLoader().loadModule(moduleID);
-            Class<?> clazz = module.getClassLoader().loadClass(className);
-            return clazz;
-        } catch (Exception e) {
-            throw MessagingLogger.ROOT_LOGGER.unableToLoadClassFromModule(className, moduleName);
-        }
-    }
-
     private void processIncomingInterceptors(ModelNode model, ActiveMQServerService serverService) throws OperationFailedException {
         if (!model.isDefined()) {
             return;
         }
         List<ModelNode> interceptors = model.asList();
-        for (Class clazz : unwrapClasses(interceptors)) {
+        for (Class clazz : ClassloaderUtil.unwrapClasses(interceptors)) {
             try {
                 Interceptor interceptor = Interceptor.class.cast(clazz.newInstance());
                 serverService.getIncomingInterceptors().add(interceptor);
@@ -486,7 +456,7 @@ class ServerAdd extends AbstractAddStepHandler {
             return;
         }
         List<ModelNode> interceptors = model.asList();
-        for (Class clazz : unwrapClasses(interceptors)) {
+        for (Class clazz : ClassloaderUtil.unwrapClasses(interceptors)) {
             try {
                 Interceptor interceptor = Interceptor.class.cast(clazz.newInstance());
                 serverService.getOutgoingInterceptors().add(interceptor);
