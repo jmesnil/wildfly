@@ -40,9 +40,11 @@ import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.jboss.as.controller.OperationContext;
@@ -104,7 +106,7 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
 
     private final List<Interceptor> incomingInterceptors = new ArrayList<>();
     private final List<Interceptor> outgoingInterceptors = new ArrayList<>();
-
+    private final Map<ConnectorServiceFactory, ConnectorServiceConfiguration> connectorServices = new HashMap<>();
 
     public ActiveMQServerService(Configuration configuration, PathConfig pathConfig) {
         this.configuration = configuration;
@@ -145,6 +147,10 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
 
     protected List<Interceptor> getOutgoingInterceptors() {
         return outgoingInterceptors;
+    }
+
+    protected void addConnectorService(ConnectorServiceFactory factory, ConnectorServiceConfiguration configuration) {
+        connectorServices.put(factory, configuration);
     }
 
     public synchronized void start(final StartContext context) throws StartException {
@@ -301,6 +307,9 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
             }
             for (Interceptor outgoingInterceptor : outgoingInterceptors) {
                 server.getServiceRegistry().addOutgoingInterceptor(outgoingInterceptor);
+            }
+            for (Map.Entry<ConnectorServiceFactory,ConnectorServiceConfiguration> entry : connectorServices.entrySet()) {
+                server.getServiceRegistry().addConnectorService(entry.getKey(), entry.getValue());
             }
 
             // the server is actually started by the JMSService.

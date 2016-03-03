@@ -34,6 +34,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.AttributeMarshaller;
@@ -46,6 +47,7 @@ import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
+import org.jboss.dmr.Property;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
@@ -97,29 +99,27 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
     }
 
     static void processConnectorServices(final OperationContext context, final ModelNode model, final ActiveMQServerService serverService)  throws OperationFailedException {
-        System.out.println("model = " + model);
         if (model.hasDefined(CommonAttributes.CONNECTOR_SERVICE)) {
-            for (ModelNode connectorService : model.get(CommonAttributes.CONNECTOR_SERVICE).asList()) {
-                System.out.println("connectorService = " + connectorService);
-                String name = connectorService.require(CommonAttributes.NAME).asString();
-                ConnectorServiceConfiguration config = createConnectorServiceConfiguration(context, name, connectorService);
-                Class clazz = ServerAdd.unwrapClass(connectorService.get("class"));
-                System.out.println("name = " + name);
-                System.out.println("config = " + config);
-                System.out.println("clazz = " + clazz);
-//                serverService.putConnectorServices(name, config, clazz);
+            for (Property connectorService : model.get(CommonAttributes.CONNECTOR_SERVICE).asPropertyList()) {
+                String name = connectorService.getName();
+                Class clazz = ServerAdd.unwrapClass(connectorService.getValue().get(CLASS.getName()));
+                try {
+                    ConnectorServiceFactory factory = ConnectorServiceFactory.class.cast(clazz.newInstance());
+                    Map<String, String> unwrappedParameters = CommonAttributes.PARAMS.unwrap(context, connectorService.getValue());
+                    Map<String, Object> parameters = new HashMap<>(unwrappedParameters);
+
+                    ConnectorServiceConfiguration config = new ConnectorServiceConfiguration()
+                            .setFactoryClassName(clazz.getSimpleName())
+                            .setParams(parameters)
+                            .setName(name);
+                    serverService.addConnectorService(factory, config);
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
         }
-    }
-
-    private static ConnectorServiceConfiguration createConnectorServiceConfiguration(final OperationContext context, final String name, final ModelNode model) throws OperationFailedException {
-        final String factoryClass = CommonAttributes.FACTORY_CLASS.resolveModelAttribute(context, model).asString();
-        Map<String, String> unwrappedParameters = CommonAttributes.PARAMS.unwrap(context, model);
-        Map<String, Object> parameters = new HashMap<String, Object>(unwrappedParameters);
-        return new ConnectorServiceConfiguration()
-                .setFactoryClassName(factoryClass)
-                .setParams(parameters)
-                .setName(name);
     }
 
     @Override
