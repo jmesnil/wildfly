@@ -22,10 +22,18 @@
 
 package org.wildfly.extension.messaging.activemq;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.util.Properties;
 
+import org.jboss.as.controller.ModelVersion;
+import org.jboss.as.model.test.ModelFixer;
+import org.jboss.as.model.test.ModelTestControllerVersion;
 import org.jboss.as.subsystem.test.AbstractSubsystemBaseTest;
+import org.jboss.as.subsystem.test.KernelServices;
+import org.jboss.as.subsystem.test.KernelServicesBuilder;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -70,4 +78,37 @@ public class MessagingActiveMQSubsystem_2_0_TestCase extends AbstractSubsystemBa
     public void testHAPolicyConfiguration() throws Exception {
         standardSubsystemTest("subsystem_2_0_ha-policy.xml", false);
     }
+
+    ///////////////////////
+    // Transformer tests //
+    ///////////////////////
+
+
+    @Ignore
+    @Test
+    public void testTransformersWFLY_10_0_0() throws Exception {
+        testTransformers(ModelTestControllerVersion.WILDFLY_10_0_0_FINAL, MessagingExtension.VERSION_1_0_0, null);
+    }
+
+    private void testTransformers(ModelTestControllerVersion controllerVersion, ModelVersion messagingVersion, ModelFixer fixer) throws Exception {
+        testTransformers(controllerVersion, messagingVersion, fixer, null);
+    }
+
+    private void testTransformers(ModelTestControllerVersion controllerVersion, ModelVersion messagingVersion, ModelFixer fixer, ModelFixer legacyModelFixer) throws Exception {
+        //Boot up empty controllers with the resources needed for the ops coming from the xml to work
+        KernelServicesBuilder builder = createKernelServicesBuilder(createAdditionalInitialization())
+                .setSubsystemXmlResource("subsystem_2_0.xml");
+        builder.createLegacyKernelServicesBuilder(createAdditionalInitialization(), controllerVersion, messagingVersion)
+                .addMavenResourceURL(MessagingDependencies.MESSAGING_ACTIVEMQ_MAVEN_GA + ":" + controllerVersion.getMavenGavVersion())
+                //.addMavenResourceURL(MessagingDependencies.getArtemisDependencies(controllerVersion))
+                .configureReverseControllerCheck(createAdditionalInitialization(), fixer)
+                .dontPersistXml();
+
+        KernelServices mainServices = builder.build();
+        assertTrue(mainServices.isSuccessfulBoot());
+        assertTrue(mainServices.getLegacyServices(messagingVersion).isSuccessfulBoot());
+
+        checkSubsystemModelTransformation(mainServices, messagingVersion, legacyModelFixer);
+    }
+
 }

@@ -102,6 +102,7 @@ import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
 public class MessagingExtension implements Extension {
 
     public static final String SUBSYSTEM_NAME = "messaging-activemq";
+    public static final String ACTIVEMQ_ARTEMIS_MODULE_ID = "org.apache.activemq.artemis";
 
     static final PathElement SUBSYSTEM_PATH  = pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
     static final PathElement SERVER_PATH = pathElement(SERVER);
@@ -144,8 +145,8 @@ public class MessagingExtension implements Extension {
 
     static final String RESOURCE_NAME = MessagingExtension.class.getPackage().getName() + ".LocalDescriptions";
 
-    private static final ModelVersion VERSION_2_0_0 = ModelVersion.create(2, 0, 0);
-    private static final ModelVersion VERSION_1_0_0 = ModelVersion.create(1, 0, 0);
+    static final ModelVersion VERSION_2_0_0 = ModelVersion.create(2, 0, 0);
+    static final ModelVersion VERSION_1_0_0 = ModelVersion.create(1, 0, 0);
 
     public static ResourceDescriptionResolver getResourceDescriptionResolver(final String... keyPrefix) {
         return getResourceDescriptionResolver(true, keyPrefix);
@@ -193,6 +194,10 @@ public class MessagingExtension implements Extension {
             deployedServer.registerSubModel(JMSQueueDefinition.DEPLOYMENT_INSTANCE);
             deployedServer.registerSubModel(JMSTopicDefinition.DEPLOYMENT_INSTANCE);
             deployedServer.registerSubModel(PooledConnectionFactoryDefinition.DEPLOYMENT_INSTANCE);
+        }
+
+        if (context.isRegisterTransformers()) {
+            MessagingTransformers.registerTransformers(subsystemRegistration);
         }
     }
 

@@ -23,6 +23,7 @@
 package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.PersistentResourceXMLDescription.builder;
+import static org.wildfly.extension.messaging.activemq.MessagingExtension.ACTIVEMQ_ARTEMIS_MODULE_ID;
 
 import java.util.List;
 
@@ -428,7 +429,7 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                                     classModel.get(CommonAttributes.NAME).set(className);
                                                     // hard-code the module definition to org.apache.activemq.artemis as the
                                                     // class was necessarily loaded from this module by Artemis itself
-                                                    classModel.get(CommonAttributes.MODULE).set("org.apache.activemq.artemis");
+                                                    classModel.get(CommonAttributes.MODULE).set(ACTIVEMQ_ARTEMIS_MODULE_ID);
                                                     addOperation.get(ConnectorServiceDefinition.CLASS.getName()).set(classModel);
                                                 }))
                                 .addChild(
