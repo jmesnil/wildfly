@@ -138,6 +138,8 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                         ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL))
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, ThreadPools.SCHEDULED_THREAD_POOL_PATH),
                                 FailedOperationTransformationConfig.REJECTED_RESOURCE)
+                        .addFailedAttribute(subsystemAddress.append(SERVER_PATH, ThreadPools.THREAD_FACTORY_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, REPLICATION_MASTER_PATH),
                                 new ChangeToTrueConfig(HAAttributes.CHECK_FOR_LIVE_SERVER.getName()))
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, REPLICATION_COLOCATED_PATH, MessagingExtension.CONFIGURATION_MASTER_PATH),
@@ -177,6 +179,8 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL))
                         .addFailedAttribute(serverAddress.append(ThreadPools.SCHEDULED_THREAD_POOL_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
+                        .addFailedAttribute(serverAddress.append(ThreadPools.THREAD_FACTORY_PATH),
                                 FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(serverAddress.append(CONNECTION_FACTORY_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(

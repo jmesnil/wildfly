@@ -85,7 +85,15 @@
                 memory-measure-interval="${memory.measure.interval:2048}"/>
 
         <scheduled-thread-pool name="default"
-                               max-threads="${scheduled.max.threads:35}" />
+                               max-threads="${scheduled.max.threads:35}"
+                               thread-factory="default">
+            <keepalive-time time="100" unit="milliseconds"/>
+        </scheduled-thread-pool>
+
+        <thread-factory name="default"
+                        group-name="Artemis threads"
+                        priority="3"
+                        thread-name-pattern="%i-%g"/>
 
         <bindings-directory path="${my.bindings.dir:test}" relative-to="test"/>
         <journal-directory path="${my.journal.dir:test}" relative-to="test"/>

@@ -144,6 +144,11 @@ public class MessagingSubsystemParser_3_0 extends PersistentResourceXMLParser {
                                                         PoolAttributeDefinitions.MAX_THREADS,
                                                         PoolAttributeDefinitions.THREAD_FACTORY))
                                 .addChild(
+                                        builder(ThreadPools.THREAD_FACTORY)
+                                                .addAttributes(PoolAttributeDefinitions.GROUP_NAME,
+                                                        PoolAttributeDefinitions.THREAD_NAME_PATTERN,
+                                                        PoolAttributeDefinitions.PRIORITY))
+                                .addChild(
                                         builder(LiveOnlyDefinition.INSTANCE.getPathElement())
                                                 .addAttributes(
                                                         ScaleDownAttributes.SCALE_DOWN,

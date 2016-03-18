@@ -26,6 +26,7 @@ import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.threads.ScheduledThreadPoolResourceDefinition;
 import org.jboss.as.threads.ThreadFactoryResolver;
+import org.jboss.as.threads.ThreadFactoryResourceDefinition;
 import org.jboss.as.threads.ThreadsServices;
 import org.jboss.msc.service.ServiceName;
 
@@ -34,9 +35,11 @@ import org.jboss.msc.service.ServiceName;
  */
 public class ThreadPools {
     public static PathElement SCHEDULED_THREAD_POOL_PATH = PathElement.pathElement(org.jboss.as.threads.CommonAttributes.SCHEDULED_THREAD_POOL);
+    public static PathElement THREAD_FACTORY_PATH = PathElement.pathElement("thread-factory");
 
     static ServiceName SCHEDULED_THREAD_POOL_BASE_NAME = ThreadsServices.executorName("messaging-activemq").append("scheduled-executor");
 
+    static final PersistentResourceDefinition THREAD_FACTORY = new ThreadFactoryResourceDefinition();
     public static PersistentResourceDefinition SCHEDULED_THREAD_POOL = ScheduledThreadPoolResourceDefinition.create(org.jboss.as.threads.CommonAttributes.SCHEDULED_THREAD_POOL,
             ArtemisThreadFactoryResolver.SCHEDULED_INSTANCE,
             SCHEDULED_THREAD_POOL_BASE_NAME,

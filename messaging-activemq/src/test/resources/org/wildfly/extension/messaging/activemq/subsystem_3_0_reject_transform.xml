@@ -17,7 +17,16 @@
                  page-store-table="MY_PAGE_STORE" />
 
         <scheduled-thread-pool name="default"
-                               max-threads="${scheduled.max.threads:35}" />
+                               max-threads="${scheduled.max.threads:35}"
+                               thread-factory="default">
+            <keepalive-time time="100" unit="milliseconds"/>
+        </scheduled-thread-pool>
+
+        <thread-factory name="default"
+                        group-name="Artemis threads"
+                        priority="3"
+                        thread-name-pattern="%i-%g"/>
+
         <replication-colocated>
             <master />
         </replication-colocated>

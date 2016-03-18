@@ -25,9 +25,12 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns="urn:jboss:domain:messaging-activemq:3.0"
            targetNamespace="urn:jboss:domain:messaging-activemq:3.0"
+           xmlns:threads="urn:jboss:domain:threads:2.0"
            elementFormDefault="qualified"
            attributeFormDefault="unqualified"
            version="3.0">
+
+    <xs:import namespace="urn:jboss:domain:threads:2.0" schemaLocation="wildfly-threads_2_0.xsd"/>
 
     <xs:element name="subsystem">
         <xs:complexType>
@@ -168,10 +171,16 @@
 
             <xs:element name="scheduled-thread-pool" minOccurs="0" maxOccurs="1">
                 <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="keepalive-time" type="threads:time" minOccurs="0" maxOccurs="1" />
+                    </xs:sequence>
                     <xs:attribute name="name" type="xs:string" use="required" />
                     <xs:attribute name="max-threads" type="xs:int" use="optional"/>
+                    <xs:attribute name="thread-factory" type="xs:string" use="optional" />
                 </xs:complexType>
             </xs:element>
+
+            <xs:element name="thread-factory" type="threads:thread-factory" minOccurs="0" maxOccurs="unbounded"/>
 
             <xs:choice>
                 <xs:element name="live-only" minOccurs="0" maxOccurs="1">
