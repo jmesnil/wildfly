@@ -463,6 +463,7 @@ public class ServerDefinition extends PersistentResourceDefinition {
 
     private static PersistentResourceDefinition[] CHILDREN = {
             ThreadPools.SCHEDULED_THREAD_POOL,
+            ThreadPools.THREAD_FACTORY,
 
             // HA policy
             LiveOnlyDefinition.INSTANCE,

@@ -142,6 +142,11 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                                         PoolAttributeDefinitions.MAX_THREADS,
                                                         PoolAttributeDefinitions.THREAD_FACTORY))
                                 .addChild(
+                                        builder(ThreadPools.THREAD_FACTORY)
+                                                .addAttributes(PoolAttributeDefinitions.GROUP_NAME,
+                                                        PoolAttributeDefinitions.THREAD_NAME_PATTERN,
+                                                        PoolAttributeDefinitions.PRIORITY))
+                                .addChild(
                                         builder(LiveOnlyDefinition.INSTANCE)
                                                 .addAttributes(
                                                         ScaleDownAttributes.SCALE_DOWN,

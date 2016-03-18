@@ -6,7 +6,8 @@
         <server name="default" default-scheduled-thread-pool="default">
             <?CLUSTERED?>
 
-            <scheduled-thread-pool name="default" max-threads="5" />
+            <scheduled-thread-pool name="default" max-threads="5" thread-factory="scheduled"/>
+            <thread-factory name="scheduled" group-name="ActiveMQ-scheduled-pool"  />
             <security-setting name="#">
                 <role name="guest"
                       send="true"

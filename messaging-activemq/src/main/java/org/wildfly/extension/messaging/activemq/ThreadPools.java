@@ -25,6 +25,7 @@ package org.wildfly.extension.messaging.activemq;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.threads.ScheduledThreadPoolResourceDefinition;
 import org.jboss.as.threads.ThreadFactoryResolver;
+import org.jboss.as.threads.ThreadFactoryResourceDefinition;
 import org.jboss.as.threads.ThreadsServices;
 import org.jboss.msc.service.ServiceName;
 
@@ -34,6 +35,7 @@ import org.jboss.msc.service.ServiceName;
 public class ThreadPools {
     static ServiceName SCHEDULED_THREAD_POOL_BASE_NAME = ThreadsServices.executorName("messaging-activemq").append("scheduled-executor");
 
+    static final PersistentResourceDefinition THREAD_FACTORY = new ThreadFactoryResourceDefinition();
     public static PersistentResourceDefinition SCHEDULED_THREAD_POOL = ScheduledThreadPoolResourceDefinition.create(org.jboss.as.threads.CommonAttributes.SCHEDULED_THREAD_POOL,
             ArtemisThreadFactoryResolver.SCHEDULED_INSTANCE,
             SCHEDULED_THREAD_POOL_BASE_NAME,
