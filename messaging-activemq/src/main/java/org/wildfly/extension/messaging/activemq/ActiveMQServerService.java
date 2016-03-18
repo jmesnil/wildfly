@@ -31,8 +31,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Consumer;
 
 import javax.management.MBeanServer;
 import javax.sql.DataSource;
@@ -107,6 +108,7 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
     private final InjectedValue<DataSource> dataSource = new InjectedValue<>();
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
     private final InjectedValue<SecurityDomain> elytronSecurityDomain = new InjectedValue<>();
+    private final InjectedValue<ExecutorService> executorService = new InjectedValue<>();
     private final InjectedValue<ScheduledExecutorService> scheduledExecutorService = new InjectedValue<>();
 
     private final PathConfig pathConfig;
@@ -138,6 +140,10 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
 
     Injector<ScheduledExecutorService> getScheduledExecutorService(){
         return scheduledExecutorService;
+    }
+
+    Injector<ExecutorService> getExecutorService(){
+        return executorService;
     }
 
     Injector<SocketBinding> getSocketBindingInjector(String name) {
@@ -361,8 +367,12 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
                 server.getServiceRegistry().addOutgoingInterceptor(outgoingInterceptor);
             }
 
+            if (executorService.getOptionalValue() != null) {
+                System.out.println(">>>> executorService = " + executorService.getValue());
+                server.getServiceRegistry().setExecutorService(executorService.getValue());
+            }
             if (scheduledExecutorService.getOptionalValue() != null) {
-                System.out.println("scheduledExecutorService = " + scheduledExecutorService);
+                System.out.println(">>>> scheduledExecutorService = " + scheduledExecutorService.getValue());
                 server.getServiceRegistry().setScheduledExecutorService(scheduledExecutorService.getValue());
             }
 

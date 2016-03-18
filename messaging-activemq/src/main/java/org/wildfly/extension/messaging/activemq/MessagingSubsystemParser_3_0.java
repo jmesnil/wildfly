@@ -75,6 +75,7 @@ public class MessagingSubsystemParser_3_0 extends PersistentResourceXMLParser {
                                         ServerDefinition.PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY,
                                         ServerDefinition.ID_CACHE_SIZE,
                                         ServerDefinition.PAGE_MAX_CONCURRENT_IO,
+                                        ServerDefinition.DEFAULT_THREAD_POOL,
                                         ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL,
                                         ServerDefinition.SCHEDULED_THREAD_POOL_MAX_SIZE,
                                         ServerDefinition.THREAD_POOL_MAX_SIZE,
@@ -137,6 +138,15 @@ public class MessagingSubsystemParser_3_0 extends PersistentResourceXMLParser {
                                         ServerDefinition.MEMORY_WARNING_THRESHOLD,
                                         CommonAttributes.INCOMING_INTERCEPTORS,
                                         CommonAttributes.OUTGOING_INTERCEPTORS)
+                                .addChild(
+                                        builder(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH)
+                                                .addAttributes(
+                                                        PoolAttributeDefinitions.KEEPALIVE_TIME,
+                                                        PoolAttributeDefinitions.MAX_THREADS,
+                                                        PoolAttributeDefinitions.THREAD_FACTORY,
+                                                        PoolAttributeDefinitions.CORE_THREADS,
+                                                        PoolAttributeDefinitions.QUEUE_LENGTH,
+                                                        PoolAttributeDefinitions.ALLOW_CORE_TIMEOUT))
                                 .addChild(
                                         builder(ThreadPools.SCHEDULED_THREAD_POOL_PATH)
                                                 .addAttributes(

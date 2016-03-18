@@ -131,8 +131,11 @@ public class MessagingTransformers implements ExtensionTransformerRegistration {
 
     private static void buildTransformers2_0_0(ResourceTransformationDescriptionBuilder subsystem) {
         ResourceTransformationDescriptionBuilder server = subsystem.addChildResource(MessagingExtension.SERVER_PATH);
-        rejectDefinedAttributeWithDefaultValue(server, ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL);
+        rejectDefinedAttributeWithDefaultValue(server,
+                ServerDefinition.DEFAULT_THREAD_POOL,
+                ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL);
 
+        server.rejectChildResource(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH);
         server.rejectChildResource(ThreadPools.SCHEDULED_THREAD_POOL_PATH);
         server.rejectChildResource(ThreadPools.THREAD_FACTORY_PATH);
 

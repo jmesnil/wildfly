@@ -24,29 +24,42 @@ package org.wildfly.extension.messaging.activemq;
 
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
+import org.jboss.as.threads.CommonAttributes;
 import org.jboss.as.threads.ScheduledThreadPoolResourceDefinition;
 import org.jboss.as.threads.ThreadFactoryResolver;
 import org.jboss.as.threads.ThreadFactoryResourceDefinition;
 import org.jboss.as.threads.ThreadsServices;
+import org.jboss.as.threads.UnboundedQueueThreadPoolResourceDefinition;
 import org.jboss.msc.service.ServiceName;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2016 Red Hat inc.
  */
 public class ThreadPools {
+    public static PathElement UNBOUNDED_QUEUE_THREAD_POOL_PATH = PathElement.pathElement(CommonAttributes.UNBOUNDED_QUEUE_THREAD_POOL);
     public static PathElement SCHEDULED_THREAD_POOL_PATH = PathElement.pathElement(org.jboss.as.threads.CommonAttributes.SCHEDULED_THREAD_POOL);
     public static PathElement THREAD_FACTORY_PATH = PathElement.pathElement("thread-factory");
 
     static ServiceName SCHEDULED_THREAD_POOL_BASE_NAME = ThreadsServices.executorName("messaging-activemq").append("scheduled-executor");
+    static ServiceName THREAD_POOL_BASE_NAME = ThreadsServices.executorName("messaging-activemq").append("executor");
 
     static final PersistentResourceDefinition THREAD_FACTORY = new ThreadFactoryResourceDefinition();
-    public static PersistentResourceDefinition SCHEDULED_THREAD_POOL = ScheduledThreadPoolResourceDefinition.create(org.jboss.as.threads.CommonAttributes.SCHEDULED_THREAD_POOL,
+
+    static PersistentResourceDefinition SCHEDULED_THREAD_POOL = ScheduledThreadPoolResourceDefinition.create(org.jboss.as.threads.CommonAttributes.SCHEDULED_THREAD_POOL,
             ArtemisThreadFactoryResolver.SCHEDULED_INSTANCE,
             SCHEDULED_THREAD_POOL_BASE_NAME,
             false);
 
+    static  PersistentResourceDefinition UNBOUNDED_QUEUE_THREAD_POOL = UnboundedQueueThreadPoolResourceDefinition.create(CommonAttributes.UNBOUNDED_QUEUE_THREAD_POOL,
+            ArtemisThreadFactoryResolver.INSTANCE,
+            THREAD_POOL_BASE_NAME,
+            false);
+
+
     private static class ArtemisThreadFactoryResolver extends ThreadFactoryResolver.SimpleResolver {
         static final ArtemisThreadFactoryResolver SCHEDULED_INSTANCE = new ArtemisThreadFactoryResolver("ActiveMQ Server Scheduled Thread");
+        static final ArtemisThreadFactoryResolver INSTANCE = new ArtemisThreadFactoryResolver("ActiveMQ Server Thread");
+
         private final String threadGroupName;
 
         private ArtemisThreadFactoryResolver(String threadGroupName) {

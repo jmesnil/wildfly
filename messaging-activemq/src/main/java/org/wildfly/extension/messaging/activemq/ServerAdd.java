@@ -102,6 +102,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.management.MBeanServer;
@@ -378,6 +379,11 @@ class ServerAdd extends AbstractAddStepHandler {
                     }
                 }
 
+                ModelNode threadPoolName = ServerDefinition.DEFAULT_THREAD_POOL.resolveModelAttribute(context, model);
+                if (threadPoolName.isDefined()) {
+                    // TODO: check that the unbounded-queuethread-pool exists in the model at the end of the MODEL stage.
+                    serviceBuilder.addDependency(ThreadPools.THREAD_POOL_BASE_NAME.append(threadPoolName.asString()), ExecutorService.class, serverService.getExecutorService());
+                }
                 ModelNode scheduledTreadPoolName = ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL.resolveModelAttribute(context, model);
                 if (scheduledTreadPoolName.isDefined()) {
                     // TODO: check that the scheduled-thread-pool exists in the model at the end of the MODEL stage.
