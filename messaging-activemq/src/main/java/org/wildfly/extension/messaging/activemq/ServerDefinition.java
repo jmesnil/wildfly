@@ -435,13 +435,18 @@ public class ServerDefinition extends PersistentResourceDefinition {
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
+    public static final SimpleAttributeDefinition DEFAULT_THREAD_POOL = create("default-thread-pool", STRING)
+            .setAllowNull(true) // switch to false to enforce using only WFLY threads?
+            .setAllowExpression(false) // model reference
+            .setRestartAllServices()
+            .build();
     public static final SimpleAttributeDefinition DEFAULT_SCHEDULED_THREAD_POOL = create("default-scheduled-thread-pool", STRING)
             .setAllowNull(true) // switch to false to enforce using only WFLY threads?
             .setAllowExpression(false) // model reference
             .setRestartAllServices()
             .build();
 
-    public static final AttributeDefinition[] ATTRIBUTES = {PERSISTENCE_ENABLED, DEFAULT_SCHEDULED_THREAD_POOL, SCHEDULED_THREAD_POOL_MAX_SIZE,
+    public static final AttributeDefinition[] ATTRIBUTES = {PERSISTENCE_ENABLED, DEFAULT_THREAD_POOL, DEFAULT_SCHEDULED_THREAD_POOL, SCHEDULED_THREAD_POOL_MAX_SIZE,
             THREAD_POOL_MAX_SIZE, SECURITY_DOMAIN, SECURITY_ENABLED, SECURITY_INVALIDATION_INTERVAL, OVERRIDE_IN_VM_SECURITY, WILD_CARD_ROUTING_ENABLED,
             MANAGEMENT_ADDRESS, MANAGEMENT_NOTIFICATION_ADDRESS, CLUSTER_USER, CLUSTER_PASSWORD, JMX_MANAGEMENT_ENABLED,
             JMX_DOMAIN, STATISTICS_ENABLED, MESSAGE_COUNTER_SAMPLE_PERIOD, MESSAGE_COUNTER_MAX_DAY_HISTORY,
@@ -462,6 +467,7 @@ public class ServerDefinition extends PersistentResourceDefinition {
             .build();
 
     private static PersistentResourceDefinition[] CHILDREN = {
+            ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL,
             ThreadPools.SCHEDULED_THREAD_POOL,
             ThreadPools.THREAD_FACTORY,
 
