@@ -137,6 +137,8 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                         ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT,
                                         ServerDefinition.DEFAULT_THREAD_POOL,
                                         ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL))
+                        .addFailedAttribute(subsystemAddress.append(SERVER_PATH, ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH),
                                 FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, ThreadPools.SCHEDULED_THREAD_POOL_PATH),
@@ -182,6 +184,8 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ServerDefinition.DEFAULT_THREAD_POOL,
                                         ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL))
+                        .addFailedAttribute(serverAddress.append(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(serverAddress.append(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH),
                                 FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(serverAddress.append(ThreadPools.SCHEDULED_THREAD_POOL_PATH),

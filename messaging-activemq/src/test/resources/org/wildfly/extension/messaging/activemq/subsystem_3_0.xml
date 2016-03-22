@@ -85,6 +85,15 @@
                 memory-warning-threshold="${memory.warning.threshold:1024}"
                 memory-measure-interval="${memory.measure.interval:2048}"/>
 
+        <bounded-queue-thread-pool name="default"
+                                   max-threads="128"
+                                   thread-factory="regular"
+                                   core-threads="7"
+                                   queue-length="120"
+                                   allow-core-timeout="true">
+            <keepalive-time time="100" unit="milliseconds"/>
+        </bounded-queue-thread-pool>
+
         <unbounded-queue-thread-pool name="default"
                                      max-threads="128"
                                      thread-factory="regular">

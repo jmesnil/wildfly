@@ -169,6 +169,19 @@
             </xs:element>
             <!-- end of server attribute groups -->
 
+            <xs:element name="bounded-queue-thread-pool" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="keepalive-time" type="threads:time" minOccurs="0" maxOccurs="1" />
+                    </xs:sequence>
+                    <xs:attribute name="name" type="xs:string" use="required" />
+                    <xs:attribute name="max-threads" type="xs:int" use="optional"/>
+                    <xs:attribute name="thread-factory" type="xs:string" use="optional" />
+                    <xs:attribute name="core-threads" type="xs:int" use="optional" />
+                    <xs:attribute name="queue-length" type="xs:int" use="optional" />
+                    <xs:attribute name="allow-core-timeout" type="xs:boolean" use="optional" />
+                </xs:complexType>
+            </xs:element>
             <xs:element name="unbounded-queue-thread-pool" minOccurs="0" maxOccurs="1">
                 <xs:complexType>
                     <xs:sequence>
