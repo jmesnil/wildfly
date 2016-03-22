@@ -468,6 +468,7 @@ public class ServerDefinition extends PersistentResourceDefinition {
 
     private static PersistentResourceDefinition[] CHILDREN = {
             ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL,
+            ThreadPools.BOUNDED_QUEUE_THREAD_POOL,
             ThreadPools.SCHEDULED_THREAD_POOL,
             ThreadPools.THREAD_FACTORY,
 

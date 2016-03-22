@@ -9,7 +9,7 @@
             <?CLUSTERED?>
 
             <unbounded-queue-thread-pool name="default"
-                                         max-threads="500"
+                                         max-threads="30"
                                          thread-factory="regular">
             </unbounded-queue-thread-pool>
             <scheduled-thread-pool name="default"

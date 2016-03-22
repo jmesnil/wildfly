@@ -23,6 +23,7 @@
 package org.wildfly.extension.messaging.activemq;
 
 import org.jboss.as.controller.PersistentResourceDefinition;
+import org.jboss.as.threads.BoundedQueueThreadPoolResourceDefinition;
 import org.jboss.as.threads.CommonAttributes;
 import org.jboss.as.threads.ScheduledThreadPoolResourceDefinition;
 import org.jboss.as.threads.ThreadFactoryResolver;
@@ -50,6 +51,11 @@ public class ThreadPools {
             THREAD_POOL_BASE_NAME,
             false);
 
+    static  PersistentResourceDefinition BOUNDED_QUEUE_THREAD_POOL = BoundedQueueThreadPoolResourceDefinition.create(CommonAttributes.BOUNDED_QUEUE_THREAD_POOL,
+            ArtemisThreadFactoryResolver.INSTANCE,
+            null,
+            THREAD_POOL_BASE_NAME,
+            false);
 
     private static class ArtemisThreadFactoryResolver extends ThreadFactoryResolver.SimpleResolver {
         static final ArtemisThreadFactoryResolver SCHEDULED_INSTANCE = new ArtemisThreadFactoryResolver("ActiveMQ Server Scheduled Thread");

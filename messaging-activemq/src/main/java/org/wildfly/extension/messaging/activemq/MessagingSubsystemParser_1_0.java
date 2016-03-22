@@ -137,7 +137,7 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                         CommonAttributes.INCOMING_INTERCEPTORS,
                                         CommonAttributes.OUTGOING_INTERCEPTORS)
                                 .addChild(
-                                        builder(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL)
+                                        builder(ThreadPools.BOUNDED_QUEUE_THREAD_POOL)
                                                 .addAttributes(
                                                         PoolAttributeDefinitions.KEEPALIVE_TIME,
                                                         PoolAttributeDefinitions.MAX_THREADS,
@@ -145,6 +145,12 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                                         PoolAttributeDefinitions.CORE_THREADS,
                                                         PoolAttributeDefinitions.QUEUE_LENGTH,
                                                         PoolAttributeDefinitions.ALLOW_CORE_TIMEOUT))
+                                .addChild(
+                                        builder(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL)
+                                                .addAttributes(
+                                                        PoolAttributeDefinitions.KEEPALIVE_TIME,
+                                                        PoolAttributeDefinitions.MAX_THREADS,
+                                                        PoolAttributeDefinitions.THREAD_FACTORY))
                                 .addChild(
                                         builder(ThreadPools.SCHEDULED_THREAD_POOL)
                                                 .addAttributes(
