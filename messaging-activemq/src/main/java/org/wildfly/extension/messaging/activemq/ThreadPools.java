@@ -50,18 +50,18 @@ public class ThreadPools {
     static PersistentResourceDefinition SCHEDULED_THREAD_POOL = ScheduledThreadPoolResourceDefinition.create(org.jboss.as.threads.CommonAttributes.SCHEDULED_THREAD_POOL,
             ArtemisThreadFactoryResolver.SCHEDULED_INSTANCE,
             SCHEDULED_THREAD_POOL_BASE_NAME,
-            false);
+            true);
 
     static  PersistentResourceDefinition UNBOUNDED_QUEUE_THREAD_POOL = UnboundedQueueThreadPoolResourceDefinition.create(CommonAttributes.UNBOUNDED_QUEUE_THREAD_POOL,
             ArtemisThreadFactoryResolver.INSTANCE,
             THREAD_POOL_BASE_NAME,
-            false);
+            true);
 
     static  PersistentResourceDefinition BOUNDED_QUEUE_THREAD_POOL = BoundedQueueThreadPoolResourceDefinition.create(CommonAttributes.BOUNDED_QUEUE_THREAD_POOL,
             ArtemisThreadFactoryResolver.INSTANCE,
             null,
             THREAD_POOL_BASE_NAME,
-            false);
+            true);
 
     private static class ArtemisThreadFactoryResolver extends ThreadFactoryResolver.SimpleResolver {
         static final ArtemisThreadFactoryResolver SCHEDULED_INSTANCE = new ArtemisThreadFactoryResolver("ActiveMQ Server Scheduled Thread");
