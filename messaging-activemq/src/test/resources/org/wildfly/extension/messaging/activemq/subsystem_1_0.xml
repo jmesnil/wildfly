@@ -166,7 +166,7 @@
 
         <broadcast-group name="groupT"
                          jgroups-stack="udp"
-                         jgroups-channel="activemq-cluster"
+                         jgroups-channel="${jgroups.channel:activemq-cluster}"
                          broadcast-period="${broadcast.group.period:1234}"
                          connectors="http netty"/>
         <broadcast-group name="groupS"
@@ -176,7 +176,7 @@
                          socket-binding="group-t-binding"/>
         <discovery-group name="groupU"
                          jgroups-stack="udp"
-                         jgroups-channel="activemq-cluster"
+                         jgroups-channel="${jgroups.channel:activemq-cluster}"
                          refresh-timeout="${discovery.group.refresh.timeout:2345}"
                          initial-wait-timeout="${discovery.group.initial.wait.timeout:2345}"/>
 

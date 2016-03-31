@@ -182,8 +182,7 @@ public interface CommonAttributes {
 
     SimpleAttributeDefinition JGROUPS_CHANNEL = create("jgroups-channel", ModelType.STRING)
             .setAllowNull(true)
-            // do not allow expression as this may reference another resource
-            .setAllowExpression(false)
+            .setAllowExpression(true)
             .setAlternatives("socket-binding")
             .setRestartAllServices()
             .build();

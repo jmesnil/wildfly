@@ -500,7 +500,7 @@ public class MigrateOperation implements OperationStepHandler {
             }
         }
         // These attributes no longer accept expressions in the messaging-activemq subsystem.
-        removePropertiesWithExpression(newAddOp, warnings, JGROUPS_CHANNEL.getName(), JGROUPS_STACK.getName());
+        removePropertiesWithExpression(newAddOp, warnings, JGROUPS_STACK.getName());
     }
 
     private void migrateBroadcastGroup(ModelNode newAddOp, List<String> warnings) {
@@ -516,7 +516,7 @@ public class MigrateOperation implements OperationStepHandler {
             }
         }
         // These attributes no longer accept expressions in the messaging-activemq subsystem.
-        removePropertiesWithExpression(newAddOp, warnings, JGROUPS_CHANNEL.getName(), JGROUPS_STACK.getName());
+        removePropertiesWithExpression(newAddOp, warnings, JGROUPS_STACK.getName());
     }
 
 
