@@ -90,11 +90,11 @@
         <replacement placeholder="BROADCAST-GROUPS">
             <broadcast-group name="bg-group1"
                              connectors="http-connector"
-                             jgroups-channel="activemq-cluster"/>
+                             jgroups-cluster-name="activemq-cluster"/>
         </replacement>
         <replacement placeholder="DISCOVERY-GROUPS">
             <discovery-group name="dg-group1"
-                             jgroups-channel="activemq-cluster"/>
+                             jgroups-cluster-name="activemq-cluster"/>
         </replacement>
         <replacement placeholder="CLUSTER-CONNECTIONS">
                 <cluster-connection name="my-cluster"

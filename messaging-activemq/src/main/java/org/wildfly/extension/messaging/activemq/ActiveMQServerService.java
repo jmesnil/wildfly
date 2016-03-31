@@ -95,7 +95,7 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
     private final InjectedValue<SecurityDomainContext> securityDomainContextValue = new InjectedValue<SecurityDomainContext>();
     private final PathConfig pathConfig;
     // mapping between the {broadcast|discovery}-groups and the *names* of the JGroups channel they use
-    private final Map<String, String> jgroupsChannels = new HashMap<String, String>();
+    private final Map<String, String> jgroupsClusterNames = new HashMap<String, String>();
     // mapping between the {broadcast|discovery}-groups and the JGroups channel factory for the *stack* they use
     private Map<String, ChannelFactory> jgroupFactories = new HashMap<String, ChannelFactory>();
 
@@ -243,10 +243,10 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
                     final String key = "broadcast" + name;
                     if (jgroupFactories.containsKey(key)) {
                         ChannelFactory channelFactory = jgroupFactories.get(key);
-                        String channelName = jgroupsChannels.get(key);
-                        JChannel channel = (JChannel) channelFactory.createChannel(channelName);
-                        channels.put(channelName, channel);
-                        newConfigs.add(BroadcastGroupAdd.createBroadcastGroupConfiguration(name, config, channel, channelName));
+                        String jgroupsClusterName = jgroupsClusterNames.get(key);
+                        JChannel channel = (JChannel) channelFactory.createChannel(jgroupsClusterName);
+                        channels.put(jgroupsClusterName, channel);
+                        newConfigs.add(BroadcastGroupAdd.createBroadcastGroupConfiguration(name, config, channel, jgroupsClusterName));
                     } else {
                         final SocketBinding binding = groupBindings.get(key);
                         if (binding == null) {
@@ -267,13 +267,13 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
                     DiscoveryGroupConfiguration config = null;
                     if (jgroupFactories.containsKey(key)) {
                         ChannelFactory channelFactory = jgroupFactories.get(key);
-                        String channelName = jgroupsChannels.get(key);
-                        JChannel channel = channels.get(channelName);
+                        String jgroupsClusterName = jgroupsClusterNames.get(key);
+                        JChannel channel = channels.get(jgroupsClusterName);
                         if (channel == null) {
                             channel = (JChannel) channelFactory.createChannel(key);
-                            channels.put(channelName, channel);
+                            channels.put(jgroupsClusterName, channel);
                         }
-                        config = DiscoveryGroupAdd.createDiscoveryGroupConfiguration(name, entry.getValue(), channel, channelName);
+                        config = DiscoveryGroupAdd.createDiscoveryGroupConfiguration(name, entry.getValue(), channel, jgroupsClusterName);
                     } else {
                         final SocketBinding binding = groupBindings.get(key);
                         if (binding == null) {
@@ -344,8 +344,8 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
         return securityDomainContextValue;
     }
 
-    public Map<String, String> getJGroupsChannels() {
-        return jgroupsChannels;
+    public Map<String, String> getJGroupsClusterNames() {
+        return jgroupsClusterNames;
     }
 
     /**

@@ -343,8 +343,8 @@
                     <xs:attribute name="name" type="xs:string" use="required" />
 
                     <xs:attribute name="socket-binding" type="xs:string" use="optional" />
-                    <xs:attribute name="jgroups-stack" type="xs:string" use="optional" />
-                    <xs:attribute name="jgroups-channel" type="xs:string" use="optional" />
+                    <xs:attribute name="jgroups-channel-factory" type="xs:string" use="optional" />
+                    <xs:attribute name="jgroups-cluster-name" type="xs:string" use="optional" />
                     <xs:attribute name="broadcast-period" type="xs:long" use="optional" />
                     <xs:attribute name="connectors" type="stringList" use="optional" />
                 </xs:complexType>
@@ -355,8 +355,8 @@
                     <xs:attribute name="name" type="xs:string" use="required" />
 
                     <xs:attribute name="socket-binding" type="xs:string" use="optional" />
-                    <xs:attribute name="jgroups-stack" type="xs:string" use="optional" />
-                    <xs:attribute name="jgroups-channel" type="xs:string" use="optional" />
+                    <xs:attribute name="jgroups-channel-factory" type="xs:string" use="optional" />
+                    <xs:attribute name="jgroups-cluster-name" type="xs:string" use="optional" />
                     <xs:attribute name="refresh-timeout" type="xs:long" use="optional" />
                     <xs:attribute name="initial-wait-timeout" type="xs:long" use="optional" />
                 </xs:complexType>

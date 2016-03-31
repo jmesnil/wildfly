@@ -29,8 +29,8 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.BROADCAS
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DISCOVERY_GROUP;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.HTTP_ACCEPTOR;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.INCOMING_INTERCEPTORS;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_STACK;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CLUSTER_NAME;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL_FACTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.LARGE_MESSAGES_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.MODULE;
@@ -278,12 +278,12 @@ class ServerAdd extends AbstractAddStepHandler {
                         final String key = "broadcast" + name;
                         ModelNode broadcastGroupModel = model.get(BROADCAST_GROUP, name);
 
-                        if (broadcastGroupModel.hasDefined(JGROUPS_CHANNEL.getName())) {
-                            ModelNode channelFactory = JGROUPS_STACK.resolveModelAttribute(context, broadcastGroupModel);
+                        if (broadcastGroupModel.hasDefined(JGROUPS_CLUSTER_NAME.getName())) {
+                            ModelNode channelFactory = JGROUPS_CHANNEL_FACTORY.resolveModelAttribute(context, broadcastGroupModel);
                             ServiceName channelFactoryServiceName = channelFactory.isDefined() ? ProtocolStackServiceName.CHANNEL_FACTORY.getServiceName(channelFactory.asString()) : ProtocolStackServiceName.CHANNEL_FACTORY.getServiceName();
-                            String channelName = JGROUPS_CHANNEL.resolveModelAttribute(context, broadcastGroupModel).asString();
+                            String jgroupsClusterName = JGROUPS_CLUSTER_NAME.resolveModelAttribute(context, broadcastGroupModel).asString();
                             serviceBuilder.addDependency(channelFactoryServiceName, ChannelFactory.class, serverService.getJGroupsInjector(key));
-                            serverService.getJGroupsChannels().put(key, channelName);
+                            serverService.getJGroupsClusterNames().put(key, jgroupsClusterName);
                         } else {
                             final ServiceName groupBinding = GroupBindingService.getBroadcastBaseServiceName(activeMQServiceName).append(name);
                             serviceBuilder.addDependency(groupBinding, SocketBinding.class, serverService.getGroupBindingInjector(key));
@@ -295,12 +295,12 @@ class ServerAdd extends AbstractAddStepHandler {
                         final String name = config.getName();
                         final String key = "discovery" + name;
                         ModelNode discoveryGroupModel = model.get(DISCOVERY_GROUP, name);
-                        if (discoveryGroupModel.hasDefined(JGROUPS_CHANNEL.getName())) {
-                            ModelNode channelFactory = JGROUPS_STACK.resolveModelAttribute(context, discoveryGroupModel);
+                        if (discoveryGroupModel.hasDefined(JGROUPS_CLUSTER_NAME.getName())) {
+                            ModelNode channelFactory = JGROUPS_CHANNEL_FACTORY.resolveModelAttribute(context, discoveryGroupModel);
                             ServiceName channelFactoryServiceName = channelFactory.isDefined() ? ProtocolStackServiceName.CHANNEL_FACTORY.getServiceName(channelFactory.asString()) : ProtocolStackServiceName.CHANNEL_FACTORY.getServiceName();
-                            String channelName = JGROUPS_CHANNEL.resolveModelAttribute(context, discoveryGroupModel).asString();
+                            String jgroupsClusterName = JGROUPS_CLUSTER_NAME.resolveModelAttribute(context, discoveryGroupModel).asString();
                             serviceBuilder.addDependency(channelFactoryServiceName, ChannelFactory.class, serverService.getJGroupsInjector(key));
-                            serverService.getJGroupsChannels().put(key, channelName);
+                            serverService.getJGroupsClusterNames().put(key, jgroupsClusterName);
                         } else {
                             final ServiceName groupBinding = GroupBindingService.getDiscoveryBaseServiceName(activeMQServiceName).append(name);
                             serviceBuilder.addDependency(groupBinding, SocketBinding.class, serverService.getGroupBindingInjector(key));

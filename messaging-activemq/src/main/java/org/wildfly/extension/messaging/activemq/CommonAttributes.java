@@ -172,15 +172,15 @@ public interface CommonAttributes {
             .setXmlName("param")
             .build();
 
-    SimpleAttributeDefinition JGROUPS_STACK = create("jgroups-stack", ModelType.STRING)
+    SimpleAttributeDefinition JGROUPS_CHANNEL_FACTORY = create("jgroups-channel-factory", ModelType.STRING)
             .setAllowNull(true)
             // do not allow expression as this may reference another resource
             .setAllowExpression(false)
-            .setRequires("jgroups-channel")
+            .setRequires("jgroups-cluster-name")
             .setRestartAllServices()
             .build();
 
-    SimpleAttributeDefinition JGROUPS_CHANNEL = create("jgroups-channel", ModelType.STRING)
+    SimpleAttributeDefinition JGROUPS_CLUSTER_NAME = create("jgroups-cluster-name", ModelType.STRING)
             .setAllowNull(true)
             .setAllowExpression(true)
             .setAlternatives("socket-binding")
@@ -268,7 +268,7 @@ public interface CommonAttributes {
 
     SimpleAttributeDefinition SOCKET_BINDING = create("socket-binding", ModelType.STRING)
             .setAllowNull(true)
-            .setAlternatives(JGROUPS_CHANNEL.getName())
+            .setAlternatives(JGROUPS_CLUSTER_NAME.getName())
             .setRestartAllServices()
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.SOCKET_BINDING_REF)
             .build();

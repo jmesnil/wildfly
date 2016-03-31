@@ -24,7 +24,7 @@ package org.wildfly.extension.messaging.activemq.deployment;
 
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.CONNECTORS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.DEFAULT;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CLUSTER_NAME;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.NO_TX;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.POOLED_CONNECTION_FACTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SERVER;
@@ -211,9 +211,9 @@ public class JMSConnectionFactoryDefinitionInjectionSource extends ResourceDefin
         if (discoveryGroupName != null) {
             model.get(DISCOVERY_GROUP.getName()).set(discoveryGroupName);
         }
-        final String jgroupsChannelName = properties.containsKey(JGROUPS_CHANNEL.getName()) ? properties.get(JGROUPS_CHANNEL.getName()) : null;
-        if (jgroupsChannelName != null) {
-            model.get(JGROUPS_CHANNEL.getName()).set(jgroupsChannelName);
+        final String jgroupsClusterName = properties.containsKey(JGROUPS_CLUSTER_NAME.getName()) ? properties.get(JGROUPS_CLUSTER_NAME.getName()) : null;
+        if (jgroupsClusterName != null) {
+            model.get(JGROUPS_CLUSTER_NAME.getName()).set(jgroupsClusterName);
         }
         final String managedConnectionPoolClassName = properties.containsKey(MANAGED_CONNECTION_POOL.getName()) ? properties.get(MANAGED_CONNECTION_POOL.getName()) : null;
         if (managedConnectionPoolClassName != null) {
@@ -228,7 +228,7 @@ public class JMSConnectionFactoryDefinitionInjectionSource extends ResourceDefin
         final String pcfName = uniqueName(context, name);
         final ContextNames.BindInfo bindInfo = ContextNames.bindInfoForEnvEntry(context.getApplicationName(), context.getModuleName(), context.getComponentName(), !context.isCompUsesModule(), name);
         PooledConnectionFactoryService.installService(serviceTarget, pcfName, serverName, connectors,
-                discoveryGroupName, jgroupsChannelName, adapterParams,
+                discoveryGroupName, jgroupsClusterName, adapterParams,
                 bindInfo,
                 txSupport, minPoolSize, maxPoolSize, managedConnectionPoolClassName, enlistmentTrace, true);
 

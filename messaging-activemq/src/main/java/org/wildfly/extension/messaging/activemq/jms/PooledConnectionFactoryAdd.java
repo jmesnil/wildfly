@@ -23,7 +23,7 @@
 package org.wildfly.extension.messaging.activemq.jms;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CLUSTER_NAME;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.LOCAL;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.LOCAL_TX;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.NONE;
@@ -110,11 +110,11 @@ public class PooledConnectionFactoryAdd extends AbstractAddStepHandler {
         ServiceTarget serviceTarget = context.getServiceTarget();
         List<String> connectors = Common.CONNECTORS.unwrap(context, model);
         String discoveryGroupName = getDiscoveryGroup(resolvedModel);
-        String jgroupsChannelName = null;
+        String jgroupsClusterName = null;
         if (discoveryGroupName != null) {
             Resource dgResource = context.readResourceFromRoot(MessagingServices.getActiveMQServerPathAddress(address).append(CommonAttributes.DISCOVERY_GROUP, discoveryGroupName));
             ModelNode dgModel = dgResource.getModel();
-            jgroupsChannelName = JGROUPS_CHANNEL.resolveModelAttribute(context, dgModel).asString();
+            jgroupsClusterName = JGROUPS_CLUSTER_NAME.resolveModelAttribute(context, dgModel).asString();
         }
 
         List<PooledConnectionFactoryConfigProperties> adapterParams = getAdapterParams(resolvedModel, context);
@@ -122,7 +122,7 @@ public class PooledConnectionFactoryAdd extends AbstractAddStepHandler {
         final PathAddress serverAddress = MessagingServices.getActiveMQServerPathAddress(address);
 
         PooledConnectionFactoryService.installService(serviceTarget,
-                name, serverAddress.getLastElement().getValue(), connectors, discoveryGroupName, jgroupsChannelName,
+                name, serverAddress.getLastElement().getValue(), connectors, discoveryGroupName, jgroupsClusterName,
                 adapterParams, jndiNames, txSupport, minPoolSize, maxPoolSize, managedConnectionPoolClassName, enlistmentTrace);
     }
 

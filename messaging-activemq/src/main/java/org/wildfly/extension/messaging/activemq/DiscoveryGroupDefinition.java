@@ -24,8 +24,8 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.MILLISECONDS;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_STACK;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CLUSTER_NAME;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL_FACTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SOCKET_BINDING;
 
 import java.util.Arrays;
@@ -68,7 +68,7 @@ public class DiscoveryGroupDefinition extends PersistentResourceDefinition {
             .setRestartAllServices()
             .build();
 
-    public static final AttributeDefinition[] ATTRIBUTES = { JGROUPS_STACK, JGROUPS_CHANNEL, SOCKET_BINDING,
+    public static final AttributeDefinition[] ATTRIBUTES = {JGROUPS_CHANNEL_FACTORY, JGROUPS_CLUSTER_NAME, SOCKET_BINDING,
             REFRESH_TIMEOUT, INITIAL_WAIT_TIMEOUT
     };
 

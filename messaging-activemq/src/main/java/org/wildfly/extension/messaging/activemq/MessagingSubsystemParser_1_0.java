@@ -338,16 +338,16 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                 .addChild(
                                         builder(BroadcastGroupDefinition.INSTANCE)
                                                 .addAttributes(
-                                                        CommonAttributes.JGROUPS_STACK,
-                                                        CommonAttributes.JGROUPS_CHANNEL,
+                                                        CommonAttributes.JGROUPS_CHANNEL_FACTORY,
+                                                        CommonAttributes.JGROUPS_CLUSTER_NAME,
                                                         CommonAttributes.SOCKET_BINDING,
                                                         BroadcastGroupDefinition.BROADCAST_PERIOD,
                                                         BroadcastGroupDefinition.CONNECTOR_REFS))
                                 .addChild(
                                         builder(DiscoveryGroupDefinition.INSTANCE)
                                                 .addAttributes(
-                                                        CommonAttributes.JGROUPS_STACK,
-                                                        CommonAttributes.JGROUPS_CHANNEL,
+                                                        CommonAttributes.JGROUPS_CHANNEL_FACTORY,
+                                                        CommonAttributes.JGROUPS_CLUSTER_NAME,
                                                         CommonAttributes.SOCKET_BINDING,
                                                         DiscoveryGroupDefinition.REFRESH_TIMEOUT,
                                                         DiscoveryGroupDefinition.INITIAL_WAIT_TIMEOUT))

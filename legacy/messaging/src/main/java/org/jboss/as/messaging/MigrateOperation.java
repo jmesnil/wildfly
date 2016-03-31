@@ -501,6 +501,7 @@ public class MigrateOperation implements OperationStepHandler {
         }
         // These attributes no longer accept expressions in the messaging-activemq subsystem.
         removePropertiesWithExpression(newAddOp, warnings, JGROUPS_STACK.getName());
+        renameJGroupsAttributes(newAddOp);
     }
 
     private void migrateBroadcastGroup(ModelNode newAddOp, List<String> warnings) {
@@ -517,6 +518,18 @@ public class MigrateOperation implements OperationStepHandler {
         }
         // These attributes no longer accept expressions in the messaging-activemq subsystem.
         removePropertiesWithExpression(newAddOp, warnings, JGROUPS_STACK.getName());
+        renameJGroupsAttributes(newAddOp);
+    }
+
+    private void renameJGroupsAttributes(ModelNode newAddOp) {
+        if (newAddOp.has(JGROUPS_CHANNEL.getName())) {
+            ModelNode jgroupsClusterName = newAddOp.remove(JGROUPS_CHANNEL.getName());
+            newAddOp.get("jgroups-cluster-name").set(jgroupsClusterName);
+        }
+        if (newAddOp.has(JGROUPS_STACK.getName())) {
+            ModelNode jgroupsClusterName = newAddOp.remove(JGROUPS_STACK.getName());
+            newAddOp.get("jgroups-channel-factory").set(jgroupsClusterName);
+        }
     }
 
 
