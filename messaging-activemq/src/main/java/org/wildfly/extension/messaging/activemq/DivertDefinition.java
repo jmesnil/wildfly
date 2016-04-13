@@ -29,14 +29,24 @@ import static org.jboss.dmr.ModelType.STRING;
 import java.util.Arrays;
 import java.util.Collection;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.AttributeMarshaller;
+import org.jboss.as.controller.ObjectTypeAttributeDefinition;
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.ModelType;
+import org.jboss.dmr.Property;
 
 /**
  * Divert resource definition
@@ -44,8 +54,6 @@ import org.jboss.dmr.ModelNode;
  * @author <a href="http://jmesnil.net">Jeff Mesnil</a> (c) 2012 Red Hat Inc.
  */
 public class DivertDefinition extends PersistentResourceDefinition {
-
-    public static final PathElement PATH = PathElement.pathElement(CommonAttributes.DIVERT);
 
     public static final SimpleAttributeDefinition ROUTING_NAME = create("routing-name", STRING)
             .setAllowNull(true)
@@ -72,15 +80,43 @@ public class DivertDefinition extends PersistentResourceDefinition {
             .setRestartAllServices()
             .build();
 
+    static ObjectTypeAttributeDefinition TRANSFORMER_CLASS = ObjectTypeAttributeDefinition.Builder.of("transformer-class",
+            create(CommonAttributes.NAME, ModelType.STRING, false)
+                    .setAllowExpression(false)
+                    .build(),
+            create(CommonAttributes.MODULE, ModelType.STRING, false)
+                    .setAllowExpression(false)
+                    .build())
+            .setRestartAllServices()
+            .setAllowNull(true)
+            .setAttributeMarshaller(new AttributeMarshaller() {
+                @Override
+                public boolean isMarshallableAsElement() {
+                    return true;
+                }
+
+                @Override
+                public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
+                    if (!resourceModel.hasDefined(attribute.getName())) {
+                        return;
+                    }
+                    resourceModel = resourceModel.get(attribute.getName());
+                    writer.writeEmptyElement(attribute.getXmlName());
+                    writer.writeAttribute(CommonAttributes.NAME, resourceModel.get(CommonAttributes.NAME).asString());
+                    writer.writeAttribute(CommonAttributes.MODULE, resourceModel.get(CommonAttributes.MODULE).asString());
+                }
+            })
+            .build();
+
     public static final AttributeDefinition[] ATTRIBUTES = { ROUTING_NAME, ADDRESS, FORWARDING_ADDRESS, CommonAttributes.FILTER,
-        CommonAttributes.TRANSFORMER_CLASS_NAME, EXCLUSIVE };
+            EXCLUSIVE, TRANSFORMER_CLASS};
 
     private final boolean registerRuntimeOnly;
 
     static final DivertDefinition INSTANCE = new DivertDefinition(false);
 
     public DivertDefinition(boolean registerRuntimeOnly) {
-        super(PATH,
+        super(MessagingExtension.DIVERT_PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.DIVERT),
                 DivertAdd.INSTANCE,
                 DivertRemove.INSTANCE);
@@ -97,6 +133,22 @@ public class DivertDefinition extends PersistentResourceDefinition {
         for (AttributeDefinition attr : ATTRIBUTES) {
             if (registerRuntimeOnly || !attr.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME)) {
                 registry.registerReadWriteAttribute(attr, null, DivertConfigurationWriteHandler.INSTANCE);
+            }
+        }
+    }
+
+    public static void processDiverts(OperationContext context, ModelNode model, ActiveMQServerService serverService) throws OperationFailedException {
+        if (model.hasDefined(CommonAttributes.DIVERT)) {
+            for (Property divert : model.get(CommonAttributes.DIVERT).asPropertyList()) {
+                String name = divert.getName();
+                ModelNode transformerModel = DivertDefinition.TRANSFORMER_CLASS.resolveModelAttribute(context, divert.getValue());
+                Transformer transformer = null;
+                if (transformerModel.isDefined()) {
+                    transformer = Transformer.class.cast(ClassloaderUtil.instantiate(transformerModel));
+                }
+                DivertConfiguration configuration = DivertAdd.createDivertConfiguration(context, name, divert.getValue());
+                serverService.getConfiguration().addDivertConfiguration(configuration);
+                serverService.addDivertTransformer(name, transformer);
             }
         }
     }

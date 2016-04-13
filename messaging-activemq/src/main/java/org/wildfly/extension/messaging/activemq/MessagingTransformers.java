@@ -62,25 +62,42 @@ public class MessagingTransformers {
 
     private static void buildTransformers2_0_0(ResourceTransformationDescriptionBuilder builder) {
         ResourceTransformationDescriptionBuilder server = builder.addChildResource(MessagingExtension.SERVER_PATH);
+
         ResourceTransformationDescriptionBuilder connectorService = server.addChildResource(MessagingExtension.CONNECTOR_SERVICE_PATH);
         // transform connector-service class attribute into the legacy factory-class attribute
-        CombinedTransformer connectorServiceTransformer = new ConnectorServiceTransformer();
+        CombinedTransformer connectorServiceTransformer = new ClassTransformer(ConnectorServiceDefinition.CLASS.getName(), CommonAttributes.FACTORY_CLASS.getName());
         connectorService.setCustomResourceTransformer(connectorServiceTransformer);
         connectorService.addOperationTransformationOverride(ADD)
                 .inheritResourceAttributeDefinitions()
                 .setCustomOperationTransformer(connectorServiceTransformer);
+
+        ResourceTransformationDescriptionBuilder divert = server.addChildResource(MessagingExtension.DIVERT_PATH);
+        // transform divert transformer-class attribute into the legacy transformer-class-name attribute
+        CombinedTransformer divertTransformer = new ClassTransformer(DivertDefinition.TRANSFORMER_CLASS.getName(), CommonAttributes.TRANSFORMER_CLASS_NAME.getName());
+        connectorService.setCustomResourceTransformer(divertTransformer);
+        connectorService.addOperationTransformationOverride(ADD)
+                .inheritResourceAttributeDefinitions()
+                .setCustomOperationTransformer(divertTransformer);
     }
 
     /**
-     * Transfrom a connector service with class={name=>x, module=>y} to a legacy connector service with factory-class=x.
-     * Reject if module != org.apache.activemq.artemis
+     * Transform a resource with <attribute name>={name=>x, module=>y} to a legacy resource service with <legacy attribute name>=x.
+     * Reject if the module y != org.apache.activemq.artemis
      *
      */
-    private static class ConnectorServiceTransformer implements CombinedTransformer {
+    private static class ClassTransformer implements CombinedTransformer {
+
+        private final String attributeName;
+        private final String legacyAttributeName;
+
+        public ClassTransformer(String attributeName, String legacyAttributeName) {
+            this.attributeName = attributeName;
+            this.legacyAttributeName = legacyAttributeName;
+        }
 
         @Override
         public TransformedOperation transformOperation(TransformationContext context, PathAddress address, ModelNode operation) throws OperationFailedException {
-            ModelNode classModel = operation.get(ConnectorServiceDefinition.CLASS.getName());
+            ModelNode classModel = operation.get(attributeName);
             String module = classModel.get(MODULE).asString();
             if (MessagingExtension.ACTIVEMQ_ARTEMIS_MODULE_ID.equals(module)) {
                 return new TransformedOperation(operation, new OperationRejectionPolicy() {
@@ -95,23 +112,20 @@ public class MessagingTransformers {
                     }
                 }, OperationResultTransformer.ORIGINAL_RESULT);
             }
-            operation.remove(ConnectorServiceDefinition.CLASS.getName());
-            operation.get(CommonAttributes.FACTORY_CLASS.getName()).set(classModel.get(NAME));
+            operation.remove(attributeName);
+            operation.get(legacyAttributeName).set(classModel.get(NAME));
             return new TransformedOperation(operation, OperationResultTransformer.ORIGINAL_RESULT);
         }
 
         @Override
         public void transformResource(ResourceTransformationContext context, PathAddress address, Resource resource) throws OperationFailedException {
-            Resource untransformedResource = context.readResource(PathAddress.EMPTY_ADDRESS);
-            ModelNode untransformedModel = Resource.Tools.readModel(untransformedResource);
-
-            ModelNode transformed = resource.getModel();
-            ModelNode classModel = transformed.remove(ConnectorServiceDefinition.CLASS.getName());
+            ModelNode transformed = resource.getModel().clone();
+            ModelNode classModel = transformed.remove(attributeName);
             String module = classModel.get(MODULE).asString();
             if (MessagingExtension.ACTIVEMQ_ARTEMIS_MODULE_ID.equals(module)) {
                 throw new OperationFailedException("can not transform a connector service with a specific module");
             }
-            transformed.get(CommonAttributes.FACTORY_CLASS.getName()).set(classModel.get(NAME));
+            transformed.get(legacyAttributeName).set(classModel.get(NAME));
             context.addTransformedResource(PathAddress.EMPTY_ADDRESS, resource);
         }
     }

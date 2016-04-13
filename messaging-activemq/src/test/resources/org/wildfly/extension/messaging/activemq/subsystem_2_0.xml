@@ -225,8 +225,9 @@
                 address="${address:address1}"
                 forwarding-address="${forwarding.address:forwardingaddress1}"
                 filter="${filter:afilter}"
-                transformer-class-name="org.jboss.test.Transformer"
-                exclusive="${exclusive:true}"/>
+                exclusive="${exclusive:true}">
+            <transformer-class name="org.jboss.test.Transformer" module="org.foo" />
+        </divert>
         <divert name="testDivert2"
                 address="address2"
                 forwarding-address="forwardingaddress2"/>

@@ -392,7 +392,22 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                                         DivertDefinition.FORWARDING_ADDRESS,
                                                         CommonAttributes.FILTER,
                                                         CommonAttributes.TRANSFORMER_CLASS_NAME,
-                                                        DivertDefinition.EXCLUSIVE))
+                                                        DivertDefinition.EXCLUSIVE)
+                                                .setAdditionalOperationsGenerator((address, addOperation, operations) -> {
+                                                    // WFLY-6516 the transformer-class-name attribute has been replaced by an object attribute composed of
+                                                    // a name and module attributes
+                                                    if (!addOperation.hasDefined(CommonAttributes.TRANSFORMER_CLASS_NAME.getName())) {
+                                                        return;
+                                                    }
+                                                    ModelNode className = addOperation.remove(CommonAttributes.TRANSFORMER_CLASS_NAME.getName());
+                                                    ModelNode classModel = new ModelNode();
+                                                    classModel.get(CommonAttributes.NAME).set(className);
+                                                    // hard-code the module definition to org.apache.activemq.artemis as the
+                                                    // class was necessarily loaded from this module by Artemis itself
+                                                    classModel.get(CommonAttributes.MODULE).set(ACTIVEMQ_ARTEMIS_MODULE_ID);
+                                                    addOperation.get(DivertDefinition.TRANSFORMER_CLASS.getName()).set(classModel);
+                                                }))
+
                                 .addChild(
                                         builder(BridgeDefinition.INSTANCE)
                                                 .addAttributes(

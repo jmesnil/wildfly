@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.services.path.AbsolutePathService;
@@ -107,6 +108,7 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
     private final List<Interceptor> incomingInterceptors = new ArrayList<>();
     private final List<Interceptor> outgoingInterceptors = new ArrayList<>();
     private final Map<ConnectorServiceFactory, ConnectorServiceConfiguration> connectorServices = new HashMap<>();
+    private final Map<String, Transformer> divertTransformers = new HashMap<>();
 
     public ActiveMQServerService(Configuration configuration, PathConfig pathConfig) {
         this.configuration = configuration;
@@ -141,6 +143,10 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
         return channels;
     }
 
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
     protected List<Interceptor> getIncomingInterceptors() {
         return incomingInterceptors;
     }
@@ -151,6 +157,10 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
 
     protected void addConnectorService(ConnectorServiceFactory factory, ConnectorServiceConfiguration configuration) {
         connectorServices.put(factory, configuration);
+    }
+
+    protected void addDivertTransformer(String divertName, Transformer transformer) {
+        divertTransformers.put(divertName, transformer);
     }
 
     public synchronized void start(final StartContext context) throws StartException {
@@ -310,6 +320,9 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
             }
             for (Map.Entry<ConnectorServiceFactory,ConnectorServiceConfiguration> entry : connectorServices.entrySet()) {
                 server.getServiceRegistry().addConnectorService(entry.getKey(), entry.getValue());
+            }
+            for (Map.Entry<String,Transformer> entry : divertTransformers.entrySet()) {
+                server.getServiceRegistry().addDivertTransformer(entry.getKey(), entry.getValue());
             }
 
             // the server is actually started by the JMSService.

@@ -390,8 +390,8 @@ public class MessagingSubsystemParser_2_0 implements XMLStreamConstants, XMLElem
                                                         DivertDefinition.ADDRESS,
                                                         DivertDefinition.FORWARDING_ADDRESS,
                                                         CommonAttributes.FILTER,
-                                                        CommonAttributes.TRANSFORMER_CLASS_NAME,
-                                                        DivertDefinition.EXCLUSIVE))
+                                                        DivertDefinition.EXCLUSIVE,
+                                                        DivertDefinition.TRANSFORMER_CLASS))
                                 .addChild(
                                         builder(BridgeDefinition.INSTANCE)
                                                 .addAttributes(

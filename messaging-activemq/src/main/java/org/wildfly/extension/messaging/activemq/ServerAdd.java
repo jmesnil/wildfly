@@ -210,6 +210,7 @@ class ServerAdd extends AbstractAddStepHandler {
                 processIncomingInterceptors(INCOMING_INTERCEPTORS.resolveModelAttribute(context, operation), serverService);
                 processOutgoingInterceptors(OUTGOING_INTERCEPTORS.resolveModelAttribute(context, operation), serverService);
                 ConnectorServiceDefinition.processConnectorServices(context, model, serverService);
+                DivertDefinition.processDiverts(context, model, serverService);
 
                 // Add the ActiveMQ Service
                 ServiceName activeMQServiceName = MessagingServices.getActiveMQServiceName(serverName);
@@ -404,7 +405,6 @@ class ServerAdd extends AbstractAddStepHandler {
         // Add in items from child resources
         GroupingHandlerAdd.addGroupingHandlerConfig(context,configuration, model);
         DiscoveryGroupAdd.addDiscoveryGroupConfigs(context, configuration, model);
-        DivertAdd.addDivertConfigs(context, configuration, model);
         QueueAdd.addQueueConfigs(context, configuration, model);
         BridgeAdd.addBridgeConfigs(context, configuration, model);
         ClusterConnectionAdd.addClusterConnectionConfigs(context, configuration, model);

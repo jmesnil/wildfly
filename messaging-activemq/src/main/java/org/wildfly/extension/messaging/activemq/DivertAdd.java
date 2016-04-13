@@ -22,12 +22,10 @@
 
 package org.wildfly.extension.messaging.activemq;
 
-import java.util.List;
-
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -35,7 +33,6 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.Property;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
@@ -67,26 +64,21 @@ public class DivertAdd extends AbstractAddStepHandler {
                 throw MessagingLogger.ROOT_LOGGER.invalidServiceState(serviceName, ServiceController.State.UP, service.getState());
             }
 
-            final String name = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR)).getLastElement().getValue();
+            final String name = context.getCurrentAddressValue();
 
             DivertConfiguration divertConfiguration = createDivertConfiguration(context, name, model);
 
-            ActiveMQServerControl serverControl = ActiveMQServer.class.cast(service.getValue()).getActiveMQServerControl();
+            ActiveMQServer server = ActiveMQServer.class.cast(service.getValue());
+            if (divertConfiguration.getTransformerClassName() != null) {
+                Transformer transformer = Transformer.class.cast(ClassloaderUtil.instantiate(DivertDefinition.TRANSFORMER_CLASS.resolveModelAttribute(context, model)));
+                server.getServiceRegistry().addDivertTransformer(name, transformer);
+            }
+            ActiveMQServerControl serverControl = server.getActiveMQServerControl();
             createDivert(name, divertConfiguration, serverControl);
 
         }
         // else the initial subsystem install is not complete; MessagingSubsystemAdd will add a
         // handler that calls addDivertConfigs
-    }
-
-    static void addDivertConfigs(final OperationContext context, final Configuration configuration, final ModelNode model)  throws OperationFailedException {
-        if (model.hasDefined(CommonAttributes.DIVERT)) {
-            final List<DivertConfiguration> configs = configuration.getDivertConfigurations();
-            for (Property prop : model.get(CommonAttributes.DIVERT).asPropertyList()) {
-                configs.add(createDivertConfiguration(context, prop.getName(), prop.getValue()));
-
-            }
-        }
     }
 
     static DivertConfiguration createDivertConfiguration(final OperationContext context, String name, ModelNode model) throws OperationFailedException {
@@ -97,8 +89,8 @@ public class DivertAdd extends AbstractAddStepHandler {
         final boolean exclusive = DivertDefinition.EXCLUSIVE.resolveModelAttribute(context, model).asBoolean();
         final ModelNode filterNode = CommonAttributes.FILTER.resolveModelAttribute(context, model);
         final String filter = filterNode.isDefined() ? filterNode.asString() : null;
-        final ModelNode transformerNode =  CommonAttributes.TRANSFORMER_CLASS_NAME.resolveModelAttribute(context, model);
-        final String transformerClassName = transformerNode.isDefined() ? transformerNode.asString() : null;
+        final ModelNode transformerNode =  DivertDefinition.TRANSFORMER_CLASS.resolveModelAttribute(context, model);
+        final String transformerClassName = transformerNode.isDefined() ? transformerNode.get(CommonAttributes.NAME).asString() : null;
         return new DivertConfiguration()
                 .setName(name)
                 .setRoutingName(routingName)
