@@ -87,7 +87,7 @@ public class MessagingActiveMQSubsystem_2_0_TestCase extends AbstractSubsystemBa
     @Ignore
     @Test
     public void testTransformersWFLY_10_0_0() throws Exception {
-        testTransformers(ModelTestControllerVersion.WILDFLY_10_0_0_FINAL, MessagingExtension.VERSION_1_0_0, null);
+        testTransformers(ModelTestControllerVersion.MASTER, MessagingExtension.VERSION_1_0_0, null);
     }
 
     private void testTransformers(ModelTestControllerVersion controllerVersion, ModelVersion messagingVersion, ModelFixer fixer) throws Exception {
