@@ -74,10 +74,18 @@ public class MessagingTransformers {
         ResourceTransformationDescriptionBuilder divert = server.addChildResource(MessagingExtension.DIVERT_PATH);
         // transform divert transformer-class attribute into the legacy transformer-class-name attribute
         CombinedTransformer divertTransformer = new ClassTransformer(CommonAttributes.TRANSFORMER_CLASS.getName(), CommonAttributes.TRANSFORMER_CLASS_NAME.getName());
-        connectorService.setCustomResourceTransformer(divertTransformer);
-        connectorService.addOperationTransformationOverride(ADD)
+        divert.setCustomResourceTransformer(divertTransformer);
+        divert.addOperationTransformationOverride(ADD)
                 .inheritResourceAttributeDefinitions()
                 .setCustomOperationTransformer(divertTransformer);
+
+        ResourceTransformationDescriptionBuilder bridge = server.addChildResource(MessagingExtension.BRIDGE_PATH);
+        // transform bridge transformer-class attribute into the legacy transformer-class-name attribute
+        CombinedTransformer bridgeTransformer = new ClassTransformer(CommonAttributes.TRANSFORMER_CLASS.getName(), CommonAttributes.TRANSFORMER_CLASS_NAME.getName());
+        bridge.setCustomResourceTransformer(bridgeTransformer);
+        bridge.addOperationTransformationOverride(ADD)
+                .inheritResourceAttributeDefinitions()
+                .setCustomOperationTransformer(bridgeTransformer);
     }
 
     /**
