@@ -30,6 +30,7 @@ import java.util.List;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
+import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PersistentResourceXMLDescription;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
@@ -393,21 +394,8 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                                         CommonAttributes.FILTER,
                                                         CommonAttributes.TRANSFORMER_CLASS_NAME,
                                                         DivertDefinition.EXCLUSIVE)
-                                                .setAdditionalOperationsGenerator((address, addOperation, operations) -> {
-                                                    // WFLY-6516 the transformer-class-name attribute has been replaced by an object attribute composed of
-                                                    // a name and module attributes
-                                                    if (!addOperation.hasDefined(CommonAttributes.TRANSFORMER_CLASS_NAME.getName())) {
-                                                        return;
-                                                    }
-                                                    ModelNode className = addOperation.remove(CommonAttributes.TRANSFORMER_CLASS_NAME.getName());
-                                                    ModelNode classModel = new ModelNode();
-                                                    classModel.get(CommonAttributes.NAME).set(className);
-                                                    // hard-code the module definition to org.apache.activemq.artemis as the
-                                                    // class was necessarily loaded from this module by Artemis itself
-                                                    classModel.get(CommonAttributes.MODULE).set(ACTIVEMQ_ARTEMIS_MODULE_ID);
-                                                    addOperation.get(DivertDefinition.TRANSFORMER_CLASS.getName()).set(classModel);
-                                                }))
-
+                                                // WFLY-6516 the transformer-class-name attribute has been replaced by the transformer-class attribute
+                                                .setAdditionalOperationsGenerator(new ClassOperationGenerator(CommonAttributes.TRANSFORMER_CLASS, CommonAttributes.TRANSFORMER_CLASS_NAME)))
                                 .addChild(
                                         builder(BridgeDefinition.INSTANCE)
                                                 .addAttributes(
@@ -430,23 +418,16 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                                         BridgeDefinition.USER,
                                                         BridgeDefinition.PASSWORD,
                                                         BridgeDefinition.CONNECTOR_REFS,
-                                                        BridgeDefinition.DISCOVERY_GROUP_NAME))
+                                                        BridgeDefinition.DISCOVERY_GROUP_NAME)
+                                                // WFLY-6519 the transformer-class-name attribute has been replaced by the transformer-class attribute
+                                                .setAdditionalOperationsGenerator(new ClassOperationGenerator(CommonAttributes.TRANSFORMER_CLASS, CommonAttributes.TRANSFORMER_CLASS_NAME)))
                                 .addChild(
                                         builder(ConnectorServiceDefinition.INSTANCE)
                                                 .addAttributes(
                                                         CommonAttributes.FACTORY_CLASS,
                                                         CommonAttributes.PARAMS)
-                                                .setAdditionalOperationsGenerator((address, addOperation, operations) -> {
-                                                    // WFLY-6269 the factory-class attribute has been replaced by an object attribute composed of
-                                                    // a name and module attributes
-                                                    ModelNode className = addOperation.remove(CommonAttributes.FACTORY_CLASS.getName());
-                                                    ModelNode classModel = new ModelNode();
-                                                    classModel.get(CommonAttributes.NAME).set(className);
-                                                    // hard-code the module definition to org.apache.activemq.artemis as the
-                                                    // class was necessarily loaded from this module by Artemis itself
-                                                    classModel.get(CommonAttributes.MODULE).set(ACTIVEMQ_ARTEMIS_MODULE_ID);
-                                                    addOperation.get(ConnectorServiceDefinition.CLASS.getName()).set(classModel);
-                                                }))
+                                                // WFLY-6269 the factory-class attribute has been replaced by the class attribute
+                                                .setAdditionalOperationsGenerator(new ClassOperationGenerator(ConnectorServiceDefinition.CLASS, CommonAttributes.FACTORY_CLASS)))
                                 .addChild(
                                         builder(JMSQueueDefinition.INSTANCE)
                                                 .addAttributes(
@@ -635,5 +616,35 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
     @Override
     public void readElement(XMLExtendedStreamReader reader, List<ModelNode> list) throws XMLStreamException {
         xmlDescription.parse(reader, PathAddress.EMPTY_ADDRESS, list);
+    }
+
+    /**
+     * Generator that removes a legacy attribute representing a class (with only the name of the class and no module)
+     * and replace it by a new attribute where the class is represented by its name and the org.apache.activemq.artemis module.
+     */
+    private static final class ClassOperationGenerator implements PersistentResourceXMLDescription.AdditionalOperationsGenerator {
+
+        private final AttributeDefinition newAttribute;
+        private final AttributeDefinition legacyAttribute;
+
+        private ClassOperationGenerator(AttributeDefinition newClassAttribute, AttributeDefinition legacyAttribute) {
+            this.newAttribute = newClassAttribute;
+            this.legacyAttribute = legacyAttribute;
+        }
+
+        @Override
+        public void additionalOperations(PathAddress address, ModelNode addOperation, List<ModelNode> operations) {
+            if (!addOperation.hasDefined(legacyAttribute.getName())) {
+                return;
+            }
+            ModelNode className = addOperation.remove(legacyAttribute.getName());
+            ModelNode classModel = new ModelNode();
+            classModel.get(CommonAttributes.NAME).set(className);
+            // hard-code the module definition to org.apache.activemq.artemis as the
+            // class was necessarily loaded from this module by Artemis itself
+            classModel.get(CommonAttributes.MODULE).set(ACTIVEMQ_ARTEMIS_MODULE_ID);
+            addOperation.get(newAttribute.getName()).set(classModel);
+
+        }
     }
 }

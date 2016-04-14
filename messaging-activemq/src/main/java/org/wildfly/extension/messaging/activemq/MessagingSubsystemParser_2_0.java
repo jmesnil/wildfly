@@ -391,7 +391,7 @@ public class MessagingSubsystemParser_2_0 implements XMLStreamConstants, XMLElem
                                                         DivertDefinition.FORWARDING_ADDRESS,
                                                         CommonAttributes.FILTER,
                                                         DivertDefinition.EXCLUSIVE,
-                                                        DivertDefinition.TRANSFORMER_CLASS))
+                                                        CommonAttributes.TRANSFORMER_CLASS))
                                 .addChild(
                                         builder(BridgeDefinition.INSTANCE)
                                                 .addAttributes(
@@ -399,7 +399,7 @@ public class MessagingSubsystemParser_2_0 implements XMLStreamConstants, XMLElem
                                                         BridgeDefinition.FORWARDING_ADDRESS,
                                                         CommonAttributes.HA,
                                                         CommonAttributes.FILTER,
-                                                        CommonAttributes.TRANSFORMER_CLASS_NAME,
+                                                        CommonAttributes.TRANSFORMER_CLASS,
                                                         CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
                                                         CommonAttributes.CHECK_PERIOD,
                                                         CommonAttributes.CONNECTION_TTL,

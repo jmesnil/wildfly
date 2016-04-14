@@ -39,7 +39,6 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
@@ -48,7 +47,6 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.Property;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
@@ -102,16 +100,6 @@ public class BridgeAdd extends AbstractAddStepHandler {
         // handler that calls addBridgeConfigs
     }
 
-    static void addBridgeConfigs(final OperationContext context, final Configuration configuration, final ModelNode model)  throws OperationFailedException {
-        if (model.hasDefined(CommonAttributes.BRIDGE)) {
-            final List<BridgeConfiguration> configs = configuration.getBridgeConfigurations();
-            for (Property prop : model.get(CommonAttributes.BRIDGE).asPropertyList()) {
-                configs.add(createBridgeConfiguration(context, prop.getName(), prop.getValue()));
-
-            }
-        }
-    }
-
     static BridgeConfiguration createBridgeConfiguration(final OperationContext context, final String name, final ModelNode model) throws OperationFailedException {
 
         final String queueName = QUEUE_NAME.resolveModelAttribute(context, model).asString();
@@ -119,8 +107,8 @@ public class BridgeAdd extends AbstractAddStepHandler {
         final String forwardingAddress = forwardingNode.isDefined() ? forwardingNode.asString() : null;
         final ModelNode filterNode = CommonAttributes.FILTER.resolveModelAttribute(context, model);
         final String filterString = filterNode.isDefined() ? filterNode.asString() : null;
-        final ModelNode transformerNode = CommonAttributes.TRANSFORMER_CLASS_NAME.resolveModelAttribute(context, model);
-        final String transformerClassName = transformerNode.isDefined() ? transformerNode.asString() : null;
+        final ModelNode transformerNode =  CommonAttributes.TRANSFORMER_CLASS.resolveModelAttribute(context, model);
+        final String transformerClassName = transformerNode.isDefined() ? transformerNode.get(CommonAttributes.NAME).asString() : null;
         final int minLargeMessageSize = CommonAttributes.MIN_LARGE_MESSAGE_SIZE.resolveModelAttribute(context, model).asInt();
         final long retryInterval = CommonAttributes.RETRY_INTERVAL.resolveModelAttribute(context, model).asLong();
         final double retryIntervalMultiplier = CommonAttributes.RETRY_INTERVAL_MULTIPLIER.resolveModelAttribute(context, model).asDouble();

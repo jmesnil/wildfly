@@ -70,7 +70,7 @@ public class DivertAdd extends AbstractAddStepHandler {
 
             ActiveMQServer server = ActiveMQServer.class.cast(service.getValue());
             if (divertConfiguration.getTransformerClassName() != null) {
-                Transformer transformer = Transformer.class.cast(ClassloaderUtil.instantiate(DivertDefinition.TRANSFORMER_CLASS.resolveModelAttribute(context, model)));
+                Transformer transformer = Transformer.class.cast(ClassloaderUtil.instantiate(CommonAttributes.TRANSFORMER_CLASS.resolveModelAttribute(context, model)));
                 server.getServiceRegistry().addDivertTransformer(name, transformer);
             }
             ActiveMQServerControl serverControl = server.getActiveMQServerControl();
@@ -89,7 +89,7 @@ public class DivertAdd extends AbstractAddStepHandler {
         final boolean exclusive = DivertDefinition.EXCLUSIVE.resolveModelAttribute(context, model).asBoolean();
         final ModelNode filterNode = CommonAttributes.FILTER.resolveModelAttribute(context, model);
         final String filter = filterNode.isDefined() ? filterNode.asString() : null;
-        final ModelNode transformerNode =  DivertDefinition.TRANSFORMER_CLASS.resolveModelAttribute(context, model);
+        final ModelNode transformerNode =  CommonAttributes.TRANSFORMER_CLASS.resolveModelAttribute(context, model);
         final String transformerClassName = transformerNode.isDefined() ? transformerNode.get(CommonAttributes.NAME).asString() : null;
         return new DivertConfiguration()
                 .setName(name)

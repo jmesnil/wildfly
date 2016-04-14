@@ -73,7 +73,7 @@ public class MessagingTransformers {
 
         ResourceTransformationDescriptionBuilder divert = server.addChildResource(MessagingExtension.DIVERT_PATH);
         // transform divert transformer-class attribute into the legacy transformer-class-name attribute
-        CombinedTransformer divertTransformer = new ClassTransformer(DivertDefinition.TRANSFORMER_CLASS.getName(), CommonAttributes.TRANSFORMER_CLASS_NAME.getName());
+        CombinedTransformer divertTransformer = new ClassTransformer(CommonAttributes.TRANSFORMER_CLASS.getName(), CommonAttributes.TRANSFORMER_CLASS_NAME.getName());
         connectorService.setCustomResourceTransformer(divertTransformer);
         connectorService.addOperationTransformationOverride(ADD)
                 .inheritResourceAttributeDefinitions()

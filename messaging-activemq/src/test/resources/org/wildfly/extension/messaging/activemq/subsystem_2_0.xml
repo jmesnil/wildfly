@@ -237,7 +237,6 @@
                 forwarding-address="${forwarding.address:forwardingaddress1}"
                 ha="${ha:true}"
                 filter="${filter:afilter}"
-                transformer-class-name="foo.bar"
                 min-large-message-size="${min.large.message.size:10240}"
                 check-period="${check.period:666}"
                 connection-ttl="${connection.tt:36000}"
@@ -250,7 +249,10 @@
                 confirmation-window-size="${confirmation.window.size:350}"
                 user="${user:Brian}"
                 password="${password:secret}"
-                static-connectors="in-vm netty" />
+                static-connectors="in-vm netty">
+            <transformer-class name="org.jboss.test.Transformer" module="org.foo" />
+        </bridge>
+
         <bridge name="bridge2"
                 queue-name="coreQueueB"
                 discovery-group="groupC" />

@@ -26,16 +26,20 @@ import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.STRING;
-import static org.wildfly.extension.messaging.activemq.MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.STATIC_CONNECTORS;
+import static org.wildfly.extension.messaging.activemq.MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET;
 
 import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.AttributeMarshaller;
 import org.jboss.as.controller.AttributeParser;
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
@@ -45,6 +49,7 @@ import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.Property;
 
 /**
  * Bridge resource definition
@@ -128,7 +133,7 @@ public class BridgeDefinition extends PersistentResourceDefinition {
 
     public static final AttributeDefinition[] ATTRIBUTES = {
             QUEUE_NAME, FORWARDING_ADDRESS, CommonAttributes.HA,
-            CommonAttributes.FILTER, CommonAttributes.TRANSFORMER_CLASS_NAME,
+            CommonAttributes.FILTER, CommonAttributes.TRANSFORMER_CLASS,
             CommonAttributes.MIN_LARGE_MESSAGE_SIZE, CommonAttributes.CHECK_PERIOD, CommonAttributes.CONNECTION_TTL,
             CommonAttributes.RETRY_INTERVAL, CommonAttributes.RETRY_INTERVAL_MULTIPLIER, CommonAttributes.MAX_RETRY_INTERVAL,
             INITIAL_CONNECT_ATTEMPTS,
@@ -169,5 +174,23 @@ public class BridgeDefinition extends PersistentResourceDefinition {
     public void registerOperations(ManagementResourceRegistration registry) {
         super.registerOperations(registry);
         BridgeControlHandler.INSTANCE.registerOperations(registry, getResourceDescriptionResolver());
+    }
+
+    public static void processBridges(OperationContext context, ModelNode model, ActiveMQServerService serverService) throws OperationFailedException {
+        if (model.hasDefined(CommonAttributes.BRIDGE)) {
+            for (Property bridge : model.get(CommonAttributes.BRIDGE).asPropertyList()) {
+                String name = bridge.getName();
+                ModelNode transformerModel = CommonAttributes.TRANSFORMER_CLASS.resolveModelAttribute(context, bridge.getValue());
+                Transformer transformer = null;
+                if (transformerModel.isDefined()) {
+                    transformer = Transformer.class.cast(ClassloaderUtil.instantiate(transformerModel));
+                }
+                BridgeConfiguration configuration = BridgeAdd.createBridgeConfiguration(context, name, bridge.getValue());
+                serverService.getConfiguration().getBridgeConfigurations().add(configuration);
+                if (transformer != null) {
+                    serverService.addBridgeTransformer(name, transformer);
+                }
+            }
+        }
     }
 }

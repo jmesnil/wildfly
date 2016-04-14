@@ -109,6 +109,7 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
     private final List<Interceptor> outgoingInterceptors = new ArrayList<>();
     private final Map<ConnectorServiceFactory, ConnectorServiceConfiguration> connectorServices = new HashMap<>();
     private final Map<String, Transformer> divertTransformers = new HashMap<>();
+    private final Map<String, Transformer> bridgeTransformers = new HashMap<>();
 
     public ActiveMQServerService(Configuration configuration, PathConfig pathConfig) {
         this.configuration = configuration;
@@ -161,6 +162,10 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
 
     protected void addDivertTransformer(String divertName, Transformer transformer) {
         divertTransformers.put(divertName, transformer);
+    }
+
+    protected void addBridgeTransformer(String bridgeName, Transformer transformer) {
+        bridgeTransformers.put(bridgeName, transformer);
     }
 
     public synchronized void start(final StartContext context) throws StartException {
@@ -323,6 +328,9 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
             }
             for (Map.Entry<String,Transformer> entry : divertTransformers.entrySet()) {
                 server.getServiceRegistry().addDivertTransformer(entry.getKey(), entry.getValue());
+            }
+            for (Map.Entry<String,Transformer> entry : bridgeTransformers.entrySet()) {
+                server.getServiceRegistry().addBridgeTransformer(entry.getKey(), entry.getValue());
             }
 
             // the server is actually started by the JMSService.

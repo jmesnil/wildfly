@@ -32,6 +32,9 @@ import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.wildfly.extension.messaging.activemq.jms.Validators.noDuplicateElements;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
@@ -278,10 +281,39 @@ public interface CommonAttributes {
             .setStorageRuntime()
             .build();
 
+    @Deprecated
     SimpleAttributeDefinition TRANSFORMER_CLASS_NAME = create("transformer-class-name", ModelType.STRING)
             .setAllowNull(true)
             .setAllowExpression(false)
             .setRestartAllServices()
+            .build();
+
+    ObjectTypeAttributeDefinition TRANSFORMER_CLASS = ObjectTypeAttributeDefinition.Builder.of("transformer-class",
+            create(NAME, ModelType.STRING, false)
+                    .setAllowExpression(false)
+                    .build(),
+            create(MODULE, ModelType.STRING, false)
+                    .setAllowExpression(false)
+                    .build())
+            .setRestartAllServices()
+            .setAllowNull(true)
+            .setAttributeMarshaller(new AttributeMarshaller() {
+                @Override
+                public boolean isMarshallableAsElement() {
+                    return true;
+                }
+
+                @Override
+                public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
+                    if (!resourceModel.hasDefined(attribute.getName())) {
+                        return;
+                    }
+                    resourceModel = resourceModel.get(attribute.getName());
+                    writer.writeEmptyElement(attribute.getXmlName());
+                    writer.writeAttribute(NAME, resourceModel.get(NAME).asString());
+                    writer.writeAttribute(MODULE, resourceModel.get(MODULE).asString());
+                }
+            })
             .build();
 
     SimpleAttributeDefinition USER = create("user", ModelType.STRING, true)

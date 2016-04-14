@@ -29,15 +29,10 @@ import static org.jboss.dmr.ModelType.STRING;
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.AttributeMarshaller;
-import org.jboss.as.controller.ObjectTypeAttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PersistentResourceDefinition;
@@ -45,7 +40,6 @@ import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.ModelType;
 import org.jboss.dmr.Property;
 
 /**
@@ -80,36 +74,8 @@ public class DivertDefinition extends PersistentResourceDefinition {
             .setRestartAllServices()
             .build();
 
-    static ObjectTypeAttributeDefinition TRANSFORMER_CLASS = ObjectTypeAttributeDefinition.Builder.of("transformer-class",
-            create(CommonAttributes.NAME, ModelType.STRING, false)
-                    .setAllowExpression(false)
-                    .build(),
-            create(CommonAttributes.MODULE, ModelType.STRING, false)
-                    .setAllowExpression(false)
-                    .build())
-            .setRestartAllServices()
-            .setAllowNull(true)
-            .setAttributeMarshaller(new AttributeMarshaller() {
-                @Override
-                public boolean isMarshallableAsElement() {
-                    return true;
-                }
-
-                @Override
-                public void marshallAsElement(AttributeDefinition attribute, ModelNode resourceModel, boolean marshallDefault, XMLStreamWriter writer) throws XMLStreamException {
-                    if (!resourceModel.hasDefined(attribute.getName())) {
-                        return;
-                    }
-                    resourceModel = resourceModel.get(attribute.getName());
-                    writer.writeEmptyElement(attribute.getXmlName());
-                    writer.writeAttribute(CommonAttributes.NAME, resourceModel.get(CommonAttributes.NAME).asString());
-                    writer.writeAttribute(CommonAttributes.MODULE, resourceModel.get(CommonAttributes.MODULE).asString());
-                }
-            })
-            .build();
-
     public static final AttributeDefinition[] ATTRIBUTES = { ROUTING_NAME, ADDRESS, FORWARDING_ADDRESS, CommonAttributes.FILTER,
-            EXCLUSIVE, TRANSFORMER_CLASS};
+            EXCLUSIVE, CommonAttributes.TRANSFORMER_CLASS};
 
     private final boolean registerRuntimeOnly;
 
@@ -141,14 +107,16 @@ public class DivertDefinition extends PersistentResourceDefinition {
         if (model.hasDefined(CommonAttributes.DIVERT)) {
             for (Property divert : model.get(CommonAttributes.DIVERT).asPropertyList()) {
                 String name = divert.getName();
-                ModelNode transformerModel = DivertDefinition.TRANSFORMER_CLASS.resolveModelAttribute(context, divert.getValue());
+                ModelNode transformerModel = CommonAttributes.TRANSFORMER_CLASS.resolveModelAttribute(context, divert.getValue());
                 Transformer transformer = null;
                 if (transformerModel.isDefined()) {
                     transformer = Transformer.class.cast(ClassloaderUtil.instantiate(transformerModel));
                 }
                 DivertConfiguration configuration = DivertAdd.createDivertConfiguration(context, name, divert.getValue());
                 serverService.getConfiguration().addDivertConfiguration(configuration);
-                serverService.addDivertTransformer(name, transformer);
+                if (transformer != null) {
+                    serverService.addDivertTransformer(name, transformer);
+                }
             }
         }
     }
