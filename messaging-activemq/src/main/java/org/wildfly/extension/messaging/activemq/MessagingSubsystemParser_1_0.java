@@ -560,6 +560,7 @@ public class MessagingSubsystemParser_1_0 implements XMLStreamConstants, XMLElem
                                                         ConnectionFactoryAttributes.Pooled.SETUP_ATTEMPTS,
                                                         ConnectionFactoryAttributes.Pooled.SETUP_INTERVAL,
                                                         ConnectionFactoryAttributes.Pooled.TRANSACTION,
+                                                        ConnectionFactoryAttributes.Pooled.SECURITY_DOMAIN,
                                                         ConnectionFactoryAttributes.Pooled.USER,
                                                         ConnectionFactoryAttributes.Pooled.PASSWORD,
                                                         ConnectionFactoryAttributes.Pooled.MIN_POOL_SIZE,

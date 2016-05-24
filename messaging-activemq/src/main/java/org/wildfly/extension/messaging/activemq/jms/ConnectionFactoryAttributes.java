@@ -378,6 +378,12 @@ public interface ConnectionFactoryAttributes {
                 .setAllowExpression(true)
                 .build();
 
+        SimpleAttributeDefinition SECURITY_DOMAIN = SimpleAttributeDefinitionBuilder.create("security-domain", STRING)
+                .setAllowNull(true)
+                .setAllowExpression(false)
+                .setRestartAllServices()
+                .build();
+
         SimpleAttributeDefinition SETUP_ATTEMPTS = SimpleAttributeDefinitionBuilder.create("setup-attempts", INT)
                 .setAttributeGroup("inbound-config")
                 .setAllowNull(true)
@@ -449,6 +455,7 @@ public interface ConnectionFactoryAttributes {
                 create(USE_AUTO_RECOVERY, "useAutoRecovery", true),
                 create(INITIAL_MESSAGE_PACKET_SIZE, "initialMessagePacketSize", true),
                 create(INITIAL_CONNECT_ATTEMPTS, "initialConnectAttempts", true),
+                create(SECURITY_DOMAIN, null, false)
         };
     }
 }

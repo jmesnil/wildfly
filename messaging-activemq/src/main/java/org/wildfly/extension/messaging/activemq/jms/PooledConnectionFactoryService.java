@@ -50,6 +50,7 @@ import org.jboss.as.connector.util.ConnectorServices;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.as.naming.service.NamingService;
 import org.jboss.as.network.SocketBinding;
+import org.jboss.as.security.service.SecurityDomainService;
 import org.jboss.as.security.service.SubjectFactoryService;
 import org.jboss.as.server.Services;
 import org.jboss.as.txn.service.TxnServices;
@@ -179,8 +180,9 @@ public class PooledConnectionFactoryService implements Service<Void> {
     private final String managedConnectionPoolClassName;
     // can be null. In that case the behaviour is depending on the IronJacamar container setting.
     private final Boolean enlistmentTrace;
+    private final String securityDomain;
 
-    public PooledConnectionFactoryService(String name, List<String> connectors, String discoveryGroupName, String serverName, String jgroupsChannelName, List<PooledConnectionFactoryConfigProperties> adapterParams, List<String> jndiNames, String txSupport, int minPoolSize, int maxPoolSize, String managedConnectionPoolClassName, Boolean enlistmentTrace) {
+    public PooledConnectionFactoryService(String name, List<String> connectors, String discoveryGroupName, String serverName, String jgroupsChannelName, List<PooledConnectionFactoryConfigProperties> adapterParams, List<String> jndiNames, String txSupport, int minPoolSize, int maxPoolSize, String managedConnectionPoolClassName, Boolean enlistmentTrace, String securityDomain) {
         this.name = name;
         this.connectors = connectors;
         this.discoveryGroupName = discoveryGroupName;
@@ -195,9 +197,10 @@ public class PooledConnectionFactoryService implements Service<Void> {
         this.managedConnectionPoolClassName = managedConnectionPoolClassName;
         this.enlistmentTrace = enlistmentTrace;
         this.pickAnyConnectors = false;
+        this.securityDomain = securityDomain;
     }
 
-    public PooledConnectionFactoryService(String name, List<String> connectors, String discoveryGroupName, String serverName, String jgroupsChannelName, List<PooledConnectionFactoryConfigProperties> adapterParams, BindInfo bindInfo, String txSupport, int minPoolSize, int maxPoolSize, String managedConnectionPoolClassName, Boolean enlistmentTrace, boolean pickAnyConnectors) {
+    public PooledConnectionFactoryService(String name, List<String> connectors, String discoveryGroupName, String serverName, String jgroupsChannelName, List<PooledConnectionFactoryConfigProperties> adapterParams, BindInfo bindInfo, String txSupport, int minPoolSize, int maxPoolSize, String managedConnectionPoolClassName, Boolean enlistmentTrace, boolean pickAnyConnectors, String securityDomain) {
         this.name = name;
         this.connectors = connectors;
         this.discoveryGroupName = discoveryGroupName;
@@ -213,6 +216,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
         this.managedConnectionPoolClassName = managedConnectionPoolClassName;
         this.enlistmentTrace = enlistmentTrace;
         this.pickAnyConnectors = pickAnyConnectors;
+        this.securityDomain = securityDomain;
     }
 
     private void initJNDIBindings(List<String> jndiNames) {
@@ -238,14 +242,15 @@ public class PooledConnectionFactoryService implements Service<Void> {
                                       int maxPoolSize,
                                       String managedConnectionPoolClassName,
                                       Boolean enlistmentTrace,
-                                      boolean pickAnyConnectors) {
+                                      boolean pickAnyConnectors,
+                                      String securityDomain) {
 
         ServiceName serverServiceName = MessagingServices.getActiveMQServiceName(serverName);
         ServiceName serviceName = JMSServices.getPooledConnectionFactoryBaseServiceName(serverServiceName).append(name);
 
         PooledConnectionFactoryService service = new PooledConnectionFactoryService(name,
                 connectors, discoveryGroupName, serverName, jgroupsChannelName, adapterParams,
-                bindInfo, txSupport, minPoolSize, maxPoolSize, managedConnectionPoolClassName, enlistmentTrace, pickAnyConnectors);
+                bindInfo, txSupport, minPoolSize, maxPoolSize, managedConnectionPoolClassName, enlistmentTrace, pickAnyConnectors, securityDomain);
 
         installService0(serviceTarget, serverServiceName, serviceName, service);
     }
@@ -262,13 +267,14 @@ public class PooledConnectionFactoryService implements Service<Void> {
                                       int minPoolSize,
                                       int maxPoolSize,
                                       String managedConnectionPoolClassName,
-                                      Boolean enlistmentTrace) {
+                                      Boolean enlistmentTrace,
+                                      String securityDomain) {
 
         ServiceName serverServiceName = MessagingServices.getActiveMQServiceName(serverName);
         ServiceName serviceName = JMSServices.getPooledConnectionFactoryBaseServiceName(serverServiceName).append(name);
         PooledConnectionFactoryService service = new PooledConnectionFactoryService(name,
                 connectors, discoveryGroupName, serverName, jgroupsChannelName, adapterParams,
-                jndiNames, txSupport, minPoolSize, maxPoolSize, managedConnectionPoolClassName, enlistmentTrace);
+                jndiNames, txSupport, minPoolSize, maxPoolSize, managedConnectionPoolClassName, enlistmentTrace, securityDomain);
 
         installService0(serviceTarget, serverServiceName, serviceName, service);
     }
@@ -387,7 +393,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
             Connector cmd = createConnector15(ra);
 
             TransactionSupportEnum transactionSupport = getTransactionSupport(txSupport);
-            ConnectionDefinition common = createConnDef(transactionSupport, bindInfo.getBindName(), minPoolSize, maxPoolSize, managedConnectionPoolClassName, enlistmentTrace);
+            ConnectionDefinition common = createConnDef(transactionSupport, bindInfo.getBindName(), minPoolSize, maxPoolSize, managedConnectionPoolClassName, enlistmentTrace, securityDomain);
             Activation activation = createActivation(common, transactionSupport);
 
             ResourceAdapterActivatorService activator = new ResourceAdapterActivatorService(cmd, activation,
@@ -395,7 +401,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
             activator.setBindInfo(bindInfo);
             activator.setCreateBinderService(createBinderService);
 
-            ServiceController<ResourceAdapterDeployment> controller =
+            ServiceBuilder<ResourceAdapterDeployment> builder =
                     Services.addServerExecutorDependency(
                         serviceTarget.addService(ConnectorServices.RESOURCE_ADAPTER_ACTIVATOR_SERVICE.append(name), activator),
                             activator.getExecutorServiceInjector(), false)
@@ -418,7 +424,13 @@ public class PooledConnectionFactoryService implements Service<Void> {
                             activator.getCcmInjector()).addDependency(NamingService.SERVICE_NAME)
                     .addDependency(TxnServices.JBOSS_TXN_TRANSACTION_MANAGER)
                     .addDependency(ConnectorServices.BOOTSTRAP_CONTEXT_SERVICE.append("default"))
-                    .setInitialMode(ServiceController.Mode.PASSIVE).install();
+                    .setInitialMode(ServiceController.Mode.PASSIVE);
+
+            if (securityDomain != null) {
+                builder.addDependency(SecurityDomainService.SERVICE_NAME.append(securityDomain));
+            }
+
+            ServiceController<ResourceAdapterDeployment> controller = builder.install();
 
             createJNDIAliases(bindInfo, jndiAliases, controller);
 
@@ -457,7 +469,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
     }
 
 
-    private static ConnectionDefinition createConnDef(TransactionSupportEnum transactionSupport, String jndiName, int minPoolSize, int maxPoolSize, String managedConnectionPoolClassName, Boolean enlistmentTrace) throws ValidateException {
+    private static ConnectionDefinition createConnDef(TransactionSupportEnum transactionSupport, String jndiName, int minPoolSize, int maxPoolSize, String managedConnectionPoolClassName, Boolean enlistmentTrace, String securityDomain) throws ValidateException {
         Integer minSize = (minPoolSize == -1) ? null : minPoolSize;
         Integer maxSize = (maxPoolSize == -1) ? null : maxPoolSize;
         boolean prefill = false;
@@ -474,11 +486,7 @@ public class PooledConnectionFactoryService implements Service<Void> {
         }
         TimeOut timeOut = new TimeOutImpl(null, null, null, null, null) {
         };
-        // <security>
-        //   <application />
-        // </security>
-        // => PoolStrategy.POOL_BY_CRI
-        Security security = new SecurityImpl(null, null, true);
+        Security security = new SecurityImpl(null, securityDomain, securityDomain == null);
         // register the XA Connection *without* recovery. ActiveMQ already takes care of the registration with the correct credentials
         // when its ResourceAdapter is started
         Recovery recovery = new Recovery(new CredentialImpl(null, null, null), null, Boolean.TRUE);

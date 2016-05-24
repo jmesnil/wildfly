@@ -34,6 +34,7 @@ import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttr
 import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Pooled.MANAGED_CONNECTION_POOL;
 import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Pooled.MAX_POOL_SIZE;
 import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Pooled.MIN_POOL_SIZE;
+import static org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes.Pooled.SECURITY_DOMAIN;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -220,6 +221,10 @@ public class JMSConnectionFactoryDefinitionInjectionSource extends ResourceDefin
             model.get(MANAGED_CONNECTION_POOL.getName()).set(managedConnectionPoolClassName);
         }
         final Boolean enlistmentTrace = properties.containsKey(ENLISTMENT_TRACE.getName()) ? Boolean.valueOf(properties.get(ENLISTMENT_TRACE.getName())) : null;
+        final String securityDomain = properties.containsKey(SECURITY_DOMAIN.getName()) ? properties.get(SECURITY_DOMAIN.getName()) : null;
+        if (securityDomain != null) {
+            model.get(SECURITY_DOMAIN.getName()).set(securityDomain);
+        }
 
         List<PooledConnectionFactoryConfigProperties> adapterParams = getAdapterParams(model);
         String txSupport = transactional ? XA_TX : NO_TX;
@@ -230,7 +235,7 @@ public class JMSConnectionFactoryDefinitionInjectionSource extends ResourceDefin
         PooledConnectionFactoryService.installService(serviceTarget, pcfName, serverName, connectors,
                 discoveryGroupName, jgroupsChannelName, adapterParams,
                 bindInfo,
-                txSupport, minPoolSize, maxPoolSize, managedConnectionPoolClassName, enlistmentTrace, true);
+                txSupport, minPoolSize, maxPoolSize, managedConnectionPoolClassName, enlistmentTrace, true, securityDomain);
 
         final ServiceName referenceFactoryServiceName = ConnectionFactoryReferenceFactoryService.SERVICE_NAME_BASE
                 .append(bindInfo.getBinderServiceName());

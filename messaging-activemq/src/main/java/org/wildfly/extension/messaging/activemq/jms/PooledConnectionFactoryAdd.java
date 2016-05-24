@@ -106,6 +106,10 @@ public class PooledConnectionFactoryAdd extends AbstractAddStepHandler {
         } else {
             txSupport = XA_TX;
         }
+        String securityDomain = null;
+        if (resolvedModel.hasDefined(ConnectionFactoryAttributes.Pooled.SECURITY_DOMAIN.getName())) {
+            securityDomain = resolvedModel.get(ConnectionFactoryAttributes.Pooled.SECURITY_DOMAIN.getName()).asString();
+        }
 
         ServiceTarget serviceTarget = context.getServiceTarget();
         List<String> connectors = Common.CONNECTORS.unwrap(context, model);
@@ -123,7 +127,7 @@ public class PooledConnectionFactoryAdd extends AbstractAddStepHandler {
 
         PooledConnectionFactoryService.installService(serviceTarget,
                 name, serverAddress.getLastElement().getValue(), connectors, discoveryGroupName, jgroupsChannelName,
-                adapterParams, jndiNames, txSupport, minPoolSize, maxPoolSize, managedConnectionPoolClassName, enlistmentTrace);
+                adapterParams, jndiNames, txSupport, minPoolSize, maxPoolSize, managedConnectionPoolClassName, enlistmentTrace, securityDomain);
     }
 
     static String getDiscoveryGroup(final ModelNode model) {
