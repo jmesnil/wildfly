@@ -177,7 +177,7 @@ public class MessagingExtension implements Extension {
             PathDefinition.registerResolveOperationHandler(context, pathRegistry);
         }
 
-        subsystem.registerSubModel(JMSBridgeDefinition.INSTANCE);
+        subsystem.registerSubModel(new JMSBridgeDefinition(registerRuntimeOnly));
 
         if (registerRuntimeOnly) {
             final ManagementResourceRegistration deployment = subsystemRegistration.registerDeploymentModel(new SimpleResourceDefinition(SUBSYSTEM_PATH, getResourceDescriptionResolver("deployed")));

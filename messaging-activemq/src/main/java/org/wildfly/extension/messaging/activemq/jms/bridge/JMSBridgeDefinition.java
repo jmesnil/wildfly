@@ -207,13 +207,16 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
             PAUSE, RESUME
     };
 
-    public static final JMSBridgeDefinition INSTANCE = new JMSBridgeDefinition();
+    private final boolean registerRuntimeOnly;
 
-    private JMSBridgeDefinition() {
+    public static final JMSBridgeDefinition INSTANCE = new JMSBridgeDefinition(true);
+
+    public JMSBridgeDefinition(boolean registerRuntimeOnly) {
         super(MessagingExtension.JMS_BRIDGE_PATH,
                 MessagingExtension.getResourceDescriptionResolver(CommonAttributes.JMS_BRIDGE),
                 JMSBridgeAdd.INSTANCE,
                 JMSBridgeRemove.INSTANCE);
+        this.registerRuntimeOnly = registerRuntimeOnly;
     }
 
     @Override
@@ -226,16 +229,20 @@ public class JMSBridgeDefinition extends PersistentResourceDefinition {
         for (AttributeDefinition attr : ATTRIBUTES) {
             registry.registerReadWriteAttribute(attr, null, JMSBridgeWriteAttributeHandler.INSTANCE);
         }
-        for (AttributeDefinition attr : READONLY_ATTRIBUTES) {
-            registry.registerReadOnlyAttribute(attr, JMSBridgeHandler.INSTANCE);
+        if (registerRuntimeOnly) {
+            for (AttributeDefinition attr : READONLY_ATTRIBUTES) {
+                registry.registerReadOnlyAttribute(attr, JMSBridgeHandler.INSTANCE);
+            }
         }
     }
 
     @Override
     public void registerOperations(ManagementResourceRegistration registry) {
         super.registerOperations(registry);
-        for (final String operationName : OPERATIONS) {
-            registry.registerOperationHandler(new SimpleOperationDefinition(operationName, getResourceDescriptionResolver()), JMSBridgeHandler.INSTANCE);
+        if (registerRuntimeOnly) {
+            for (final String operationName : OPERATIONS) {
+                registry.registerOperationHandler(new SimpleOperationDefinition(operationName, getResourceDescriptionResolver()), JMSBridgeHandler.INSTANCE);
+            }
         }
     }
 
