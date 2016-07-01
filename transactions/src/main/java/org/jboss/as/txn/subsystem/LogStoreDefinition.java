@@ -59,6 +59,7 @@ public class LogStoreDefinition extends SimpleResourceDefinition {
         super.registerOperations(resourceRegistration);
         final OperationDefinition probe = new SimpleOperationDefinitionBuilder(LogStoreConstants.PROBE, getResourceDescriptionResolver())
                                 .setRuntimeOnly()
+                                .setRuntimeServiceNotRequired()
                                 .setReadOnly()
                                 .build();
         resourceRegistration.registerOperationHandler(probe, LogStoreProbeHandler.INSTANCE);

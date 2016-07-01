@@ -38,6 +38,7 @@ public class JSFImplListHandler implements OperationStepHandler {
 
     public static final OperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(OPERATION_NAME, JSFExtension.getResourceDescriptionResolver())
             .setRuntimeOnly()
+            .setRuntimeServiceNotRequired()
             .setReadOnly()
             .setReplyType(ModelType.LIST)
             .setReplyValueType(ModelType.STRING)
