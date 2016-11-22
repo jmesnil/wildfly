@@ -35,19 +35,30 @@ import static org.jboss.shrinkwrap.api.ArchivePaths.create;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.UUID;
 
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.JMSConsumer;
+import javax.jms.JMSContext;
+import javax.jms.TemporaryQueue;
 import javax.naming.Context;
+import javax.naming.NamingException;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.as.arquillian.api.ContainerResource;
 import org.jboss.as.arquillian.container.ManagementClient;
+import org.jboss.as.test.integration.common.jms.JMSOperations;
+import org.jboss.as.test.integration.common.jms.JMSOperationsProvider;
 import org.jboss.as.test.shared.ServerReload;
 import org.jboss.dmr.ModelNode;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -58,6 +69,8 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class PooledConnectionFactoryStatisticsTestCase {
 
+    private static final String QUEUE_NAME = "PooledConnectionFactoryStatisticsTestCase-Queue";
+    private static final String EXPORTED_QUEUE_NAME = "java:jboss/exported/PooledConnectionFactoryStatisticsTestCase-Queue";
     @ContainerResource
     private ManagementClient managementClient;
 
@@ -69,7 +82,20 @@ public class PooledConnectionFactoryStatisticsTestCase {
         return ShrinkWrap.create(JavaArchive.class, "PooledConnectionFactoryStatisticsTestCase.jar")
                 .addClass(ConnectionHoldingBean.class)
                 .addClass(RemoteConnectionHolding.class)
+                .addClass(StatisticsMDB.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE,  create("beans.xml"));
+    }
+
+    @Before
+    public void setUp() throws IOException {
+        JMSOperations jmsOperations = JMSOperationsProvider.getInstance(managementClient.getControllerClient());
+        jmsOperations.createJmsQueue(QUEUE_NAME, EXPORTED_QUEUE_NAME);
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        JMSOperations jmsOperations = JMSOperationsProvider.getInstance(managementClient.getControllerClient());
+        jmsOperations.removeJmsQueue(QUEUE_NAME);
     }
 
     @Test
@@ -79,17 +105,47 @@ public class PooledConnectionFactoryStatisticsTestCase {
 
             enableStatistics();
             assertEquals(0, readStatistic("InUseCount"));
+            // check XA resources
+            assertEquals(0, readStatistic("XACommitCount"));
 
             RemoteConnectionHolding bean = (RemoteConnectionHolding) context.lookup("PooledConnectionFactoryStatisticsTestCase/ConnectionHoldingBean!org.jboss.as.test.integration.messaging.mgmt.RemoteConnectionHolding");
             bean.createConnection();
             assertEquals(1, readStatistic("InUseCount"));
+            // the createConnection method of the bean involves one XAResource: the creation of a JMS connection
+            // involves the exchange of ActiveMQ Core packets in a transaction.
+            assertEquals(1, readStatistic("XACommitCount"));
+
 
             bean.closeConnection();
             assertEquals(0, readStatistic("InUseCount"));
+            // the closeConnection method of the bean does not involve a transaction
+            assertEquals(1, readStatistic("XACommitCount"));
+
+            // send a JMS message to a MDB and wait for its reply
+            // we use the regular remote connection factory that is not related to the JmsXA pooled-connection-factory.
+            sendAndReceiveMessage();
+            // the delivery of the message in the MDB and its reply involves 2 XAResources from the JmsXA pool
+            // (1 from the MDB, 1 from the JMSContext used to send the reply).
+            assertEquals(3 , readStatistic("XACommitCount"));
 
         } finally {
             disableStatistics();
             checkStatisticsAreDisabled();
+        }
+    }
+
+    private void sendAndReceiveMessage() throws NamingException {
+        ConnectionFactory cf = (ConnectionFactory) context.lookup("jms/RemoteConnectionFactory");
+        Destination destination = (Destination) context.lookup(QUEUE_NAME);
+        try (JMSContext jmsContext = cf.createContext("guest", "guest")) {
+            TemporaryQueue replyTo = jmsContext.createTemporaryQueue();
+            JMSConsumer consumer = jmsContext.createConsumer(replyTo);
+            String text = UUID.randomUUID().toString();
+            jmsContext.createProducer()
+                    .setJMSReplyTo(replyTo)
+                    .send(destination, text);
+            String reply = consumer.receiveBody(String.class, 1000);
+            assertEquals(text, reply);
         }
     }
 

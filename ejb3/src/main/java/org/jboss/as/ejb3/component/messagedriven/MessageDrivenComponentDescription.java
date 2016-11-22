@@ -28,6 +28,7 @@ import javax.ejb.MessageDrivenBean;
 import javax.ejb.TransactionManagementType;
 import javax.resource.spi.ResourceAdapter;
 
+import org.jboss.as.connector.services.resourceadapters.deployment.registry.ResourceAdapterDeploymentRegistry;
 import org.jboss.as.connector.util.ConnectorServices;
 import org.jboss.as.ee.component.Attachments;
 import org.jboss.as.ee.component.Component;
@@ -343,8 +344,11 @@ public class MessageDrivenComponentDescription extends EJBComponentDescription {
         public void configureDependency(ServiceBuilder<?> serviceBuilder, MessageDrivenComponentCreateService service) throws DeploymentUnitProcessingException {
             final ServiceName raServiceName =
                 ConnectorServices.getResourceAdapterServiceName(MessageDrivenComponentDescription.this.resourceAdapterName);
+            final ServiceName raDeploymentServiceName = ConnectorServices.RESOURCE_ADAPTER_DEPLOYER_SERVICE_PREFIX.append(MessageDrivenComponentDescription.this.resourceAdapterName);
             // add the dependency on the RA service
-            serviceBuilder.addDependency(raServiceName, ResourceAdapter.class, service.getResourceAdapterInjector());
+            serviceBuilder.addDependency(raServiceName, ResourceAdapter.class, service.getResourceAdapterInjector())
+                    // and on the RA deployment to be able to access its pool (for statistics)
+                    .addDependency(ConnectorServices.RESOURCE_ADAPTER_REGISTRY_SERVICE, ResourceAdapterDeploymentRegistry.class, service.getResourceAdapterDeploymentRegistryInjector());
         }
     }
 

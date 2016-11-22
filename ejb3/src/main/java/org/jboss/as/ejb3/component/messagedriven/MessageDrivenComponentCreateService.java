@@ -27,6 +27,7 @@ import java.util.Properties;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.ResourceAdapter;
 
+import org.jboss.as.connector.services.resourceadapters.deployment.registry.ResourceAdapterDeploymentRegistry;
 import org.jboss.as.connector.util.ConnectorServices;
 import org.jboss.as.ee.component.BasicComponent;
 import org.jboss.as.ee.component.ComponentConfiguration;
@@ -59,6 +60,7 @@ public class MessageDrivenComponentCreateService extends EJBComponentCreateServi
     private final InjectedValue<DefaultResourceAdapterService> defaultResourceAdapterServiceInjectedValue = new InjectedValue<DefaultResourceAdapterService>();
     private final InjectedValue<EJBUtilities> ejbUtilitiesInjectedValue = new InjectedValue<EJBUtilities>();
     private final InjectedValue<SuspendController> suspendControllerInjectedValue = new InjectedValue<>();
+    private final InjectedValue<ResourceAdapterDeploymentRegistry> resourceAdapterDeploymentRegistry = new InjectedValue<>();
     private final ClassLoader moduleClassLoader;
 
     /**
@@ -101,7 +103,7 @@ public class MessageDrivenComponentCreateService extends EJBComponentCreateServi
 
 
         final ActivationSpec activationSpec = getEndpointDeployer().createActivationSpecs(activeResourceAdapterName, messageListenerInterface, activationProps, getDeploymentClassLoader());
-        final MessageDrivenComponent component = new MessageDrivenComponent(this, messageListenerInterface, activationSpec, deliveryActive, deliveryControllerName);
+        final MessageDrivenComponent component = new MessageDrivenComponent(this, messageListenerInterface, activationSpec, deliveryActive, deliveryControllerName, activeResourceAdapterName);
         // set the endpoint
         final EJBUtilities ejbUtilities = this.ejbUtilitiesInjectedValue.getValue();
         final Endpoint endpoint = ejbUtilities.getEndpoint(activeResourceAdapterName);
@@ -153,6 +155,11 @@ public class MessageDrivenComponentCreateService extends EJBComponentCreateServi
     public InjectedValue<ResourceAdapter> getResourceAdapterInjector() {
         return this.resourceAdapterInjectedValue;
     }
+
+    public InjectedValue<ResourceAdapterDeploymentRegistry> getResourceAdapterDeploymentRegistryInjector() {
+        return this.resourceAdapterDeploymentRegistry;
+    }
+
 
     public Injector<EJBUtilities> getEJBUtilitiesInjector() {
         return this.ejbUtilitiesInjectedValue;

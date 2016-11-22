@@ -31,6 +31,9 @@ import javax.transaction.xa.XAResource;
 
 import org.jboss.invocation.proxy.ProxyConfiguration;
 import org.jboss.invocation.proxy.ProxyFactory;
+import org.jboss.jca.core.spi.transaction.XAResourceStatistics;
+import org.jboss.jca.core.spi.transaction.xa.XAResourceWrapper;
+import org.jboss.jca.core.tx.jbossts.XAResourceWrapperStatImpl;
 import org.wildfly.security.manager.WildFlySecurityManager;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -43,8 +46,10 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory {
     private final MessageEndpointService<?> service;
     private final ProxyFactory<Object> factory;
     private final Class<?> endpointClass;
+    // can be null if the RA does not support the XAResourceStatistics plug-in.
+    private final XAResourceStatistics statistics;
 
-    public JBossMessageEndpointFactory(final ClassLoader classLoader, final MessageEndpointService<?> service, final Class<Object> ejbClass, final Class<?> messageListenerInterface) {
+    public JBossMessageEndpointFactory(final ClassLoader classLoader, final MessageEndpointService<?> service, final Class<Object> ejbClass, final Class<?> messageListenerInterface, XAResourceStatistics statistics) {
         // todo: generics bug; only Object.class is a Class<Object>.  Everything else is Class<? extends Object> aka Class<?>
         this.service = service;
         final ProxyConfiguration<Object> configuration = new ProxyConfiguration<Object>()
@@ -56,6 +61,7 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory {
                 .addAdditionalInterface(messageListenerInterface);
         this.factory = new ProxyFactory<Object>(configuration);
         this.endpointClass = ejbClass;
+        this.statistics = statistics;
     }
 
     @Override
@@ -66,7 +72,13 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory {
     @Override
     public MessageEndpoint createEndpoint(XAResource xaResource, long timeout) throws UnavailableException {
         Object delegate = service.obtain(timeout, MILLISECONDS);
-        MessageEndpointInvocationHandler handler = new MessageEndpointInvocationHandler(service, delegate, xaResource);
+        XAResource xares = xaResource;
+        // if the XAResource is already a XAResourceWrapper, wrap it again to update the pool statistics
+        if (xaResource instanceof XAResourceWrapper && statistics != null) {
+            XAResourceWrapper xaResourceWrapper = (XAResourceWrapper) xaResource;
+            xares = new XAResourceWrapperStatImpl(xaResource, false, null, xaResourceWrapper.getProductName(), xaResourceWrapper.getProductVersion(), xaResourceWrapper.getJndiName(), statistics);
+        }
+        MessageEndpointInvocationHandler handler = new MessageEndpointInvocationHandler(service, delegate, xares);
         // New instance creation leads to component initialization which needs to have the TCCL that corresponds to the
         // component classloader. @see https://issues.jboss.org/browse/WFLY-3989
         final ClassLoader oldTCCL = WildFlySecurityManager.getCurrentContextClassLoaderPrivileged();

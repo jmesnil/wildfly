@@ -31,6 +31,8 @@ import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.TransactionManager;
 
+import org.jboss.as.connector.metadata.deployment.ResourceAdapterDeployment;
+import org.jboss.as.connector.services.resourceadapters.deployment.registry.ResourceAdapterDeploymentRegistry;
 import org.jboss.as.ee.component.BasicComponentInstance;
 import org.jboss.as.ejb3.logging.EjbLogger;
 import org.jboss.as.ejb3.component.EJBComponent;
@@ -44,6 +46,9 @@ import org.jboss.as.ejb3.pool.StatelessObjectFactory;
 import org.jboss.as.server.suspend.ServerActivity;
 import org.jboss.as.server.suspend.ServerActivityCallback;
 import org.jboss.as.server.suspend.SuspendController;
+import org.jboss.jca.core.connectionmanager.ConnectionManager;
+import org.jboss.jca.core.spi.transaction.XAResourceStatistics;
+import org.jboss.jca.deployers.common.CommonDeployment;
 import org.wildfly.security.manager.action.GetClassLoaderAction;
 import org.jboss.invocation.Interceptor;
 import org.jboss.jca.core.spi.rar.Endpoint;
@@ -69,6 +74,7 @@ public class MessageDrivenComponent extends EJBComponent implements PooledCompon
     private final ActivationSpec activationSpec;
     private final MessageEndpointFactory endpointFactory;
     private final ClassLoader classLoader;
+    private final String resourceAdapterName;
     private boolean started;
     private boolean deliveryActive;
     private final ServiceName deliveryControllerName;
@@ -118,7 +124,7 @@ public class MessageDrivenComponent extends EJBComponent implements PooledCompon
      * @param ejbComponentCreateService the component configuration
      * @param deliveryActive true if the component must start delivering messages as soon as it is started
      */
-    protected MessageDrivenComponent(final MessageDrivenComponentCreateService ejbComponentCreateService, final Class<?> messageListenerInterface, final ActivationSpec activationSpec, final boolean deliveryActive, final ServiceName deliveryControllerName) {
+    protected MessageDrivenComponent(final MessageDrivenComponentCreateService ejbComponentCreateService, final Class<?> messageListenerInterface, final ActivationSpec activationSpec, final boolean deliveryActive, final ServiceName deliveryControllerName, final String resourceAdapterName) {
         super(ejbComponentCreateService);
 
         StatelessObjectFactory<MessageDrivenComponentInstance> factory = new StatelessObjectFactory<MessageDrivenComponentInstance>() {
@@ -145,6 +151,7 @@ public class MessageDrivenComponent extends EJBComponent implements PooledCompon
         this.classLoader = ejbComponentCreateService.getModuleClassLoader();
         this.suspendController = ejbComponentCreateService.getSuspendControllerInjectedValue().getValue();
         this.activationSpec = activationSpec;
+        this.resourceAdapterName = resourceAdapterName;
         final ClassLoader componentClassLoader = doPrivileged(new GetClassLoaderAction(ejbComponentCreateService.getComponentClass()));
         final MessageEndpointService<?> service = new MessageEndpointService<Object>() {
             @Override
@@ -197,10 +204,50 @@ public class MessageDrivenComponent extends EJBComponent implements PooledCompon
                 return componentClassLoader;
             }
         };
-        this.endpointFactory = new JBossMessageEndpointFactory(componentClassLoader, service, (Class<Object>) getComponentClass(), messageListenerInterface);
+        // retrieve the statistics from the IronJacamar Pool through the resource adapter deployment
+        XAResourceStatistics statistics = getXAResourceStatistics(ejbComponentCreateService);
+        this.endpointFactory = new JBossMessageEndpointFactory(componentClassLoader, service, (Class<Object>) getComponentClass(), messageListenerInterface, statistics);
         this.started = false;
         this.deliveryActive = deliveryActive;
         this.deliveryControllerName = deliveryControllerName;
+    }
+
+    /**
+     * Return the XAResourceStatistics associated to the resource adapter or {@code null} if none is found.
+     */
+    private XAResourceStatistics getXAResourceStatistics(MessageDrivenComponentCreateService ejbComponentCreateService) {
+        ResourceAdapterDeployment resourceAdapterDeployment = findResourceAdapterDeployment(ejbComponentCreateService);
+        if (resourceAdapterDeployment == null) {
+            return null;
+        }
+        CommonDeployment deployment = resourceAdapterDeployment.getDeployment();
+        ConnectionManager[] connectionManagers = deployment.getConnectionManagers();
+        // FIXME how can I find the correct connection manager instead of taking the 1st one?
+        if (connectionManagers != null && connectionManagers.length > 0) {
+            org.jboss.jca.core.connectionmanager.pool.api.Pool jcaPool = connectionManagers[0].getPool();
+            return jcaPool.getInternalStatistics();
+        } else {
+            return null;
+        }
+    }
+
+    /*
+     * Find the ResourceAdapterDeployment associated to the resource adapter using the ResourceAdapterDeploymentRegistry.
+     *
+     * All RA have an associated ResourceAdapterDeploymentService but they don't use the same ServiceNames pattern to get them
+     * (e.g. ActiveMQ RA that is installed by the messaging-activemq's pooled-connection-factory resource uses the jboss.ra.raactivator prefix
+     * while RA that are deployed uses the jboss.ra.deployer prefix).
+     * Regardless of their service names, they all end up in the ResourceAdapterDeploymentRegistry where we can find the one
+     * matching the name of the RA.
+     */
+    private ResourceAdapterDeployment findResourceAdapterDeployment(MessageDrivenComponentCreateService ejbComponentCreateService) {
+        ResourceAdapterDeploymentRegistry resourceAdapterDeploymentRegistry = ejbComponentCreateService.getResourceAdapterDeploymentRegistryInjector().getValue();
+        for (ResourceAdapterDeployment resourceAdapterDeployment : resourceAdapterDeploymentRegistry.getResourceAdapterDeployments()) {
+            if (resourceAdapterName.equals(resourceAdapterDeployment.getRaName())) {
+                return resourceAdapterDeployment;
+            }
+        }
+        return null;
     }
 
     @Override
