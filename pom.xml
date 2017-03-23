@@ -102,7 +102,7 @@
         <version.gnu.getopt>1.0.13</version.gnu.getopt>
         <version.groovy-all>2.4.7</version.groovy-all>
         <version.httpunit>1.7.2</version.httpunit>
-        <version.io.netty>4.1.9.Final</version.io.netty>
+        <version.io.netty>4.1.16.Final</version.io.netty>
         <version.io.undertow.jastow>2.0.2.Final</version.io.undertow.jastow>
         <version.io.undertow.js>1.0.2.Final</version.io.undertow.js>
         <version.javax.activation>1.1.1</version.javax.activation>
@@ -116,7 +116,7 @@
         <version.jsoup>1.8.3</version.jsoup>
         <version.net.jcip>1.0</version.net.jcip>
         <version.net.shibboleth.utilities.java-support>7.1.1</version.net.shibboleth.utilities.java-support>
-        <version.org.apache.activemq.artemis>1.5.5.jbossorg-008</version.org.apache.activemq.artemis>
+        <version.org.apache.activemq.artemis>2.4.0-SNAPSHOT</version.org.apache.activemq.artemis>
         <version.org.apache.avro>1.7.6</version.org.apache.avro>
         <version.org.apache.cxf>3.1.12</version.org.apache.cxf>
         <version.org.apache.cxf.xjcplugins>3.0.5</version.org.apache.cxf.xjcplugins>
@@ -2104,6 +2104,12 @@
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>artemis-stomp-protocol</artifactId>
+                <version>${version.org.apache.activemq.artemis}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>artemis-tools</artifactId>
                 <version>${version.org.apache.activemq.artemis}</version>
             </dependency>
 
