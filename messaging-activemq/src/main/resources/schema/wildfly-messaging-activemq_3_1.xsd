@@ -128,7 +128,10 @@
                     <xs:attribute name="bindings-table" type="xs:string" />
                     <xs:attribute name="jms-bindings-table" type="xs:string" />
                     <xs:attribute name="large-messages-table" type="xs:string" />
+                    <xs:attribute name="node-manager-store-table" type="xs:string" />
                     <xs:attribute name="page-store-table" type="xs:string" />
+                    <xs:attribute name="jdbc-lock-expiration" type="xs:int" />
+                    <xs:attribute name="jdbc-lock-renew-period" type="xs:int" />
                     <xs:attribute name="jdbc-network-timeout" type="xs:int" />
                 </xs:complexType>
             </xs:element>
@@ -632,7 +635,6 @@
                     <xs:attribute name="max-pool-size" type="xs:int" use="optional" />
                     <xs:attribute name="managed-connection-pool" type="xs:string" use="optional" />
                     <xs:attribute name="enlistment-trace" type="xs:boolean" use="optional" />
-                    <xs:attribute name="initial-message-packet-size" type="xs:int" use="optional" />
                     <xs:attribute name="initial-connect-attempts" type="xs:int" use="optional" />
                     <xs:attribute name="statistics-enabled" type="xs:boolean" use="optional" />
                 </xs:complexType>
@@ -779,6 +781,7 @@
         <xs:attribute name="group-id" type="xs:string" use="optional" />
         <xs:attribute name="deserialization-white-list" type="stringList" use="optional" />
         <xs:attribute name="deserialization-black-list" type="stringList" use="optional" />
+        <xs:attribute name="initial-message-packet-size" type="xs:int" use="optional" />
     </xs:attributeGroup>
 
     <xs:simpleType name="connectionFactoryType">

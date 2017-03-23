@@ -189,7 +189,10 @@ public class MessagingActiveMQSubsystem_3_1_TestCase extends AbstractSubsystemBa
                                 ServerDefinition.JOURNAL_LARGE_MESSAGES_TABLE,
                                 ServerDefinition.JOURNAL_PAGE_STORE_TABLE,
                                 ServerDefinition.JOURNAL_DATABASE,
-                                ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT))
+                                ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT,
+                                ServerDefinition.JOURNAL_JDBC_LOCK_EXPIRATION,
+                                ServerDefinition.JOURNAL_JDBC_LOCK_RENEW_PERIOD,
+                                ServerDefinition.JOURNAL_NODE_MANAGER_STORE_TABLE))
                 .addFailedAttribute(subsystemAddress.append(SERVER_PATH, REPLICATION_MASTER_PATH),
                         new ChangeToTrueConfig(HAAttributes.CHECK_FOR_LIVE_SERVER.getName()))
                 .addFailedAttribute(subsystemAddress.append(SERVER_PATH, REPLICATION_COLOCATED_PATH, MessagingExtension.CONFIGURATION_MASTER_PATH),
@@ -200,13 +203,18 @@ public class MessagingActiveMQSubsystem_3_1_TestCase extends AbstractSubsystemBa
                 .addFailedAttribute(subsystemAddress.append(SERVER_PATH, BRIDGE_PATH),
                         new FailedOperationTransformationConfig.NewAttributesConfig(
                                 BridgeDefinition.PRODUCER_WINDOW_SIZE))
+                .addFailedAttribute(subsystemAddress.append(SERVER_PATH, MessagingExtension.BROADCAST_GROUP_PATH),
+                        new FailedOperationTransformationConfig.NewAttributesConfig(BroadcastGroupDefinition.JGROUPS_CHANNEL))
+                .addFailedAttribute(subsystemAddress.append(SERVER_PATH, DiscoveryGroupDefinition.PATH),
+                        new FailedOperationTransformationConfig.NewAttributesConfig(DiscoveryGroupDefinition.JGROUPS_CHANNEL))
                 .addFailedAttribute(subsystemAddress.append(SERVER_PATH, CLUSTER_CONNECTION_PATH),
                         new FailedOperationTransformationConfig.NewAttributesConfig(
                                 ClusterConnectionDefinition.PRODUCER_WINDOW_SIZE))
                 .addFailedAttribute(subsystemAddress.append(SERVER_PATH, CONNECTION_FACTORY_PATH),
                         new FailedOperationTransformationConfig.NewAttributesConfig(
                                 ConnectionFactoryAttributes.Common.DESERIALIZATION_BLACKLIST,
-                                ConnectionFactoryAttributes.Common.DESERIALIZATION_WHITELIST))
+                                ConnectionFactoryAttributes.Common.DESERIALIZATION_WHITELIST,
+                                ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE))
                 .addFailedAttribute(subsystemAddress.append(SERVER_PATH, POOLED_CONNECTION_FACTORY_PATH),
                         new FailedOperationTransformationConfig.NewAttributesConfig(
                                 ConnectionFactoryAttributes.Pooled.ALLOW_LOCAL_TRANSACTIONS,
@@ -216,10 +224,19 @@ public class MessagingActiveMQSubsystem_3_1_TestCase extends AbstractSubsystemBa
                                 ConnectionFactoryAttributes.Common.DESERIALIZATION_BLACKLIST,
                                 ConnectionFactoryAttributes.Common.DESERIALIZATION_WHITELIST))
                 ;
+        } else if (messagingVersion.equals(MessagingExtension.VERSION_2_0_0)) {
+            config.addFailedAttribute(subsystemAddress.append(SERVER_PATH, MessagingExtension.BROADCAST_GROUP_PATH),
+                        new FailedOperationTransformationConfig.NewAttributesConfig(BroadcastGroupDefinition.JGROUPS_CHANNEL))
+                .addFailedAttribute(subsystemAddress.append(SERVER_PATH, DiscoveryGroupDefinition.PATH),
+                        new FailedOperationTransformationConfig.NewAttributesConfig(DiscoveryGroupDefinition.JGROUPS_CHANNEL))
+                .addFailedAttribute(subsystemAddress.append(SERVER_PATH),
+                        new FailedOperationTransformationConfig.NewAttributesConfig(ServerDefinition.JOURNAL_JDBC_LOCK_EXPIRATION,
+                                ServerDefinition.JOURNAL_JDBC_LOCK_RENEW_PERIOD,
+                                ServerDefinition.JOURNAL_NODE_MANAGER_STORE_TABLE))
+                .addFailedAttribute(subsystemAddress.append(SERVER_PATH, CONNECTION_FACTORY_PATH),
+                        new FailedOperationTransformationConfig.NewAttributesConfig(
+                                ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE));
         }
-
-        config.addFailedAttribute(subsystemAddress.append(SERVER_PATH, MessagingExtension.BROADCAST_GROUP_PATH), new FailedOperationTransformationConfig.NewAttributesConfig(BroadcastGroupDefinition.JGROUPS_CHANNEL));
-        config.addFailedAttribute(subsystemAddress.append(SERVER_PATH, DiscoveryGroupDefinition.PATH), new FailedOperationTransformationConfig.NewAttributesConfig(DiscoveryGroupDefinition.JGROUPS_CHANNEL));
 
         ModelTestUtils.checkFailedTransformedBootOperations(mainServices, messagingVersion, ops, config);
     }
