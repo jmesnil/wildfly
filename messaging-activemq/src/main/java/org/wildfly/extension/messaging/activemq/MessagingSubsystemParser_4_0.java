@@ -116,7 +116,10 @@ public class MessagingSubsystemParser_4_0 extends PersistentResourceXMLParser {
                                         ServerDefinition.JOURNAL_JMS_BINDINGS_TABLE,
                                         ServerDefinition.JOURNAL_LARGE_MESSAGES_TABLE,
                                         ServerDefinition.JOURNAL_PAGE_STORE_TABLE,
+                                        ServerDefinition.JOURNAL_NODE_MANAGER_STORE_TABLE,
                                         ServerDefinition.JOURNAL_DATABASE,
+                                        ServerDefinition.JOURNAL_JDBC_LOCK_EXPIRATION,
+                                        ServerDefinition.JOURNAL_JDBC_LOCK_RENEW_PERIOD,
                                         ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT,
                                         // statistics
                                         ServerDefinition.STATISTICS_ENABLED,
@@ -482,6 +485,7 @@ public class MessagingSubsystemParser_4_0 extends PersistentResourceXMLParser {
                                                         ConnectionFactoryAttributes.Common.GROUP_ID,
                                                         ConnectionFactoryAttributes.Common.DESERIALIZATION_BLACKLIST,
                                                         ConnectionFactoryAttributes.Common.DESERIALIZATION_WHITELIST,
+                                                        ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE,
                                                         // regular
                                                         ConnectionFactoryAttributes.Regular.FACTORY_TYPE))
                                 .addChild(
@@ -565,6 +569,7 @@ public class MessagingSubsystemParser_4_0 extends PersistentResourceXMLParser {
                                                         ConnectionFactoryAttributes.Common.GROUP_ID,
                                                         ConnectionFactoryAttributes.Common.DESERIALIZATION_BLACKLIST,
                                                         ConnectionFactoryAttributes.Common.DESERIALIZATION_WHITELIST,
+                                                        ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE,
                                                         // pooled
                                                         // inbound config
                                                         ConnectionFactoryAttributes.Pooled.USE_JNDI,
@@ -585,7 +590,6 @@ public class MessagingSubsystemParser_4_0 extends PersistentResourceXMLParser {
                                                         ConnectionFactoryAttributes.Pooled.MAX_POOL_SIZE,
                                                         ConnectionFactoryAttributes.Pooled.MANAGED_CONNECTION_POOL,
                                                         ConnectionFactoryAttributes.Pooled.ENLISTMENT_TRACE,
-                                                        ConnectionFactoryAttributes.Pooled.INITIAL_MESSAGE_PACKET_SIZE,
                                                         ConnectionFactoryAttributes.Pooled.INITIAL_CONNECT_ATTEMPTS,
                                                         ConnectionFactoryAttributes.Pooled.STATISTICS_ENABLED)))
                 .addChild(

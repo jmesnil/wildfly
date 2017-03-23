@@ -45,7 +45,7 @@ import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes;
 import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
 
 /**
- * {@link org.jboss.as.controller.ExtensionTransformerRegistration} for the messaging-activemq subsystem.
+ * {@link ExtensionTransformerRegistration} for the messaging-activemq subsystem.
  * @author Paul Ferraro
  */
 @MetaInfServices
@@ -71,6 +71,13 @@ public class MessagingTransformerRegistration implements ExtensionTransformerReg
         ResourceTransformationDescriptionBuilder server = subsystem.addChildResource(MessagingExtension.SERVER_PATH);
         // WFLY-10165 - journal-jdbc-network-timeout default value is 20 seconds.
         defaultValueAttributeConverter(server, ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT);
+
+        rejectDefinedAttributeWithDefaultValue(server, ServerDefinition.JOURNAL_JDBC_LOCK_EXPIRATION,
+                ServerDefinition.JOURNAL_JDBC_LOCK_RENEW_PERIOD,
+                ServerDefinition.JOURNAL_NODE_MANAGER_STORE_TABLE);
+
+        ResourceTransformationDescriptionBuilder connectionFactory = server.addChildResource(MessagingExtension.CONNECTION_FACTORY_PATH);
+        rejectDefinedAttributeWithDefaultValue(connectionFactory, ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE);
     }
 
     private static void registerTransformers_EAP_7_1_0(ResourceTransformationDescriptionBuilder subsystem) {
