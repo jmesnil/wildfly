@@ -22,37 +22,25 @@
 
 package org.wildfly.extension.messaging.activemq.jms;
 
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.NAME;
 import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.ignoreOperationIfServerNotActive;
-import static org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition.DURABLE_MESSAGE_COUNT;
-import static org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition.DURABLE_SUBSCRIPTION_COUNT;
-import static org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition.NON_DURABLE_MESSAGE_COUNT;
-import static org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition.NON_DURABLE_SUBSCRIPTION_COUNT;
-import static org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition.SUBSCRIPTION_COUNT;
-import static org.wildfly.extension.messaging.activemq.jms.JMSTopicDefinition.TOPIC_ADDRESS;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.NAME;
 
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.api.jms.management.TopicControl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
-import org.jboss.as.controller.logging.ControllerLogger;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.operations.validation.ParametersValidator;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
-import org.wildfly.extension.messaging.activemq.CommonAttributes;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
-import org.wildfly.extension.messaging.activemq.MessagingServices;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
+import org.wildfly.extension.messaging.activemq.MessagingServices;
 
 /**
  * Implements the {@code read-attribute} operation for runtime attributes exposed by a ActiveMQ
- * {@link TopicControl}.
+ * Topic.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
@@ -82,6 +70,8 @@ public class JMSTopicReadAttributeHandler extends AbstractRuntimeOnlyHandler {
 
         ServiceController<?> service = context.getServiceRegistry(false).getService(serviceName);
         ActiveMQServer server = ActiveMQServer.class.cast(service.getValue());
+        //FIXME AMQ2.0
+        /*
         TopicControl control = TopicControl.class.cast(server.getManagementService().getResource(ResourceNames.JMS_TOPIC + topicName));
 
         if (control == null) {
@@ -118,5 +108,6 @@ public class JMSTopicReadAttributeHandler extends AbstractRuntimeOnlyHandler {
         } else {
             throw MessagingLogger.ROOT_LOGGER.unsupportedAttribute(attributeName);
         }
+        */
     }
 }

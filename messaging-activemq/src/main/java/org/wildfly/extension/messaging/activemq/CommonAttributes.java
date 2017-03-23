@@ -64,6 +64,7 @@ public interface CommonAttributes {
             .setMeasurementUnit(MILLISECONDS)
             .setAllowNull(true)
             .setAllowExpression(true)
+            .setRestartAllServices()
             .build();
 
     SimpleAttributeDefinition CALL_FAILOVER_TIMEOUT = create("call-failover-timeout", LONG)
@@ -72,6 +73,7 @@ public interface CommonAttributes {
             .setAllowNull(true)
             .setAllowExpression(true)
             .setMeasurementUnit(MILLISECONDS)
+            .setRestartAllServices()
             .build();
 
     SimpleAttributeDefinition CHECK_PERIOD = create("check-period", LONG)
@@ -85,6 +87,7 @@ public interface CommonAttributes {
     SimpleAttributeDefinition CLIENT_ID = create("client-id", ModelType.STRING)
             .setAllowNull(true)
             .setAllowExpression(true)
+            .setRestartAllServices()
             .build();
 
     AttributeDefinition CONSUMER_COUNT = create("consumer-count", INT)

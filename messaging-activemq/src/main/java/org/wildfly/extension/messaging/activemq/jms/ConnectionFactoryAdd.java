@@ -147,6 +147,10 @@ public class ConnectionFactoryAdd extends AbstractAddStepHandler {
         }
         JMSFactoryType jmsFactoryType = ConnectionFactoryType.valueOf(ConnectionFactoryAttributes.Regular.FACTORY_TYPE.resolveModelAttribute(context, model).asString()).getType();
         config.setFactoryType(jmsFactoryType);
+
+        // FIXME AMQ2.0
+        // the config can not set the initialMessagePacketSize
+        ModelNode initialMessagePacketSize = ConnectionFactoryAttributes.Regular.INITIAL_MESSAGE_PACKET_SIZE.resolveModelAttribute(context, model);
         return config;
     }
 }

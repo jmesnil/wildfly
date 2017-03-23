@@ -382,16 +382,22 @@ public class ServerDefinition extends PersistentResourceDefinition {
             .setValidator(new IntRangeValidator(Thread.MIN_PRIORITY, Thread.MAX_PRIORITY, true, true))
             .setRestartAllServices()
             .build();
+    // FIXME AMQ2.0
+    // attribute no longer exist
     public static final SimpleAttributeDefinition PERF_BLAST_PAGES = create("perf-blast-pages", INT)
             .setAttributeGroup("debug")
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultJournalPerfBlastPages()))
+            //.setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultJournalPerfBlastPages()))
+            .setDefaultValue(new ModelNode(-1))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
+    // FIXME AMQ2.0
+    // attribute no longer exist
     public static final SimpleAttributeDefinition RUN_SYNC_SPEED_TEST = create("run-sync-speed-test", BOOLEAN)
             .setAttributeGroup("debug")
-            .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultRunSyncSpeedTest()))
+            //.setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.isDefaultRunSyncSpeedTest()))
+            .setDefaultValue(new ModelNode(false))
             .setAllowNull(true)
             .setAllowExpression(true)
             .setRestartAllServices()

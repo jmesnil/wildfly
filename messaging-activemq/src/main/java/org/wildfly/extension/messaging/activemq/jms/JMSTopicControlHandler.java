@@ -24,20 +24,18 @@ package org.wildfly.extension.messaging.activemq.jms;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.FILTER;
-import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.rollbackOperationIfServerNotActive;
-import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.createNonEmptyStringAttribute;
-import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.resolveFilter;
-import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.runtimeOnlyOperation;
-import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.runtimeReadOnlyOperation;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.LIST;
 import static org.jboss.dmr.ModelType.LONG;
 import static org.jboss.dmr.ModelType.STRING;
+import static org.wildfly.extension.messaging.activemq.ActiveMQActivationService.rollbackOperationIfServerNotActive;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.FILTER;
+import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.createNonEmptyStringAttribute;
+import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.runtimeOnlyOperation;
+import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.runtimeReadOnlyOperation;
 
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.api.jms.management.TopicControl;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRuntimeOnlyHandler;
 import org.jboss.as.controller.AttributeDefinition;
@@ -51,15 +49,14 @@ import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
 import org.jboss.as.controller.logging.ControllerLogger;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
-import org.wildfly.extension.messaging.activemq.CommonAttributes;
-import org.wildfly.extension.messaging.activemq.MessagingServices;
-import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
+import org.wildfly.extension.messaging.activemq.CommonAttributes;
+import org.wildfly.extension.messaging.activemq.MessagingServices;
 
 /**
- * Handler for runtime operations that invoke on a ActiveMQ {@link TopicControl}.
+ * Handler for runtime operations that invoke on a ActiveMQ Topic.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
@@ -121,13 +118,15 @@ public class JMSTopicControlHandler extends AbstractRuntimeOnlyHandler {
         final String topicName = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR)).getLastElement().getValue();
         ServiceController<?> service = context.getServiceRegistry(false).getService(serviceName);
         ActiveMQServer server = ActiveMQServer.class.cast(service.getValue());
-        TopicControl control = TopicControl.class.cast(server.getManagementService().getResource(ResourceNames.JMS_TOPIC + topicName));
+        ActiveMQServerControl control = server.getActiveMQServerControl();
 
         if (control == null) {
             PathAddress address = PathAddress.pathAddress(operation.require(OP_ADDR));
             throw ControllerLogger.ROOT_LOGGER.managementResourceNotFound(address);
         }
 
+        // FIXME AMQ2.0
+        /*
         try {
             if (LIST_ALL_SUBSCRIPTIONS.equals(operationName)) {
                 String json = control.listAllSubscriptionsAsJSON();
@@ -179,7 +178,7 @@ public class JMSTopicControlHandler extends AbstractRuntimeOnlyHandler {
         } catch (Exception e) {
             context.getFailureDescription().set(e.toString());
         }
-
+        */
         context.completeStep(OperationContext.RollbackHandler.NOOP_ROLLBACK_HANDLER);
     }
 

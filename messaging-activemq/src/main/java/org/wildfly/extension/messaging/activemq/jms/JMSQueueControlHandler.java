@@ -24,25 +24,25 @@ package org.wildfly.extension.messaging.activemq.jms;
 
 import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.createNonEmptyStringAttribute;
 
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.wildfly.extension.messaging.activemq.AbstractQueueControlHandler;
 import org.jboss.dmr.ModelNode;
+import org.wildfly.extension.messaging.activemq.AbstractQueueControlHandler;
 
 /**
- * Handler for runtime operations that invoke on a ActiveMQ {@link JMSQueueControl}.
+ * Handler for runtime operations that invoke on a ActiveMQ {@link QueueControl}.
  *
  * @author Brian Stansberry (c) 2011 Red Hat Inc.
  */
-public class JMSQueueControlHandler extends AbstractQueueControlHandler<JMSQueueControl> {
+public class JMSQueueControlHandler extends AbstractQueueControlHandler<QueueControl> {
 
     public static final JMSQueueControlHandler INSTANCE = new JMSQueueControlHandler();
 
     private static final AttributeDefinition MESSAGE_ID = createNonEmptyStringAttribute("message-id");
+    private static final String JMS_QUEUE = "jms.queue.";
 
     private JMSQueueControlHandler() {
     }
@@ -57,15 +57,15 @@ public class JMSQueueControlHandler extends AbstractQueueControlHandler<JMSQueue
         return JMSManagementHelper.JMS_MESSAGE_PARAMETERS;
     }
 
-    protected AbstractQueueControlHandler.DelegatingQueueControl<JMSQueueControl> getQueueControl(ActiveMQServer server, String queueName){
-        final JMSQueueControl control = JMSQueueControl.class.cast(server.getManagementService().getResource(ResourceNames.JMS_QUEUE + queueName));
+    protected AbstractQueueControlHandler.DelegatingQueueControl<QueueControl> getQueueControl(ActiveMQServer server, String queueName){
+        final QueueControl control = QueueControl.class.cast(server.getManagementService().getResource(JMS_QUEUE + queueName));
         if (control == null) {
             return null;
         }
-        return new AbstractQueueControlHandler.DelegatingQueueControl<JMSQueueControl>() {
+        return new AbstractQueueControlHandler.DelegatingQueueControl<QueueControl>() {
 
             @Override
-            public JMSQueueControl getDelegate() {
+            public QueueControl getDelegate() {
                 return  control;
             }
 
@@ -81,7 +81,7 @@ public class JMSQueueControlHandler extends AbstractQueueControlHandler<JMSQueue
 
             @Override
             public boolean removeMessage(ModelNode id) throws Exception {
-                return control.removeMessage(id.asString());
+                return control.removeMessage(id.asLong());
             }
 
             @Override
@@ -96,12 +96,12 @@ public class JMSQueueControlHandler extends AbstractQueueControlHandler<JMSQueue
 
             @Override
             public boolean expireMessage(ModelNode id) throws Exception {
-                return control.expireMessage(id.asString());
+                return control.expireMessage(id.asLong());
             }
 
             @Override
             public boolean sendMessageToDeadLetterAddress(ModelNode id) throws Exception {
-                return control.sendMessageToDeadLetterAddress(id.asString());
+                return control.sendMessageToDeadLetterAddress(id.asLong());
             }
 
             @Override
@@ -111,7 +111,7 @@ public class JMSQueueControlHandler extends AbstractQueueControlHandler<JMSQueue
 
             @Override
             public boolean changeMessagePriority(ModelNode id, int priority) throws Exception {
-                return control.changeMessagePriority(id.asString(), priority);
+                return control.changeMessagePriority(id.asLong(), priority);
             }
 
             @Override
@@ -121,12 +121,12 @@ public class JMSQueueControlHandler extends AbstractQueueControlHandler<JMSQueue
 
             @Override
             public boolean moveMessage(ModelNode id, String otherQueue) throws Exception {
-                return control.moveMessage(id.asString(), otherQueue);
+                return control.moveMessage(id.asLong(), otherQueue);
             }
 
             @Override
             public boolean moveMessage(ModelNode id, String otherQueue, boolean rejectDuplicates) throws Exception {
-                return control.moveMessage(id.asString(), otherQueue, rejectDuplicates);
+                return control.moveMessage(id.asLong(), otherQueue, rejectDuplicates);
             }
 
             @Override
@@ -193,13 +193,13 @@ public class JMSQueueControlHandler extends AbstractQueueControlHandler<JMSQueue
 
     @Override
     protected Object handleAdditionalOperation(String operationName, ModelNode operation, OperationContext context,
-                                               JMSQueueControl queueControl) throws OperationFailedException {
+                                               QueueControl queueControl) throws OperationFailedException {
         throwUnimplementedOperationException(operationName);
         return null;
     }
 
     @Override
-    protected void revertAdditionalOperation(String operationName, ModelNode operation, OperationContext context, JMSQueueControl queueControl, Object handback) {
+    protected void revertAdditionalOperation(String operationName, ModelNode operation, OperationContext context, QueueControl queueControl, Object handback) {
         // no-op
     }
 }

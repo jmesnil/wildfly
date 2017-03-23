@@ -90,27 +90,23 @@ public class SendToJMSQueueTest {
         Message receivedMessage = null;
 
         try {
+            //FIXME AMQ2.0
+            // test fails if the consumer is created after the message is sent
+            // create the consumer
+            Connection consumerConnection = factory.createConnection();
+            Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageConsumer consumer = consumerSession.createConsumer(queue);
+
+
             // SEND A MESSAGE
             connection = factory.createConnection();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer producer = session.createProducer(queue);
             Message message = session.createTextMessage(MESSAGE_TEXT);
             producer.send(message);
-            connection.start();
-            session.close();
-            connection.close();
 
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-            }
-
-
+            consumerConnection.start();
             // RECEIVE THE MESSAGE BACK
-            connection = factory.createConnection();
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageConsumer consumer = session.createConsumer(queue);
-            connection.start();
             receivedMessage = consumer.receive(5000);
         } catch (Exception e) {
             e.printStackTrace();
