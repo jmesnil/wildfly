@@ -115,7 +115,7 @@ public class AddressSettingsResolveHandler extends AbstractRuntimeOnlyHandler {
             expiryAddress.set(settings.getExpiryAddress().toString());
         }
         result.get(EXPIRY_DELAY.getName()).set(settings.getExpiryDelay());
-        result.get(LAST_VALUE_QUEUE.getName()).set(settings.isLastValueQueue());
+        result.get(LAST_VALUE_QUEUE.getName()).set(settings.isDefaultLastValueQueue());
         result.get(MAX_DELIVERY_ATTEMPTS.getName()).set(settings.getMaxDeliveryAttempts());
         result.get(MAX_REDELIVERY_DELAY.getName()).set(settings.getMaxRedeliveryDelay());
         result.get(MAX_SIZE_BYTES.getName()).set(settings.getMaxSizeBytes());
