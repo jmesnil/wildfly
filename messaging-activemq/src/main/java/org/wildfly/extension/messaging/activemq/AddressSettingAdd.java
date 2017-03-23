@@ -92,7 +92,7 @@ class AddressSettingAdd extends AbstractAddStepHandler {
             settings.setDeadLetterAddress(asSimpleString(DEAD_LETTER_ADDRESS.resolveModelAttribute(context, config), null));
         }
         if (config.hasDefined(AddressSettingDefinition.LAST_VALUE_QUEUE.getName())) {
-            settings.setLastValueQueue(AddressSettingDefinition.LAST_VALUE_QUEUE.resolveModelAttribute(context, config).asBoolean());
+            settings.setDefaultLastValueQueue(AddressSettingDefinition.LAST_VALUE_QUEUE.resolveModelAttribute(context, config).asBoolean());
         }
         if (config.hasDefined(AddressSettingDefinition.MAX_DELIVERY_ATTEMPTS.getName())) {
             settings.setMaxDeliveryAttempts(AddressSettingDefinition.MAX_DELIVERY_ATTEMPTS.resolveModelAttribute(context, config).asInt());
