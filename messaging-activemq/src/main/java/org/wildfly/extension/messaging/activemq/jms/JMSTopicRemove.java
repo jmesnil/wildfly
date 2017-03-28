@@ -22,6 +22,7 @@
 
 package org.wildfly.extension.messaging.activemq.jms;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
@@ -55,8 +56,12 @@ public class JMSTopicRemove extends AbstractRemoveStepHandler {
 
         ServiceController<?> service = context.getServiceRegistry(false).getService(serviceName);
         ActiveMQServer server = ActiveMQServer.class.cast(service.getValue());
-        // FIXME AMQ2.0
-        // how to destroy a JMS topic? Destroy the corresponding multicast address?
+
+        try {
+            server.removeAddressInfo(new SimpleString(name), null);
+        } catch (Exception e) {
+            throw new OperationFailedException(e);
+        }
 
         context.removeService(JMSServices.getJmsTopicBaseServiceName(serviceName).append(name));
 
