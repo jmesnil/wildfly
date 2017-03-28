@@ -90,13 +90,6 @@ public class SendToJMSQueueTest {
         Message receivedMessage = null;
 
         try {
-            //FIXME AMQ2.0
-            // test fails if the consumer is created after the message is sent
-            // create the consumer
-            Connection consumerConnection = factory.createConnection();
-            Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageConsumer consumer = consumerSession.createConsumer(queue);
-
 
             // SEND A MESSAGE
             connection = factory.createConnection();
@@ -104,6 +97,13 @@ public class SendToJMSQueueTest {
             MessageProducer producer = session.createProducer(queue);
             Message message = session.createTextMessage(MESSAGE_TEXT);
             producer.send(message);
+
+            //FIXME AMQ2.0
+            // test fails if the consumer is created after the message is sent
+            // create the consumer
+            Connection consumerConnection = factory.createConnection();
+            Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageConsumer consumer = consumerSession.createConsumer(queue);
 
             consumerConnection.start();
             // RECEIVE THE MESSAGE BACK
@@ -123,6 +123,8 @@ public class SendToJMSQueueTest {
         // ASSERTIONS
         Assert.assertTrue(receivedMessage instanceof TextMessage);
         Assert.assertTrue(((TextMessage) receivedMessage).getText().equals(MESSAGE_TEXT));
+
+        Assert.fail("wth");
     }
 
     @Test
