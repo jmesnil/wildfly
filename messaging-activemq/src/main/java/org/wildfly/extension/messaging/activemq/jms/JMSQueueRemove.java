@@ -62,6 +62,7 @@ public class JMSQueueRemove extends AbstractRemoveStepHandler {
         ActiveMQServer server = ActiveMQServer.class.cast(service.getValue());
         try {
             server.destroyQueue(SimpleString.toSimpleString(name));
+            server.removeAddressInfo(SimpleString.toSimpleString(name), null);
         } catch (Exception e) {
             throw new OperationFailedException(e);
         }

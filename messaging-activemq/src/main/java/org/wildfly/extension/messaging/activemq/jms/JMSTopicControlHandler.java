@@ -40,7 +40,6 @@ import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
@@ -350,11 +349,11 @@ public class JMSTopicControlHandler extends AbstractRuntimeOnlyHandler {
             String clientID = null;
             String subName = null;
 
-            if (queue.isDurable() && queue.getRoutingType() == RoutingType.MULTICAST.getType()) {
+            if (queue.isDurable()) { //FIXME AMQ2.0 //&& queue.getRoutingType() == RoutingType.MULTICAST.getType()) {
                Pair<String, String> pair = ActiveMQDestination.decomposeQueueNameForDurableSubscription(queue.getName());
                clientID = pair.getA();
                subName = pair.getB();
-            } else if (queue.getRoutingType() == RoutingType.MULTICAST.getType()) {
+            } else { //FIXME AMQ2.0 if (queue.getRoutingType() == RoutingType.MULTICAST.getType()) {
                // in the case of heirarchical topics the queue name will not follow the <part>.<part> pattern of normal
                // durable subscribers so skip decomposing the name for the client ID and subscription name and just
                // hard-code it

@@ -74,11 +74,8 @@ public class JMSQueueService implements Service<Queue> {
             @Override
             public void run() {
                 try {
-                    System.out.println(">> JMSQueueService.run");
-                    boolean success = jmsManager.createQueue(false, queueName, selectorString, durable, jndi);
-                    System.out.println(">> success = " + success);
+                    jmsManager.createQueue(false, queueName, selectorString, durable, jndi);
                     JMSQueueService.this.queue = new ActiveMQQueue(queueName);
-                    System.out.println(">> queue = " + queue);
                     context.complete();
                 } catch (Throwable e) {
                     context.failed(MessagingLogger.ROOT_LOGGER.failedToCreate(e, "queue"));
@@ -101,8 +98,7 @@ public class JMSQueueService implements Service<Queue> {
             @Override
             public void run() {
                 try {
-                    //jmsManager.destroyQueue(queueName);
-                    //jmsManager.removeQueueFromBindingRegistry(queueName);
+                    jmsManager.removeQueueFromBindingRegistry(queueName);
                     queue = null;
                 } catch (Throwable e) {
                     MessagingLogger.ROOT_LOGGER.failedToDestroy(e, "queue", queueName);
