@@ -25,6 +25,7 @@ package org.wildfly.extension.messaging.activemq.jms;
 import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.createNonEmptyStringAttribute;
 
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -58,7 +59,7 @@ public class JMSQueueControlHandler extends AbstractQueueControlHandler<QueueCon
     }
 
     protected AbstractQueueControlHandler.DelegatingQueueControl<QueueControl> getQueueControl(ActiveMQServer server, String queueName){
-        final QueueControl control = QueueControl.class.cast(server.getManagementService().getResource(JMS_QUEUE + queueName));
+        final QueueControl control = QueueControl.class.cast(server.getManagementService().getResource(ResourceNames.QUEUE + queueName));
         if (control == null) {
             return null;
         }
@@ -71,6 +72,7 @@ public class JMSQueueControlHandler extends AbstractQueueControlHandler<QueueCon
 
             @Override
             public String listMessagesAsJSON(String filter) throws Exception {
+                //FIXME AMQ2.0 the messages does not use JMS header names (eg priority vs. JMSPriority, userID vs. JMSMessageID)
                 return control.listMessagesAsJSON(filter);
             }
 

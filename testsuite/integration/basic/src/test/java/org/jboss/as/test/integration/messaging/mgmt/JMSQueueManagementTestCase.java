@@ -353,6 +353,7 @@ public class JMSQueueManagementTestCase {
         ModelNode result = execute(getQueueOperation("list-messages"), true);
         Assert.assertEquals(3, result.asInt());
         for (ModelNode node : result.asList()) {
+            System.out.println(">> node = " + node.toJSONString(true));
             priorities.add(node.get("JMSPriority").asInt());
         }
         int newPriority = -1;

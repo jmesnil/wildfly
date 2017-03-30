@@ -58,6 +58,7 @@ public class JMSTopicRemove extends AbstractRemoveStepHandler {
         ActiveMQServer server = ActiveMQServer.class.cast(service.getValue());
 
         try {
+            //FIXME AMQ2.0 call fails because the address has bindings (AMQ119205)
             server.removeAddressInfo(new SimpleString(name), null);
         } catch (Exception e) {
             throw new OperationFailedException(e);
