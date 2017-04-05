@@ -38,20 +38,20 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.PropertyPermission;
 
-import javax.annotation.Resource;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
-import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TemporaryQueue;
+import javax.naming.Context;
 
 import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.as.arquillian.api.ContainerResource;
 import org.jboss.as.arquillian.api.ServerSetup;
 import org.jboss.as.arquillian.api.ServerSetupTask;
 import org.jboss.as.arquillian.container.ManagementClient;
@@ -60,6 +60,7 @@ import org.jboss.as.test.integration.common.jms.JMSOperationsProvider;
 import org.jboss.as.test.shared.TimeoutUtil;
 import org.jboss.dmr.ModelNode;
 import org.jboss.logging.Logger;
+import org.jboss.remoting3.security.RemotingPermission;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
@@ -73,21 +74,16 @@ import org.junit.runner.RunWith;
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */
 @RunWith(Arquillian.class)
+@RunAsClient
 @ServerSetup({MDBTestCase.JmsQueueSetup.class})
 public class MDBTestCase {
 
     private static final Logger logger = Logger.getLogger(MDBTestCase.class);
 
-    @Resource(mappedName = "java:/ConnectionFactory")
-    private ConnectionFactory cf;
+    @ContainerResource
+    private Context remoteContext;
 
-    @Resource(mappedName = "java:jboss/deliveryactive/MDBWithAnnotationQueue")
-    private Queue annotationQueue;
-
-    @Resource(mappedName = "java:jboss/deliveryactive/MDBWithDeploymentDescriptorQueue")
-    private Queue deploymentDescriptorQueue;
-
-    @ArquillianResource
+    @ContainerResource
     private ManagementClient managementClient;
 
     private static final int TIMEOUT = TimeoutUtil.adjust(5000);
@@ -99,8 +95,8 @@ public class MDBTestCase {
         @Override
         public void setup(ManagementClient managementClient, String containerId) throws Exception {
             jmsAdminOperations = JMSOperationsProvider.getInstance(managementClient);
-            jmsAdminOperations.createJmsQueue("deliveryactive/MDBWithAnnotationQueue", "java:jboss/deliveryactive/MDBWithAnnotationQueue");
-            jmsAdminOperations.createJmsQueue("deliveryactive/MDBWithDeploymentDescriptorQueue", "java:jboss/deliveryactive/MDBWithDeploymentDescriptorQueue");
+            jmsAdminOperations.createJmsQueue("deliveryactive/MDBWithAnnotationQueue", "java:jboss/exported/deliveryactive/MDBWithAnnotationQueue");
+            jmsAdminOperations.createJmsQueue("deliveryactive/MDBWithDeploymentDescriptorQueue", "java:jboss/exported/deliveryactive/MDBWithDeploymentDescriptorQueue");
         }
 
         @Override
@@ -120,30 +116,33 @@ public class MDBTestCase {
                 .addPackage(JMSOperations.class.getPackage())
                 .addClass(TimeoutUtil.class)
                 .addAsManifestResource(MDBWithDeliveryActiveAnnotation.class.getPackage(), "jboss-ejb3.xml", "jboss-ejb3.xml")
-                .addAsManifestResource(new StringAsset("Dependencies: org.jboss.as.controller-client, org.jboss.dmr \n"), "MANIFEST.MF");
-        // grant necessary permissions
-        ejbJar.addAsResource(createPermissionsXmlAsset(new PropertyPermission("ts.timeout.factor", "read")), "META-INF/jboss-permissions.xml");
+                .addAsManifestResource(new StringAsset("Dependencies: org.jboss.as.controller-client, org.jboss.dmr \n"), "MANIFEST.MF")
+                .addAsResource(createPermissionsXmlAsset(RemotingPermission.CONNECT,
+                        new PropertyPermission("ts.timeout.factor", "read")),
+                        "META-INF/jboss-permissions.xml");
         return ejbJar;
     }
 
     @Test
     public void testDeliveryActiveWithAnnotation() throws Exception {
-        doDeliveryActive(annotationQueue, "MDBWithDeliveryActiveAnnotation");
+        doDeliveryActive("deliveryactive/MDBWithAnnotationQueue", "MDBWithDeliveryActiveAnnotation");
     }
 
     @Test
     public void testDeliveryActiveWithDeploymentDescriptor() throws Exception {
-        doDeliveryActive(deploymentDescriptorQueue, "MDBWithDeliveryActiveDeploymentDescriptor");
+        doDeliveryActive("deliveryactive/MDBWithDeploymentDescriptorQueue", "MDBWithDeliveryActiveDeploymentDescriptor");
     }
 
-    private void doDeliveryActive(Destination destination, String mdbName) throws Exception {
+    private void doDeliveryActive(String destinationName, String mdbName) throws Exception {
         // ReplyingMDB has been deployed with deliveryActive set to false
         assertMDBDeliveryIsActive(mdbName, false);
 
         Connection connection = null;
 
         try {
-            connection = cf.createConnection();
+            ConnectionFactory cf = (ConnectionFactory) remoteContext.lookup("jms/RemoteConnectionFactory");
+            Destination destination = (Destination) remoteContext.lookup(destinationName);
+            connection = cf.createConnection("guest", "guest");
             connection.start();
 
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

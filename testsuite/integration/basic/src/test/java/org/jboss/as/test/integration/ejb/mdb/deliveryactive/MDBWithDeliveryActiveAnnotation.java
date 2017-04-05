@@ -38,7 +38,7 @@ import org.jboss.ejb3.annotation.DeliveryActive;
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2013 Red Hat inc.
  */
 @MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:jboss/deliveryactive/MDBWithAnnotationQueue"),
+        @ActivationConfigProperty(propertyName = "destination", propertyValue = "java:jboss/exported/deliveryactive/MDBWithAnnotationQueue"),
 })
 // Do not deliver messages to this MDB until start-delivery management operation is explicitly called on it.
 @DeliveryActive(false)
