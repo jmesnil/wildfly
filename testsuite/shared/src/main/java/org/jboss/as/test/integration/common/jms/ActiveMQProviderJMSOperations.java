@@ -75,16 +75,23 @@ public class ActiveMQProviderJMSOperations implements JMSOperations {
     }
 
     @Override
-    public void createJmsQueue(String queueName, String jndiName) {
-        createJmsQueue(queueName, jndiName, new ModelNode());
+    public void createJmsQueue(String queueName, String... jndiNames) {
+        createJmsQueue(queueName, new ModelNode(), jndiNames);
+    }
+
+    @Override
+    public void createJmsQueue(String queueName, ModelNode attributes, String... jndiNames) {
+        ModelNode address = getServerAddress()
+                .add("jms-queue", queueName);
+        for (String jndiName: jndiNames) {
+            attributes.get("entries").add(jndiName);
+        }
+        executeOperation(address, ADD, attributes);
     }
 
     @Override
     public void createJmsQueue(String queueName, String jndiName, ModelNode attributes) {
-        ModelNode address = getServerAddress()
-                .add("jms-queue", queueName);
-        attributes.get("entries").add(jndiName);
-        executeOperation(address, ADD, attributes);
+        createJmsQueue(queueName, attributes, jndiName);
     }
 
     @Override

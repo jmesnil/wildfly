@@ -41,9 +41,11 @@ public interface JMSOperations {
 
     String getProviderName();
 
-    void createJmsQueue(final String queueName, final String jndiName);
+    void createJmsQueue(final String queueName, final String... jndiNames);
 
     void createJmsQueue(final String queueName, final String jndiName, ModelNode attributes);
+
+    void createJmsQueue(final String queueName, ModelNode attributes, final String... jndiNames);
 
     void createJmsTopic(final String topicName, final String jndiName);
 
