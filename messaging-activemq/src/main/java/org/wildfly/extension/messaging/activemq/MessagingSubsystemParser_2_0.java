@@ -49,14 +49,14 @@ import org.wildfly.extension.messaging.activemq.jms.legacy.LegacyConnectionFacto
  *
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2015 Red Hat inc.
  */
-public class MessagingSubsystemParser_1_1 extends PersistentResourceXMLParser {
+public class MessagingSubsystemParser_2_0 extends PersistentResourceXMLParser {
 
-    static final String NAMESPACE = "urn:jboss:domain:messaging-activemq:1.1";
+    static final String NAMESPACE = "urn:jboss:domain:messaging-activemq:2.0";
 
     private final PersistentResourceXMLDescription xmlDescription;
 
 
-    MessagingSubsystemParser_1_1() {
+    MessagingSubsystemParser_2_0() {
         xmlDescription = builder(MessagingExtension.SUBSYSTEM_PATH, NAMESPACE)
                 .addAttributes(
                         MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE,

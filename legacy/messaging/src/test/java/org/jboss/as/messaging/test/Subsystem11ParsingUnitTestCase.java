@@ -44,7 +44,7 @@ public class Subsystem11ParsingUnitTestCase extends AbstractLegacySubsystemBaseT
 
     @Override
     protected String getSubsystemXml() throws IOException {
-        return readResource("subsystem_1_1.xml");
+        return readResource("subsystem_2_0.xml");
     }
 
     @Override
