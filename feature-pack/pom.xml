@@ -109,6 +109,19 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.wildfly</groupId>
+            <artifactId>wildfly-legacy-feature-pack</artifactId>
+            <version>11.0.0.Final-SNAPSHOT</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- module and copy artifact dependencies -->
 
         <dependency>
@@ -2674,17 +2687,6 @@
         <dependency>
             <groupId>org.wildfly</groupId>
             <artifactId>wildfly-mail</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wildfly</groupId>
-            <artifactId>wildfly-messaging</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

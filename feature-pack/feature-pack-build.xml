@@ -23,6 +23,7 @@
 <build xmlns="urn:wildfly:feature-pack-build:1.1">
     <dependencies>
     	<artifact name="org.wildfly:wildfly-servlet-feature-pack" />
+        <artifact name="org.wildfly:wildfly-legacy-feature-pack" />
     </dependencies>
     <config>
         <!-- Core configs -->

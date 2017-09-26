@@ -292,7 +292,6 @@
         <module>legacy/configadmin</module>
         <module>legacy/jacorb</module>
         <module>legacy/jaxr</module>
-        <module>legacy/messaging</module>
         <module>legacy/web</module>
         <module>mail</module>
         <module>messaging-activemq</module>
@@ -6529,7 +6528,6 @@
                                                     <fileset dir="legacy/configadmin/src/main/java"><include name="**/*.java"></include></fileset>
                                                     <fileset dir="legacy/jacorb/src/main/java"><include name="**/*.java"></include></fileset>
                                                     <fileset dir="legacy/jaxr/src/main/java"><include name="**/*.java"></include></fileset>
-                                                    <fileset dir="legacy/messaging/src/main/java"><include name="**/*.java"></include></fileset>
                                                     <fileset dir="legacy/web/src/main/java"><include name="**/*.java"></include></fileset>
                                                     <fileset dir="mail/src/main/java"><include name="**/*.java"></include></fileset>
                                                     <fileset dir="messaging-activemq/src/main/java"><include name="**/*.java"></include></fileset>
