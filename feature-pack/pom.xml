@@ -2753,17 +2753,6 @@
 
         <dependency>
             <groupId>org.wildfly</groupId>
-            <artifactId>wildfly-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wildfly</groupId>
             <artifactId>wildfly-weld</artifactId>
             <exclusions>
                 <exclusion>
