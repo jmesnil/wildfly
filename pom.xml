@@ -289,7 +289,6 @@
         <module>jsf</module>
         <module>jsr77</module>
         <module>legacy/jacorb</module>
-        <module>legacy/web</module>
         <module>mail</module>
         <module>messaging-activemq</module>
         <module>mod_cluster</module>
@@ -6492,7 +6491,6 @@
                                                     <fileset dir="jsf/subsystem/src/main/java"><include name="**/*.java"></include></fileset>
                                                     <fileset dir="jsr77/src/main/java"><include name="**/*.java"></include></fileset>
                                                     <fileset dir="legacy/jacorb/src/main/java"><include name="**/*.java"></include></fileset>
-                                                    <fileset dir="legacy/web/src/main/java"><include name="**/*.java"></include></fileset>
                                                     <fileset dir="mail/src/main/java"><include name="**/*.java"></include></fileset>
                                                     <fileset dir="messaging-activemq/src/main/java"><include name="**/*.java"></include></fileset>
                                                     <fileset dir="mod_cluster/extension/src/main/java"><include name="**/*.java"></include></fileset>
