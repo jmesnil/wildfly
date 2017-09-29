@@ -220,6 +220,7 @@
         <version.org.wildfly.core>4.0.0.Alpha8</version.org.wildfly.core>
         <version.org.wildfly.plugin>1.2.1.Final</version.org.wildfly.plugin>
         <version.org.wildfly.http-client>1.0.9.Final</version.org.wildfly.http-client>
+        <version.org.wildfly.wildfly-legacy>11.0.0.Final-SNAPSHOT</version.org.wildfly.wildfly-legacy>
         <version.org.wildfly.maven.plugins>1.0.0</version.org.wildfly.maven.plugins>
         <version.org.wildfly.naming-client>1.0.7.Final</version.org.wildfly.naming-client>
         <version.org.wildfly.transaction.client>1.0.2.Final</version.org.wildfly.transaction.client>
@@ -6174,6 +6175,26 @@
                 <groupId>org.wildfly.arquillian</groupId>
                 <artifactId>wildfly-arquillian-testenricher-msc</artifactId>
                 <version>${version.org.wildfly.arquillian}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wildfly</groupId>
+                <artifactId>wildfly-legacy-feature-pack</artifactId>
+                <version>${version.org.wildfly.wildfly-legacy}</version>
+                <type>zip</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wildfly</groupId>
+                <artifactId>wildfly-messaging</artifactId>
+                <version>${version.org.wildfly.wildfly-legacy}</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>

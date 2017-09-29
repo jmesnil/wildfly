@@ -112,7 +112,6 @@
         <dependency>
             <groupId>org.wildfly</groupId>
             <artifactId>wildfly-legacy-feature-pack</artifactId>
-            <version>11.0.0.Final-SNAPSHOT</version>
             <type>zip</type>
             <exclusions>
                 <exclusion>
