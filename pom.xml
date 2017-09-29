@@ -6198,6 +6198,13 @@
             </dependency>
 
             <dependency>
+                <groupId>org.wildfly</groupId>
+                <artifactId>wildfly-web</artifactId>
+                <version>${version.org.wildfly.wildfly-legacy}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
                 <groupId>org.wildfly.transaction</groupId>
                 <artifactId>wildfly-transaction-client</artifactId>
                 <version>${version.org.wildfly.transaction.client}</version>
