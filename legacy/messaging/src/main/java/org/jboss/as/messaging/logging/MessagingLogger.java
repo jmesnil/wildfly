@@ -819,4 +819,8 @@ public interface MessagingLogger extends BasicLogger {
 
     @Message(id = 88, value = "Can not migrate attribute failback-delay to resource %s. Artemis detects failback deterministically and it no longer requires to specify a delay for failback to occur.")
     String couldNotMigrateFailbackDelayAttribute(PathAddress address);
+
+    @Message(id = 89, value = "Can not migrate connector-service at %s. To use them in the new messaging-activemq subsystem, you will have to extend the Artemis-based ConnectorServiceFactory interface.")
+    String couldNotMigrateConnectorService(PathAddress address);
+
 }

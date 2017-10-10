@@ -154,8 +154,10 @@ public class ActiveMQServerResource implements Resource {
     @Override
     public Set<String> getChildTypes() {
         Set<String> result = new HashSet<String>(delegate.getChildTypes());
-        result.add(CORE_ADDRESS);
-        result.add(RUNTIME_QUEUE);
+        if (isRuntime()) {
+            result.add(CORE_ADDRESS);
+            result.add(RUNTIME_QUEUE);
+        }
         return result;
     }
 

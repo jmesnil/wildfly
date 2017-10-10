@@ -164,7 +164,8 @@ public class MigrateTestCase extends AbstractSubsystemTest {
         // 1 warning about HA migration (attributes have expressions)
         // 1 warning about cluster-connection forward-when-no-consumers attribute having an expression.
         // 1 warning about use-nio being ignored for netty-throughput remote-connector resource.
-        int expectedNumberOfWarnings = 6 + 2 + 5 + 2 + 3 + 1 + 1 + 1;
+        // 2 warnings about discarded connector-service.
+        int expectedNumberOfWarnings = 6 + 2 + 5 + 2 + 3 + 1 + 1 + 1 + 2;
         // 1 warning if add-legacy-entries is true because an in-vm connector can not be used in a legacy-connection-factory
         if (addLegacyEntries) {
             expectedNumberOfWarnings += 1;

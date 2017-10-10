@@ -33,6 +33,7 @@ import static org.wildfly.extension.messaging.activemq.MessagingDependencies.get
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.BRIDGE_PATH;
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.CLUSTER_CONNECTION_PATH;
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.CONNECTION_FACTORY_PATH;
+import static org.wildfly.extension.messaging.activemq.MessagingExtension.CONNECTOR_SERVICE_PATH;
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.POOLED_CONNECTION_FACTORY_PATH;
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.REPLICATION_COLOCATED_PATH;
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.REPLICATION_MASTER_PATH;
@@ -149,6 +150,9 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, CLUSTER_CONNECTION_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ClusterConnectionDefinition.PRODUCER_WINDOW_SIZE))
+                        .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, CONNECTOR_SERVICE_PATH),
+                                new FailedOperationTransformationConfig.NewAttributesConfig(
+                                        ConnectorServiceDefinition.CLASS))
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, CONNECTION_FACTORY_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ConnectionFactoryAttributes.Common.DESERIALIZATION_BLACKLIST,
@@ -171,7 +175,10 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                 new FailedOperationTransformationConfig()
                         .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, CONNECTION_FACTORY_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
-                                        ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE)));
+                                        ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE))
+                        .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, CONNECTOR_SERVICE_PATH),
+                                new FailedOperationTransformationConfig.NewAttributesConfig(
+                                        ConnectorServiceDefinition.CLASS)));
     }
 
     private void testTransformers(ModelTestControllerVersion controllerVersion, ModelVersion messagingVersion) throws Exception {
@@ -181,7 +188,6 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
         builder.createLegacyKernelServicesBuilder(createAdditionalInitialization(), controllerVersion, messagingVersion)
                 .addMavenResourceURL(getMessagingActiveMQGAV(controllerVersion))
                 .addMavenResourceURL(getActiveMQDependencies(controllerVersion))
-                .configureReverseControllerCheck(createAdditionalInitialization(), null)
                 .dontPersistXml();
 
         KernelServices mainServices = builder.build();
@@ -204,7 +210,6 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
         assertTrue(mainServices.getLegacyServices(messagingVersion).isSuccessfulBoot());
 
         List<ModelNode> ops = builder.parseXmlResource("subsystem_3_0_reject_transform.xml");
-        System.out.println("ops = " + ops);
         ModelTestUtils.checkFailedTransformedBootOperations(mainServices, messagingVersion, ops, failedOperationTransformationConfig);
     }
 
@@ -248,5 +253,4 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
             return new ModelNode(true);
         }
     }
-
 }

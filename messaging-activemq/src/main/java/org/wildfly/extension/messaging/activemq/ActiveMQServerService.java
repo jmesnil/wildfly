@@ -43,10 +43,12 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -115,6 +117,8 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
     private final List<Interceptor> incomingInterceptors = new ArrayList<>();
     private final List<Interceptor> outgoingInterceptors = new ArrayList<>();
 
+    private final Map<ConnectorServiceFactory, ConnectorServiceConfiguration> connectorServices = new HashMap<>();
+
     // credential source injectors
     private Map<String, InjectedValue<ExceptionSupplier<CredentialSource, Exception>>> bridgeCredentialSource = new HashMap<>();
     private InjectedValue<ExceptionSupplier<CredentialSource, Exception>> clusterCredentialSource = new InjectedValue<>();
@@ -167,6 +171,10 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
 
     protected List<Interceptor> getOutgoingInterceptors() {
         return outgoingInterceptors;
+    }
+
+    protected void addConnectorService(ConnectorServiceFactory factory, ConnectorServiceConfiguration configuration) {
+        connectorServices.put(factory, configuration);
     }
 
     public synchronized void start(final StartContext context) throws StartException {
@@ -353,6 +361,10 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
             for (Interceptor outgoingInterceptor : outgoingInterceptors) {
                 server.getServiceRegistry().addOutgoingInterceptor(outgoingInterceptor);
             }
+            for (Map.Entry<ConnectorServiceFactory,ConnectorServiceConfiguration> entry : connectorServices.entrySet()) {
+                server.getServiceRegistry().addConnectorService(entry.getKey(), entry.getValue());
+            }
+
 
             // the server is actually started by the JMSService.
         } catch (Exception e) {

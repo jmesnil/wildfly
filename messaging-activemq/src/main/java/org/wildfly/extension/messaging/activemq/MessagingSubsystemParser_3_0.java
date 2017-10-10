@@ -424,7 +424,8 @@ public class MessagingSubsystemParser_3_0 extends PersistentResourceXMLParser {
                                 .addChild(
                                         builder(ConnectorServiceDefinition.INSTANCE.getPathElement())
                                                 .addAttributes(
-                                                        CommonAttributes.FACTORY_CLASS,
+                                                        ConnectorServiceDefinition.FACTORY_CLASS,
+                                                        ConnectorServiceDefinition.CLASS,
                                                         CommonAttributes.PARAMS))
                                 .addChild(
                                         builder(MessagingExtension.JMS_QUEUE_PATH)

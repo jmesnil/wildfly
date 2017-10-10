@@ -61,8 +61,7 @@ public class MessagingTransformers implements ExtensionTransformerRegistration {
 
         chainedBuilder.buildAndRegister(subsystemRegistration, new ModelVersion[]{
                 VERSION_1_0_0,
-                VERSION_2_0_0,
-                VERSION_3_0_0
+                VERSION_2_0_0
         });
     }
 
@@ -135,6 +134,9 @@ public class MessagingTransformers implements ExtensionTransformerRegistration {
         ResourceTransformationDescriptionBuilder connectionFactory = server.addChildResource(MessagingExtension.CONNECTION_FACTORY_PATH);
         // initial-message-packet-size is now a configuration property of the connection-factory (was a runtime attribute before)
         rejectDefinedAttributeWithDefaultValue(connectionFactory, ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE);
+        ResourceTransformationDescriptionBuilder connectorService = server.addChildResource(MessagingExtension.CONNECTOR_SERVICE_PATH);
+        //transform connector-service class attribute into the legacy factory-class attribute
+        rejectDefinedAttributeWithDefaultValue(connectorService, ConnectorServiceDefinition.CLASS);
     }
 
     private static void defaultValueAttributeConverter(ResourceTransformationDescriptionBuilder builder, AttributeDefinition attr) {

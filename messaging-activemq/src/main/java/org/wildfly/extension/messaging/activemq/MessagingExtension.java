@@ -111,6 +111,7 @@ import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
 public class MessagingExtension implements Extension {
 
     public static final String SUBSYSTEM_NAME = "messaging-activemq";
+    public static final String ACTIVEMQ_ARTEMIS_MODULE_ID = "org.apache.activemq.artemis";
 
     static final PathElement SUBSYSTEM_PATH  = pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
     static final PathElement SERVER_PATH = pathElement(SERVER);

@@ -267,14 +267,21 @@
                 queue-name="coreQueueB"
                 discovery-group="groupC" />
 
-        <connector-service name="b"
-                           factory-class="bar.foo">
+        <connector-service name="old-style-connector-service"
+                           factory-class="org.foo.incoming.myConnectorServiceFactory">
             <param name="foo"
                    value="${connector.value:bar}"/>
             <param name="bar"
                    value="2"/>
         </connector-service>
 
+        <connector-service name="new-style-connector-service">
+            <class name="org.foo.incoming.myConnectorServiceFactory" module="org.foo" />
+            <param name="foo"
+                   value="${connector.value:bar}"/>
+            <param name="bar"
+                   value="2"/>
+        </connector-service>
 
         <jms-queue name="testQueue"
                    entries="${jms-queue.entry:queue/test}"
