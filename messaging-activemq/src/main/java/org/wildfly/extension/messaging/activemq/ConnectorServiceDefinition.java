@@ -22,25 +22,28 @@
 
 package org.wildfly.extension.messaging.activemq;
 
+import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.as.controller.registry.AttributeAccess.Flag.STORAGE_RUNTIME;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.ObjectTypeAttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
+import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.ModelType;
 import org.jboss.dmr.Property;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
@@ -51,8 +54,28 @@ import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
  */
 public class ConnectorServiceDefinition extends PersistentResourceDefinition {
 
+    @Deprecated
+    static final SimpleAttributeDefinition FACTORY_CLASS = create("factory-class", ModelType.STRING)
+            .setAllowExpression(false)
+            .setAlternatives("class")
+            .setRestartAllServices()
+            .setRequired(false)
+            .setDeprecated(MessagingExtension.VERSION_3_0_0)
+            .build();
+
+    static final ObjectTypeAttributeDefinition CLASS = ObjectTypeAttributeDefinition.Builder.of("class",
+            create(CommonAttributes.NAME, ModelType.STRING, false)
+                    .setAllowExpression(false)
+                    .build(),
+            create(CommonAttributes.MODULE, ModelType.STRING, false)
+                    .setAllowExpression(false)
+                    .build())
+            .setAlternatives(FACTORY_CLASS.getName())
+            .build();
+
     private static final AttributeDefinition[] ATTRIBUTES = {
-            CommonAttributes.FACTORY_CLASS,
+            FACTORY_CLASS,
+            CLASS,
             CommonAttributes.PARAMS };
 
     static final ConnectorServiceDefinition INSTANCE = new ConnectorServiceDefinition();
@@ -64,24 +87,36 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
                 new ActiveMQReloadRequiredHandlers.RemoveStepHandler());
     }
 
-    static void addConnectorServiceConfigs(final OperationContext context, final Configuration configuration, final ModelNode model)  throws OperationFailedException {
+    static void processConnectorServices(final OperationContext context, final ModelNode model, final ActiveMQServerService serverService)  throws OperationFailedException {
         if (model.hasDefined(CommonAttributes.CONNECTOR_SERVICE)) {
-            final List<ConnectorServiceConfiguration> configs = configuration.getConnectorServiceConfigurations();
-            for (Property prop : model.get(CommonAttributes.CONNECTOR_SERVICE).asPropertyList()) {
-                configs.add(createConnectorServiceConfiguration(context, prop.getName(), prop.getValue()));
+            for (Property connectorService : model.get(CommonAttributes.CONNECTOR_SERVICE).asPropertyList()) {
+                String name = connectorService.getName();
+                ConnectorServiceFactory factory = loadClass(context, connectorService.getValue());
+                Map<String, String> unwrappedParameters = CommonAttributes.PARAMS.unwrap(context, connectorService.getValue());
+                Map<String, Object> parameters = new HashMap<>(unwrappedParameters);
+
+                ConnectorServiceConfiguration config = new ConnectorServiceConfiguration()
+                        .setFactoryClassName(factory.getClass().getSimpleName())
+                        .setParams(parameters)
+                        .setName(name);
+                serverService.addConnectorService(factory, config);
             }
         }
     }
 
-    static ConnectorServiceConfiguration createConnectorServiceConfiguration(final OperationContext context, final String name, final ModelNode model) throws OperationFailedException {
-
-        final String factoryClass = CommonAttributes.FACTORY_CLASS.resolveModelAttribute(context, model).asString();
-        Map<String, String> unwrappedParameters = CommonAttributes.PARAMS.unwrap(context, model);
-        Map<String, Object> parameters = new HashMap<String, Object>(unwrappedParameters);
-        return new ConnectorServiceConfiguration()
-                .setFactoryClassName(factoryClass)
-                .setParams(parameters)
-                .setName(name);
+    private static ConnectorServiceFactory loadClass(OperationContext context, ModelNode connectorServiceModel) throws OperationFailedException {
+        if (connectorServiceModel.hasDefined(FACTORY_CLASS.getName())) {
+            String className = FACTORY_CLASS.resolveModelAttribute(context, connectorServiceModel).asString();
+            try {
+                Object o = ClassloadingUtil.newInstanceFromClassLoader(className);
+                return ConnectorServiceFactory.class.cast(o);
+            } catch (Throwable t) {
+                throw MessagingLogger.ROOT_LOGGER.unableToLoadConnectorServiceFactoryClass(className);
+            }
+        } else {
+            Object o = ClassLoaderUtil.instantiate(connectorServiceModel.require(CLASS.getName()));
+            return ConnectorServiceFactory.class.cast(o);
+        }
     }
 
     @Override
@@ -99,15 +134,7 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
         }
     }
 
-    private static void checkFactoryClass(final String factoryClass) throws OperationFailedException {
-        try {
-            ClassloadingUtil.newInstanceFromClassLoader(factoryClass);
-        } catch (Throwable t) {
-            throw MessagingLogger.ROOT_LOGGER.unableToLoadConnectorServiceFactoryClass(factoryClass);
-        }
-    }
-
-    static class ConnectorServiceWriteAttributeHandler extends ReloadRequiredWriteAttributeHandler {
+    private static class ConnectorServiceWriteAttributeHandler extends ReloadRequiredWriteAttributeHandler {
         ConnectorServiceWriteAttributeHandler(AttributeDefinition... attributes) {
             super(attributes);
         }
@@ -116,14 +143,13 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
                 ModelNode resolvedValue, ModelNode currentValue,
                 org.jboss.as.controller.AbstractWriteAttributeHandler.HandbackHolder<Void> voidHandback)
                 throws OperationFailedException {
-            if (CommonAttributes.FACTORY_CLASS.getName().equals(attributeName)) {
-                checkFactoryClass(resolvedValue.asString());
-            }
             return super.applyUpdateToRuntime(context, operation, attributeName, resolvedValue, currentValue, voidHandback);
         }
+
+
     }
 
-    static class ConnectorServiceAddHandler extends ActiveMQReloadRequiredHandlers.AddStepHandler {
+    private static class ConnectorServiceAddHandler extends ActiveMQReloadRequiredHandlers.AddStepHandler {
         ConnectorServiceAddHandler(AttributeDefinition... attributes) {
             super(attributes);
         }
@@ -131,8 +157,10 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
         @Override
         protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model)
                 throws OperationFailedException {
-            final String factoryClass = CommonAttributes.FACTORY_CLASS.resolveModelAttribute(context, model).asString();
-            checkFactoryClass(factoryClass);
+            // the ConnectorService will not be taken into account until Artemis is reloaded but we
+            // try to load the class when the resource is added so that if a problem occurs, the user
+            // is warned during this :add operation and not during the runtime start of Artemis after reload.
+            loadClass(context, model);
             super.performRuntime(context, operation, model);
         }
 

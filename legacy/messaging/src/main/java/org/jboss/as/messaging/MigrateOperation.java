@@ -411,6 +411,13 @@ public class MigrateOperation implements OperationStepHandler {
                                 addLegacyEntries(newAddOp);
                             }
                             break;
+                        case CONNECTOR_SERVICE:
+                            // Add warning only for the connector-service resource itself and not for its (also discarded)
+                            // params children.
+                            if (address.size() == 3) {
+                                warnings.add(ROOT_LOGGER.couldNotMigrateConnectorService(address));
+                            }
+                            continue;
                         case ACCEPTOR:
                         case CONNECTOR:
                             migrateGenericTransport(newAddOp);
@@ -419,7 +426,6 @@ public class MigrateOperation implements OperationStepHandler {
                         case REMOTE_ACCEPTOR:
                         case HTTP_CONNECTOR:
                         case REMOTE_CONNECTOR:
-                        case CONNECTOR_SERVICE:
                             if (address.size() == 4) {
                                 // if there are any param resource underneath connectors, acceptors, and connector-services
                                 // add them directly to their parent add operation in their params attribute
