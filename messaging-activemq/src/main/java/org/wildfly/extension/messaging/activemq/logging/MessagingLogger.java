@@ -851,4 +851,8 @@ public interface MessagingLogger extends BasicLogger {
 
     @Message(id = 96, value = "The %s operation can not be performed on a JDBC store journal")
     OperationFailedException operationNotAllowedOnJdbcStore(String operationName);
+
+    @Message(id = 97, value = "Unable to instantiate class %s")
+    OperationFailedException unableToInstantiateClass(Class clazz);
+
 }

@@ -499,10 +499,17 @@
             <xs:element name="connector-service" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element name="class" minOccurs="0" maxOccurs="1" type="classType"/>
                         <xs:element name="param" minOccurs="0" maxOccurs="unbounded" type="paramType" />
                     </xs:sequence>
                     <xs:attribute name="name" type="xs:string" use="required" />
-                    <xs:attribute name="factory-class" type="xs:string" use="required" />
+                    <xs:attribute name="factory-class" type="xs:string" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Deprecated. use the class element instead to specify the module containing the class.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
                 </xs:complexType>
             </xs:element>
 

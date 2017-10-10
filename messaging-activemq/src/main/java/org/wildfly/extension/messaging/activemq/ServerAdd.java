@@ -26,6 +26,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PAT
 import static org.wildfly.extension.messaging.activemq.Capabilities.ACTIVEMQ_SERVER_CAPABILITY;
 import static org.wildfly.extension.messaging.activemq.Capabilities.ELYTRON_DOMAIN_CAPABILITY;
 import static org.wildfly.extension.messaging.activemq.Capabilities.JMX_CAPABILITY;
+import static org.wildfly.extension.messaging.activemq.ClassLoaderUtil.unwrapClasses;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.ADDRESS_SETTING;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BINDINGS_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.BROADCAST_GROUP;
@@ -35,8 +36,6 @@ import static org.wildfly.extension.messaging.activemq.CommonAttributes.INCOMING
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CHANNEL;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JOURNAL_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.LARGE_MESSAGES_DIRECTORY;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.MODULE;
-import static org.wildfly.extension.messaging.activemq.CommonAttributes.NAME;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.OUTGOING_INTERCEPTORS;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.PAGING_DIRECTORY;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.SECURITY_SETTING;
@@ -143,8 +142,6 @@ import org.jboss.as.security.plugins.SecurityDomainContext;
 import org.jboss.as.security.service.SecurityDomainService;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
-import org.jboss.modules.Module;
-import org.jboss.modules.ModuleIdentifier;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceBuilder.DependencyType;
 import org.jboss.msc.service.ServiceController;
@@ -273,6 +270,7 @@ class ServerAdd extends AbstractAddStepHandler {
                 );
                 processIncomingInterceptors(INCOMING_INTERCEPTORS.resolveModelAttribute(context, operation), serverService);
                 processOutgoingInterceptors(OUTGOING_INTERCEPTORS.resolveModelAttribute(context, operation), serverService);
+                ConnectorServiceDefinition.processConnectorServices(context, model, serverService);
 
                 // Add the ActiveMQ Service
                 ServiceName activeMQServiceName = MessagingServices.getActiveMQServiceName(serverName);
@@ -485,7 +483,6 @@ class ServerAdd extends AbstractAddStepHandler {
         QueueAdd.addQueueConfigs(context, configuration, model);
         BridgeAdd.addBridgeConfigs(context, configuration, model);
         ClusterConnectionAdd.addClusterConnectionConfigs(context, configuration, model);
-        ConnectorServiceDefinition.addConnectorServiceConfigs(context, configuration, model);
 
         return configuration;
     }
@@ -541,30 +538,6 @@ class ServerAdd extends AbstractAddStepHandler {
                 final AddressSettings settings = AddressSettingAdd.createSettings(context, config);
                 configuration.getAddressesSettings().put(match, settings);
             }
-        }
-    }
-
-    private List<Class> unwrapClasses(List<ModelNode> classesModel) throws OperationFailedException {
-        List<Class> classes = new ArrayList<>();
-
-        for (ModelNode classModel : classesModel) {
-            Class<?> clazz = unwrapClass(classModel);
-            classes.add(clazz);
-        }
-
-        return classes;
-    }
-
-    private static Class unwrapClass(ModelNode classModel) throws OperationFailedException {
-        String className = classModel.get(NAME).asString();
-        String moduleName = classModel.get(MODULE).asString();
-        try {
-            ModuleIdentifier moduleID = ModuleIdentifier.fromString(moduleName);
-            Module module = Module.getCallerModuleLoader().loadModule(moduleID);
-            Class<?> clazz = module.getClassLoader().loadClass(className);
-            return clazz;
-        } catch (Exception e) {
-            throw MessagingLogger.ROOT_LOGGER.unableToLoadClassFromModule(className, moduleName);
         }
     }
 

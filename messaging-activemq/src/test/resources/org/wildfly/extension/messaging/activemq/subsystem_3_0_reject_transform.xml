@@ -54,6 +54,14 @@
                 password="${password:secret}">
         </bridge>
 
+        <connector-service name="new-style-connector-service">
+            <class name="org.foo.incoming.myConnectorServiceFactory" module="org.foo" />
+            <param name="foo"
+                   value="${connector.value:bar}"/>
+            <param name="bar"
+                   value="2"/>
+        </connector-service>
+
         <connection-factory name="otherConnectionFactory"
                             discovery-group="groupC"
                             entries="otherConnectionFactory"
