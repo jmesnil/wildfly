@@ -143,7 +143,7 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                         ServerDefinition.JOURNAL_PAGE_STORE_TABLE,
                                         ServerDefinition.JOURNAL_DATABASE,
                                         ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT,
-                                        ServerDefinition.DEFAULT_THREAD_POOL,
+                                        ServerDefinition.THREAD_POOL,
                                         ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL))
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, REPLICATION_MASTER_PATH),
                                 new ChangeToTrueConfig(HAAttributes.CHECK_FOR_LIVE_SERVER.getName()))
@@ -191,7 +191,7 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                 FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(serverAddress,
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
-                                        ServerDefinition.DEFAULT_THREAD_POOL,
+                                        ServerDefinition.THREAD_POOL,
                                         ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL))
                         .addFailedAttribute(serverAddress.append(CONNECTION_FACTORY_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(

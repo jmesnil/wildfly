@@ -16,7 +16,7 @@
                         group-name="ActiveMQ-scheduled-pool"  />
 
         <server name="default"
-                default-thread-pool="default"
+                thread-pool="default"
                 default-scheduled-thread-pool="default">
             <?CLUSTERED?>
 

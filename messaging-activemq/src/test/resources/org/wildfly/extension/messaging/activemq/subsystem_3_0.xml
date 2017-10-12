@@ -38,10 +38,9 @@
             persist-delivery-count-before-delivery="${persist.delivery.count.before.delivery:true}"
             id-cache-size="${id.cache.size:102030}"
             page-max-concurrent-io="${page.max.concurrent.io:10}"
-            default-thread-pool="default"
+            thread-pool="default"
             default-scheduled-thread-pool="default"
             scheduled-thread-pool-max-size="${messaging.scheduled.thread.pool.max.size:6}"
-            thread-pool-max-size="${messaging.thread.pool.max.size:5}"
             wild-card-routing-enabled="${wild.card.routing.enabled:false}"
             connection-ttl-override="${connection.ttl.override:5432}"
             async-connection-execution-enabled="${async.connection.execution.enabled:false}">
@@ -485,6 +484,9 @@
     </server>
 
     <server name="empty"/>
+
+    <server name="server2"
+            thread-pool-max-size="${messaging.thread.pool.max.size:5}" />
 
     <jms-bridge name="default"
                 module="com.foo.bar"

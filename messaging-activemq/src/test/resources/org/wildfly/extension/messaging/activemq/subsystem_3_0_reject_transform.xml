@@ -28,7 +28,7 @@
                     thread-name-pattern="%i-%g"/>
 
     <server name="default"
-            default-thread-pool="default"
+            thread-pool="default"
             default-scheduled-thread-pool="default">
 
         <security elytron-domain="elytronDomain"/>

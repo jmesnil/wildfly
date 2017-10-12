@@ -415,6 +415,7 @@ public interface CommonAttributes {
     String SUBSCRIPTION_COUNT = "subscription-count";
     String SUBSYSTEM = "subsystem";
     String TARGET = "target";
+    String THREAD_POOL = "thread-pool";
     String TOPIC_ADDRESS = "topic-address";
     String TYPE_ATTR_NAME = "type";
     String USE_INVM = "use-invm";

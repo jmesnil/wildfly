@@ -46,6 +46,7 @@ import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.ObjectTypeAttributeDefinition;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
+import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.access.management.SensitiveTargetAccessConstraintDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.operations.validation.EnumValidator;
@@ -137,6 +138,7 @@ public class ServerDefinition extends PersistentResourceDefinition {
     public static final AttributeDefinition THREAD_POOL_MAX_SIZE = create("thread-pool-max-size", INT)
             .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.getDefaultThreadPoolMaxSize()))
             .setRequired(false)
+            .setAlternatives(CommonAttributes.THREAD_POOL)
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
@@ -547,9 +549,10 @@ public class ServerDefinition extends PersistentResourceDefinition {
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
-    public static final SimpleAttributeDefinition DEFAULT_THREAD_POOL = create("default-thread-pool", STRING)
-            .setAllowNull(true) // switch to false to enforce using only WFLY threads?
+    public static final SimpleAttributeDefinition THREAD_POOL = SimpleAttributeDefinitionBuilder.create(CommonAttributes.THREAD_POOL, STRING)
+            .setRequired(false)
             .setAllowExpression(false) // model reference
+            .setAlternatives(THREAD_POOL_MAX_SIZE.getName())
             .setRestartAllServices()
             .build();
     public static final SimpleAttributeDefinition DEFAULT_SCHEDULED_THREAD_POOL = create("default-scheduled-thread-pool", STRING)
@@ -559,7 +562,7 @@ public class ServerDefinition extends PersistentResourceDefinition {
             .build();
 
     public static final AttributeDefinition[] ATTRIBUTES = {PERSISTENCE_ENABLED,
-            DEFAULT_THREAD_POOL, DEFAULT_SCHEDULED_THREAD_POOL, SCHEDULED_THREAD_POOL_MAX_SIZE,
+            THREAD_POOL, DEFAULT_SCHEDULED_THREAD_POOL, SCHEDULED_THREAD_POOL_MAX_SIZE,
             THREAD_POOL_MAX_SIZE, SECURITY_DOMAIN, ELYTRON_DOMAIN, SECURITY_ENABLED, SECURITY_INVALIDATION_INTERVAL,
             OVERRIDE_IN_VM_SECURITY, WILD_CARD_ROUTING_ENABLED, MANAGEMENT_ADDRESS, MANAGEMENT_NOTIFICATION_ADDRESS,
             CLUSTER_USER, CLUSTER_PASSWORD, CREDENTIAL_REFERENCE, JMX_MANAGEMENT_ENABLED, JMX_DOMAIN, STATISTICS_ENABLED, MESSAGE_COUNTER_SAMPLE_PERIOD,
