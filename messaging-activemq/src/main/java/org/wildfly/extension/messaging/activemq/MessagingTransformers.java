@@ -130,6 +130,8 @@ public class MessagingTransformers implements ExtensionTransformerRegistration {
     }
 
     private static void buildTransformers2_0_0(ResourceTransformationDescriptionBuilder subsystem) {
+        rejectDefinedAttributeWithDefaultValue(subsystem, MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_THREAD_POOL);
+
         subsystem.rejectChildResource(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH);
         subsystem.rejectChildResource(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH);
         subsystem.rejectChildResource(ThreadPools.SCHEDULED_THREAD_POOL_PATH);

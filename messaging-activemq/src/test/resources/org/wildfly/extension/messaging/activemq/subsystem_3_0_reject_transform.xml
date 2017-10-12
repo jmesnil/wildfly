@@ -1,6 +1,7 @@
 <subsystem xmlns="urn:jboss:domain:messaging-activemq:3.0">
-    <global-client thread-pool-max-size="${global.client.thread-pool-max-size:32}"
-                   scheduled-thread-pool-max-size="${global.client.scheduled.thread-pool-max-size:54}" />
+    <global-client
+            thread-pool="default"
+            scheduled-thread-pool-max-size="${global.client.scheduled.thread-pool-max-size:54}" />
 
     <bounded-queue-thread-pool name="default"
                                max-threads="128"

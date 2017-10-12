@@ -25,6 +25,7 @@ package org.wildfly.extension.messaging.activemq;
 import static org.apache.activemq.artemis.api.core.client.ActiveMQClient.SCHEDULED_THREAD_POOL_SIZE_PROPERTY_KEY;
 import static org.apache.activemq.artemis.api.core.client.ActiveMQClient.THREAD_POOL_MAX_SIZE_PROPERTY_KEY;
 import static org.wildfly.extension.messaging.activemq.MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_SCHEDULED_THREAD_POOL_MAX_SIZE;
+import static org.wildfly.extension.messaging.activemq.MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_THREAD_POOL;
 import static org.wildfly.extension.messaging.activemq.MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE;
 
 import java.util.Properties;
@@ -85,6 +86,9 @@ class MessagingSubsystemAdd extends AbstractBoottimeAddStepHandler {
             }
         }, OperationContext.Stage.RUNTIME);
 
+        ModelNode threadPool = GLOBAL_CLIENT_THREAD_POOL.resolveModelAttribute(context, model);
+        System.out.println(">>> global client threadPool = " + threadPool);
+        // FIXME get the thread pool with that name and inject it with ActiveMQClient.injectPools
         ModelNode threadPoolMaxSize = operation.get(GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE.getName());
         ModelNode scheduledThreadPoolMaxSize = operation.get(GLOBAL_CLIENT_SCHEDULED_THREAD_POOL_MAX_SIZE.getName());
         final Integer threadPoolMaxSizeValue;

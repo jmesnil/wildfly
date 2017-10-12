@@ -24,6 +24,7 @@ package org.wildfly.extension.messaging.activemq;
 
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.jboss.dmr.ModelType.INT;
+import static org.jboss.dmr.ModelType.STRING;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,16 +41,29 @@ import org.jboss.as.controller.SimpleAttributeDefinition;
  */
 public class MessagingSubsystemRootResourceDefinition extends PersistentResourceDefinition {
 
+    private static final String GLOBAL_CLIENT = "global-client";
+    private static final String GLOBAL_CLIENT_THREAD_POOL_ATTRIBUTE_NAME = "global-client-thread-pool";
+
     public static final SimpleAttributeDefinition GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE = create("global-client-thread-pool-max-size", INT)
-            .setAttributeGroup("global-client")
+            .setAttributeGroup(GLOBAL_CLIENT)
             .setXmlName("thread-pool-max-size")
             .setRequired(false)
             .setAllowExpression(true)
+            .setAlternatives(GLOBAL_CLIENT_THREAD_POOL_ATTRIBUTE_NAME)
+            .setRestartAllServices()
+            .build();
+
+    public static final SimpleAttributeDefinition GLOBAL_CLIENT_THREAD_POOL = create(GLOBAL_CLIENT_THREAD_POOL_ATTRIBUTE_NAME, STRING)
+            .setAttributeGroup(GLOBAL_CLIENT)
+            .setXmlName("thread-pool")
+            .setRequired(false)
+            .setAllowExpression(false)
+            .setAlternatives(GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE.getName())
             .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition GLOBAL_CLIENT_SCHEDULED_THREAD_POOL_MAX_SIZE = create("global-client-scheduled-thread-pool-max-size", INT)
-            .setAttributeGroup("global-client")
+            .setAttributeGroup(GLOBAL_CLIENT)
             .setXmlName("scheduled-thread-pool-max-size")
             .setRequired(false)
             .setAllowExpression(true)
@@ -58,7 +72,8 @@ public class MessagingSubsystemRootResourceDefinition extends PersistentResource
 
     public static final AttributeDefinition[] ATTRIBUTES = {
             GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE,
-            GLOBAL_CLIENT_SCHEDULED_THREAD_POOL_MAX_SIZE
+            GLOBAL_CLIENT_SCHEDULED_THREAD_POOL_MAX_SIZE,
+            GLOBAL_CLIENT_THREAD_POOL
     };
 
     public static final MessagingSubsystemRootResourceDefinition INSTANCE = new MessagingSubsystemRootResourceDefinition();
