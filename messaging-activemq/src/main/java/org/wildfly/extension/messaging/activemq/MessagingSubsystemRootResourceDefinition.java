@@ -43,6 +43,7 @@ public class MessagingSubsystemRootResourceDefinition extends PersistentResource
 
     private static final String GLOBAL_CLIENT = "global-client";
     private static final String GLOBAL_CLIENT_THREAD_POOL_ATTRIBUTE_NAME = "global-client-thread-pool";
+    private static final String GLOBAL_CLIENT_SCHEDULED_THREAD_POOL_ATTRIBUTE_NAME = "global-client-scheduled-thread-pool";
 
     public static final SimpleAttributeDefinition GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE = create("global-client-thread-pool-max-size", INT)
             .setAttributeGroup(GLOBAL_CLIENT)
@@ -55,7 +56,7 @@ public class MessagingSubsystemRootResourceDefinition extends PersistentResource
 
     public static final SimpleAttributeDefinition GLOBAL_CLIENT_THREAD_POOL = create(GLOBAL_CLIENT_THREAD_POOL_ATTRIBUTE_NAME, STRING)
             .setAttributeGroup(GLOBAL_CLIENT)
-            .setXmlName("thread-pool")
+            .setXmlName(CommonAttributes.THREAD_POOL)
             .setRequired(false)
             .setAllowExpression(false)
             .setAlternatives(GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE.getName())
@@ -70,10 +71,20 @@ public class MessagingSubsystemRootResourceDefinition extends PersistentResource
             .setRestartAllServices()
             .build();
 
+    public static final SimpleAttributeDefinition GLOBAL_SCHEDULED_CLIENT_THREAD_POOL = create(GLOBAL_CLIENT_SCHEDULED_THREAD_POOL_ATTRIBUTE_NAME, STRING)
+            .setAttributeGroup(GLOBAL_CLIENT)
+            .setXmlName(CommonAttributes.SCHEDULED_THREAD_POOL)
+            .setRequired(false)
+            .setAllowExpression(false)
+            .setAlternatives(GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE.getName())
+            .setRestartAllServices()
+            .build();
+
     public static final AttributeDefinition[] ATTRIBUTES = {
             GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE,
             GLOBAL_CLIENT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-            GLOBAL_CLIENT_THREAD_POOL
+            GLOBAL_CLIENT_THREAD_POOL,
+            GLOBAL_SCHEDULED_CLIENT_THREAD_POOL
     };
 
     public static final MessagingSubsystemRootResourceDefinition INSTANCE = new MessagingSubsystemRootResourceDefinition();

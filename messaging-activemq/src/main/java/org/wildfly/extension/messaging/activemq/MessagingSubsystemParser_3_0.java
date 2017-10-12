@@ -65,6 +65,7 @@ public class MessagingSubsystemParser_3_0 extends PersistentResourceXMLParser {
         return builder(MessagingExtension.SUBSYSTEM_PATH, NAMESPACE)
                 .addAttributes(
                         MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_THREAD_POOL,
+                        MessagingSubsystemRootResourceDefinition.GLOBAL_SCHEDULED_CLIENT_THREAD_POOL,
                         MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE,
                         MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_SCHEDULED_THREAD_POOL_MAX_SIZE
                     )
