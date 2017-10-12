@@ -111,6 +111,7 @@ public class ServerDefinition extends PersistentResourceDefinition {
             .setDefaultValue(new ModelNode().set(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize()))
             .setRequired(false)
             .setAllowExpression(true)
+            .setAlternatives(CommonAttributes.SCHEDULED_THREAD_POOL)
             .setRestartAllServices()
             .build();
     public static final SimpleAttributeDefinition SECURITY_DOMAIN = create("security-domain", ModelType.STRING)
@@ -555,14 +556,15 @@ public class ServerDefinition extends PersistentResourceDefinition {
             .setAlternatives(THREAD_POOL_MAX_SIZE.getName())
             .setRestartAllServices()
             .build();
-    public static final SimpleAttributeDefinition DEFAULT_SCHEDULED_THREAD_POOL = create("default-scheduled-thread-pool", STRING)
-            .setAllowNull(true) // switch to false to enforce using only WFLY threads?
+    public static final SimpleAttributeDefinition SCHEDULED_THREAD_POOL = create(CommonAttributes.SCHEDULED_THREAD_POOL, STRING)
+            .setRequired(false)
             .setAllowExpression(false) // model reference
+            .setAlternatives(SCHEDULED_THREAD_POOL_MAX_SIZE.getName())
             .setRestartAllServices()
             .build();
 
     public static final AttributeDefinition[] ATTRIBUTES = {PERSISTENCE_ENABLED,
-            THREAD_POOL, DEFAULT_SCHEDULED_THREAD_POOL, SCHEDULED_THREAD_POOL_MAX_SIZE,
+            THREAD_POOL, SCHEDULED_THREAD_POOL, SCHEDULED_THREAD_POOL_MAX_SIZE,
             THREAD_POOL_MAX_SIZE, SECURITY_DOMAIN, ELYTRON_DOMAIN, SECURITY_ENABLED, SECURITY_INVALIDATION_INTERVAL,
             OVERRIDE_IN_VM_SECURITY, WILD_CARD_ROUTING_ENABLED, MANAGEMENT_ADDRESS, MANAGEMENT_NOTIFICATION_ADDRESS,
             CLUSTER_USER, CLUSTER_PASSWORD, CREDENTIAL_REFERENCE, JMX_MANAGEMENT_ENABLED, JMX_DOMAIN, STATISTICS_ENABLED, MESSAGE_COUNTER_SAMPLE_PERIOD,

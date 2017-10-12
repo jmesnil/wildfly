@@ -17,7 +17,7 @@
 
         <server name="default"
                 thread-pool="default"
-                default-scheduled-thread-pool="default">
+                scheduled-thread-pool="default">
             <?CLUSTERED?>
 
             <security-setting name="#">

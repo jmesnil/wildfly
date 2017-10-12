@@ -384,7 +384,7 @@ class ServerAdd extends AbstractAddStepHandler {
                     // TODO: check that the unbounded-queue-thread-pool or bounded-queue-thread-pool exists in the model at the end of the MODEL stage.
                     serviceBuilder.addDependency(ThreadPools.THREAD_POOL_BASE_NAME.append(threadPoolName.asString()), ExecutorService.class, serverService.getExecutorService());
                 }
-                ModelNode scheduledTreadPoolName = ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL.resolveModelAttribute(context, model);
+                ModelNode scheduledTreadPoolName = ServerDefinition.SCHEDULED_THREAD_POOL.resolveModelAttribute(context, model);
                 if (scheduledTreadPoolName.isDefined()) {
                     // TODO: check that the scheduled-thread-pool exists in the model at the end of the MODEL stage.
                     serviceBuilder.addDependency(ThreadPools.SCHEDULED_THREAD_POOL_BASE_NAME.append(scheduledTreadPoolName.asString()), ScheduledExecutorService.class, serverService.getScheduledExecutorService());

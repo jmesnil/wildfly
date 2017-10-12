@@ -102,7 +102,7 @@ public class MessagingSubsystemParser_3_0 extends PersistentResourceXMLParser {
                                         ServerDefinition.ID_CACHE_SIZE,
                                         ServerDefinition.PAGE_MAX_CONCURRENT_IO,
                                         ServerDefinition.THREAD_POOL,
-                                        ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL,
+                                        ServerDefinition.SCHEDULED_THREAD_POOL,
                                         ServerDefinition.SCHEDULED_THREAD_POOL_MAX_SIZE,
                                         ServerDefinition.THREAD_POOL_MAX_SIZE,
                                         ServerDefinition.WILD_CARD_ROUTING_ENABLED,

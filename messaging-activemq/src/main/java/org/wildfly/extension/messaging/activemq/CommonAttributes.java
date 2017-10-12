@@ -398,6 +398,7 @@ public interface CommonAttributes {
     String ROLES_ATTR_NAME = "roles";
     String RUNTIME_QUEUE = "runtime-queue";
     String SCALE_DOWN = "scale-down";
+    String SCHEDULED_THREAD_POOL = "scheduled-thread-pool";
     String SECURITY_ROLE = "security-role";
     String SECURITY_SETTING = "security-setting";
     String SECURITY_SETTINGS = "security-settings";

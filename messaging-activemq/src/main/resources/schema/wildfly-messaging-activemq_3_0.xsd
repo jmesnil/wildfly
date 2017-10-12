@@ -675,7 +675,7 @@
         <xs:attribute name="id-cache-size" type="xs:int" use="optional" />
         <xs:attribute name="page-max-concurrent-io" type="xs:int" use="optional" />
         <xs:attribute name="thread-pool" type="xs:string" use="optional" />
-        <xs:attribute name="default-scheduled-thread-pool" type="xs:string" use="optional" />
+        <xs:attribute name="scheduled-thread-pool" type="xs:string" use="optional" />
         <xs:attribute name="scheduled-thread-pool-max-size" type="xs:int" use="optional" />
         <xs:attribute name="thread-pool-max-size" type="xs:int" use="optional" />
         <xs:attribute name="wild-card-routing-enabled" type="xs:boolean" use="optional" />
