@@ -12,7 +12,7 @@
         <keepalive-time time="100" unit="milliseconds"/>
     </bounded-queue-thread-pool>
 
-    <unbounded-queue-thread-pool name="default"
+    <unbounded-queue-thread-pool name="default2"
                                  max-threads="128"
                                  thread-factory="regular">
         <keepalive-time time="100" unit="milliseconds"/>
