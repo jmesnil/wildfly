@@ -124,6 +124,14 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE,
                                         MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_SCHEDULED_THREAD_POOL_MAX_SIZE))
+                        .addFailedAttribute(subsystemAddress.append(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
+                        .addFailedAttribute(subsystemAddress.append(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
+                        .addFailedAttribute(subsystemAddress.append(ThreadPools.SCHEDULED_THREAD_POOL_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
+                        .addFailedAttribute(subsystemAddress.append(ThreadPools.THREAD_FACTORY_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ServerDefinition.ELYTRON_DOMAIN,
@@ -137,14 +145,6 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                         ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT,
                                         ServerDefinition.DEFAULT_THREAD_POOL,
                                         ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL))
-                        .addFailedAttribute(subsystemAddress.append(SERVER_PATH, ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH),
-                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
-                        .addFailedAttribute(subsystemAddress.append(SERVER_PATH, ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH),
-                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
-                        .addFailedAttribute(subsystemAddress.append(SERVER_PATH, ThreadPools.SCHEDULED_THREAD_POOL_PATH),
-                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
-                        .addFailedAttribute(subsystemAddress.append(SERVER_PATH, ThreadPools.THREAD_FACTORY_PATH),
-                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, REPLICATION_MASTER_PATH),
                                 new ChangeToTrueConfig(HAAttributes.CHECK_FOR_LIVE_SERVER.getName()))
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, REPLICATION_COLOCATED_PATH, MessagingExtension.CONFIGURATION_MASTER_PATH),
@@ -176,22 +176,23 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
 
     @Test
     public void testRejectingTransformersWildFly_11_0_0() throws Exception {
-        PathAddress serverAddress = PathAddress.pathAddress(SUBSYSTEM_PATH).append(SERVER_PATH);
+        PathAddress subsystemAddress = PathAddress.pathAddress(SUBSYSTEM_PATH);
+        PathAddress serverAddress = subsystemAddress.append(SERVER_PATH);
 
         testRejectingTransformers(WF_11_0_0_CR1, MessagingExtension.VERSION_2_0_0,
                 new FailedOperationTransformationConfig()
+                        .addFailedAttribute(subsystemAddress.append(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
+                        .addFailedAttribute(subsystemAddress.append(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
+                        .addFailedAttribute(subsystemAddress.append(ThreadPools.SCHEDULED_THREAD_POOL_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
+                        .addFailedAttribute(subsystemAddress.append(ThreadPools.THREAD_FACTORY_PATH),
+                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(serverAddress,
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ServerDefinition.DEFAULT_THREAD_POOL,
                                         ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL))
-                        .addFailedAttribute(serverAddress.append(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH),
-                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
-                        .addFailedAttribute(serverAddress.append(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH),
-                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
-                        .addFailedAttribute(serverAddress.append(ThreadPools.SCHEDULED_THREAD_POOL_PATH),
-                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
-                        .addFailedAttribute(serverAddress.append(ThreadPools.THREAD_FACTORY_PATH),
-                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(serverAddress.append(CONNECTION_FACTORY_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE)));

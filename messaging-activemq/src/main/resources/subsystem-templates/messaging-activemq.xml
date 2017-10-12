@@ -3,22 +3,23 @@
 <config default-supplement="default">
     <extension-module>org.wildfly.extension.messaging-activemq</extension-module>
     <subsystem xmlns="urn:jboss:domain:messaging-activemq:3.0">
+        <unbounded-queue-thread-pool name="default"
+                                     max-threads="30"
+                                     thread-factory="regular">
+        </unbounded-queue-thread-pool>
+        <scheduled-thread-pool name="default"
+                               max-threads="5"
+                               thread-factory="scheduled"/>
+        <thread-factory name="regular"
+                        group-name="ActiveMQ-server-pool"  />
+        <thread-factory name="scheduled"
+                        group-name="ActiveMQ-scheduled-pool"  />
+
         <server name="default"
                 default-thread-pool="default"
                 default-scheduled-thread-pool="default">
             <?CLUSTERED?>
 
-            <unbounded-queue-thread-pool name="default"
-                                         max-threads="30"
-                                         thread-factory="regular">
-            </unbounded-queue-thread-pool>
-            <scheduled-thread-pool name="default"
-                                   max-threads="5"
-                                   thread-factory="scheduled"/>
-            <thread-factory name="regular"
-                            group-name="ActiveMQ-server-pool"  />
-            <thread-factory name="scheduled"
-                            group-name="ActiveMQ-scheduled-pool"  />
             <security-setting name="#">
                 <role name="guest"
                       send="true"

@@ -1,6 +1,37 @@
 <subsystem xmlns="urn:jboss:domain:messaging-activemq:3.0">
     <global-client thread-pool-max-size="${global.client.thread-pool-max-size:32}"
            scheduled-thread-pool-max-size="${global.client.scheduled.thread-pool-max-size:54}" />
+
+    <bounded-queue-thread-pool name="default"
+                               max-threads="128"
+                               thread-factory="regular"
+                               core-threads="7"
+                               queue-length="120"
+                               allow-core-timeout="true">
+        <keepalive-time time="100" unit="milliseconds"/>
+    </bounded-queue-thread-pool>
+
+    <unbounded-queue-thread-pool name="default"
+                                 max-threads="128"
+                                 thread-factory="regular">
+        <keepalive-time time="100" unit="milliseconds"/>
+    </unbounded-queue-thread-pool>
+
+    <scheduled-thread-pool name="default"
+                           max-threads="${scheduled.max.threads:35}"
+                           thread-factory="default">
+        <keepalive-time time="100" unit="milliseconds"/>
+    </scheduled-thread-pool>
+
+    <thread-factory name="regular"
+                    group-name="Artemis-server-threads"
+                    priority="3"
+                    thread-name-pattern="%i-%g"/>
+    <thread-factory name="scheduled"
+                    group-name="Artemis-scheduled-threads"
+                    priority="3"
+                    thread-name-pattern="%i-%g"/>
+
     <server name="default"
             persistence-enabled="${persistence.enabled:false}"
             persist-id-cache="${persist.id.cache:false}"
@@ -84,36 +115,6 @@
                 server-dump-interval="${server.dump.interval:8642}"
                 memory-warning-threshold="${memory.warning.threshold:1024}"
                 memory-measure-interval="${memory.measure.interval:2048}"/>
-
-        <bounded-queue-thread-pool name="default"
-                                   max-threads="128"
-                                   thread-factory="regular"
-                                   core-threads="7"
-                                   queue-length="120"
-                                   allow-core-timeout="true">
-            <keepalive-time time="100" unit="milliseconds"/>
-        </bounded-queue-thread-pool>
-
-        <unbounded-queue-thread-pool name="default"
-                                     max-threads="128"
-                                     thread-factory="regular">
-            <keepalive-time time="100" unit="milliseconds"/>
-        </unbounded-queue-thread-pool>
-
-        <scheduled-thread-pool name="default"
-                               max-threads="${scheduled.max.threads:35}"
-                               thread-factory="default">
-            <keepalive-time time="100" unit="milliseconds"/>
-        </scheduled-thread-pool>
-
-        <thread-factory name="regular"
-                        group-name="Artemis-server-threads"
-                        priority="3"
-                        thread-name-pattern="%i-%g"/>
-        <thread-factory name="scheduled"
-                        group-name="Artemis-scheduled-threads"
-                        priority="3"
-                        thread-name-pattern="%i-%g"/>
 
         <bindings-directory path="${my.bindings.dir:test}" relative-to="test"/>
         <journal-directory path="${my.journal.dir:test}" relative-to="test"/>

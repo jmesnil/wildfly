@@ -624,11 +624,6 @@ public class ServerDefinition extends PersistentResourceDefinition {
         List<PersistentResourceDefinition> children = new ArrayList();
         // Static resources
         children.addAll(Arrays.asList(
-                ThreadPools.BOUNDED_QUEUE_THREAD_POOL,
-                ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL,
-                ThreadPools.SCHEDULED_THREAD_POOL,
-                ThreadPools.THREAD_FACTORY,
-
                 // HA policy
                 LiveOnlyDefinition.INSTANCE,
                 ReplicationMasterDefinition.INSTANCE,

@@ -130,15 +130,15 @@ public class MessagingTransformers implements ExtensionTransformerRegistration {
     }
 
     private static void buildTransformers2_0_0(ResourceTransformationDescriptionBuilder subsystem) {
+        subsystem.rejectChildResource(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH);
+        subsystem.rejectChildResource(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH);
+        subsystem.rejectChildResource(ThreadPools.SCHEDULED_THREAD_POOL_PATH);
+        subsystem.rejectChildResource(ThreadPools.THREAD_FACTORY_PATH);
+
         ResourceTransformationDescriptionBuilder server = subsystem.addChildResource(MessagingExtension.SERVER_PATH);
         rejectDefinedAttributeWithDefaultValue(server,
                 ServerDefinition.DEFAULT_THREAD_POOL,
                 ServerDefinition.DEFAULT_SCHEDULED_THREAD_POOL);
-
-        server.rejectChildResource(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH);
-        server.rejectChildResource(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH);
-        server.rejectChildResource(ThreadPools.SCHEDULED_THREAD_POOL_PATH);
-        server.rejectChildResource(ThreadPools.THREAD_FACTORY_PATH);
 
         ResourceTransformationDescriptionBuilder connectionFactory = server.addChildResource(MessagingExtension.CONNECTION_FACTORY_PATH);
         // initial-message-packet-size is now a configuration property of the connection-factory (was a runtime attribute before)

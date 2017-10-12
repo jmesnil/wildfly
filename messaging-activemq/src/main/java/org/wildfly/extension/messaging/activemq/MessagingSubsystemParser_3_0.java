@@ -67,6 +67,32 @@ public class MessagingSubsystemParser_3_0 extends PersistentResourceXMLParser {
                         MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE,
                         MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_SCHEDULED_THREAD_POOL_MAX_SIZE)
                 .addChild(
+                        builder(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH)
+                                .addAttributes(
+                                        PoolAttributeDefinitions.KEEPALIVE_TIME,
+                                        PoolAttributeDefinitions.MAX_THREADS,
+                                        PoolAttributeDefinitions.THREAD_FACTORY,
+                                        PoolAttributeDefinitions.CORE_THREADS,
+                                        PoolAttributeDefinitions.QUEUE_LENGTH,
+                                        PoolAttributeDefinitions.ALLOW_CORE_TIMEOUT))
+                .addChild(
+                        builder(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH)
+                                .addAttributes(
+                                        PoolAttributeDefinitions.KEEPALIVE_TIME,
+                                        PoolAttributeDefinitions.MAX_THREADS,
+                                        PoolAttributeDefinitions.THREAD_FACTORY))
+                .addChild(
+                        builder(ThreadPools.SCHEDULED_THREAD_POOL_PATH)
+                                .addAttributes(
+                                        PoolAttributeDefinitions.KEEPALIVE_TIME,
+                                        PoolAttributeDefinitions.MAX_THREADS,
+                                        PoolAttributeDefinitions.THREAD_FACTORY))
+                .addChild(
+                        builder(ThreadPools.THREAD_FACTORY)
+                                .addAttributes(PoolAttributeDefinitions.GROUP_NAME,
+                                        PoolAttributeDefinitions.THREAD_NAME_PATTERN,
+                                        PoolAttributeDefinitions.PRIORITY))
+                .addChild(
                         builder(MessagingExtension.SERVER_PATH)
                                 .addAttributes(
                                         // no attribute groups
@@ -138,32 +164,6 @@ public class MessagingSubsystemParser_3_0 extends PersistentResourceXMLParser {
                                         ServerDefinition.MEMORY_WARNING_THRESHOLD,
                                         CommonAttributes.INCOMING_INTERCEPTORS,
                                         CommonAttributes.OUTGOING_INTERCEPTORS)
-                                .addChild(
-                                        builder(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH)
-                                                .addAttributes(
-                                                        PoolAttributeDefinitions.KEEPALIVE_TIME,
-                                                        PoolAttributeDefinitions.MAX_THREADS,
-                                                        PoolAttributeDefinitions.THREAD_FACTORY,
-                                                        PoolAttributeDefinitions.CORE_THREADS,
-                                                        PoolAttributeDefinitions.QUEUE_LENGTH,
-                                                        PoolAttributeDefinitions.ALLOW_CORE_TIMEOUT))
-                                .addChild(
-                                        builder(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH)
-                                                .addAttributes(
-                                                        PoolAttributeDefinitions.KEEPALIVE_TIME,
-                                                        PoolAttributeDefinitions.MAX_THREADS,
-                                                        PoolAttributeDefinitions.THREAD_FACTORY))
-                                .addChild(
-                                        builder(ThreadPools.SCHEDULED_THREAD_POOL_PATH)
-                                                .addAttributes(
-                                                        PoolAttributeDefinitions.KEEPALIVE_TIME,
-                                                        PoolAttributeDefinitions.MAX_THREADS,
-                                                        PoolAttributeDefinitions.THREAD_FACTORY))
-                                .addChild(
-                                        builder(ThreadPools.THREAD_FACTORY)
-                                                .addAttributes(PoolAttributeDefinitions.GROUP_NAME,
-                                                        PoolAttributeDefinitions.THREAD_NAME_PATTERN,
-                                                        PoolAttributeDefinitions.PRIORITY))
                                 .addChild(
                                         builder(LiveOnlyDefinition.INSTANCE.getPathElement())
                                                 .addAttributes(
