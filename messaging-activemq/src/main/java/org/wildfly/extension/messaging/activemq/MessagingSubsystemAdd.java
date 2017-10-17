@@ -29,15 +29,12 @@ import static org.wildfly.extension.messaging.activemq.MessagingSubsystemRootRes
 import static org.wildfly.extension.messaging.activemq.MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_THREAD_POOL_MAX_SIZE;
 import static org.wildfly.extension.messaging.activemq.MessagingSubsystemRootResourceDefinition.GLOBAL_SCHEDULED_CLIENT_THREAD_POOL;
 
-import java.util.HashSet;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.server.AbstractDeploymentChainStep;
 import org.jboss.as.server.DeploymentProcessorTarget;
@@ -75,25 +72,6 @@ class MessagingSubsystemAdd extends AbstractBoottimeAddStepHandler {
     @Override
     protected void populateModel(ModelNode operation, Resource resource) throws OperationFailedException {
         super.populateModel(operation, resource);
-    }
-
-    @Override
-    protected void populateModel(OperationContext context, ModelNode operation, Resource resource) throws OperationFailedException {
-        super.populateModel(context, operation, resource);
-        context.addStep(new OperationStepHandler() {
-            @Override
-            public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
-                // check that all bounded and unbounded thread pools have distinctive name
-                Set<String> boundedQueueThreadPoolChildren = resource.getChildrenNames(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH.getKey());
-                Set<String> unboundedQueueThreadPoolChildren = resource.getChildrenNames(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH.getKey());
-                Set<String> intersection = new HashSet<>(boundedQueueThreadPoolChildren);
-                intersection.retainAll(unboundedQueueThreadPoolChildren);
-                if (intersection.size() > 0) {
-                    // FIXME i18n
-                    throw new OperationFailedException("all bounded and unbounded queue thread pools must have distinct names");
-                }
-            }
-        }, OperationContext.Stage.MODEL);
     }
 
     @Override

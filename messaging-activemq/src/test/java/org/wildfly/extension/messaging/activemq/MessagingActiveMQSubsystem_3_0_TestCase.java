@@ -126,8 +126,6 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                         MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_SCHEDULED_THREAD_POOL_MAX_SIZE,
                                         MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_THREAD_POOL,
                                         MessagingSubsystemRootResourceDefinition.GLOBAL_SCHEDULED_CLIENT_THREAD_POOL))
-                        .addFailedAttribute(subsystemAddress.append(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH),
-                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(subsystemAddress.append(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH),
                                 FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(subsystemAddress.append(ThreadPools.SCHEDULED_THREAD_POOL_PATH),
@@ -187,8 +185,6 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_THREAD_POOL,
                                         MessagingSubsystemRootResourceDefinition.GLOBAL_SCHEDULED_CLIENT_THREAD_POOL))
-                        .addFailedAttribute(subsystemAddress.append(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH),
-                                FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(subsystemAddress.append(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH),
                                 FailedOperationTransformationConfig.REJECTED_RESOURCE)
                         .addFailedAttribute(subsystemAddress.append(ThreadPools.SCHEDULED_THREAD_POOL_PATH),

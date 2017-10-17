@@ -226,10 +226,9 @@ class ServerAdd extends AbstractAddStepHandler {
                 String threadPoolName = threadPoolModel.asString();
                 PathAddress subsystemAddress = context.getCurrentAddress().getParent();
                 Resource subsystemResource = context.readResourceFromRoot(subsystemAddress);
-                if (subsystemResource.getChildrenNames(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH.getKey()).contains(threadPoolName)
-                        || subsystemResource.getChildrenNames(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH.getKey()).contains(threadPoolName)) {
+                if (subsystemResource.getChildrenNames(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH.getKey()).contains(threadPoolName)) {
                     // FIXME i18n
-                    System.out.println(" get bounded queue thread pool");
+                    System.out.println(" get unbounded queue thread pool");
                 } else {
                     // FIXME i18n
                     throw new OperationFailedException("no thread pool defined with the name " + threadPoolModel.asString());
