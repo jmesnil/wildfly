@@ -135,6 +135,7 @@ public class MessagingTransformers implements ExtensionTransformerRegistration {
                 MessagingSubsystemRootResourceDefinition.GLOBAL_SCHEDULED_CLIENT_THREAD_POOL);
 
         subsystem.rejectChildResource(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH);
+        subsystem.rejectChildResource(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH);
         subsystem.rejectChildResource(ThreadPools.SCHEDULED_THREAD_POOL_PATH);
         subsystem.rejectChildResource(ThreadPools.THREAD_FACTORY_PATH);
 

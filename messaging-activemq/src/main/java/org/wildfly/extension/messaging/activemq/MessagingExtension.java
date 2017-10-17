@@ -186,6 +186,7 @@ public class MessagingExtension implements Extension {
         subsystem.registerOperationHandler(GenericSubsystemDescribeHandler.DEFINITION, GenericSubsystemDescribeHandler.INSTANCE);
 
         subsystem.registerSubModel(ThreadPools.BOUNDED_QUEUE_THREAD_POOL);
+        subsystem.registerSubModel(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL);
         subsystem.registerSubModel(ThreadPools.SCHEDULED_THREAD_POOL);
         subsystem.registerSubModel(ThreadPools.THREAD_FACTORY);
 

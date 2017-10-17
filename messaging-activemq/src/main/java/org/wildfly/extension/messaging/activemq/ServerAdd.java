@@ -220,13 +220,14 @@ class ServerAdd extends AbstractAddStepHandler {
                         ServerDefinition.CREATE_BINDINGS_DIR,
                         ServerDefinition.CREATE_JOURNAL_DIR);
             }
-            // check that if the thread-pool attribute is defined, its matches a bounded-queue-thread-pool resource
+            // check that if the thread-pool attribute is defined, its matches an unbounded-queue-thread-pool or bounded-queue-thread-pool resource
             ModelNode threadPoolModel = ServerDefinition.THREAD_POOL.resolveModelAttribute(context, model);
             if (threadPoolModel.isDefined()) {
                 String threadPoolName = threadPoolModel.asString();
                 PathAddress subsystemAddress = context.getCurrentAddress().getParent();
                 Resource subsystemResource = context.readResourceFromRoot(subsystemAddress);
-                if (subsystemResource.getChildrenNames(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH.getKey()).contains(threadPoolName)) {
+                if (subsystemResource.getChildrenNames(ThreadPools.BOUNDED_QUEUE_THREAD_POOL_PATH.getKey()).contains(threadPoolName)
+                        || subsystemResource.getChildrenNames(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH.getKey()).contains(threadPoolName)) {
                     // FIXME i18n
                     System.out.println(" get bounded queue thread pool");
                 } else {

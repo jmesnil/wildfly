@@ -30,6 +30,7 @@ import org.jboss.as.threads.ScheduledThreadPoolResourceDefinition;
 import org.jboss.as.threads.ThreadFactoryResolver;
 import org.jboss.as.threads.ThreadFactoryResourceDefinition;
 import org.jboss.as.threads.ThreadsServices;
+import org.jboss.as.threads.UnboundedQueueThreadPoolResourceDefinition;
 import org.jboss.msc.service.ServiceName;
 
 /**
@@ -49,6 +50,11 @@ public class ThreadPools {
     static PersistentResourceDefinition SCHEDULED_THREAD_POOL = ScheduledThreadPoolResourceDefinition.create(org.jboss.as.threads.CommonAttributes.SCHEDULED_THREAD_POOL,
             ArtemisThreadFactoryResolver.SCHEDULED_INSTANCE,
             SCHEDULED_THREAD_POOL_BASE_NAME,
+            true);
+
+    static  PersistentResourceDefinition UNBOUNDED_QUEUE_THREAD_POOL = UnboundedQueueThreadPoolResourceDefinition.create(CommonAttributes.UNBOUNDED_QUEUE_THREAD_POOL,
+            ArtemisThreadFactoryResolver.INSTANCE,
+            THREAD_POOL_BASE_NAME,
             true);
 
     static  PersistentResourceDefinition BOUNDED_QUEUE_THREAD_POOL = BoundedQueueThreadPoolResourceDefinition.create(CommonAttributes.BOUNDED_QUEUE_THREAD_POOL,

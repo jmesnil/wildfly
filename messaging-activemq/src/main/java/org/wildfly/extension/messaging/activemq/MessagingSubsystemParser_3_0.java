@@ -79,6 +79,12 @@ public class MessagingSubsystemParser_3_0 extends PersistentResourceXMLParser {
                                         PoolAttributeDefinitions.QUEUE_LENGTH,
                                         PoolAttributeDefinitions.ALLOW_CORE_TIMEOUT))
                 .addChild(
+                        builder(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH)
+                                .addAttributes(
+                                        PoolAttributeDefinitions.KEEPALIVE_TIME,
+                                        PoolAttributeDefinitions.MAX_THREADS,
+                                        PoolAttributeDefinitions.THREAD_FACTORY))
+                .addChild(
                         builder(ThreadPools.SCHEDULED_THREAD_POOL_PATH)
                                 .addAttributes(
                                         PoolAttributeDefinitions.KEEPALIVE_TIME,
