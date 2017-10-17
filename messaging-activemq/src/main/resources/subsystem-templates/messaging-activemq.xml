@@ -3,10 +3,10 @@
 <config default-supplement="default">
     <extension-module>org.wildfly.extension.messaging-activemq</extension-module>
     <subsystem xmlns="urn:jboss:domain:messaging-activemq:3.0">
-        <unbounded-queue-thread-pool name="default"
-                                     max-threads="30"
-                                     thread-factory="regular">
-        </unbounded-queue-thread-pool>
+        <thread-pool name="default"
+                     max-threads="30"
+                     thread-factory="regular">
+        </thread-pool>
         <scheduled-thread-pool name="default"
                                max-threads="5"
                                thread-factory="scheduled"/>

@@ -43,7 +43,7 @@
                         <xs:attribute name="scheduled-thread-pool-max-size" type="xs:int" />
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="unbounded-queue-thread-pool" minOccurs="0" maxOccurs="1">
+                <xs:element name="thread-pool" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="keepalive-time" type="threads:time" minOccurs="0" maxOccurs="1" />

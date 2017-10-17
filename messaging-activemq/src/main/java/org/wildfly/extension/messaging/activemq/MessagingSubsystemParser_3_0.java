@@ -70,7 +70,7 @@ public class MessagingSubsystemParser_3_0 extends PersistentResourceXMLParser {
                         MessagingSubsystemRootResourceDefinition.GLOBAL_CLIENT_SCHEDULED_THREAD_POOL_MAX_SIZE
                     )
                 .addChild(
-                        builder(ThreadPools.UNBOUNDED_QUEUE_THREAD_POOL_PATH)
+                        builder(ThreadPools.THREAD_POOL_PATH)
                                 .addAttributes(
                                         PoolAttributeDefinitions.KEEPALIVE_TIME,
                                         PoolAttributeDefinitions.MAX_THREADS,

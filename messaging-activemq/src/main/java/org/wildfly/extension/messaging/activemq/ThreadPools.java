@@ -24,19 +24,17 @@ package org.wildfly.extension.messaging.activemq;
 
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
-import org.jboss.as.threads.CommonAttributes;
 import org.jboss.as.threads.ScheduledThreadPoolResourceDefinition;
 import org.jboss.as.threads.ThreadFactoryResolver;
 import org.jboss.as.threads.ThreadFactoryResourceDefinition;
 import org.jboss.as.threads.ThreadsServices;
 import org.jboss.as.threads.UnboundedQueueThreadPoolResourceDefinition;
 import org.jboss.msc.service.ServiceName;
-
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2016 Red Hat inc.
  */
 public class ThreadPools {
-    public static PathElement UNBOUNDED_QUEUE_THREAD_POOL_PATH = PathElement.pathElement(CommonAttributes.UNBOUNDED_QUEUE_THREAD_POOL);
+    public static PathElement THREAD_POOL_PATH = PathElement.pathElement(CommonAttributes.THREAD_POOL);
     public static PathElement SCHEDULED_THREAD_POOL_PATH = PathElement.pathElement(org.jboss.as.threads.CommonAttributes.SCHEDULED_THREAD_POOL);
     public static PathElement THREAD_FACTORY_PATH = PathElement.pathElement("thread-factory");
 
@@ -50,7 +48,7 @@ public class ThreadPools {
             SCHEDULED_THREAD_POOL_BASE_NAME,
             true);
 
-    static  PersistentResourceDefinition UNBOUNDED_QUEUE_THREAD_POOL = UnboundedQueueThreadPoolResourceDefinition.create(CommonAttributes.UNBOUNDED_QUEUE_THREAD_POOL,
+    static  PersistentResourceDefinition THREAD_POOL = UnboundedQueueThreadPoolResourceDefinition.create(CommonAttributes.THREAD_POOL,
             ArtemisThreadFactoryResolver.INSTANCE,
             THREAD_POOL_BASE_NAME,
             true);
