@@ -22,6 +22,7 @@
 
 package org.wildfly.extension.messaging.activemq;
 
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.jboss.as.controller.AbstractRemoveStepHandler;
@@ -77,10 +78,11 @@ public class DivertRemove extends AbstractRemoveStepHandler {
         if (service != null && service.getState() == ServiceController.State.UP) {
 
             final String name = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR)).getLastElement().getValue();
-            final DivertConfiguration divertConfiguration = DivertAdd.createDivertConfiguration(context, name, model);
-
             ActiveMQServer server = ActiveMQServer.class.cast(service.getValue());
-            DivertAdd.createDivert(name, divertConfiguration, server.getActiveMQServerControl());
+            ActiveMQServerControl control = server.getActiveMQServerControl();
+
+            final DivertConfiguration divertConfiguration = DivertAdd.createDivertConfiguration(context, name, model, server);
+            DivertAdd.createDivert(name, divertConfiguration, control);
         }
     }
 }

@@ -35,7 +35,7 @@ import java.util.Map;
  * Specify the fully qualified name of the activated implementation class in resources/jmsoperations.properties file.
  * @author <a href="jmartisk@redhat.com">Jan Martiska</a>
  */
-public interface JMSOperations {
+public interface JMSOperations extends AutoCloseable {
 
     ModelControllerClient getControllerClient();
 

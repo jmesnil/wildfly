@@ -122,6 +122,7 @@ public class MessagingExtension implements Extension {
     public static final PathElement REPLICATION_COLOCATED_PATH = pathElement(HA_POLICY, REPLICATION_COLOCATED);
     public static final PathElement CONFIGURATION_MASTER_PATH = pathElement(CONFIGURATION, MASTER);
     public static final PathElement CONFIGURATION_SLAVE_PATH = pathElement(CONFIGURATION, SLAVE);
+    public static final PathElement DIVERT_PATH = pathElement(CommonAttributes.DIVERT);
     static final PathElement BINDINGS_DIRECTORY_PATH = pathElement(PATH, BINDINGS_DIRECTORY);
     static final PathElement JOURNAL_DIRECTORY_PATH = pathElement(PATH, JOURNAL_DIRECTORY);
     static final PathElement PAGING_DIRECTORY_PATH = pathElement(PATH, PAGING_DIRECTORY);

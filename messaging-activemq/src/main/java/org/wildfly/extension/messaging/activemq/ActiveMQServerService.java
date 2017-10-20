@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.services.path.AbsolutePathService;
@@ -118,6 +119,7 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
     private final List<Interceptor> outgoingInterceptors = new ArrayList<>();
 
     private final Map<ConnectorServiceFactory, ConnectorServiceConfiguration> connectorServices = new HashMap<>();
+    private final Map<String, Transformer> divertTransformers = new HashMap<>();
 
     // credential source injectors
     private Map<String, InjectedValue<ExceptionSupplier<CredentialSource, Exception>>> bridgeCredentialSource = new HashMap<>();
@@ -175,6 +177,10 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
 
     protected void addConnectorService(ConnectorServiceFactory factory, ConnectorServiceConfiguration configuration) {
         connectorServices.put(factory, configuration);
+    }
+
+    protected void addDivertTransformer(String name, Transformer transformer) {
+        divertTransformers.put(name, transformer);
     }
 
     public synchronized void start(final StartContext context) throws StartException {
@@ -363,6 +369,9 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
             }
             for (Map.Entry<ConnectorServiceFactory,ConnectorServiceConfiguration> entry : connectorServices.entrySet()) {
                 server.getServiceRegistry().addConnectorService(entry.getKey(), entry.getValue());
+            }
+            for (Map.Entry<String,Transformer> entry : divertTransformers.entrySet()) {
+                server.getServiceRegistry().addDivertTransformer(entry.getKey(), entry.getValue());
             }
 
 
