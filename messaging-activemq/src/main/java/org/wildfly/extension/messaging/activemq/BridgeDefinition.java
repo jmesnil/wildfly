@@ -52,7 +52,6 @@ import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.security.CredentialReference;
 import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.ModelType;
 import org.jboss.dmr.Property;
 
 /**
@@ -151,29 +150,10 @@ public class BridgeDefinition extends PersistentResourceDefinition {
             .setRestartAllServices()
             .build();
 
-    @Deprecated
-    static final SimpleAttributeDefinition TRANSFORMER_CLASS_NAME = create("transformer-class-name", ModelType.STRING)
-            .setRequired(false)
-            .setAllowExpression(false)
-            .setRestartAllServices()
-            .setDeprecated(MessagingExtension.VERSION_3_0_0)
-            .build();
-
-    static final ObjectTypeAttributeDefinition TRANSFORMER_CLASS = ObjectTypeAttributeDefinition.Builder.of("transformer-class",
-            create(CommonAttributes.NAME, ModelType.STRING, false)
-                    .setAllowExpression(false)
-                    .build(),
-            create(CommonAttributes.MODULE, ModelType.STRING, false)
-                    .setAllowExpression(false)
-                    .build())
-            .setAlternatives(TRANSFORMER_CLASS_NAME.getName())
-            .build();
-
-
     public static final AttributeDefinition[] ATTRIBUTES = {
             QUEUE_NAME, FORWARDING_ADDRESS, CommonAttributes.HA,
-            CommonAttributes.FILTER, TRANSFORMER_CLASS_NAME,
-            TRANSFORMER_CLASS,
+            CommonAttributes.FILTER,
+            TransformerUtil.TRANSFORMER_CLASS_NAME, TransformerUtil.TRANSFORMER_CLASS,
             CommonAttributes.MIN_LARGE_MESSAGE_SIZE, CommonAttributes.CHECK_PERIOD, CommonAttributes.CONNECTION_TTL,
             CommonAttributes.RETRY_INTERVAL, CommonAttributes.RETRY_INTERVAL_MULTIPLIER, CommonAttributes.MAX_RETRY_INTERVAL,
             INITIAL_CONNECT_ATTEMPTS,

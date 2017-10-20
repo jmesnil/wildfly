@@ -147,10 +147,10 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                         HTTPConnectorDefinition.SERVER_NAME))
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, BRIDGE_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
-                                        BridgeDefinition.PRODUCER_WINDOW_SIZE, BridgeDefinition.TRANSFORMER_CLASS))
+                                        BridgeDefinition.PRODUCER_WINDOW_SIZE, TransformerUtil.TRANSFORMER_CLASS))
                         .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, DIVERT_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
-                                        DivertDefinition.TRANSFORMER_CLASS))
+                                        TransformerUtil.TRANSFORMER_CLASS))
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, CLUSTER_CONNECTION_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ClusterConnectionDefinition.PRODUCER_WINDOW_SIZE))
@@ -182,10 +182,10 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                         ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE))
                         .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, BRIDGE_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
-                                        BridgeDefinition.TRANSFORMER_CLASS))
+                                        TransformerUtil.TRANSFORMER_CLASS))
                         .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, DIVERT_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
-                                        DivertDefinition.TRANSFORMER_CLASS))
+                                        TransformerUtil.TRANSFORMER_CLASS))
                         .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, CONNECTOR_SERVICE_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ConnectorServiceDefinition.CLASS)));

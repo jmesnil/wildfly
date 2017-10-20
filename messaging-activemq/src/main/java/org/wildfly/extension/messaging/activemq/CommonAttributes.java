@@ -283,12 +283,6 @@ public interface CommonAttributes {
             .setStorageRuntime()
             .build();
 
-    SimpleAttributeDefinition TRANSFORMER_CLASS_NAME = create("transformer-class-name", ModelType.STRING)
-            .setRequired(false)
-            .setAllowExpression(false)
-            .setRestartAllServices()
-            .build();
-
     SimpleAttributeDefinition USER = create("user", ModelType.STRING, true)
             .setAllowExpression(true)
             .setDefaultValue(new ModelNode(ActiveMQDefaultConfiguration.getDefaultClusterUser()))
@@ -383,6 +377,7 @@ public interface CommonAttributes {
     String PASSWORD = "password";
     String PERMISSION_ELEMENT_NAME = "permission";
     String POOLED_CONNECTION_FACTORY = "pooled-connection-factory";
+    String PROPERTIES = "properties";
     String QUEUE = "queue";
     String QUEUE_NAME = "queue-name";
     String QUEUE_NAMES = "queue-names";
@@ -416,6 +411,8 @@ public interface CommonAttributes {
     String SUBSYSTEM = "subsystem";
     String TARGET = "target";
     String TOPIC_ADDRESS = "topic-address";
+    String TRANSFORMER_CLASS = "transformer-class";
+    String TRANSFORMER_CLASS_NAME = "transformer-class-name";
     String TYPE_ATTR_NAME = "type";
     String USE_INVM = "use-invm";
     String USE_SERVLET = "use-servlet";
