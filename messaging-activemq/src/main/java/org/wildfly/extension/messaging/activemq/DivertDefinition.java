@@ -32,7 +32,6 @@ import java.util.Collection;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.ObjectTypeAttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PersistentResourceDefinition;
@@ -40,7 +39,6 @@ import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.ModelType;
 import org.jboss.dmr.Property;
 
 /**
@@ -75,27 +73,8 @@ public class DivertDefinition extends PersistentResourceDefinition {
             .setRestartAllServices()
             .build();
 
-    @Deprecated
-    static final SimpleAttributeDefinition TRANSFORMER_CLASS_NAME = create("transformer-class-name", ModelType.STRING)
-            .setRequired(false)
-            .setAllowExpression(false)
-            .setAlternatives("transformer-class")
-            .setRestartAllServices()
-            .setDeprecated(MessagingExtension.VERSION_3_0_0)
-            .build();
-
-    static final ObjectTypeAttributeDefinition TRANSFORMER_CLASS = ObjectTypeAttributeDefinition.Builder.of("transformer-class",
-            create(CommonAttributes.NAME, ModelType.STRING, false)
-                    .setAllowExpression(false)
-                    .build(),
-            create(CommonAttributes.MODULE, ModelType.STRING, false)
-                    .setAllowExpression(false)
-                    .build())
-            .setAlternatives(TRANSFORMER_CLASS_NAME.getName())
-            .build();
-
     public static final AttributeDefinition[] ATTRIBUTES = { ROUTING_NAME, ADDRESS, FORWARDING_ADDRESS, CommonAttributes.FILTER,
-            TRANSFORMER_CLASS_NAME, TRANSFORMER_CLASS, EXCLUSIVE };
+            TransformerUtil.TRANSFORMER_CLASS_NAME, TransformerUtil.TRANSFORMER_CLASS, EXCLUSIVE };
 
     private final boolean registerRuntimeOnly;
 

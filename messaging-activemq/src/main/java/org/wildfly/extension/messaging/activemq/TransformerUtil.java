@@ -22,29 +22,86 @@
 
 package org.wildfly.extension.messaging.activemq;
 
+import static java.util.Collections.emptyMap;
+import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
+import static org.wildfly.extension.messaging.activemq.CommonAttributes.PROPERTIES;
+
+import java.util.Map;
+
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import org.jboss.as.controller.ObjectTypeAttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.PropertiesAttributeDefinition;
+import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.ModelType;
 import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2017 Red Hat inc.
  */
 public class TransformerUtil {
-    static Transformer loadTransformer(OperationContext context, ModelNode divertModel) throws OperationFailedException {
-        if (divertModel.hasDefined(DivertDefinition.TRANSFORMER_CLASS_NAME.getName())) {
-            String className = DivertDefinition.TRANSFORMER_CLASS_NAME.resolveModelAttribute(context, divertModel).asString();
+
+    /**
+     * DMR representation of a {@link Transformer} implementation.
+     */
+    static final ObjectTypeAttributeDefinition TRANSFORMER_CLASS = ObjectTypeAttributeDefinition.Builder.of(CommonAttributes.TRANSFORMER_CLASS,
+            create(CommonAttributes.NAME, ModelType.STRING, false)
+                    .setAllowExpression(false)
+                    .build(),
+            create(CommonAttributes.MODULE, ModelType.STRING, false)
+                    .setAllowExpression(false)
+                    .build(),
+            new PropertiesAttributeDefinition.Builder(PROPERTIES, true)
+                    .setAllowExpression(true)
+                    .build())
+            .setAlternatives(CommonAttributes.TRANSFORMER_CLASS_NAME)
+            .build();
+
+    @Deprecated
+    static final SimpleAttributeDefinition TRANSFORMER_CLASS_NAME = create(CommonAttributes.TRANSFORMER_CLASS_NAME, ModelType.STRING)
+            .setRequired(false)
+            .setAllowExpression(false)
+            .setAlternatives(CommonAttributes.TRANSFORMER_CLASS)
+            .setRestartAllServices()
+            .setDeprecated(MessagingExtension.VERSION_3_0_0)
+            .build();
+
+    /**
+     * Load a Transformer instance.
+     *
+     * The resourceModel can either contain:
+     * * (deprecated) @{code TRANSFORMER_CLASS_NAME} String attribute
+     *
+     * or
+     *
+     * * a complex {@code TRANSFORMER_CLASS} attribute that itself contains:
+     * ** name (String attribute that corresponds to the name of the Transformer implementation)
+     * ** module (String module that corresponds to the module that contains the transformer implementation)
+     * ** properties (optional Properties use to initialize the Transformer instance)
+     *
+     * The method can return {@code null} if the resourceModel does not define any of these attributes
+     * (as the transformer is optional for the given resource).
+     */
+    static Transformer loadTransformer(OperationContext context, ModelNode resourceModel) throws OperationFailedException {
+        if (resourceModel.hasDefined(CommonAttributes.TRANSFORMER_CLASS_NAME)) {
+            String className = resourceModel.get(CommonAttributes.TRANSFORMER_CLASS_NAME).asString();
             try {
                 Object o = ClassloadingUtil.newInstanceFromClassLoader(className);
-                return Transformer.class.cast(o);
+                Transformer transformer = Transformer.class.cast(o);
+                transformer.init(emptyMap());
+                return transformer;
             } catch (Throwable t) {
                 throw MessagingLogger.ROOT_LOGGER.unableToLoadClass(className);
             }
-        } else if (divertModel.hasDefined(DivertDefinition.TRANSFORMER_CLASS.getName())){
-            Object o = ClassLoaderUtil.instantiate(divertModel.require(DivertDefinition.TRANSFORMER_CLASS.getName()));
-            return Transformer.class.cast(o);
+        } else if (resourceModel.hasDefined(CommonAttributes.TRANSFORMER_CLASS)){
+            Object o = ClassLoaderUtil.instantiate(resourceModel.require(CommonAttributes.TRANSFORMER_CLASS));
+            Transformer transformer = Transformer.class.cast(o);
+            Map<String, String> properties = PropertiesAttributeDefinition.unwrapModel(context, resourceModel.get(CommonAttributes.TRANSFORMER_CLASS, PROPERTIES));
+            transformer.init(properties);
+            return transformer;
         } else {
             return null;
         }

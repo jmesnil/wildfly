@@ -56,13 +56,23 @@
         <bridge name="bridge-with-transformer-class"
                 queue-name="coreQueueB"
                 discovery-group="groupC">
-            <transformer-class name="org.foo.MyTransformer" module="org.foo " />
+            <transformer-class name="org.foo.MyTransformer" module="org.foo ">
+                <properties>
+                    <property name="foo" value="alice" />
+                    <property name="bar" value="bob" />
+                </properties>
+            </transformer-class>
         </bridge>
 
         <divert name="divert-with-new-transformer"
                 address="address3"
                 forwarding-address="forwarding-address-3">
-            <transformer-class name="org.foo.MyTransformer" module="org.foo " />
+            <transformer-class name="org.foo.MyTransformer" module="org.foo ">
+                <properties>
+                    <property name="foo" value="alice" />
+                    <property name="bar" value="bob" />
+                </properties>
+            </transformer-class>
         </divert>
 
         <connector-service name="new-style-connector-service">

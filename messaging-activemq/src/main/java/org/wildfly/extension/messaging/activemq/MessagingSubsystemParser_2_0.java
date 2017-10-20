@@ -394,7 +394,7 @@ public class MessagingSubsystemParser_2_0 extends PersistentResourceXMLParser {
                                                         DivertDefinition.ADDRESS,
                                                         DivertDefinition.FORWARDING_ADDRESS,
                                                         CommonAttributes.FILTER,
-                                                        DivertDefinition.TRANSFORMER_CLASS_NAME,
+                                                        TransformerUtil.TRANSFORMER_CLASS_NAME,
                                                         DivertDefinition.EXCLUSIVE))
                                 .addChild(
                                         builder(MessagingExtension.BRIDGE_PATH)
@@ -403,7 +403,7 @@ public class MessagingSubsystemParser_2_0 extends PersistentResourceXMLParser {
                                                         BridgeDefinition.FORWARDING_ADDRESS,
                                                         CommonAttributes.HA,
                                                         CommonAttributes.FILTER,
-                                                        BridgeDefinition.TRANSFORMER_CLASS_NAME,
+                                                        TransformerUtil.TRANSFORMER_CLASS_NAME,
                                                         CommonAttributes.MIN_LARGE_MESSAGE_SIZE,
                                                         CommonAttributes.CHECK_PERIOD,
                                                         CommonAttributes.CONNECTION_TTL,
