@@ -147,7 +147,7 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                                         HTTPConnectorDefinition.SERVER_NAME))
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, BRIDGE_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
-                                        BridgeDefinition.PRODUCER_WINDOW_SIZE))
+                                        BridgeDefinition.PRODUCER_WINDOW_SIZE, BridgeDefinition.TRANSFORMER_CLASS))
                         .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, DIVERT_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         DivertDefinition.TRANSFORMER_CLASS))
@@ -180,6 +180,9 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                         .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, CONNECTION_FACTORY_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE))
+                        .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, BRIDGE_PATH),
+                                new FailedOperationTransformationConfig.NewAttributesConfig(
+                                        BridgeDefinition.TRANSFORMER_CLASS))
                         .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, DIVERT_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         DivertDefinition.TRANSFORMER_CLASS))

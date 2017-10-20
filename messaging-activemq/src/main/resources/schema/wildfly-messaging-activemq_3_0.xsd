@@ -455,7 +455,13 @@
 
                     <xs:attribute name="routing-name" type="xs:string"  use="optional" />
                     <xs:attribute name="filter" type="xs:string" use="optional" />
-                    <xs:attribute name="transformer-class-name" type="xs:string" use="optional" />
+                    <xs:attribute name="transformer-class-name" type="xs:string" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Deprecated. use the class element instead to specify the module containing the class.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
                     <xs:attribute name="exclusive" type="xs:boolean" use="optional" />
                 </xs:complexType>
             </xs:element>
@@ -463,6 +469,7 @@
             <xs:element name="bridge" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element name="transformer-class" minOccurs="0" maxOccurs="1" type="classType"/>
                         <xs:element name="credential-reference" type="credentialReferenceType" minOccurs="0" maxOccurs="1">
                             <xs:annotation>
                                 <xs:documentation>
@@ -477,7 +484,13 @@
                     <xs:attribute name="forwarding-address" type="xs:string" use="optional" />
                     <xs:attribute name="ha" type="xs:boolean"  use="optional" />
                     <xs:attribute name="filter" type="xs:string"  use="optional" />
-                    <xs:attribute name="transformer-class-name" type="xs:string"  use="optional" />
+                    <xs:attribute name="transformer-class-name" type="xs:string" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Deprecated. use the class element instead to specify the module containing the class.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
                     <xs:attribute name="min-large-message-size" type="xs:int" use="optional" />
                     <xs:attribute name="check-period" type="xs:long"  use="optional" />
                     <xs:attribute name="connection-ttl" type="xs:long"  use="optional" />

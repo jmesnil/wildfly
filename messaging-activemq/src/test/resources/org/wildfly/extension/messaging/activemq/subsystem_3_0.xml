@@ -271,7 +271,11 @@
         <bridge name="bridge2"
                 queue-name="coreQueueB"
                 discovery-group="groupC" />
-
+        <bridge name="bridge-with-transformer-class"
+                queue-name="coreQueueB"
+                discovery-group="groupC">
+            <transformer-class name="org.foo.MyTransformer" module="org.foo " />
+        </bridge>
         <connector-service name="old-style-connector-service"
                            factory-class="org.foo.incoming.myConnectorServiceFactory">
             <param name="foo"

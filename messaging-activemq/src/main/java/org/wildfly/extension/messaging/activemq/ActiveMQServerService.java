@@ -120,6 +120,7 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
 
     private final Map<ConnectorServiceFactory, ConnectorServiceConfiguration> connectorServices = new HashMap<>();
     private final Map<String, Transformer> divertTransformers = new HashMap<>();
+    private final Map<String, Transformer> bridgeTransformers = new HashMap<>();
 
     // credential source injectors
     private Map<String, InjectedValue<ExceptionSupplier<CredentialSource, Exception>>> bridgeCredentialSource = new HashMap<>();
@@ -181,6 +182,10 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
 
     protected void addDivertTransformer(String name, Transformer transformer) {
         divertTransformers.put(name, transformer);
+    }
+
+    protected void addDBridgeTransformer(String name, Transformer transformer) {
+        bridgeTransformers.put(name, transformer);
     }
 
     public synchronized void start(final StartContext context) throws StartException {
@@ -372,6 +377,9 @@ class ActiveMQServerService implements Service<ActiveMQServer> {
             }
             for (Map.Entry<String,Transformer> entry : divertTransformers.entrySet()) {
                 server.getServiceRegistry().addDivertTransformer(entry.getKey(), entry.getValue());
+            }
+            for (Map.Entry<String,Transformer> entry : bridgeTransformers.entrySet()) {
+                server.getServiceRegistry().addBridgeTransformer(entry.getKey(), entry.getValue());
             }
 
 

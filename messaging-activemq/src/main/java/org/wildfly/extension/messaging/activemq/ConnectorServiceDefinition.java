@@ -111,7 +111,7 @@ public class ConnectorServiceDefinition extends PersistentResourceDefinition {
                 Object o = ClassloadingUtil.newInstanceFromClassLoader(className);
                 return ConnectorServiceFactory.class.cast(o);
             } catch (Throwable t) {
-                throw MessagingLogger.ROOT_LOGGER.unableToLoadConnectorServiceFactoryClass(className);
+                throw MessagingLogger.ROOT_LOGGER.unableToLoadClass(className);
             }
         } else {
             Object o = ClassLoaderUtil.instantiate(connectorServiceModel.require(CLASS.getName()));
