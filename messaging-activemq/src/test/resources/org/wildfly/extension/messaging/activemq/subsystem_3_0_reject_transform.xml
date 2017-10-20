@@ -53,6 +53,11 @@
                 user="${user:Brian}"
                 password="${password:secret}">
         </bridge>
+        <bridge name="bridge-with-transformer-class"
+                queue-name="coreQueueB"
+                discovery-group="groupC">
+            <transformer-class name="org.foo.MyTransformer" module="org.foo " />
+        </bridge>
 
         <divert name="divert-with-new-transformer"
                 address="address3"

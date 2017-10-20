@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
-import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -104,7 +103,7 @@ public class DivertAdd extends AbstractAddStepHandler {
                 .setForwardingAddress(forwardingAddress)
                 .setExclusive(exclusive)
                 .setFilterString(filter);
-        Transformer transformer = loadTransformer(context, model);
+        Transformer transformer = TransformerUtil.loadTransformer(context, model);
         if (transformer != null) {
             TransformerConfiguration transformerConfiguration = new TransformerConfiguration(transformer.getClass().getName());
             config.setTransformerConfiguration(transformerConfiguration);
@@ -126,23 +125,6 @@ public class DivertAdd extends AbstractAddStepHandler {
         } catch (Exception e) {
             // TODO should this be an OFE instead?
             throw new RuntimeException(e);
-        }
-    }
-
-    static Transformer loadTransformer(OperationContext context, ModelNode divertModel) throws OperationFailedException {
-        if (divertModel.hasDefined(DivertDefinition.TRANSFORMER_CLASS_NAME.getName())) {
-            String className = DivertDefinition.TRANSFORMER_CLASS_NAME.resolveModelAttribute(context, divertModel).asString();
-            try {
-                Object o = ClassloadingUtil.newInstanceFromClassLoader(className);
-                return Transformer.class.cast(o);
-            } catch (Throwable t) {
-                throw MessagingLogger.ROOT_LOGGER.unableToLoadConnectorServiceFactoryClass(className);
-            }
-        } else if (divertModel.hasDefined(DivertDefinition.TRANSFORMER_CLASS.getName())){
-            Object o = ClassLoaderUtil.instantiate(divertModel.require(DivertDefinition.TRANSFORMER_CLASS.getName()));
-            return Transformer.class.cast(o);
-        } else {
-            return null;
         }
     }
 

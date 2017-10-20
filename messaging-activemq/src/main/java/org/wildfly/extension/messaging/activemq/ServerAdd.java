@@ -272,6 +272,7 @@ class ServerAdd extends AbstractAddStepHandler {
                 processOutgoingInterceptors(OUTGOING_INTERCEPTORS.resolveModelAttribute(context, operation), serverService);
                 ConnectorServiceDefinition.processConnectorServices(context, model, serverService);
                 DivertDefinition.processDiverts(context, model, serverService);
+                BridgeDefinition.processBridges(context, model, serverService);
 
                 // Add the ActiveMQ Service
                 ServiceName activeMQServiceName = MessagingServices.getActiveMQServiceName(serverName);

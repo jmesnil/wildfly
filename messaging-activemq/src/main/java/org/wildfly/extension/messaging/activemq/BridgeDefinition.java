@@ -27,17 +27,20 @@ import static org.jboss.as.controller.client.helpers.MeasurementUnit.BYTES;
 import static org.jboss.dmr.ModelType.BOOLEAN;
 import static org.jboss.dmr.ModelType.INT;
 import static org.jboss.dmr.ModelType.STRING;
-import static org.wildfly.extension.messaging.activemq.MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.STATIC_CONNECTORS;
+import static org.wildfly.extension.messaging.activemq.MessagingExtension.MESSAGING_SECURITY_SENSITIVE_TARGET;
 
 import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.AttributeMarshaller;
 import org.jboss.as.controller.AttributeParser;
 import org.jboss.as.controller.ObjectTypeAttributeDefinition;
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
@@ -49,6 +52,8 @@ import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.security.CredentialReference;
 import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.ModelType;
+import org.jboss.dmr.Property;
 
 /**
  * Bridge resource definition
@@ -146,9 +151,29 @@ public class BridgeDefinition extends PersistentResourceDefinition {
             .setRestartAllServices()
             .build();
 
+    @Deprecated
+    static final SimpleAttributeDefinition TRANSFORMER_CLASS_NAME = create("transformer-class-name", ModelType.STRING)
+            .setRequired(false)
+            .setAllowExpression(false)
+            .setRestartAllServices()
+            .setDeprecated(MessagingExtension.VERSION_3_0_0)
+            .build();
+
+    static final ObjectTypeAttributeDefinition TRANSFORMER_CLASS = ObjectTypeAttributeDefinition.Builder.of("transformer-class",
+            create(CommonAttributes.NAME, ModelType.STRING, false)
+                    .setAllowExpression(false)
+                    .build(),
+            create(CommonAttributes.MODULE, ModelType.STRING, false)
+                    .setAllowExpression(false)
+                    .build())
+            .setAlternatives(TRANSFORMER_CLASS_NAME.getName())
+            .build();
+
+
     public static final AttributeDefinition[] ATTRIBUTES = {
             QUEUE_NAME, FORWARDING_ADDRESS, CommonAttributes.HA,
-            CommonAttributes.FILTER, CommonAttributes.TRANSFORMER_CLASS_NAME,
+            CommonAttributes.FILTER, TRANSFORMER_CLASS_NAME,
+            TRANSFORMER_CLASS,
             CommonAttributes.MIN_LARGE_MESSAGE_SIZE, CommonAttributes.CHECK_PERIOD, CommonAttributes.CONNECTION_TTL,
             CommonAttributes.RETRY_INTERVAL, CommonAttributes.RETRY_INTERVAL_MULTIPLIER, CommonAttributes.MAX_RETRY_INTERVAL,
             INITIAL_CONNECT_ATTEMPTS,
@@ -194,5 +219,17 @@ public class BridgeDefinition extends PersistentResourceDefinition {
         if (registerRuntimeOnly) {
             BridgeControlHandler.INSTANCE.registerOperations(registry, getResourceDescriptionResolver());
         }
+    }
+
+    static void processBridges(OperationContext context, ModelNode model, ActiveMQServerService serverService) throws OperationFailedException {
+        if (model.hasDefined(CommonAttributes.BRIDGE)) {
+            for (Property prop : model.get(CommonAttributes.BRIDGE).asPropertyList()) {
+                Transformer transformer = TransformerUtil.loadTransformer(context, prop.getValue());
+                if (transformer != null) {
+                    serverService.addDBridgeTransformer(prop.getName(), transformer);
+                }
+            }
+        }
+
     }
 }

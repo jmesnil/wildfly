@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -89,12 +90,10 @@ public class BridgeAdd extends AbstractAddStepHandler {
                 throw MessagingLogger.ROOT_LOGGER.invalidServiceState(serviceName, ServiceController.State.UP, service.getState());
             }
 
-            final String name = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR)).getLastElement().getValue();
-
-            BridgeConfiguration bridgeConfig = createBridgeConfiguration(context, name, model);
-
-            ActiveMQServerControl serverControl = ActiveMQServer.class.cast(service.getValue()).getActiveMQServerControl();
-            createBridge(name, bridgeConfig, serverControl);
+            final String name = context.getCurrentAddressValue();
+            ActiveMQServer server = ActiveMQServer.class.cast(service.getValue());
+            BridgeConfiguration bridgeConfig = createBridgeConfiguration(context, name, model, server);
+            createBridge(name, bridgeConfig, server.getActiveMQServerControl());
 
         }
         // else the initial subsystem install is not complete; MessagingSubsystemAdd will add a
@@ -105,13 +104,13 @@ public class BridgeAdd extends AbstractAddStepHandler {
         if (model.hasDefined(CommonAttributes.BRIDGE)) {
             final List<BridgeConfiguration> configs = configuration.getBridgeConfigurations();
             for (Property prop : model.get(CommonAttributes.BRIDGE).asPropertyList()) {
-                configs.add(createBridgeConfiguration(context, prop.getName(), prop.getValue()));
+                configs.add(createBridgeConfiguration(context, prop.getName(), prop.getValue(), null));
 
             }
         }
     }
 
-    static BridgeConfiguration createBridgeConfiguration(final OperationContext context, final String name, final ModelNode model) throws OperationFailedException {
+    static BridgeConfiguration createBridgeConfiguration(final OperationContext context, final String name, final ModelNode model, final ActiveMQServer server) throws OperationFailedException {
 
         final String queueName = QUEUE_NAME.resolveModelAttribute(context, model).asString();
         final ModelNode forwardingNode = FORWARDING_ADDRESS.resolveModelAttribute(context, model);
@@ -163,11 +162,14 @@ public class BridgeAdd extends AbstractAddStepHandler {
         } else {
             config.setStaticConnectors(staticConnectors);
         }
-        final ModelNode transformerClassName = CommonAttributes.TRANSFORMER_CLASS_NAME.resolveModelAttribute(context, model);
-        if (transformerClassName.isDefined()) {
-            config.setTransformerConfiguration(new TransformerConfiguration(transformerClassName.asString()));
+        Transformer transformer = TransformerUtil.loadTransformer(context, model);
+        if (transformer != null) {
+            TransformerConfiguration transformerConfiguration = new TransformerConfiguration(transformer.getClass().getName());
+            config.setTransformerConfiguration(transformerConfiguration);
+            if (server != null) {
+                server.getServiceRegistry().addBridgeTransformer(name, transformer);
+            }
         }
-
         return config;
     }
 
@@ -181,9 +183,10 @@ public class BridgeAdd extends AbstractAddStepHandler {
 
     static void createBridge(String name, BridgeConfiguration bridgeConfig, ActiveMQServerControl serverControl) {
         try {
+            String transformerClassName = bridgeConfig.getTransformerConfiguration() != null ? bridgeConfig.getTransformerConfiguration().getClassName() : null;
             if (bridgeConfig.getDiscoveryGroupName() != null) {
                 serverControl.createBridge(name, bridgeConfig.getQueueName(), bridgeConfig.getForwardingAddress(),
-                        bridgeConfig.getFilterString(), bridgeConfig.getTransformerConfiguration().getClassName(), bridgeConfig.getRetryInterval(),
+                        bridgeConfig.getFilterString(), transformerClassName, bridgeConfig.getRetryInterval(),
                         bridgeConfig.getRetryIntervalMultiplier(), bridgeConfig.getInitialConnectAttempts(),
                         bridgeConfig.getReconnectAttempts(), bridgeConfig.isUseDuplicateDetection(),
                         bridgeConfig.getConfirmationWindowSize(), bridgeConfig.getClientFailureCheckPeriod(),
@@ -201,7 +204,7 @@ public class BridgeAdd extends AbstractAddStepHandler {
                     connectors += connector;
                 }
                 serverControl.createBridge(name, bridgeConfig.getQueueName(), bridgeConfig.getForwardingAddress(),
-                        bridgeConfig.getFilterString(), bridgeConfig.getTransformerConfiguration().getClassName(), bridgeConfig.getRetryInterval(),
+                        bridgeConfig.getFilterString(), transformerClassName, bridgeConfig.getRetryInterval(),
                         bridgeConfig.getRetryIntervalMultiplier(), bridgeConfig.getInitialConnectAttempts(),
                         bridgeConfig.getReconnectAttempts(), bridgeConfig.isUseDuplicateDetection(),
                         bridgeConfig.getConfirmationWindowSize(), bridgeConfig.getClientFailureCheckPeriod(),

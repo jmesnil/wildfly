@@ -126,7 +126,7 @@ public class DivertDefinition extends PersistentResourceDefinition {
     public static void processDiverts(OperationContext context, ModelNode model, ActiveMQServerService serverService) throws OperationFailedException {
         if (model.hasDefined(CommonAttributes.DIVERT)) {
             for (Property prop : model.get(CommonAttributes.DIVERT).asPropertyList()) {
-                Transformer transformer = DivertAdd.loadTransformer(context, prop.getValue());
+                Transformer transformer = TransformerUtil.loadTransformer(context, prop.getValue());
                 if (transformer != null) {
                     serverService.addDivertTransformer(prop.getName(), transformer);
                 }
