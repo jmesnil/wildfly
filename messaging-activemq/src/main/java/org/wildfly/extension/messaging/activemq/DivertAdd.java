@@ -29,6 +29,8 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
@@ -68,12 +70,10 @@ public class DivertAdd extends AbstractAddStepHandler {
                 throw MessagingLogger.ROOT_LOGGER.invalidServiceState(serviceName, ServiceController.State.UP, service.getState());
             }
 
-            final String name = PathAddress.pathAddress(operation.require(ModelDescriptionConstants.OP_ADDR)).getLastElement().getValue();
-
-            DivertConfiguration divertConfiguration = createDivertConfiguration(context, name, model);
-
-            ActiveMQServerControl serverControl = ActiveMQServer.class.cast(service.getValue()).getActiveMQServerControl();
-            createDivert(name, divertConfiguration, serverControl);
+            final String name = context.getCurrentAddressValue();
+            ActiveMQServer server = ActiveMQServer.class.cast(service.getValue());
+            DivertConfiguration divertConfiguration = createDivertConfiguration(context, name, model, server);
+            createDivert(name, divertConfiguration, server.getActiveMQServerControl());
 
         }
         // else the initial subsystem install is not complete; MessagingSubsystemAdd will add a
@@ -84,13 +84,12 @@ public class DivertAdd extends AbstractAddStepHandler {
         if (model.hasDefined(CommonAttributes.DIVERT)) {
             final List<DivertConfiguration> configs = configuration.getDivertConfigurations();
             for (Property prop : model.get(CommonAttributes.DIVERT).asPropertyList()) {
-                configs.add(createDivertConfiguration(context, prop.getName(), prop.getValue()));
-
+                configs.add(createDivertConfiguration(context, prop.getName(), prop.getValue(), null));
             }
         }
     }
 
-    static DivertConfiguration createDivertConfiguration(final OperationContext context, String name, ModelNode model) throws OperationFailedException {
+    static DivertConfiguration createDivertConfiguration(final OperationContext context, String name, ModelNode model, ActiveMQServer server) throws OperationFailedException {
         final ModelNode routingNode = DivertDefinition.ROUTING_NAME.resolveModelAttribute(context, model);
         final String routingName = routingNode.isDefined() ? routingNode.asString() : null;
         final String address = DivertDefinition.ADDRESS.resolveModelAttribute(context, model).asString();
@@ -105,9 +104,13 @@ public class DivertAdd extends AbstractAddStepHandler {
                 .setForwardingAddress(forwardingAddress)
                 .setExclusive(exclusive)
                 .setFilterString(filter);
-        final ModelNode transformerClassName =  CommonAttributes.TRANSFORMER_CLASS_NAME.resolveModelAttribute(context, model);
-        if (transformerClassName.isDefined()) {
-            config.setTransformerConfiguration(new TransformerConfiguration(transformerClassName.asString()));
+        Transformer transformer = loadTransformer(context, model);
+        if (transformer != null) {
+            TransformerConfiguration transformerConfiguration = new TransformerConfiguration(transformer.getClass().getName());
+            config.setTransformerConfiguration(transformerConfiguration);
+            if (server != null) {
+                server.getServiceRegistry().addDivertTransformer(name, transformer);
+            }
         }
         return config;
     }
@@ -124,4 +127,22 @@ public class DivertAdd extends AbstractAddStepHandler {
             throw new RuntimeException(e);
         }
     }
+
+    static Transformer loadTransformer(OperationContext context, ModelNode divertModel) throws OperationFailedException {
+        if (divertModel.hasDefined(DivertDefinition.TRANSFORMER_CLASS_NAME.getName())) {
+            String className = DivertDefinition.TRANSFORMER_CLASS_NAME.resolveModelAttribute(context, divertModel).asString();
+            try {
+                Object o = ClassloadingUtil.newInstanceFromClassLoader(className);
+                return Transformer.class.cast(o);
+            } catch (Throwable t) {
+                throw MessagingLogger.ROOT_LOGGER.unableToLoadConnectorServiceFactoryClass(className);
+            }
+        } else if (divertModel.hasDefined(DivertDefinition.TRANSFORMER_CLASS.getName())){
+            Object o = ClassLoaderUtil.instantiate(divertModel.require(DivertDefinition.TRANSFORMER_CLASS.getName()));
+            return Transformer.class.cast(o);
+        } else {
+            return null;
+        }
+    }
+
 }

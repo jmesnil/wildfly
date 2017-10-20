@@ -445,6 +445,10 @@
 
             <xs:element name="divert" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="transformer-class" minOccurs="0" maxOccurs="1" type="classType"/>
+                    </xs:sequence>
+
                     <xs:attribute name="name" type="xs:string" use="required" />
                     <xs:attribute name="address" type="xs:string" use="required" />
                     <xs:attribute name="forwarding-address" type="xs:string" use="required" />

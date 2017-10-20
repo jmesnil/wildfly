@@ -34,6 +34,7 @@ import static org.wildfly.extension.messaging.activemq.MessagingExtension.BRIDGE
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.CLUSTER_CONNECTION_PATH;
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.CONNECTION_FACTORY_PATH;
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.CONNECTOR_SERVICE_PATH;
+import static org.wildfly.extension.messaging.activemq.MessagingExtension.DIVERT_PATH;
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.POOLED_CONNECTION_FACTORY_PATH;
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.REPLICATION_COLOCATED_PATH;
 import static org.wildfly.extension.messaging.activemq.MessagingExtension.REPLICATION_MASTER_PATH;
@@ -147,6 +148,9 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, BRIDGE_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         BridgeDefinition.PRODUCER_WINDOW_SIZE))
+                        .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, DIVERT_PATH),
+                                new FailedOperationTransformationConfig.NewAttributesConfig(
+                                        DivertDefinition.TRANSFORMER_CLASS))
                         .addFailedAttribute(subsystemAddress.append(SERVER_PATH, CLUSTER_CONNECTION_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ClusterConnectionDefinition.PRODUCER_WINDOW_SIZE))
@@ -176,6 +180,9 @@ public class MessagingActiveMQSubsystem_3_0_TestCase extends AbstractSubsystemBa
                         .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, CONNECTION_FACTORY_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE))
+                        .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, DIVERT_PATH),
+                                new FailedOperationTransformationConfig.NewAttributesConfig(
+                                        DivertDefinition.TRANSFORMER_CLASS))
                         .addFailedAttribute(pathAddress(SUBSYSTEM_PATH, SERVER_PATH, CONNECTOR_SERVICE_PATH),
                                 new FailedOperationTransformationConfig.NewAttributesConfig(
                                         ConnectorServiceDefinition.CLASS)));

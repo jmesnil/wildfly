@@ -242,6 +242,11 @@
         <divert name="testDivert2"
                 address="address2"
                 forwarding-address="forwardingaddress2"/>
+        <divert name="divert-with-new-transformer"
+                address="address3"
+                forwarding-address="forwarding-address-3">
+            <transformer-class name="org.foo.MyTransformer" module="org.foo " />
+        </divert>
 
         <bridge name="bridge1"
                 queue-name="${queue.name:coreQueueA}"

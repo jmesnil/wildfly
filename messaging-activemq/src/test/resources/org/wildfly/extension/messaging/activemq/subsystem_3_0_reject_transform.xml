@@ -50,6 +50,12 @@
                 password="${password:secret}">
         </bridge>
 
+        <divert name="divert-with-new-transformer"
+                address="address3"
+                forwarding-address="forwarding-address-3">
+            <transformer-class name="org.foo.MyTransformer" module="org.foo " />
+        </divert>
+
         <connector-service name="new-style-connector-service">
             <class name="org.foo.incoming.myConnectorServiceFactory" module="org.foo" />
             <param name="foo"

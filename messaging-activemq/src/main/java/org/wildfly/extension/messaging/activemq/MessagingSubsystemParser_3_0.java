@@ -388,13 +388,14 @@ public class MessagingSubsystemParser_3_0 extends PersistentResourceXMLParser {
                                                         GroupingHandlerDefinition.GROUP_TIMEOUT,
                                                         GroupingHandlerDefinition.REAPER_PERIOD))
                                 .addChild(
-                                        builder(DivertDefinition.INSTANCE.getPathElement())
+                                        builder(MessagingExtension.DIVERT_PATH)
                                                 .addAttributes(
                                                         DivertDefinition.ROUTING_NAME,
                                                         DivertDefinition.ADDRESS,
                                                         DivertDefinition.FORWARDING_ADDRESS,
                                                         CommonAttributes.FILTER,
-                                                        CommonAttributes.TRANSFORMER_CLASS_NAME,
+                                                        DivertDefinition.TRANSFORMER_CLASS_NAME,
+                                                        DivertDefinition.TRANSFORMER_CLASS,
                                                         DivertDefinition.EXCLUSIVE))
                                 .addChild(
                                         builder(MessagingExtension.BRIDGE_PATH)
