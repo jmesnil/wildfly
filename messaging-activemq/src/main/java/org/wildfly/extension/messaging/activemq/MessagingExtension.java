@@ -60,7 +60,6 @@ import org.jboss.as.controller.Extension;
 import org.jboss.as.controller.ExtensionContext;
 import org.jboss.as.controller.ModelVersion;
 import org.jboss.as.controller.PathElement;
-import org.jboss.as.controller.PersistentResourceXMLParser;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.SubsystemRegistration;
 import org.jboss.as.controller.access.constraint.ApplicationTypeConfig;
@@ -162,8 +161,6 @@ public class MessagingExtension implements Extension {
     protected static final ModelVersion VERSION_1_0_0 = ModelVersion.create(1, 0, 0);
     private static final ModelVersion CURRENT_MODEL_VERSION = VERSION_3_1_0;
     private static final MessagingSubsystemParser_3_1 CURRENT_PARSER = new MessagingSubsystemParser_3_1();
-
-    private static final PersistentResourceXMLParser PARSER = new MessagingSubsystemParser_3_0();
 
     public static ResourceDescriptionResolver getResourceDescriptionResolver(final String... keyPrefix) {
         return getResourceDescriptionResolver(true, keyPrefix);
