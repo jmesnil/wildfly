@@ -27,6 +27,7 @@ import static org.wildfly.extension.messaging.activemq.logging.MessagingLogger.R
 import java.io.Serializable;
 import java.util.UUID;
 
+import javax.annotation.Resource;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
@@ -61,6 +62,8 @@ class InjectedJMSContext extends JMSContextWrapper implements Serializable {
     // Cached reference to the connectionFactory used to create the actual JMSContext.
     // It is cached to avoid repeated JNDI lookups.
     private transient ConnectionFactory connectionFactory;
+
+    @Resource
     // Cached reference to the transaction sync registry to determine if a transaction is active
     private transient TransactionSynchronizationRegistry transactionSynchronizationRegistry;
 
@@ -95,21 +98,8 @@ class InjectedJMSContext extends JMSContextWrapper implements Serializable {
      * check whether there is an active transaction.
      */
     private boolean isInTransaction() {
-        TransactionSynchronizationRegistry tsr = getTransactionSynchronizationRegistry();
-        boolean inTx = tsr.getTransactionStatus() == Status.STATUS_ACTIVE;
+        boolean inTx = transactionSynchronizationRegistry.getTransactionStatus() == Status.STATUS_ACTIVE;
         return inTx;
-    }
-
-    /**
-     * lookup the transactionSynchronizationRegistry and cache it.
-     */
-    private TransactionSynchronizationRegistry getTransactionSynchronizationRegistry() {
-        TransactionSynchronizationRegistry cachedTSR = transactionSynchronizationRegistry;
-        if (cachedTSR == null) {
-            cachedTSR = (TransactionSynchronizationRegistry) lookup(TRANSACTION_SYNCHRONIZATION_REGISTRY_LOOKUP);
-            transactionSynchronizationRegistry = cachedTSR;
-        }
-        return cachedTSR;
     }
 
     /**
