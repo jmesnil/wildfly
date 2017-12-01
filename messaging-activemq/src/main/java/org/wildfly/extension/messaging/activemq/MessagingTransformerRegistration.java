@@ -76,6 +76,13 @@ public class MessagingTransformerRegistration implements ExtensionTransformerReg
                 ServerDefinition.JOURNAL_JDBC_LOCK_RENEW_PERIOD,
                 ServerDefinition.JOURNAL_NODE_MANAGER_STORE_TABLE);
 
+        ResourceTransformationDescriptionBuilder addressSetting = server.addChildResource(MessagingExtension.ADDRESS_SETTING_PATH);
+        rejectDefinedAttributeWithDefaultValue(addressSetting,
+                AddressSettingDefinition.AUTO_CREATE_QUEUES,
+                AddressSettingDefinition.AUTO_DELETE_QUEUES,
+                AddressSettingDefinition.AUTO_CREATE_ADDRESSES,
+                AddressSettingDefinition.AUTO_DELETE_ADDRESSES);
+
         ResourceTransformationDescriptionBuilder connectionFactory = server.addChildResource(MessagingExtension.CONNECTION_FACTORY_PATH);
         rejectDefinedAttributeWithDefaultValue(connectionFactory, ConnectionFactoryAttributes.Common.INITIAL_MESSAGE_PACKET_SIZE);
     }
