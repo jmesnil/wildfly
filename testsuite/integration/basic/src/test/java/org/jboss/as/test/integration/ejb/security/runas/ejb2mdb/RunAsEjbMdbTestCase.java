@@ -27,6 +27,7 @@ import static org.jboss.as.test.shared.integration.ejb.security.PermissionUtils.
 import java.util.PropertyPermission;
 
 import javax.jms.ConnectionFactory;
+import javax.jms.Queue;
 import javax.naming.InitialContext;
 
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -125,7 +126,8 @@ public class RunAsEjbMdbTestCase {
     @Test
     public void sendMessage() throws Exception {
         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("jms/RemoteConnectionFactory");
-        String replyMessage =  HelloBean.sendMessage(cf);
+        Queue queue = (Queue) initialContext.lookup(HelloBean.QUEUE_NAME);
+        String replyMessage =  HelloBean.sendMessage(cf, queue);
 
         Assert.assertEquals(String.format("%s %s, %s %s! %s.",
             HowdyBean.SAYING, PRINCIPAL, HolaBean.SAYING, PRINCIPAL, GoodByeBean.SAYING), replyMessage);

@@ -36,6 +36,7 @@ import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper
 import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.resolveFilter;
 import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.runtimeOnlyOperation;
 import static org.wildfly.extension.messaging.activemq.OperationDefinitionHelper.runtimeReadOnlyOperation;
+import static org.wildfly.extension.messaging.activemq.jms.JMSTopicService.JMS_TOPIC_PREFIX;
 
 import java.util.List;
 import java.util.Map;
@@ -144,7 +145,7 @@ public class JMSTopicControlHandler extends AbstractRuntimeOnlyHandler {
         ServiceController<?> service = context.getServiceRegistry(!readOnly).getService(serviceName);
         ActiveMQServer server = ActiveMQServer.class.cast(service.getValue());
        ManagementService managementService = server.getManagementService();
-       AddressControl control = AddressControl.class.cast(managementService.getResource(ResourceNames.ADDRESS + topicName));
+       AddressControl control = AddressControl.class.cast(managementService.getResource(ResourceNames.ADDRESS + JMS_TOPIC_PREFIX + topicName));
 
         if (control == null) {
             PathAddress address = PathAddress.pathAddress(operation.require(OP_ADDR));
@@ -301,7 +302,7 @@ public class JMSTopicControlHandler extends AbstractRuntimeOnlyHandler {
    }
 
    private void dropDurableSubscription(final String clientID, final String subscriptionName, ManagementService managementService) throws Exception {
-       SimpleString queueName = ActiveMQDestination.createQueueNameForSubscription(true, clientID, subscriptionName);
+      SimpleString queueName = ActiveMQDestination.createQueueNameForSubscription(true, clientID, subscriptionName);
       QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.QUEUE + queueName);
       if (coreQueueControl == null) {
          throw new IllegalArgumentException("No subscriptions with name " + queueName + " for clientID " + clientID);

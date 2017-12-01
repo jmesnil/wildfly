@@ -25,8 +25,8 @@
         </replication-colocated>
 
         <address-setting name="#"
-                         auto-create-queues="false"
-                         auto-delete-queues="false"
+                         auto-create-queues="true"
+                         auto-delete-queues="true"
                          auto-create-addresses="false"
                          auto-delete-addresses="false" />
 

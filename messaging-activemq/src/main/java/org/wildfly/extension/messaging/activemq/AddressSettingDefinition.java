@@ -84,13 +84,13 @@ public class AddressSettingDefinition extends PersistentResourceDefinition {
             .build();
 
     public static final SimpleAttributeDefinition AUTO_CREATE_QUEUES = create("auto-create-queues", ModelType.BOOLEAN)
-            .setDefaultValue(new ModelNode(true))
+            .setDefaultValue(new ModelNode(false))
             .setRequired(false)
             .setAllowExpression(true)
             .build();
 
     public static final SimpleAttributeDefinition AUTO_DELETE_QUEUES = create("auto-delete-queues", ModelType.BOOLEAN)
-            .setDefaultValue(new ModelNode(true))
+            .setDefaultValue(new ModelNode(false))
             .setRequired(false)
             .setAllowExpression(true)
             .build();

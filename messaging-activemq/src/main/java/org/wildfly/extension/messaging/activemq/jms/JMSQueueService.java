@@ -1,4 +1,4 @@
-/*
+ /*
  * JBoss, Home of Professional Open Source.
  * Copyright 2010, Red Hat, Inc., and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
@@ -50,6 +50,7 @@ import org.wildfly.extension.messaging.activemq.logging.MessagingLogger;
  */
 public class JMSQueueService implements Service<Queue> {
 
+    public static final String JMS_QUEUE_PREFIX = "jms.queue.";
     private final InjectedValue<JMSServerManager> jmsServer = new InjectedValue<JMSServerManager>();
     private final InjectedValue<ExecutorService> executorInjector = new InjectedValue<ExecutorService>();
 
@@ -72,11 +73,12 @@ public class JMSQueueService implements Service<Queue> {
             @Override
             public void run() {
                 try {
-                    jmsManager.createQueue(false, queueName, selectorString, durable);
-                    JMSQueueService.this.queue = new ActiveMQQueue(queueName);
+                    // add back the jms.queue. prefix to be consistent with ActiveMQ Artemis 1.x addressing scheme
+                    jmsManager.createQueue(false, JMS_QUEUE_PREFIX + queueName, queueName, selectorString, durable);
+                    JMSQueueService.this.queue = new ActiveMQQueue( JMS_QUEUE_PREFIX + queueName, queueName);
                     context.complete();
                 } catch (Throwable e) {
-                    context.failed(MessagingLogger.ROOT_LOGGER.failedToCreate(e, "queue"));
+                    context.failed(MessagingLogger.ROOT_LOGGER.failedToCreate(e, "JMS queue"));
                 }
             }
         };
