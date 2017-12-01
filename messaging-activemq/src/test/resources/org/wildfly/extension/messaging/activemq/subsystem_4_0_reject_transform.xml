@@ -23,6 +23,12 @@
             <master />
         </replication-colocated>
 
+        <address-setting name="#"
+                         auto-create-queues="true"
+                         auto-delete-queues="true"
+                         auto-create-addresses="false"
+                         auto-delete-addresses="false" />
+
         <http-connector name="http"
                         socket-binding="http"
                         endpoint="http"
