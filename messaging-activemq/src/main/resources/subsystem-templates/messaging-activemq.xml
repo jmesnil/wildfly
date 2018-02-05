@@ -104,8 +104,7 @@
                 <cluster-connection name="my-cluster"
                                     address="jms"
                                     connector-name="http-connector"
-                                    discovery-group="dg-group1"
-                                    address="jms" />
+                                    discovery-group="dg-group1" />
         </replacement>
         <replacement placeholder="REMOTE-CONNECTION-FACTORY">
             <connection-factory name="RemoteConnectionFactory"
