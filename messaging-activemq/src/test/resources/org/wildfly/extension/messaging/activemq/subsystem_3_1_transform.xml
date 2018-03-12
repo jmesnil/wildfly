@@ -41,7 +41,8 @@
                 compact-min-files="${journal.compact.min.files:2}"
                 max-io="${journal.max.io:50}"
                 create-bindings-dir="${create.bindings.dir:false}"
-                create-journal-dir="${create.journal.dir:true}"/>
+                create-journal-dir="${create.journal.dir:true}"
+                foo="1234"/>
 
         <statistics
                 enabled="${statistics.enabled:true}"

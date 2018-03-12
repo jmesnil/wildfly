@@ -189,7 +189,8 @@ public class MessagingActiveMQSubsystem_3_1_TestCase extends AbstractSubsystemBa
                                 ServerDefinition.JOURNAL_LARGE_MESSAGES_TABLE,
                                 ServerDefinition.JOURNAL_PAGE_STORE_TABLE,
                                 ServerDefinition.JOURNAL_DATABASE,
-                                ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT))
+                                ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT,
+                                ServerDefinition.JOURNAL_FOO))
                 .addFailedAttribute(subsystemAddress.append(SERVER_PATH, REPLICATION_MASTER_PATH),
                         new ChangeToTrueConfig(HAAttributes.CHECK_FOR_LIVE_SERVER.getName()))
                 .addFailedAttribute(subsystemAddress.append(SERVER_PATH, REPLICATION_COLOCATED_PATH, MessagingExtension.CONFIGURATION_MASTER_PATH),
@@ -215,11 +216,19 @@ public class MessagingActiveMQSubsystem_3_1_TestCase extends AbstractSubsystemBa
                                 ConnectionFactoryAttributes.Pooled.CREDENTIAL_REFERENCE,
                                 ConnectionFactoryAttributes.Common.DESERIALIZATION_BLACKLIST,
                                 ConnectionFactoryAttributes.Common.DESERIALIZATION_WHITELIST))
+                .addFailedAttribute(subsystemAddress.append(SERVER_PATH, MessagingExtension.BROADCAST_GROUP_PATH),
+                        new FailedOperationTransformationConfig.NewAttributesConfig(BroadcastGroupDefinition.JGROUPS_CHANNEL))
+                .addFailedAttribute(subsystemAddress.append(SERVER_PATH, DiscoveryGroupDefinition.PATH),
+                        new FailedOperationTransformationConfig.NewAttributesConfig(DiscoveryGroupDefinition.JGROUPS_CHANNEL))
                 ;
+        } else if (messagingVersion.equals(MessagingExtension.VERSION_2_0_0)) {
+            config.addFailedAttribute(subsystemAddress.append(SERVER_PATH),
+                        new FailedOperationTransformationConfig.NewAttributesConfig(ServerDefinition.JOURNAL_FOO))
+                .addFailedAttribute(subsystemAddress.append(SERVER_PATH, MessagingExtension.BROADCAST_GROUP_PATH),
+                        new FailedOperationTransformationConfig.NewAttributesConfig(BroadcastGroupDefinition.JGROUPS_CHANNEL))
+                .addFailedAttribute(subsystemAddress.append(SERVER_PATH, DiscoveryGroupDefinition.PATH),
+                        new FailedOperationTransformationConfig.NewAttributesConfig(DiscoveryGroupDefinition.JGROUPS_CHANNEL));
         }
-
-        config.addFailedAttribute(subsystemAddress.append(SERVER_PATH, MessagingExtension.BROADCAST_GROUP_PATH), new FailedOperationTransformationConfig.NewAttributesConfig(BroadcastGroupDefinition.JGROUPS_CHANNEL));
-        config.addFailedAttribute(subsystemAddress.append(SERVER_PATH, DiscoveryGroupDefinition.PATH), new FailedOperationTransformationConfig.NewAttributesConfig(DiscoveryGroupDefinition.JGROUPS_CHANNEL));
 
         ModelTestUtils.checkFailedTransformedBootOperations(mainServices, messagingVersion, ops, config);
     }

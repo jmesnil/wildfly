@@ -173,6 +173,14 @@ public class ServerDefinition extends PersistentResourceDefinition {
             .setValidator(new LongRangeValidator(0,Long.MAX_VALUE,true,true))
             .setRestartAllServices()
             .build();
+    public static final SimpleAttributeDefinition JOURNAL_FOO = create("journal-foo", LONG)
+            .setAttributeGroup("journal")
+            .setDefaultValue(new ModelNode(1234L))
+            .setXmlName("foo")
+            .setRequired(false)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
     // no default values, depends on whether NIO or AIO is used.
     public static final SimpleAttributeDefinition JOURNAL_BUFFER_TIMEOUT = create("journal-buffer-timeout", LONG)
             .setAttributeGroup("journal")
@@ -562,6 +570,7 @@ public class ServerDefinition extends PersistentResourceDefinition {
             PAGE_MAX_CONCURRENT_IO, CREATE_BINDINGS_DIR, CREATE_JOURNAL_DIR, JOURNAL_TYPE, JOURNAL_BUFFER_TIMEOUT,
             JOURNAL_BUFFER_SIZE,
             JOURNAL_DATASOURCE, JOURNAL_DATABASE, JOURNAL_JDBC_NETWORK_TIMEOUT,
+            JOURNAL_FOO,
             JOURNAL_MESSAGES_TABLE, JOURNAL_BINDINGS_TABLE, JOURNAL_JMS_BINDINGS_TABLE, JOURNAL_LARGE_MESSAGES_TABLE, JOURNAL_PAGE_STORE_TABLE,
             JOURNAL_SYNC_TRANSACTIONAL, JOURNAL_SYNC_NON_TRANSACTIONAL, LOG_JOURNAL_WRITE_RATE,
             JOURNAL_FILE_SIZE, JOURNAL_MIN_FILES, JOURNAL_POOL_FILES, JOURNAL_COMPACT_PERCENTAGE, JOURNAL_COMPACT_MIN_FILES, JOURNAL_MAX_IO,

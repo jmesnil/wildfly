@@ -14,7 +14,8 @@
                  bindings-table="MY_BINDINGS"
                  jms-bindings-table="MY_JMS_BINDINGS"
                  large-messages-table="MY_LARGE_MESSAGES"
-                 page-store-table="MY_PAGE_STORE" />
+                 page-store-table="MY_PAGE_STORE"
+                 foo="4567" />
 
         <replication-colocated>
             <master />

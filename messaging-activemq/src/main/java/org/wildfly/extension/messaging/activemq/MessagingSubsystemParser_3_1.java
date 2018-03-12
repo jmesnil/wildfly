@@ -118,6 +118,7 @@ public class MessagingSubsystemParser_3_1 extends PersistentResourceXMLParser {
                                         ServerDefinition.JOURNAL_PAGE_STORE_TABLE,
                                         ServerDefinition.JOURNAL_DATABASE,
                                         ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT,
+                                        ServerDefinition.JOURNAL_FOO,
                                         // statistics
                                         ServerDefinition.STATISTICS_ENABLED,
                                         ServerDefinition.MESSAGE_COUNTER_SAMPLE_PERIOD,
