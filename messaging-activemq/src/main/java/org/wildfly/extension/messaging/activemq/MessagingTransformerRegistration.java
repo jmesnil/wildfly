@@ -70,6 +70,8 @@ public class MessagingTransformerRegistration implements ExtensionTransformerReg
     private static void registerTransformers_WildFly_12_0_0(ResourceTransformationDescriptionBuilder subsystem) {
         ResourceTransformationDescriptionBuilder server = subsystem.addChildResource(MessagingExtension.SERVER_PATH);
 
+        defaultValueAttributeConverter(server, ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT);
+
         rejectDefinedAttributeWithDefaultValue(server, ServerDefinition.JOURNAL_JDBC_LOCK_ACQUISITION_TIMEOUT,
                 ServerDefinition.JOURNAL_JDBC_LOCK_EXPIRATION,
                 ServerDefinition.JOURNAL_JDBC_LOCK_RENEW_PERIOD,
