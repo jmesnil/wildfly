@@ -118,7 +118,6 @@ public class MessagingSubsystemParser_3_1 extends PersistentResourceXMLParser {
                                         ServerDefinition.JOURNAL_PAGE_STORE_TABLE,
                                         ServerDefinition.JOURNAL_NODE_MANAGER_STORE_TABLE,
                                         ServerDefinition.JOURNAL_DATABASE,
-                                        ServerDefinition.JOURNAL_JDBC_LOCK_ACQUISITION_TIMEOUT,
                                         ServerDefinition.JOURNAL_JDBC_LOCK_EXPIRATION,
                                         ServerDefinition.JOURNAL_JDBC_LOCK_RENEW_PERIOD,
                                         ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT,

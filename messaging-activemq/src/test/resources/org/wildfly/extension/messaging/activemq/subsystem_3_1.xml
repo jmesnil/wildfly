@@ -56,7 +56,6 @@
                 create-journal-dir="${create.journal.dir:true}"
                 datasource="fooDS"
                 database="mysql"
-                jdbc-lock-acquisition-timeout="${journal.jdbc.lock.acquisition.timeout:890}"
                 jdbc-lock-expiration="${journal.jdbc.lock.expiration:891}"
                 jdbc-lock-renew-period="${journal.jdbc.lock.renew.period:892}"
                 jdbc-network-timeout="${journal.jdbc.network.timeout:4567}"

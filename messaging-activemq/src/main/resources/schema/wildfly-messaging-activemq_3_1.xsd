@@ -130,7 +130,6 @@
                     <xs:attribute name="large-messages-table" type="xs:string" />
                     <xs:attribute name="node-manager-store-table" type="xs:string" />
                     <xs:attribute name="page-store-table" type="xs:string" />
-                    <xs:attribute name="jdbc-lock-acquisition-timeout" type="xs:int" />
                     <xs:attribute name="jdbc-lock-expiration" type="xs:int" />
                     <xs:attribute name="jdbc-lock-renew-period" type="xs:int" />
                     <xs:attribute name="jdbc-network-timeout" type="xs:int" />

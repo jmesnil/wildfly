@@ -72,8 +72,7 @@ public class MessagingTransformerRegistration implements ExtensionTransformerReg
 
         defaultValueAttributeConverter(server, ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT);
 
-        rejectDefinedAttributeWithDefaultValue(server, ServerDefinition.JOURNAL_JDBC_LOCK_ACQUISITION_TIMEOUT,
-                ServerDefinition.JOURNAL_JDBC_LOCK_EXPIRATION,
+        rejectDefinedAttributeWithDefaultValue(server, ServerDefinition.JOURNAL_JDBC_LOCK_EXPIRATION,
                 ServerDefinition.JOURNAL_JDBC_LOCK_RENEW_PERIOD,
                 ServerDefinition.JOURNAL_NODE_MANAGER_STORE_TABLE);
 

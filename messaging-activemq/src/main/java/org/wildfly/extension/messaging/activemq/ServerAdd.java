@@ -60,7 +60,6 @@ import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_DATABASE;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_DATASOURCE;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_FILE_SIZE;
-import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_JDBC_LOCK_ACQUISITION_TIMEOUT;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_JDBC_LOCK_EXPIRATION;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_JDBC_LOCK_RENEW_PERIOD;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT;
@@ -501,8 +500,6 @@ class ServerAdd extends AbstractAddStepHandler {
         storageConfiguration.setLargeMessageTableName(JOURNAL_LARGE_MESSAGES_TABLE.resolveModelAttribute(context, model).asString());
         storageConfiguration.setPageStoreTableName(JOURNAL_PAGE_STORE_TABLE.resolveModelAttribute(context, model).asString());
         storageConfiguration.setNodeManagerStoreTableName(JOURNAL_NODE_MANAGER_STORE_TABLE.resolveModelAttribute(context, model).asString());
-        long lockAcquisitionTimeoutInMillis = TimeUnit.SECONDS.toMillis(JOURNAL_JDBC_LOCK_ACQUISITION_TIMEOUT.resolveModelAttribute(context, model).asInt());
-        storageConfiguration.setJdbcLockAcquisitionTimeoutMillis(lockAcquisitionTimeoutInMillis);
         long lockExpirationInMillis = TimeUnit.SECONDS.toMillis(JOURNAL_JDBC_LOCK_EXPIRATION.resolveModelAttribute(context, model).asInt());
         storageConfiguration.setJdbcLockExpirationMillis(lockExpirationInMillis);
         long lockRenewPeriodInMillis = TimeUnit.SECONDS.toMillis(JOURNAL_JDBC_LOCK_RENEW_PERIOD.resolveModelAttribute(context, model).asInt());

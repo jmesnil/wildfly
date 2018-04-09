@@ -191,7 +191,6 @@ public class MessagingActiveMQSubsystem_3_1_TestCase extends AbstractSubsystemBa
                                 ServerDefinition.JOURNAL_PAGE_STORE_TABLE,
                                 ServerDefinition.JOURNAL_DATABASE,
                                 ServerDefinition.JOURNAL_JDBC_NETWORK_TIMEOUT,
-                                ServerDefinition.JOURNAL_JDBC_LOCK_ACQUISITION_TIMEOUT,
                                 ServerDefinition.JOURNAL_JDBC_LOCK_EXPIRATION,
                                 ServerDefinition.JOURNAL_JDBC_LOCK_RENEW_PERIOD,
                                 ServerDefinition.JOURNAL_NODE_MANAGER_STORE_TABLE))
@@ -244,8 +243,7 @@ public class MessagingActiveMQSubsystem_3_1_TestCase extends AbstractSubsystemBa
                 .addFailedAttribute(subsystemAddress.append(SERVER_PATH, DiscoveryGroupDefinition.PATH),
                         new FailedOperationTransformationConfig.NewAttributesConfig(DiscoveryGroupDefinition.JGROUPS_CHANNEL))
                 .addFailedAttribute(subsystemAddress.append(SERVER_PATH),
-                        new FailedOperationTransformationConfig.NewAttributesConfig(ServerDefinition.JOURNAL_JDBC_LOCK_ACQUISITION_TIMEOUT,
-                                ServerDefinition.JOURNAL_JDBC_LOCK_EXPIRATION,
+                        new FailedOperationTransformationConfig.NewAttributesConfig(ServerDefinition.JOURNAL_JDBC_LOCK_EXPIRATION,
                                 ServerDefinition.JOURNAL_JDBC_LOCK_RENEW_PERIOD,
                                 ServerDefinition.JOURNAL_NODE_MANAGER_STORE_TABLE))
                 .addFailedAttribute(subsystemAddress.append(SERVER_PATH, CONNECTION_FACTORY_PATH),

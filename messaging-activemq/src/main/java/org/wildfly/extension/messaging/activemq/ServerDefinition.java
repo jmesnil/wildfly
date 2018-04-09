@@ -280,19 +280,6 @@ public class ServerDefinition extends PersistentResourceDefinition {
             .build();
 
     /**
-     * @see ActiveMQDefaultConfiguration#getDefaultJdbcLockAcquisitionTimeoutMillis
-     */
-    public static final AttributeDefinition JOURNAL_JDBC_LOCK_ACQUISITION_TIMEOUT = create("journal-jdbc-lock-acquisition-timeout", INT)
-            .setAttributeGroup("journal")
-            .setXmlName("jdbc-lock-acquisition-timeout")
-            .setDefaultValue(new ModelNode(60))
-            .setMeasurementUnit(SECONDS)
-            .setRequired(false)
-            .setAllowExpression(true)
-            .setRestartAllServices()
-            .build();
-
-    /**
      * @see ActiveMQDefaultConfiguration#getDefaultJdbcLockExpirationMillis()
      */
     public static final AttributeDefinition JOURNAL_JDBC_LOCK_EXPIRATION = create("journal-jdbc-lock-expiration", INT)
@@ -629,7 +616,7 @@ public class ServerDefinition extends PersistentResourceDefinition {
             PAGE_MAX_CONCURRENT_IO, CREATE_BINDINGS_DIR, CREATE_JOURNAL_DIR, JOURNAL_TYPE, JOURNAL_BUFFER_TIMEOUT,
             JOURNAL_BUFFER_SIZE,
             JOURNAL_DATASOURCE, JOURNAL_DATABASE,
-            JOURNAL_JDBC_LOCK_ACQUISITION_TIMEOUT, JOURNAL_JDBC_LOCK_EXPIRATION, JOURNAL_JDBC_LOCK_RENEW_PERIOD,
+            JOURNAL_JDBC_LOCK_EXPIRATION, JOURNAL_JDBC_LOCK_RENEW_PERIOD,
             JOURNAL_JDBC_NETWORK_TIMEOUT,
             JOURNAL_MESSAGES_TABLE, JOURNAL_BINDINGS_TABLE, JOURNAL_JMS_BINDINGS_TABLE, JOURNAL_LARGE_MESSAGES_TABLE, JOURNAL_PAGE_STORE_TABLE,
             JOURNAL_NODE_MANAGER_STORE_TABLE,
