@@ -7,6 +7,7 @@
             persist-delivery-count-before-delivery="${persist.delivery.count.before.delivery:true}"
             id-cache-size="${id.cache.size:102030}"
             page-max-concurrent-io="${page.max.concurrent.io:10}"
+            global-max-size="${messaging.global.max.size:789123}"
             scheduled-thread-pool-max-size="${messaging.scheduled.thread.pool.max.size:6}"
             thread-pool-max-size="${messaging.thread.pool.max.size:5}"
             wild-card-routing-enabled="${wild.card.routing.enabled:false}"

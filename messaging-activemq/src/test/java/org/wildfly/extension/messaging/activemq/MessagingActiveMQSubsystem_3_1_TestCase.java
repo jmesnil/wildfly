@@ -182,6 +182,7 @@ public class MessagingActiveMQSubsystem_3_1_TestCase extends AbstractSubsystemBa
                 .addFailedAttribute(subsystemAddress.append(SERVER_PATH),
                         new FailedOperationTransformationConfig.NewAttributesConfig(
                                 ServerDefinition.ELYTRON_DOMAIN,
+                                ServerDefinition.GLOBAL_MAX_SIZE,
                                 ServerDefinition.JOURNAL_DATASOURCE,
                                 ServerDefinition.JOURNAL_MESSAGES_TABLE,
                                 ServerDefinition.JOURNAL_BINDINGS_TABLE,
@@ -216,6 +217,10 @@ public class MessagingActiveMQSubsystem_3_1_TestCase extends AbstractSubsystemBa
                                 ConnectionFactoryAttributes.Common.DESERIALIZATION_BLACKLIST,
                                 ConnectionFactoryAttributes.Common.DESERIALIZATION_WHITELIST))
                 ;
+        } else if (messagingVersion.equals(MessagingExtension.VERSION_2_0_0)) {
+            config.addFailedAttribute(subsystemAddress.append(SERVER_PATH),
+                    new FailedOperationTransformationConfig.NewAttributesConfig(
+                            ServerDefinition.GLOBAL_MAX_SIZE));
         }
 
         config.addFailedAttribute(subsystemAddress.append(SERVER_PATH, MessagingExtension.BROADCAST_GROUP_PATH), new FailedOperationTransformationConfig.NewAttributesConfig(BroadcastGroupDefinition.JGROUPS_CHANNEL));
