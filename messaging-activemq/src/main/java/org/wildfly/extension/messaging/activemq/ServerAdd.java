@@ -49,6 +49,7 @@ import static org.wildfly.extension.messaging.activemq.ServerDefinition.CONNECTI
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.CREATE_BINDINGS_DIR;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.CREATE_JOURNAL_DIR;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.ELYTRON_DOMAIN;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.GLOBAL_MAX_DISK_SIZE;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.ID_CACHE_SIZE;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.JMX_DOMAIN;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.JMX_MANAGEMENT_ENABLED;
@@ -74,6 +75,7 @@ import static org.wildfly.extension.messaging.activemq.ServerDefinition.JOURNAL_
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.LOG_JOURNAL_WRITE_RATE;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.MANAGEMENT_ADDRESS;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.MANAGEMENT_NOTIFICATION_ADDRESS;
+import static org.wildfly.extension.messaging.activemq.ServerDefinition.GLOBAL_MAX_MEMORY_SIZE;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.MEMORY_MEASURE_INTERVAL;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.MEMORY_WARNING_THRESHOLD;
 import static org.wildfly.extension.messaging.activemq.ServerDefinition.MESSAGE_COUNTER_MAX_DAY_HISTORY;
@@ -493,6 +495,14 @@ class ServerAdd extends AbstractAddStepHandler {
         configuration.setTransactionTimeout(TRANSACTION_TIMEOUT.resolveModelAttribute(context, model).asLong());
         configuration.setTransactionTimeoutScanPeriod(TRANSACTION_TIMEOUT_SCAN_PERIOD.resolveModelAttribute(context, model).asLong());
         configuration.setWildcardRoutingEnabled(WILD_CARD_ROUTING_ENABLED.resolveModelAttribute(context, model).asBoolean());
+        ModelNode globalMaxDiskSize = GLOBAL_MAX_DISK_SIZE.resolveModelAttribute(context, model);
+        if (globalMaxDiskSize.isDefined()) {
+            configuration.setMaxDiskUsage(globalMaxDiskSize.asInt());
+        }
+        ModelNode globalMaxMemorySize = GLOBAL_MAX_MEMORY_SIZE.resolveModelAttribute(context, model);
+        if (globalMaxMemorySize.isDefined()) {
+            configuration.setGlobalMaxSize(globalMaxMemorySize.asLong());
+        }
 
         processStorageConfiguration(context, model, configuration);
         addHAPolicyConfiguration(context, configuration, model);

@@ -550,9 +550,29 @@ public class ServerDefinition extends PersistentResourceDefinition {
             .setAllowExpression(true)
             .setRestartAllServices()
             .build();
+    public static final SimpleAttributeDefinition GLOBAL_MAX_MEMORY_SIZE = create("global-max-memory-size", LONG)
+            // no default value (unlimited memory size)
+            .setMeasurementUnit(BYTES)
+            .setRequired(false)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+
+    public static final SimpleAttributeDefinition GLOBAL_MAX_DISK_SIZE = create("global-max-disk-size", INT)
+            // no default value (unlimited disk usage)
+            .setMeasurementUnit(PERCENTAGE)
+            .setValidator(new IntRangeValidator(0, 100, true, true))
+            .setRequired(false)
+            .setAllowExpression(true)
+            .setRestartAllServices()
+            .build();
+
 
     public static final AttributeDefinition[] ATTRIBUTES = {PERSISTENCE_ENABLED, SCHEDULED_THREAD_POOL_MAX_SIZE,
-            THREAD_POOL_MAX_SIZE, SECURITY_DOMAIN, ELYTRON_DOMAIN, SECURITY_ENABLED, SECURITY_INVALIDATION_INTERVAL,
+            THREAD_POOL_MAX_SIZE,
+            GLOBAL_MAX_MEMORY_SIZE,
+            GLOBAL_MAX_DISK_SIZE,
+            SECURITY_DOMAIN, ELYTRON_DOMAIN, SECURITY_ENABLED, SECURITY_INVALIDATION_INTERVAL,
             OVERRIDE_IN_VM_SECURITY, WILD_CARD_ROUTING_ENABLED, MANAGEMENT_ADDRESS, MANAGEMENT_NOTIFICATION_ADDRESS,
             CLUSTER_USER, CLUSTER_PASSWORD, CREDENTIAL_REFERENCE, JMX_MANAGEMENT_ENABLED, JMX_DOMAIN, STATISTICS_ENABLED, MESSAGE_COUNTER_SAMPLE_PERIOD,
             MESSAGE_COUNTER_MAX_DAY_HISTORY, CONNECTION_TTL_OVERRIDE, ASYNC_CONNECTION_EXECUTION_ENABLED, TRANSACTION_TIMEOUT,

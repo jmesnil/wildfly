@@ -45,7 +45,7 @@ import org.wildfly.extension.messaging.activemq.jms.ConnectionFactoryAttributes;
 import org.wildfly.extension.messaging.activemq.jms.bridge.JMSBridgeDefinition;
 
 /**
- * {@link org.jboss.as.controller.ExtensionTransformerRegistration} for the messaging-activemq subsystem.
+ * {@link org.jboss.as.controller.transform.ExtensionTransformerRegistration} for the messaging-activemq subsystem.
  * @author Paul Ferraro
  */
 @MetaInfServices
@@ -68,6 +68,9 @@ public class MessagingTransformerRegistration implements ExtensionTransformerReg
 
     private static void registerTransformers_EAP_7_1_0(ResourceTransformationDescriptionBuilder subsystem) {
         ResourceTransformationDescriptionBuilder server = subsystem.addChildResource(MessagingExtension.SERVER_PATH);
+        rejectDefinedAttributeWithDefaultValue(server,
+                ServerDefinition.GLOBAL_MAX_DISK_SIZE,
+                ServerDefinition.GLOBAL_MAX_MEMORY_SIZE);
 
         server.addChildResource(MessagingExtension.BROADCAST_GROUP_PATH).getAttributeBuilder()
                 .setDiscard(new JGroupsChannelDiscardAttributeChecker(), BroadcastGroupDefinition.JGROUPS_CHANNEL)

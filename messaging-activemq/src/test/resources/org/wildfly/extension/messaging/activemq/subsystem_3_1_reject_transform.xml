@@ -1,7 +1,9 @@
 <subsystem xmlns="urn:jboss:domain:messaging-activemq:3.1">
     <global-client thread-pool-max-size="${global.client.thread-pool-max-size:32}"
                    scheduled-thread-pool-max-size="${global.client.scheduled.thread-pool-max-size:54}" />
-    <server name="default">
+    <server name="default"
+            global-max-disk-size="${messaging.global.max.disk.size:80}"
+            global-max-memory-size="${messaging.global.max.memory.size:789123}">
 
         <security elytron-domain="elytronDomain"/>
         <cluster user="testuser">
