@@ -51,4 +51,25 @@ public class Capabilities {
      * The capability name for the Elytron security domain.
      */
     static final String ELYTRON_DOMAIN_CAPABILITY = "org.wildfly.security.security-domain";
+
+    /**
+     * The capability for the PathManager
+     *
+     * @see <a href="https://github.com/wildfly/wildfly-capabilities/blob/master/org/wildfly/management/path-manager/capability.adoc">documentation</a>
+     */
+    static final String PATH_MANAGER_CAPABILITY = "org.wildfly.management.path-manager";
+
+    /**
+     * The capability for SocketBinding
+     *
+     * @see <a href="https://github.com/wildfly/wildfly-capabilities/blob/master/org/wildfly/network/socket-binding/capability.adoc">documentation</a>
+     */
+    static final String SOCKET_BINDING_CAPABILITY = "org.wildfly.network.socket-binding";
+
+    /**
+     * The capability for OutboundSocketBinding
+     *
+     * @see <a href="https://github.com/wildfly/wildfly-capabilities/blob/master/org/wildfly/network/outbound-socket-binding/capability.adoc">documentation</a>
+     */
+    static final String OUTBOUND_SOCKET_BINDING_CAPABILITY = "org.wildfly.network.socket-binding";
 }

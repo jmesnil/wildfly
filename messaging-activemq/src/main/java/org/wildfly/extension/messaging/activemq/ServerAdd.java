@@ -134,7 +134,6 @@ import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.controller.security.CredentialReference;
 import org.jboss.as.controller.services.path.PathManager;
-import org.jboss.as.controller.services.path.PathManagerService;
 import org.jboss.as.network.OutboundSocketBinding;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.as.security.plugins.SecurityDomainContext;
@@ -286,7 +285,8 @@ class ServerAdd extends AbstractAddStepHandler {
                     serviceBuilder.addDependency(dataSourceCapability, DataSource.class, serverService.getDataSource());
                 }
 
-                serviceBuilder.addDependency(PathManagerService.SERVICE_NAME, PathManager.class, serverService.getPathManagerInjector());
+                ServiceName pathManagerServiceName = context.getCapabilityServiceName(Capabilities.PATH_MANAGER_CAPABILITY, PathManager.class);
+                serviceBuilder.addDependency(pathManagerServiceName, PathManager.class, serverService.getPathManagerInjector());
 
                 // Inject a reference to the Elytron security domain if one has been defined.
                 final ModelNode elytronSecurityDomain = ELYTRON_DOMAIN.resolveModelAttribute(context, model);
@@ -324,7 +324,7 @@ class ServerAdd extends AbstractAddStepHandler {
                 }
 
                 for (final String socketBinding : socketBindings) {
-                    final ServiceName socketName = SocketBinding.JBOSS_BINDING_NAME.append(socketBinding);
+                    final ServiceName socketName = context.getCapabilityServiceName(Capabilities.SOCKET_BINDING_CAPABILITY, socketBinding, SocketBinding.class);
                     serviceBuilder.addDependency(socketName, SocketBinding.class, serverService.getSocketBindingInjector(socketBinding));
                 }
 
@@ -334,10 +334,10 @@ class ServerAdd extends AbstractAddStepHandler {
                     // find whether the connectorSocketBinding references a SocketBinding or an OutboundSocketBinding
                     boolean outbound = isOutBoundSocketBinding(context, connectorSocketBinding);
                     if (outbound) {
-                        final ServiceName outboundSocketName = OutboundSocketBinding.OUTBOUND_SOCKET_BINDING_BASE_SERVICE_NAME.append(connectorSocketBinding);
+                        final ServiceName outboundSocketName = context.getCapabilityServiceName(Capabilities.OUTBOUND_SOCKET_BINDING_CAPABILITY, connectorSocketBinding, OutboundSocketBinding.class);
                         serviceBuilder.addDependency(outboundSocketName, OutboundSocketBinding.class, serverService.getOutboundSocketBindingInjector(connectorSocketBinding));
                     } else {
-                        final ServiceName socketName = SocketBinding.JBOSS_BINDING_NAME.append(connectorSocketBinding);
+                        final ServiceName socketName = context.getCapabilityServiceName(Capabilities.SOCKET_BINDING_CAPABILITY, connectorSocketBinding, SocketBinding.class);
                         serviceBuilder.addDependency(socketName, SocketBinding.class, serverService.getSocketBindingInjector(connectorSocketBinding));
                     }
                 }

@@ -25,9 +25,9 @@ package org.wildfly.extension.messaging.activemq;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SOCKET_BINDING;
 import static org.wildfly.extension.messaging.activemq.BroadcastGroupDefinition.CAPABILITY;
 import static org.wildfly.extension.messaging.activemq.BroadcastGroupDefinition.CONNECTOR_REFS;
-import static org.wildfly.extension.messaging.activemq.BroadcastGroupDefinition.validateConnectors;
 import static org.wildfly.extension.messaging.activemq.BroadcastGroupDefinition.JGROUPS_CHANNEL;
 import static org.wildfly.extension.messaging.activemq.BroadcastGroupDefinition.JGROUPS_CHANNEL_FACTORY;
+import static org.wildfly.extension.messaging.activemq.BroadcastGroupDefinition.validateConnectors;
 import static org.wildfly.extension.messaging.activemq.CommonAttributes.JGROUPS_CLUSTER;
 
 import java.util.ArrayList;
@@ -133,8 +133,9 @@ public class BroadcastGroupAdd extends AbstractAddStepHandler {
                 // nothing to do, in that case, the clustering.jgroups subsystem will have setup the stack
             } else if(model.hasDefined(RemoteTransportDefinition.SOCKET_BINDING.getName())) {
                 final GroupBindingService bindingService = new GroupBindingService();
+                ServiceName socketBindingServiceName = context.getCapabilityServiceName(Capabilities.SOCKET_BINDING_CAPABILITY, model.get(SOCKET_BINDING).asString(), SocketBinding.class);
                 target.addService(GroupBindingService.getBroadcastBaseServiceName(serviceName).append(name), bindingService)
-                        .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(model.get(SOCKET_BINDING).asString()), SocketBinding.class, bindingService.getBindingRef())
+                        .addDependency(socketBindingServiceName, SocketBinding.class, bindingService.getBindingRef())
                         .install();
             }
         }
