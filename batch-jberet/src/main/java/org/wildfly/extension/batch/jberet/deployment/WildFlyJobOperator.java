@@ -19,6 +19,7 @@ package org.wildfly.extension.batch.jberet.deployment;
 import java.util.Collection;
 import java.util.Set;
 import java.util.function.Supplier;
+
 import javax.batch.operations.JobOperator;
 import javax.batch.operations.NoSuchJobException;
 
@@ -66,7 +67,7 @@ interface WildFlyJobOperator extends JobOperator {
     default <T> T allowMissingJob(final Supplier<T> supplier, final T defaultValue) {
         try {
             return supplier.get();
-        } catch (NoSuchJobException | IllegalStateException ignore) {
+        } catch (NoSuchJobException ignore) {
         }
         return defaultValue;
     }

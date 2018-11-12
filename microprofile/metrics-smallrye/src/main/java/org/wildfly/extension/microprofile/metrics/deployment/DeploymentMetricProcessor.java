@@ -22,15 +22,6 @@
 
 package org.wildfly.extension.microprofile.metrics.deployment;
 
-import static org.eclipse.microprofile.metrics.MetricRegistry.Type.APPLICATION;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DEPLOYMENT;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBDEPLOYMENT;
-
-import java.util.Set;
-
-import io.smallrye.metrics.MetricRegistries;
-import org.eclipse.microprofile.metrics.MetricRegistry;
-import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.server.deployment.AttachmentKey;
@@ -43,7 +34,6 @@ import org.wildfly.extension.microprofile.metrics.MetricsRegistrationService;
 public class DeploymentMetricProcessor implements DeploymentUnitProcessor {
 
     static final AttachmentKey<MetricsRegistrationService> METRICS_REGISTRATION = AttachmentKey.create(MetricsRegistrationService.class);
-    static final AttachmentKey<Set<String>> REGISTERED_METRICS = AttachmentKey.create(Set.class);
 
     private Resource rootResource;
     private ManagementResourceRegistration managementResourceRegistration;
@@ -52,40 +42,12 @@ public class DeploymentMetricProcessor implements DeploymentUnitProcessor {
     public void deploy(DeploymentPhaseContext phaseContext) {
         rootResource = phaseContext.getDeploymentUnit().getAttachment(DeploymentModelUtils.DEPLOYMENT_RESOURCE);
         managementResourceRegistration = phaseContext.getDeploymentUnit().getAttachment(DeploymentModelUtils.MUTABLE_REGISTRATION_ATTACHMENT);
-        MetricsRegistrationService metricRegistration = phaseContext.getDeploymentUnit().getAttachment(METRICS_REGISTRATION);
-        MetricRegistry applicationRegistry = MetricRegistries.get(APPLICATION);
-        PathAddress deploymentAddress = createDeploymentAddressPrefix(phaseContext.getDeploymentUnit());
-        Set<String> registeredMetrics = metricRegistration.registerMetrics(rootResource, managementResourceRegistration, applicationRegistry,
-                new MetricsRegistrationService.MetricNameCreator() {
-                    @Override
-                    public String createName(PathAddress address, String attributeName) {
-                        return deploymentAddress.append(address).toPathStyleString().substring(1) + "/" + attributeName;
-                    }
 
-                    @Override
-                    public PathAddress getResourceAddress(PathAddress address) {
-                        return deploymentAddress.append(address);
-                    }
-                });
-        phaseContext.getDeploymentUnit().putAttachment(REGISTERED_METRICS, registeredMetrics);
+        DeploymentMetricService.install(phaseContext.getServiceTarget(), phaseContext.getDeploymentUnit(), rootResource, managementResourceRegistration);
     }
 
     @Override
     public void undeploy(DeploymentUnit context) {
-        Set<String> registeredMetrics = context.getAttachment(REGISTERED_METRICS);
-        if (registeredMetrics != null) {
-            MetricRegistry applicationRegistry = MetricRegistries.get(APPLICATION);
-            for (String registeredMetric : registeredMetrics) {
-                applicationRegistry.remove(registeredMetric);
-            }
-        }
     }
 
-    private PathAddress createDeploymentAddressPrefix(DeploymentUnit deploymentUnit) {
-        if (deploymentUnit.getParent() == null) {
-            return PathAddress.pathAddress(DEPLOYMENT, deploymentUnit.getName());
-        } else {
-            return createDeploymentAddressPrefix(deploymentUnit.getParent()).append(SUBDEPLOYMENT, deploymentUnit.getName());
-        }
-    }
 }
