@@ -66,7 +66,7 @@ interface WildFlyJobOperator extends JobOperator {
     default <T> T allowMissingJob(final Supplier<T> supplier, final T defaultValue) {
         try {
             return supplier.get();
-        } catch (NoSuchJobException ignore) {
+        } catch (NoSuchJobException | IllegalStateException ignore) {
         }
         return defaultValue;
     }
