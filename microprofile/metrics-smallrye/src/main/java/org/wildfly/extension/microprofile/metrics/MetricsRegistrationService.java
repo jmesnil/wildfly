@@ -23,6 +23,7 @@ package org.wildfly.extension.microprofile.metrics;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ATTRIBUTE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ATTRIBUTES;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DEPLOYMENT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DESCRIPTION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.FAILURE_DESCRIPTION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
@@ -30,6 +31,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_ATTRIBUTE_OPERATION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RESULT;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBDEPLOYMENT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.TYPE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.UNIT;
@@ -40,12 +42,15 @@ import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsSubs
 import static org.wildfly.extension.microprofile.metrics._private.MicroProfileMetricsLogger.LOGGER;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -150,19 +155,106 @@ public class MetricsRegistrationService implements Service<MetricsRegistrationSe
                                        ImmutableManagementResourceRegistration managementResourceRegistration,
                                        MetricRegistry metricRegistry,
                                        Function<PathAddress, PathAddress> resourceAddressResolver) {
-        Map<PathAddress, Map<String, ModelNode>> metrics = findMetrics(rootResource, managementResourceRegistration);
+        Map<PathAddress, Map<String, ModelNode>> metrics = findMetrics(managementResourceRegistration);
+        logMetrics(metrics);
         Set<String> registeredMetrics = registerMetrics(metrics, metricRegistry, resourceAddressResolver);
         return registeredMetrics;
     }
 
+    private void logMetrics(Map<PathAddress, Map<String, ModelNode>> metrics) {
+        List<String> metricsNames = new ArrayList<>();
+        Map<String, List<PathAddress>> occurrences = new TreeMap<>();
 
-    private Map<PathAddress, Map<String, ModelNode>> findMetrics(Resource rootResource, ImmutableManagementResourceRegistration managementResourceRegistration) {
+        for (Map.Entry<PathAddress, Map<String, ModelNode>> entry : metrics.entrySet()) {
+            PathAddress address = entry.getKey();
+            for (Map.Entry<String, ModelNode> wildflyMetric : entry.getValue().entrySet()) {
+                String attributeName = wildflyMetric.getKey();
+                String metricName = buildMetricName(address, attributeName, false);
+                metricsNames.add(metricName);
+
+                List<PathAddress> dups = occurrences.getOrDefault(metricName, new ArrayList<>());
+                if (dups.size() == 1) {
+                    PathAddress duplicateAddress = dups.get(0);
+                    if (isDuplicateDFromDeployment(address, duplicateAddress)) {
+                        // that's ok, we accept that the same resource from deployment/subdeployment and subsystems use the same metric name
+                        break;
+                    }
+                    String newMetricName1 = buildMetricName(address, attributeName, true);
+                    String newUnduplicatedMetricName = buildMetricName(duplicateAddress, attributeName, true);
+                    occurrences.remove(metricName);
+                    occurrences.put(newMetricName1, Arrays.asList(address));
+                    occurrences.put(newUnduplicatedMetricName, Arrays.asList(duplicateAddress));
+                } else {
+                    dups.add(address);
+                    occurrences.put(metricName, dups);
+                }
+            }
+        }
+
+        LOGGER.info("number of metrics " + metricsNames.size());
+
+        for (Map.Entry<String, List<PathAddress>> entry : occurrences.entrySet()) {
+            List<PathAddress> addresses = entry.getValue();
+            LOGGER.info(((addresses.size() > 1) ? "[DUP]" : "") + entry.getKey());
+            for (PathAddress address : entry.getValue()) {
+                LOGGER.info("\t* " + address.toPathStyleString());
+            }
+        }
+    }
+
+    private boolean isDuplicateDFromDeployment(PathAddress address1, PathAddress address2) {
+        PathAddress address1StrippedFromDeployment = stripDeployment(address1);
+        PathAddress address2StrippedFromDeployment = stripDeployment(address2);
+        return address1StrippedFromDeployment.equals(address2StrippedFromDeployment);
+    }
+
+    private PathAddress stripDeployment(PathAddress address) {
+        if (address.size() == 0) {
+            return address;
+        }
+
+        PathAddress strippedAddress = address;
+        if (address.getElement(0).getKey().equals(DEPLOYMENT)) {
+            strippedAddress = strippedAddress.subAddress(1);
+
+            if (strippedAddress.size() > 0 && strippedAddress.getElement(0).getKey().equals(SUBDEPLOYMENT)) {
+                strippedAddress = strippedAddress.subAddress(1);
+            }
+        }
+        return strippedAddress;
+    }
+
+    private String buildMetricName(PathAddress address, String attributeName, boolean addRightMostElementValueName) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < address.size(); i++) {
+            PathElement element = address.getElement(i);
+            if (element.getKey().equals(DEPLOYMENT) ||
+                    element.getKey().equals(SUBDEPLOYMENT)) {
+                // do not append the deployment or subdeployments
+                continue;
+            }
+            if (element.getKey().equals(SUBSYSTEM)) {
+                sb.append(element.getValue());
+            } else {
+                sb.append(element.getKey());
+                if (addRightMostElementValueName && i == address.size() -1) {
+                    sb.append("_").append(element.getValue());
+                }
+            }
+            sb.append("_");
+        }
+        String metricName = sb.append(attributeName).toString().replace("-", "_");
+        return metricName;
+    }
+
+
+    private Map<PathAddress, Map<String, ModelNode>> findMetrics(ImmutableManagementResourceRegistration managementResourceRegistration) {
         Map<PathAddress, Map<String, ModelNode>> metrics = new HashMap<>();
-        collectMetrics(rootResource, managementResourceRegistration, PathAddress.EMPTY_ADDRESS, metrics);
+        collectMetrics(managementResourceRegistration, PathAddress.EMPTY_ADDRESS, metrics);
         return metrics;
     }
 
-    private void collectMetrics(final Resource current, ImmutableManagementResourceRegistration managementResourceRegistration, final PathAddress address, Map<PathAddress, Map<String, ModelNode>> collectedMetrics) {
+    private void collectMetrics(ImmutableManagementResourceRegistration managementResourceRegistration, final PathAddress address, Map<PathAddress, Map<String, ModelNode>> collectedMetrics) {
 
         if (!isExposingMetrics(address)) {
             return;
@@ -189,6 +281,11 @@ public class MetricsRegistrationService implements Service<MetricsRegistrationSe
             }
         }
 
+        for (PathElement childAddress : managementResourceRegistration.getChildAddresses(address)) {
+            collectMetrics(managementResourceRegistration, address.append(childAddress), collectedMetrics);
+        }
+
+        /*
         for (String type : current.getChildTypes()) {
             if (current.hasChildren(type)) {
                 for (Resource.ResourceEntry entry : current.getChildren(type)) {
@@ -198,6 +295,7 @@ public class MetricsRegistrationService implements Service<MetricsRegistrationSe
                 }
             }
         }
+        */
     }
 
     public Set<String> registerMetrics(Map<PathAddress, Map<String, ModelNode>> metrics, MetricRegistry registry, Function<PathAddress, PathAddress> resourceAddressResolver) {
@@ -294,11 +392,14 @@ public class MetricsRegistrationService implements Service<MetricsRegistrationSe
         if (address.size() == 0) {
             return true;
         }
+        if (address.getElement(0).getKey().equals(DEPLOYMENT)) {
+            return true;
+        }
         if (address.getElement(0).getKey().equals(SUBSYSTEM)) {
             String subsystemName = address.getElement(0).getValue();
             return exposeAnySubsystem || exposedSubsystems.contains(subsystemName);
         }
-        // do not expose metrics for resources outside the subsystems.
+        // do not expose metrics for resources outside the subsystems and deployments.
         return false;
     }
 
