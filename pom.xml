@@ -3926,6 +3926,20 @@
             </dependency>
 
             <dependency>
+                <groupId>org.eclipse.microprofile.metrics</groupId>
+                <artifactId>microprofile-metrics-api-tck</artifactId>
+                <version>${version.org.eclipse.microprofile.metrics.api}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.microprofile.metrics</groupId>
+                <artifactId>microprofile-metrics-rest-tck</artifactId>
+                <version>${version.org.eclipse.microprofile.metrics.api}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
                 <groupId>org.eclipse.microprofile.opentracing</groupId>
                 <artifactId>microprofile-opentracing-api</artifactId>
                 <version>${version.org.eclipse.microprofile.opentracing}</version>
