@@ -20,73 +20,65 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.wildfly.extension.microprofile.metrics;
+package org.wildfly.extension.metrics;
 
-import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsSubsystemDefinition.HTTP_CONTEXT_SERVICE;
 
-import java.util.Map;
+import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.HTTP_CONTEXT_SERVICE;
+import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.HTTP_EXTENSIBILITY_CAPABILITY;
+
 import java.util.function.Supplier;
 
-import io.smallrye.metrics.MetricsRequestHandler;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.util.HeaderValues;
-import io.undertow.util.Headers;
-import io.undertow.util.HttpString;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.server.mgmt.domain.ExtensibleHttpManagement;
 import org.jboss.msc.Service;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StopContext;
+import org.wildfly.extension.metrics.internal.PrometheusExporter;
+import org.wildfly.extension.metrics.internal.WildFlyMetricRegistry;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2018 Red Hat inc.
  */
 public class MetricsContextService implements Service {
 
-    private static final String CONTEXT_NAME = "/metrics";
+    private static final String CONTEXT_NAME = "/base-metrics";
 
     private final Supplier<ExtensibleHttpManagement> extensibleHttpManagement;
-    private final HttpHandler microProfileMetricsHandler;
+    private final Supplier<WildFlyMetricRegistry> wildFlyMetricRegistry;
     private final boolean securityEnabled;
+    private final PrometheusExporter prometheusExporter = new PrometheusExporter();
 
     static void install(OperationContext context, boolean securityEnabled) {
         ServiceBuilder<?> serviceBuilder = context.getServiceTarget().addService(HTTP_CONTEXT_SERVICE);
 
-        Supplier<ExtensibleHttpManagement> extensibleHttpManagement = serviceBuilder.requires(context.getCapabilityServiceName(MicroProfileMetricsSubsystemDefinition.HTTP_EXTENSIBILITY_CAPABILITY, ExtensibleHttpManagement.class));
+        Supplier<ExtensibleHttpManagement> extensibleHttpManagement = serviceBuilder.requires(context.getCapabilityServiceName(HTTP_EXTENSIBILITY_CAPABILITY, ExtensibleHttpManagement.class));
+        Supplier<WildFlyMetricRegistry> wildFlyMetricRegistry = serviceBuilder.requires(WildFlyMetricRegistryService.WILDFLY_METRIC_REGISTRY_SERVICE);
 
-        Service healthContextService = new MetricsContextService(extensibleHttpManagement, securityEnabled, new MetricsRequestHandler());
+        Service healthContextService = new MetricsContextService(extensibleHttpManagement, wildFlyMetricRegistry, securityEnabled);
 
         serviceBuilder.setInstance(healthContextService)
                 .install();
     }
 
-    MetricsContextService(Supplier<ExtensibleHttpManagement> extensibleHttpManagement, boolean securityEnabled, MetricsRequestHandler metricsRequestHandler) {
+    MetricsContextService(Supplier<ExtensibleHttpManagement> extensibleHttpManagement, Supplier<WildFlyMetricRegistry> wildFlyMetricRegistry, boolean securityEnabled) {
         this.extensibleHttpManagement = extensibleHttpManagement;
+        this.wildFlyMetricRegistry = wildFlyMetricRegistry;
         this.securityEnabled = securityEnabled;
-        this.microProfileMetricsHandler = new HttpHandler() {
-            @Override
-            public void handleRequest(HttpServerExchange exchange) throws Exception {
-                String requestPath = exchange.getRequestPath();
-                String method = exchange.getRequestMethod().toString();
-                HeaderValues acceptHeaders = exchange.getRequestHeaders().get(Headers.ACCEPT);
-
-                metricsRequestHandler.handleRequest(requestPath, method, acceptHeaders == null ? null : acceptHeaders.stream(), (status, message, headers) -> {
-                    exchange.setStatusCode(status);
-                    for (Map.Entry<String, String> entry : headers.entrySet()) {
-                        exchange.getResponseHeaders().put(new HttpString(entry.getKey()), entry.getValue());
-                    }
-                    exchange.getResponseSender().send(message);
-                });
-            }
-        };
     }
 
     @Override
     public void start(StartContext context) {
         extensibleHttpManagement.get().addManagementHandler(CONTEXT_NAME, securityEnabled,
-                microProfileMetricsHandler);
+                new HttpHandler() {
+                    @Override
+                    public void handleRequest(HttpServerExchange exchange) throws Exception {
+                        String wildFlyMetrics = prometheusExporter.export(wildFlyMetricRegistry.get());
+                        exchange.getResponseSender().send(wildFlyMetrics);
+                    }
+                });
     }
 
     @Override
