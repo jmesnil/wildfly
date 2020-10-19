@@ -83,8 +83,7 @@ public class MetricsSubsystemDefinition extends PersistentResourceDefinition {
                 MetricsExtension.getResourceDescriptionResolver(MetricsExtension.SUBSYSTEM_NAME))
                 .setAddHandler(MetricsSubsystemAdd.INSTANCE)
                 .setRemoveHandler(new ServiceRemoveStepHandler(MetricsSubsystemAdd.INSTANCE))
-               // .setCapabilities(METRICS_COLLECTOR_RUNTIME_CAPABILITY, HTTP_CONTEXT_CAPABILITY));
-        );
+                .setCapabilities(HTTP_CONTEXT_CAPABILITY));
     }
 
     @Override
