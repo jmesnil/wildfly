@@ -22,6 +22,8 @@
 
 package org.wildfly.extension.microprofile.metrics;
 
+import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsExtension.VERSION_2_1_0;
+
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -64,6 +66,7 @@ public class MicroProfileMetricsSubsystemDefinition extends PersistentResourceDe
             .setRequired(false)
             .setRestartAllServices()
             .setAllowExpression(true)
+            .setDeprecated(VERSION_2_1_0)
             .build();
 
     static final StringListAttributeDefinition EXPOSED_SUBSYSTEMS = new StringListAttributeDefinition.Builder("exposed-subsystems")
