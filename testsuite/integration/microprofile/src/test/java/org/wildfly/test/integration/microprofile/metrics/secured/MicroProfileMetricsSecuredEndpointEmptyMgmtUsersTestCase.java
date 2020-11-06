@@ -23,7 +23,6 @@
 package org.wildfly.test.integration.microprofile.metrics.secured;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -71,10 +70,9 @@ public class MicroProfileMetricsSecuredEndpointEmptyMgmtUsersTestCase {
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             CloseableHttpResponse resp = client.execute(new HttpGet(endpointURL));
-            assertEquals(500, resp.getStatusLine().getStatusCode());
+            assertEquals(401, resp.getStatusLine().getStatusCode());
             String content = EntityUtils.toString(resp.getEntity());
             resp.close();
-            assertTrue("'WFLYDMHTTP0016: Your Application Server is running. However ...' message is expected - " + content, content.contains("WFLYDMHTTP0016"));
         }
     }
 
