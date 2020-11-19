@@ -15,9 +15,9 @@ public class WildFlyMetricRegistry implements Closeable {
 
     /* Key is the metric name */
     private Map<String, WildFlyMetricMetadata> metadataMap = new HashMap();
-    private Map<MetricID, WildFlyMetric> metricMap = new TreeMap<>();
+    private Map<MetricID, Metric> metricMap = new TreeMap<>();
 
-    public void register(WildFlyMetricMetadata metadata, WildFlyMetric metric, MetricCollector.MetricTag... tags) {
+    public void register(WildFlyMetricMetadata metadata, Metric metric, MetricCollector.MetricTag... tags) {
         requireNonNull(metadata);
         requireNonNull(metric);
         requireNonNull(tags);
@@ -39,7 +39,7 @@ public class WildFlyMetricRegistry implements Closeable {
         metadataMap.clear();
     }
 
-    public Map<MetricID, WildFlyMetric> getMetrics() {
+    public Map<MetricID, Metric> getMetrics() {
         return metricMap;
     }
 

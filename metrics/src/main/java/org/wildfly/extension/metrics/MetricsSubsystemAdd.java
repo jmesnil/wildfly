@@ -25,8 +25,10 @@ package org.wildfly.extension.metrics;
 import static org.jboss.as.controller.OperationContext.Stage.VERIFY;
 import static org.jboss.as.controller.PathAddress.EMPTY_ADDRESS;
 import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.WILDFLY_COLLECTOR_SERVICE;
+import static org.wildfly.extension.metrics.WildFlyMetricRegistryService.WILDFLY_METRIC_REGISTRY_SERVICE;
 import static org.wildfly.extension.metrics._private.MetricsLogger.LOGGER;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
 
@@ -39,6 +41,8 @@ import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
 import org.wildfly.extension.metrics.internal.MetricCollector;
+import org.wildfly.extension.metrics.internal.WildFlyMetricRegistry;
+import org.wildfly.extension.metrics.internal.jmx.JmxMetricCollector;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2018 Red Hat inc.
@@ -74,6 +78,15 @@ class MetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
                 ImmutableManagementResourceRegistration rootResourceRegistration = context.getRootResourceRegistration();
                 Resource rootResource = context.readResourceFromRoot(EMPTY_ADDRESS);
                 metricCollector.collectResourceMetrics(rootResource, rootResourceRegistration, Function.identity());
+
+                ServiceController<?> metricRegistryServiceController = context.getServiceRegistry(false).getService(WILDFLY_METRIC_REGISTRY_SERVICE);
+                WildFlyMetricRegistry wildFlyMetricRegistry = WildFlyMetricRegistry.class.cast(metricRegistryServiceController.getValue());
+                JmxMetricCollector jmxMetricCollector = new JmxMetricCollector(wildFlyMetricRegistry);
+                try {
+                    jmxMetricCollector.init();
+                } catch (IOException e) {
+                    throw LOGGER.failedInitializeJMXRegistrar(e);
+                }
             }
         }, VERIFY);
         LOGGER.activatingSubsystem();

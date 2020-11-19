@@ -43,8 +43,8 @@ public class WildFlyMetricMetadata {
     }
 
     public enum Type {
-        Counter,
-        Gauge;
+        COUNTER,
+        GAUGE;
 
         @Override
         public String toString() {

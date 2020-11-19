@@ -27,6 +27,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DEP
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DESCRIPTION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBDEPLOYMENT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
+import static org.wildfly.extension.metrics.internal.PrometheusExporter.getPrometheusMetricName;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -35,8 +36,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.jboss.as.controller.ControlledProcessState;
 import org.jboss.as.controller.LocalModelControllerClient;
@@ -153,7 +152,7 @@ public class MetricCollector {
 
     private void registerMetric(MetricMetadata metricMetadata, PathAddress address, String attributeName, MeasurementUnit unit, String description, boolean isCounter, MetricTag[] tags) {
         final WildFlyMetric metric = new WildFlyMetric(modelControllerClient, address, attributeName);
-        final WildFlyMetricMetadata metadata = new WildFlyMetricMetadata(metricMetadata.metricName, description, unit, isCounter? WildFlyMetricMetadata.Type.Counter : WildFlyMetricMetadata.Type.Gauge);
+        final WildFlyMetricMetadata metadata = new WildFlyMetricMetadata(metricMetadata.metricName, description, unit, isCounter? WildFlyMetricMetadata.Type.COUNTER : WildFlyMetricMetadata.Type.GAUGE);
         synchronized (wildFlyMetricRegistry) {
             wildFlyMetricRegistry.register(metadata, metric, tags);
         }
@@ -243,7 +242,6 @@ public class MetricCollector {
 
     private static class MetricMetadata {
 
-        private static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("(?<=[a-z])[A-Z]");
 
         private final String metricName;
         private final List<String> labelNames;
@@ -273,23 +271,6 @@ public class MetricCollector {
                 metricPrefix = globalPrefix + "-" + metricPrefix;
             }
             metricName = getPrometheusMetricName(metricPrefix + attributeName);
-        }
-
-        private static String getPrometheusMetricName(String name) {
-            name =name.replaceAll("[^\\w]+","_");
-            name = decamelize(name);
-            return name;
-        }
-
-
-        private static String decamelize(String in) {
-            Matcher m = SNAKE_CASE_PATTERN.matcher(in);
-            StringBuffer sb = new StringBuffer();
-            while (m.find()) {
-                m.appendReplacement(sb, "_" + m.group().toLowerCase());
-            }
-            m.appendTail(sb);
-            return sb.toString().toLowerCase();
         }
     }
 

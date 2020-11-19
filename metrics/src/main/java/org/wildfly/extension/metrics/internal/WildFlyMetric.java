@@ -15,7 +15,7 @@ import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
 
-public class WildFlyMetric {
+public class WildFlyMetric implements Metric{
 
     private LocalModelControllerClient modelControllerClient;
     private final PathAddress address;
@@ -27,6 +27,7 @@ public class WildFlyMetric {
         this.attributeName = attributeName;
     }
 
+    @Override
     public OptionalDouble getValue() {
         ModelNode result = readAttributeValue(address, attributeName);
         if (result.isDefined()) {

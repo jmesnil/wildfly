@@ -4,19 +4,37 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jboss.as.controller.client.helpers.MeasurementUnit;
 
 public class PrometheusExporter {
 
     private static final String LF = "\n";
+    private static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("(?<=[a-z])[A-Z]");
+
+    public static String getPrometheusMetricName(String name) {
+        name =name.replaceAll("[^\\w]+","_");
+        name = decamelize(name);
+        return name;
+    }
+    private static String decamelize(String in) {
+        Matcher m = SNAKE_CASE_PATTERN.matcher(in);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(sb, "_" + m.group().toLowerCase());
+        }
+        m.appendTail(sb);
+        return sb.toString().toLowerCase();
+    }
 
     public String export(WildFlyMetricRegistry registry) {
         Set<String> alreadyExportedMetrics = new HashSet<String>();
 
         StringBuilder out = new StringBuilder();
 
-        for (Map.Entry<WildFlyMetricRegistry.MetricID, WildFlyMetric> entry : registry.getMetrics().entrySet()) {
+        for (Map.Entry<WildFlyMetricRegistry.MetricID, Metric> entry : registry.getMetrics().entrySet()) {
             WildFlyMetricRegistry.MetricID metricID = entry.getKey();
             String metricName = metricID.getName();
             WildFlyMetricMetadata metadata = registry.getMetricMetadata().get(metricName);
@@ -48,7 +66,7 @@ public class PrometheusExporter {
     private String toPrometheusMetricName(WildFlyMetricRegistry.MetricID metricID, WildFlyMetricMetadata metadata) {
         String prometheusName = metricID.getName();
         // change the Prometheus name depending on type and measurement unit
-        if (metadata.getType() == WildFlyMetricMetadata.Type.Counter) {
+        if (metadata.getType() == WildFlyMetricMetadata.Type.COUNTER) {
             prometheusName += "_total";
         } else {
             // if it's a gauge, let's add the base unit to the prometheus name
