@@ -1,7 +1,6 @@
 package org.wildfly.extension.metrics.internal.jmx;
 
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.NONE;
-import static org.wildfly.extension.metrics.internal.PrometheusExporter.getPrometheusMetricName;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -115,7 +114,7 @@ public class JmxMetricCollector {
 
         final MeasurementUnit unit = (entryProperties.get("unit") == null) ? NONE : MeasurementUnit.valueOf(entryProperties.get("unit").toUpperCase());
 
-        JmxMetricMetadata metadata = new JmxMetricMetadata(getPrometheusMetricName(name),
+        JmxMetricMetadata metadata = new JmxMetricMetadata(name,
                 entryProperties.get("description"),
                 unit,
                 WildFlyMetricMetadata.Type.valueOf(entryProperties.get("type").toUpperCase()),
