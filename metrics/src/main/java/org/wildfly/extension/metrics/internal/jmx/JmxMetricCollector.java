@@ -1,3 +1,24 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2020, Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.wildfly.extension.metrics.internal.jmx;
 
 import static org.jboss.as.controller.client.helpers.MeasurementUnit.NONE;
@@ -6,16 +27,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 
@@ -41,6 +66,43 @@ public class JmxMetricCollector {
 
     private void register(String propertiesFile, WildFlyMetricRegistry registry) throws IOException {
         List<JmxMetricMetadata> configs = findMetadata(propertiesFile);
+
+        // expand multi mbeans
+        List<JmxMetricMetadata> expandedConfigs = new ArrayList<>();
+        Iterator<JmxMetricMetadata> iterator = configs.iterator();
+        while (iterator.hasNext()) {
+            JmxMetricMetadata metadata =  iterator.next();
+            if (metadata.getTagsToFill().isEmpty()) {
+                continue;
+            }
+            try {
+                String[] split = metadata.getMBean().split("/");
+                String query = split[0];
+                String attribute = split[1];
+                Set<ObjectName> objectNames = mbs.queryNames(ObjectName.getInstance(query), null);
+                for (ObjectName objectName : objectNames) {
+                    // fill the tags from the object names fields
+                    List<MetricCollector.MetricTag> tags = new ArrayList<>(metadata.getTagsToFill().size());
+                    for (String key : metadata.getTagsToFill()) {
+                        String value = objectName.getKeyProperty(key);
+                        tags.add(new MetricCollector.MetricTag(key, value));
+                    }
+                    expandedConfigs.add(new JmxMetricMetadata(metadata.getName(),
+                            metadata.getDescription(),
+                            metadata.getUnit(),
+                            metadata.getType(),
+                            objectName.getCanonicalName() + "/" + attribute,
+                            Collections.emptyList(),
+                            tags));
+
+                }
+                // now, it has been expanded, remove the "multi" mbean
+                iterator.remove();
+            } catch (MalformedObjectNameException e) {
+                e.printStackTrace();
+            }
+        }
+        configs.addAll(expandedConfigs);
 
         for (JmxMetricMetadata config : configs) {
             register(registry, config, config.getTags());
@@ -102,14 +164,9 @@ public class JmxMetricCollector {
         metadataEntry.getValue()
                 .forEach(
                         prop -> entryProperties.put(prop.propertyKey, prop.propertyValue));
-        List<MetricCollector.MetricTag> tags = new ArrayList<>();
-        if (entryProperties.containsKey("tags")) {
-            final String[] labelDefs = entryProperties.get("tags").split(";");
-            for (final String labelDef : labelDefs) {
-                final String[] label = labelDef.split("=", 2);
-                final MetricCollector.MetricTag tag = new MetricCollector.MetricTag(label[0], label[1]);
-                tags.add(tag);
-            }
+        List<String> tagsToFill = new ArrayList<>();
+        if (entryProperties.containsKey("tagsToFill")) {
+            tagsToFill = Arrays.asList(entryProperties.get("tagsToFill").split(","));
         }
 
         final MeasurementUnit unit = (entryProperties.get("unit") == null) ? NONE : MeasurementUnit.valueOf(entryProperties.get("unit").toUpperCase());
@@ -119,7 +176,8 @@ public class JmxMetricCollector {
                 unit,
                 WildFlyMetricMetadata.Type.valueOf(entryProperties.get("type").toUpperCase()),
                 entryProperties.get("mbean"),
-                tags);
+                tagsToFill,
+                Collections.emptyList());
 
         return metadata;
     }
