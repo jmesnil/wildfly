@@ -1,7 +1,5 @@
 package org.wildfly.extension.microprofile.metrics;
 
-import org.eclipse.microprofile.metrics.MetricID;
-
 public interface MetricRegistration {
     void unregister();
 
@@ -10,4 +8,6 @@ public interface MetricRegistration {
     void addRegistrationTask(Runnable task);
 
     void addUnregistrationTask(MetricID metricID);
+
+    void registerMetric(WildFlyMetric metric, WildFlyMetricMetadata metadata);
 }
