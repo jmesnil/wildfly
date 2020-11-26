@@ -3,6 +3,7 @@ package org.wildfly.extension.microprofile.metrics.deployment;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DEPLOYMENT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBDEPLOYMENT;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.jboss.as.controller.PathAddress;
@@ -26,9 +27,12 @@ public class DeploymentMetricService implements Service {
     private final ManagementResourceRegistration managementResourceRegistration;
     private PathAddress deploymentAddress;
     private final Supplier<MetricCollector> metricCollector;
+    private final boolean exposeAnySubsystem;
+    private final List<String> exposedSubsystems;
+    private final String prefix;
     private MetricCollector.MetricRegistration registration;
 
-    public static void install(ServiceTarget serviceTarget, DeploymentUnit deploymentUnit, Resource rootResource, ManagementResourceRegistration managementResourceRegistration) {
+    public static void install(ServiceTarget serviceTarget, DeploymentUnit deploymentUnit, Resource rootResource, ManagementResourceRegistration managementResourceRegistration, boolean exposeAnySubsystem, List<String> exposedSubsystems, String prefix) {
         PathAddress deploymentAddress = createDeploymentAddressPrefix(deploymentUnit);
 
         ServiceBuilder<?> sb = serviceTarget.addService(deploymentUnit.getServiceName().append("microprofile-metrics"));
@@ -39,15 +43,20 @@ public class DeploymentMetricService implements Service {
          * the deployment are collected and registered once the deployment services have all be properly installed.
          */
         sb.requires(DeploymentCompleteServiceProcessor.serviceName(deploymentUnit.getServiceName()));
-        sb.setInstance(new DeploymentMetricService(rootResource, managementResourceRegistration, deploymentAddress, metricCollector))
+        sb.setInstance(new DeploymentMetricService(rootResource, managementResourceRegistration, deploymentAddress, metricCollector,
+                exposeAnySubsystem, exposedSubsystems, prefix))
                 .install();
     }
 
-    private DeploymentMetricService(Resource rootResource, ManagementResourceRegistration managementResourceRegistration, PathAddress deploymentAddress, Supplier<MetricCollector> metricCollector) {
+    private DeploymentMetricService(Resource rootResource, ManagementResourceRegistration managementResourceRegistration, PathAddress deploymentAddress, Supplier<MetricCollector> metricCollector,
+                                    boolean exposeAnySubsystem, List<String> exposedSubsystems, String prefix) {
         this.rootResource = rootResource;
         this.managementResourceRegistration = managementResourceRegistration;
         this.deploymentAddress = deploymentAddress;
         this.metricCollector = metricCollector;
+        this.exposeAnySubsystem = exposeAnySubsystem;
+        this.exposedSubsystems = exposedSubsystems;
+        this.prefix = prefix;
     }
 
     @Override
@@ -55,7 +64,8 @@ public class DeploymentMetricService implements Service {
         registration = metricCollector.get().collectResourceMetrics(rootResource,
                 managementResourceRegistration,
                 // prepend the deployment address to the subsystem resource address
-                address -> deploymentAddress.append(address));
+                address -> deploymentAddress.append(address),
+                exposeAnySubsystem, exposedSubsystems, prefix);
 
     }
 

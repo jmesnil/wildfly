@@ -73,27 +73,24 @@ import org.jboss.dmr.ModelType;
 
 public class MetricCollector {
 
-
-    private final boolean exposeAnySubsystem;
-    private String globalPrefix;
-    private final List<String> exposedSubsystems;
     private final LocalModelControllerClient modelControllerClient;
     private final ProcessStateNotifier processStateNotifier;
 
-    public MetricCollector(LocalModelControllerClient modelControllerClient, ProcessStateNotifier processStateNotifier, List<String> exposedSubsystems, String globalPrefix) {
+    public MetricCollector(LocalModelControllerClient modelControllerClient, ProcessStateNotifier processStateNotifier) {
         this.modelControllerClient = modelControllerClient;
         this.processStateNotifier = processStateNotifier;
-        this.exposedSubsystems = exposedSubsystems;
-        this.exposeAnySubsystem = exposedSubsystems.remove("*");
-        this.globalPrefix = globalPrefix;
     }
 
     // collect metrics from the resources
     public MetricRegistration collectResourceMetrics(final Resource resource,
                                                      ImmutableManagementResourceRegistration managementResourceRegistration,
-                                                     Function<PathAddress, PathAddress> resourceAddressResolver) {
+                                                     Function<PathAddress, PathAddress> resourceAddressResolver,
+                                                     boolean exposeAnySubsystem,
+                                                     List<String> exposedSubsystems,
+                                                     String prefix) {
         MetricRegistration registration = new MetricRegistration();
-        collectResourceMetrics0(resource, managementResourceRegistration, EMPTY_ADDRESS, resourceAddressResolver, registration);
+        collectResourceMetrics0(resource, managementResourceRegistration, EMPTY_ADDRESS, resourceAddressResolver, registration,
+                exposeAnySubsystem, exposedSubsystems, prefix);
         // Defer the actual registration until the server is running and they can be collected w/o errors
         PropertyChangeListener listener = new PropertyChangeListener() {
             @Override
@@ -121,8 +118,8 @@ public class MetricCollector {
                                          ImmutableManagementResourceRegistration managementResourceRegistration,
                                          PathAddress address,
                                          Function<PathAddress, PathAddress> resourceAddressResolver,
-                                         MetricRegistration registration) {
-        if (!isExposingMetrics(address)) {
+                                         MetricRegistration registration, boolean exposeAnySubsystem, List<String> exposedSubsystems, String prefix) {
+        if (!isExposingMetrics(address, exposeAnySubsystem, exposedSubsystems)) {
             return;
         }
 
@@ -147,7 +144,7 @@ public class MetricCollector {
             PathAddress resourceAddress = resourceAddressResolver.apply(address);
             MeasurementUnit unit = attributeAccess.getAttributeDefinition().getMeasurementUnit();
             boolean isCounter = attributeAccess.getFlags().contains(AttributeAccess.Flag.COUNTER_METRIC);
-            MetricMetadata metricMetadata = new MetricMetadata(attributeName, resourceAddress, globalPrefix);
+            MetricMetadata metricMetadata = new MetricMetadata(attributeName, resourceAddress, prefix);
             String attributeDescription = resourceDescription.get(ATTRIBUTES, attributeName, DESCRIPTION).asStringOrNull();
 
             Tag[] tags = createTags(metricMetadata);
@@ -162,7 +159,7 @@ public class MetricCollector {
                 for (Resource.ResourceEntry entry : current.getChildren(type)) {
                     final PathElement pathElement = entry.getPathElement();
                     final PathAddress childAddress = address.append(pathElement);
-                    collectResourceMetrics0(entry, managementResourceRegistration, childAddress, resourceAddressResolver, registration);
+                    collectResourceMetrics0(entry, managementResourceRegistration, childAddress, resourceAddressResolver, registration, exposeAnySubsystem, exposedSubsystems, prefix);
                 }
             }
         }
@@ -331,7 +328,7 @@ public class MetricCollector {
         return  response.get(RESULT);
     }
 
-    private boolean isExposingMetrics(PathAddress address) {
+    private boolean isExposingMetrics(PathAddress address, boolean exposeAnySubsystem, List<String> exposedSubsystems) {
         // root resource
         if (address.size() == 0) {
             return true;

@@ -67,19 +67,21 @@ class MicroProfileMetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
     protected void performBoottime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
         super.performBoottime(context, operation, model);
 
+        final boolean securityEnabled = MicroProfileMetricsSubsystemDefinition.SECURITY_ENABLED.resolveModelAttribute(context, model).asBoolean();
+        final List<String> exposedSubsystems = MicroProfileMetricsSubsystemDefinition.EXPOSED_SUBSYSTEMS.unwrap(context, model);
+        final boolean exposeAnySubsystem = exposedSubsystems.remove("*");
+        final String prefix = MicroProfileMetricsSubsystemDefinition.PREFIX.resolveModelAttribute(context, model).asStringOrNull();
+
         context.addStep(new AbstractDeploymentChainStep() {
             public void execute(DeploymentProcessorTarget processorTarget) {
                 processorTarget.addDeploymentProcessor(MicroProfileMetricsExtension.SUBSYSTEM_NAME, DEPENDENCIES, DEPENDENCIES_MICROPROFILE_METRICS, new DependencyProcessor());
-                processorTarget.addDeploymentProcessor(MicroProfileMetricsExtension.SUBSYSTEM_NAME, INSTALL, POST_MODULE_MICROPROFILE_METRICS, new DeploymentMetricProcessor());
+                processorTarget.addDeploymentProcessor(MicroProfileMetricsExtension.SUBSYSTEM_NAME, INSTALL, POST_MODULE_MICROPROFILE_METRICS, new DeploymentMetricProcessor(exposeAnySubsystem, exposedSubsystems, prefix));
             }
         }, RUNTIME);
 
-        final boolean securityEnabled = MicroProfileMetricsSubsystemDefinition.SECURITY_ENABLED.resolveModelAttribute(context, model).asBoolean();
-        List<String> exposedSubsystems = MicroProfileMetricsSubsystemDefinition.EXPOSED_SUBSYSTEMS.unwrap(context, model);
-        String prefix = MicroProfileMetricsSubsystemDefinition.PREFIX.resolveModelAttribute(context, model).asStringOrNull();
 
         MetricsContextService.install(context, securityEnabled);
-        MetricsCollectorService.install(context, exposedSubsystems, prefix);
+        MetricsCollectorService.install(context);
         // delay the registration of the metrics in the VERIFY stage so that all resources
         // created during the RUNTIME phase will have been registered in the MRR.
         context.addStep(new OperationStepHandler() {
@@ -90,7 +92,8 @@ class MicroProfileMetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
                 ImmutableManagementResourceRegistration rootResourceRegistration = context.getRootResourceRegistration();
                 Resource rootResource = context.readResourceFromRoot(EMPTY_ADDRESS);
-                metricCollector.collectResourceMetrics(rootResource, rootResourceRegistration, Function.identity());
+                metricCollector.collectResourceMetrics(rootResource, rootResourceRegistration, Function.identity(),
+                        exposeAnySubsystem, exposedSubsystems, prefix);
 
                 JmxRegistrar jmxRegistrar = new JmxRegistrar();
                 try {
