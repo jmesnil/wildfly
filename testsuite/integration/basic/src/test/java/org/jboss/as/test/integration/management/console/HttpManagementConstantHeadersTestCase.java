@@ -337,12 +337,14 @@ public class HttpManagementConstantHeadersTestCase {
     */
    private boolean checkIfMetricsUsable() throws IOException {
       if (Boolean.getBoolean("ts.layers")) {
+         //FIXME WFLY-14108, will need to check for the /subystem=metrics instead
          ModelNode metricsReadOp = Operations.createReadResourceOperation(PathAddress.pathAddress(SUBSYSTEM, "microprofile-metrics-smallrye"));
          ModelNode result = managementClient.getControllerClient().execute(metricsReadOp);
          if (!result.get(OUTCOME).asString().equals(SUCCESS)) {
             return false;
          }
       }
-      return true;
+      //FIXME WFLY-14108, revert to true once the base metrics subsystem is created
+      return false;
    }
 }
