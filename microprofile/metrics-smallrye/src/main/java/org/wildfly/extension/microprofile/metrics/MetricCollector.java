@@ -82,13 +82,13 @@ public class MetricCollector {
     }
 
     // collect metrics from the resources
-    public MetricRegistration collectResourceMetrics(final Resource resource,
+    public void collectResourceMetrics(final Resource resource,
                                                      ImmutableManagementResourceRegistration managementResourceRegistration,
                                                      Function<PathAddress, PathAddress> resourceAddressResolver,
                                                      boolean exposeAnySubsystem,
                                                      List<String> exposedSubsystems,
-                                                     String prefix) {
-        MetricRegistration registration = new MetricRegistration();
+                                                     String prefix,
+                                                     MetricRegistration registration) {
         collectResourceMetrics0(resource, managementResourceRegistration, EMPTY_ADDRESS, resourceAddressResolver, registration,
                 exposeAnySubsystem, exposedSubsystems, prefix);
         // Defer the actual registration until the server is running and they can be collected w/o errors
@@ -111,7 +111,6 @@ public class MetricCollector {
         if (ControlledProcessState.State.RUNNING == this.processStateNotifier.getCurrentState()) {
             registration.register();
         }
-        return registration;
     }
 
     private void collectResourceMetrics0(final Resource current,
@@ -373,38 +372,6 @@ public class MetricCollector {
         return null;
     }
 
-    public static final class MetricRegistration {
-
-        private final List<Runnable> registrationTasks = new ArrayList<>();
-        private final List<MetricID> unregistrationTasks = new ArrayList<>();
-
-        MetricRegistration() {
-        }
-
-        public synchronized void register() { // synchronized to avoid registering same thing twice. Shouldn't really be possible; just being cautious
-            for (Runnable task : registrationTasks) {
-                task.run();
-            }
-            // This object will last until undeploy or server stop,
-            // so clean up and save memory
-            registrationTasks.clear();
-        }
-
-        public void unregister() {
-            MetricRegistry registry = MetricRegistries.get(MetricRegistry.Type.VENDOR);
-            for (MetricID id : unregistrationTasks) {
-                registry.remove(id);
-            }
-        }
-
-        private synchronized void addRegistrationTask(Runnable task) {
-            registrationTasks.add(task);
-        }
-
-        private void addUnregistrationTask(MetricID metricID) {
-            unregistrationTasks.add(metricID);
-        }
-    }
 
     private static class MetricMetadata {
 

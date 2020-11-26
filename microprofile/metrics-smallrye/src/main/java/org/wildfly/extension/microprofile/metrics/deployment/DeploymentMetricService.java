@@ -18,6 +18,8 @@ import org.jboss.msc.service.ServiceTarget;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StopContext;
 import org.wildfly.extension.microprofile.metrics.MetricCollector;
+import org.wildfly.extension.microprofile.metrics.MetricRegistration;
+import org.wildfly.extension.microprofile.metrics.MicroProfileMetricRegistration;
 import org.wildfly.extension.microprofile.metrics.MicroProfileMetricsSubsystemDefinition;
 
 public class DeploymentMetricService implements Service {
@@ -30,13 +32,13 @@ public class DeploymentMetricService implements Service {
     private final boolean exposeAnySubsystem;
     private final List<String> exposedSubsystems;
     private final String prefix;
-    private MetricCollector.MetricRegistration registration;
+    private MetricRegistration registration;
 
     public static void install(ServiceTarget serviceTarget, DeploymentUnit deploymentUnit, Resource rootResource, ManagementResourceRegistration managementResourceRegistration, boolean exposeAnySubsystem, List<String> exposedSubsystems, String prefix) {
         PathAddress deploymentAddress = createDeploymentAddressPrefix(deploymentUnit);
 
         ServiceBuilder<?> sb = serviceTarget.addService(deploymentUnit.getServiceName().append("microprofile-metrics"));
-        Supplier<MetricCollector> metricCollector = sb.requires(MicroProfileMetricsSubsystemDefinition.WILDFLY_COLLECTOR_SERVICE);
+        Supplier<MetricCollector> metricCollector = sb.requires(MicroProfileMetricsSubsystemDefinition.WILDFLY_COLLECTOR);
 
         /*
          * The deployment metric service depends on the deployment complete service name to ensure that the metrics from
@@ -61,12 +63,13 @@ public class DeploymentMetricService implements Service {
 
     @Override
     public void start(StartContext startContext) {
-        registration = metricCollector.get().collectResourceMetrics(rootResource,
+        registration = new MicroProfileMetricRegistration();
+        metricCollector.get().collectResourceMetrics(rootResource,
                 managementResourceRegistration,
                 // prepend the deployment address to the subsystem resource address
                 address -> deploymentAddress.append(address),
-                exposeAnySubsystem, exposedSubsystems, prefix);
-
+                exposeAnySubsystem, exposedSubsystems, prefix,
+                registration);
     }
 
     @Override

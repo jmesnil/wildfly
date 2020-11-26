@@ -29,7 +29,7 @@ import static org.jboss.as.server.deployment.Phase.DEPENDENCIES;
 import static org.jboss.as.server.deployment.Phase.DEPENDENCIES_MICROPROFILE_METRICS;
 import static org.jboss.as.server.deployment.Phase.INSTALL;
 import static org.jboss.as.server.deployment.Phase.POST_MODULE_MICROPROFILE_METRICS;
-import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsSubsystemDefinition.WILDFLY_COLLECTOR_SERVICE;
+import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsSubsystemDefinition.WILDFLY_COLLECTOR;
 import static org.wildfly.extension.microprofile.metrics._private.MicroProfileMetricsLogger.LOGGER;
 
 import java.io.IOException;
@@ -87,13 +87,16 @@ class MicroProfileMetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
         context.addStep(new OperationStepHandler() {
             @Override
             public void execute(OperationContext operationContext, ModelNode modelNode) {
-                ServiceController<?> serviceController = context.getServiceRegistry(false).getService(WILDFLY_COLLECTOR_SERVICE);
+                ServiceController<?> serviceController = context.getServiceRegistry(false).getService(WILDFLY_COLLECTOR);
                 MetricCollector metricCollector = MetricCollector.class.cast(serviceController.getValue());
 
                 ImmutableManagementResourceRegistration rootResourceRegistration = context.getRootResourceRegistration();
                 Resource rootResource = context.readResourceFromRoot(EMPTY_ADDRESS);
+
+                MicroProfileMetricRegistration registration = new MicroProfileMetricRegistration();
                 metricCollector.collectResourceMetrics(rootResource, rootResourceRegistration, Function.identity(),
-                        exposeAnySubsystem, exposedSubsystems, prefix);
+                        exposeAnySubsystem, exposedSubsystems, prefix,
+                        registration);
 
                 JmxRegistrar jmxRegistrar = new JmxRegistrar();
                 try {

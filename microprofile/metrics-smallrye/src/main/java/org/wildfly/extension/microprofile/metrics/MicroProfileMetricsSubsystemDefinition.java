@@ -41,17 +41,15 @@ import org.jboss.msc.service.ServiceName;
  */
 public class MicroProfileMetricsSubsystemDefinition extends PersistentResourceDefinition {
 
-    static final String METRICS_COLLECTOR_CAPABILITY = "org.wildfly.extension.microprofile.metrics.wildfly-collector";
-
     static final String CLIENT_FACTORY_CAPABILITY ="org.wildfly.management.model-controller-client-factory";
     static final String MANAGEMENT_EXECUTOR ="org.wildfly.management.executor";
     static final String PROCESS_STATE_NOTIFIER = "org.wildfly.management.process-state-notifier";
     static final String MP_CONFIG = "org.wildfly.microprofile.config";
-    static final RuntimeCapability<Void> METRICS_COLLECTOR_RUNTIME_CAPABILITY = RuntimeCapability.Builder.of(METRICS_COLLECTOR_CAPABILITY, MetricsCollectorService.class)
+    private static final RuntimeCapability<Void> METRICS_COLLECTOR_RUNTIME_CAPABILITY = RuntimeCapability.Builder.of("org.wildfly.extension.metrics.wildfly-collector", MetricCollector.class)
             .addRequirements(CLIENT_FACTORY_CAPABILITY, MANAGEMENT_EXECUTOR, PROCESS_STATE_NOTIFIER, MP_CONFIG)
             .build();
 
-    public static final ServiceName WILDFLY_COLLECTOR_SERVICE = METRICS_COLLECTOR_RUNTIME_CAPABILITY.getCapabilityServiceName();
+    public static final ServiceName WILDFLY_COLLECTOR = METRICS_COLLECTOR_RUNTIME_CAPABILITY.getCapabilityServiceName();
 
     static final String HTTP_EXTENSIBILITY_CAPABILITY = "org.wildfly.management.http.extensible";
     static final RuntimeCapability<Void> HTTP_CONTEXT_CAPABILITY = RuntimeCapability.Builder.of("org.wildfly.extension.microprofile.metrics.http-context", MetricsContextService.class)
