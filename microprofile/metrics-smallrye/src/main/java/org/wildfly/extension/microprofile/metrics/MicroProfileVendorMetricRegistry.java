@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2019, Red Hat, Inc., and individual contributors
+ * Copyright 2020, Red Hat, Inc., and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -23,8 +23,6 @@ package org.wildfly.extension.microprofile.metrics;
 
 import static org.wildfly.extension.microprofile.metrics.WildFlyMetricMetadata.Type.COUNTER;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -34,39 +32,16 @@ import org.eclipse.microprofile.metrics.Counter;
 import org.eclipse.microprofile.metrics.Gauge;
 import org.eclipse.microprofile.metrics.Metadata;
 import org.eclipse.microprofile.metrics.Metric;
-import org.eclipse.microprofile.metrics.MetricID;
-import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.eclipse.microprofile.metrics.MetricType;
 import org.eclipse.microprofile.metrics.MetricUnits;
 import org.eclipse.microprofile.metrics.Tag;
 import org.jboss.as.controller.client.helpers.MeasurementUnit;
 
-public class MicroProfileMetricRegistration implements MetricRegistration {
+public class MicroProfileVendorMetricRegistry implements MetricRegistry{
 
-    private final List<Runnable> registrationTasks = new ArrayList<>();
-    private final List<MetricID> unregistrationTasks = new ArrayList<>();
-
-    public MicroProfileMetricRegistration() {
-    }
+    final org.eclipse.microprofile.metrics.MetricRegistry vendorRegistry = MetricRegistries.get(org.eclipse.microprofile.metrics.MetricRegistry.Type.VENDOR);
 
     @Override
-    public synchronized void register() { // synchronized to avoid registering same thing twice. Shouldn't really be possible; just being cautious
-        for (Runnable task : registrationTasks) {
-            task.run();
-        }
-        // This object will last until undeploy or server stop,
-        // so clean up and save memory
-        registrationTasks.clear();
-    }
-
-     @Override
-     public void unregister() {
-        MetricRegistry registry = MetricRegistries.get(MetricRegistry.Type.VENDOR);
-        for (MetricID id : unregistrationTasks) {
-            registry.remove(id);
-        }
-    }
-
     public void registerMetric(WildFlyMetric metric, WildFlyMetricMetadata metadata) {
         final Metric mpMetric;
         if (metadata.getType() == COUNTER) {
@@ -94,7 +69,6 @@ public class MicroProfileMetricRegistration implements MetricRegistration {
             };
         }
         final Metadata mpMetadata;
-        MetricRegistry vendorRegistry = MetricRegistries.get(MetricRegistry.Type.VENDOR);
         synchronized (vendorRegistry) {
             Metadata existingMetadata = vendorRegistry.getMetadata().get(metadata.getMetricName());
             if (existingMetadata != null) {
@@ -113,17 +87,12 @@ public class MicroProfileMetricRegistration implements MetricRegistration {
     }
 
     @Override
-    public synchronized void addRegistrationTask(Runnable task) {
-        registrationTasks.add(task);
+    public void unregister(MetricID metricID) {
+        vendorRegistry.remove(toMicroProfileMetricID(metricID));
     }
 
-    @Override
-    public void addUnregistrationTask(org.wildfly.extension.microprofile.metrics.MetricID metricID) {
-        unregistrationTasks.add(toMicroProfileMetricID(metricID));
-    }
-
-    private MetricID toMicroProfileMetricID(org.wildfly.extension.microprofile.metrics.MetricID metricID) {
-        return new MetricID(metricID.getMetricName(), toMicroProfileMetricsTags(metricID.getTags()));
+    private org.eclipse.microprofile.metrics.MetricID toMicroProfileMetricID(org.wildfly.extension.microprofile.metrics.MetricID metricID) {
+        return new org.eclipse.microprofile.metrics.MetricID(metricID.getMetricName(), toMicroProfileMetricsTags(metricID.getTags()));
     }
 
     private Tag[] toMicroProfileMetricsTags(WildFlyMetricMetadata.MetricTag[] tags) {
@@ -217,4 +186,3 @@ public class MicroProfileMetricRegistration implements MetricRegistration {
         }
     }
 }
-

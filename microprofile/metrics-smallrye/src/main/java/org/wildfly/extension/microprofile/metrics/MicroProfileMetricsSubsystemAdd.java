@@ -93,7 +93,8 @@ class MicroProfileMetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
                 ImmutableManagementResourceRegistration rootResourceRegistration = context.getRootResourceRegistration();
                 Resource rootResource = context.readResourceFromRoot(EMPTY_ADDRESS);
 
-                MicroProfileMetricRegistration registration = new MicroProfileMetricRegistration();
+                MetricRegistration registration = new MetricRegistration(new MicroProfileVendorMetricRegistry());
+
                 metricCollector.collectResourceMetrics(rootResource, rootResourceRegistration, Function.identity(),
                         exposeAnySubsystem, exposedSubsystems, prefix,
                         registration);

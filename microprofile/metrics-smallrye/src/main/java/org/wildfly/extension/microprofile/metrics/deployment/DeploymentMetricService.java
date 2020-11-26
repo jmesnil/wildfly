@@ -19,8 +19,8 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StopContext;
 import org.wildfly.extension.microprofile.metrics.MetricCollector;
 import org.wildfly.extension.microprofile.metrics.MetricRegistration;
-import org.wildfly.extension.microprofile.metrics.MicroProfileMetricRegistration;
 import org.wildfly.extension.microprofile.metrics.MicroProfileMetricsSubsystemDefinition;
+import org.wildfly.extension.microprofile.metrics.MicroProfileVendorMetricRegistry;
 
 public class DeploymentMetricService implements Service {
 
@@ -63,7 +63,7 @@ public class DeploymentMetricService implements Service {
 
     @Override
     public void start(StartContext startContext) {
-        registration = new MicroProfileMetricRegistration();
+        registration = new MetricRegistration(new MicroProfileVendorMetricRegistry());
         metricCollector.get().collectResourceMetrics(rootResource,
                 managementResourceRegistration,
                 // prepend the deployment address to the subsystem resource address
