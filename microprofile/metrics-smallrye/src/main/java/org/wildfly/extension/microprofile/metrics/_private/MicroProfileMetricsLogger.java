@@ -57,9 +57,11 @@ public interface MicroProfileMetricsLogger extends BasicLogger {
     @Message(id = 2, value = "Failed to initialize metrics from JMX MBeans")
     IllegalArgumentException failedInitializeJMXRegistrar(@Cause IOException e);
 
+    // no longer used
     @Message(id = 3, value = "Unable to read attribute %s on %s: %s.")
     IllegalStateException unableToReadAttribute(String attributeName, PathAddress address, String error);
 
+    // no longer used
     @Message(id = 4, value = "Unable to convert attribute %s on %s to Double value.")
     IllegalStateException unableToConvertAttribute(String attributeName, PathAddress address, @Cause Exception exception);
 

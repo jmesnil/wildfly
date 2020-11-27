@@ -21,7 +21,9 @@
  */
 package org.wildfly.extension.microprofile.metrics;
 
-import static org.wildfly.extension.microprofile.metrics.WildFlyMetricMetadata.Type.COUNTER;
+import static org.eclipse.microprofile.metrics.MetricRegistry.Type.BASE;
+import static org.eclipse.microprofile.metrics.MetricRegistry.Type.VENDOR;
+import static org.wildfly.extension.metrics.WildFlyMetricMetadata.Type.COUNTER;
 
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -36,10 +38,14 @@ import org.eclipse.microprofile.metrics.MetricType;
 import org.eclipse.microprofile.metrics.MetricUnits;
 import org.eclipse.microprofile.metrics.Tag;
 import org.jboss.as.controller.client.helpers.MeasurementUnit;
+import org.wildfly.extension.metrics.MetricID;
+import org.wildfly.extension.metrics.MetricRegistry;
+import org.wildfly.extension.metrics.WildFlyMetric;
+import org.wildfly.extension.metrics.WildFlyMetricMetadata;
 
-public class MicroProfileVendorMetricRegistry implements MetricRegistry{
+public class MicroProfileVendorMetricRegistry implements MetricRegistry {
 
-    final org.eclipse.microprofile.metrics.MetricRegistry vendorRegistry = MetricRegistries.get(org.eclipse.microprofile.metrics.MetricRegistry.Type.VENDOR);
+    final org.eclipse.microprofile.metrics.MetricRegistry vendorRegistry = MetricRegistries.get(VENDOR);
 
     @Override
     public void registerMetric(WildFlyMetric metric, WildFlyMetricMetadata metadata) {
@@ -91,8 +97,18 @@ public class MicroProfileVendorMetricRegistry implements MetricRegistry{
         vendorRegistry.remove(toMicroProfileMetricID(metricID));
     }
 
-    private org.eclipse.microprofile.metrics.MetricID toMicroProfileMetricID(org.wildfly.extension.microprofile.metrics.MetricID metricID) {
+    private org.eclipse.microprofile.metrics.MetricID toMicroProfileMetricID(MetricID metricID) {
         return new org.eclipse.microprofile.metrics.MetricID(metricID.getMetricName(), toMicroProfileMetricsTags(metricID.getTags()));
+    }
+
+    static void removeAllMetrics() {
+        for (org.eclipse.microprofile.metrics.MetricRegistry registry : new org.eclipse.microprofile.metrics.MetricRegistry[]{
+                MetricRegistries.get(BASE),
+                MetricRegistries.get(VENDOR)}) {
+            for (String name : registry.getNames()) {
+                registry.remove(name);
+            }
+        }
     }
 
     private Tag[] toMicroProfileMetricsTags(WildFlyMetricMetadata.MetricTag[] tags) {

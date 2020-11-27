@@ -2,6 +2,7 @@ package org.wildfly.extension.microprofile.metrics.deployment;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DEPLOYMENT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBDEPLOYMENT;
+import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsSubsystemDefinition.WILDFLY_COLLECTOR;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -17,9 +18,8 @@ import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceTarget;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StopContext;
-import org.wildfly.extension.microprofile.metrics.MetricCollector;
-import org.wildfly.extension.microprofile.metrics.MetricRegistration;
-import org.wildfly.extension.microprofile.metrics.MicroProfileMetricsSubsystemDefinition;
+import org.wildfly.extension.metrics.MetricCollector;
+import org.wildfly.extension.metrics.MetricRegistration;
 import org.wildfly.extension.microprofile.metrics.MicroProfileVendorMetricRegistry;
 
 public class DeploymentMetricService implements Service {
@@ -38,7 +38,7 @@ public class DeploymentMetricService implements Service {
         PathAddress deploymentAddress = createDeploymentAddressPrefix(deploymentUnit);
 
         ServiceBuilder<?> sb = serviceTarget.addService(deploymentUnit.getServiceName().append("microprofile-metrics"));
-        Supplier<MetricCollector> metricCollector = sb.requires(MicroProfileMetricsSubsystemDefinition.WILDFLY_COLLECTOR);
+        Supplier<MetricCollector> metricCollector = sb.requires(WILDFLY_COLLECTOR);
 
         /*
          * The deployment metric service depends on the deployment complete service name to ensure that the metrics from

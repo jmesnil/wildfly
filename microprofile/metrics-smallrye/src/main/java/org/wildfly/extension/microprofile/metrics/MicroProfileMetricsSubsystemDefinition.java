@@ -41,19 +41,12 @@ import org.jboss.msc.service.ServiceName;
  */
 public class MicroProfileMetricsSubsystemDefinition extends PersistentResourceDefinition {
 
-    static final String CLIENT_FACTORY_CAPABILITY ="org.wildfly.management.model-controller-client-factory";
-    static final String MANAGEMENT_EXECUTOR ="org.wildfly.management.executor";
-    static final String PROCESS_STATE_NOTIFIER = "org.wildfly.management.process-state-notifier";
     static final String MP_CONFIG = "org.wildfly.microprofile.config";
-    private static final RuntimeCapability<Void> METRICS_COLLECTOR_RUNTIME_CAPABILITY = RuntimeCapability.Builder.of("org.wildfly.extension.metrics.wildfly-collector", MetricCollector.class)
-            .addRequirements(CLIENT_FACTORY_CAPABILITY, MANAGEMENT_EXECUTOR, PROCESS_STATE_NOTIFIER, MP_CONFIG)
-            .build();
-
-    public static final ServiceName WILDFLY_COLLECTOR = METRICS_COLLECTOR_RUNTIME_CAPABILITY.getCapabilityServiceName();
+    public static final ServiceName WILDFLY_COLLECTOR = ServiceName.parse("org.wildfly.extension.metrics.wildfly-collector");
 
     static final String HTTP_EXTENSIBILITY_CAPABILITY = "org.wildfly.management.http.extensible";
     static final RuntimeCapability<Void> HTTP_CONTEXT_CAPABILITY = RuntimeCapability.Builder.of("org.wildfly.extension.microprofile.metrics.http-context", MetricsContextService.class)
-            .addRequirements(HTTP_EXTENSIBILITY_CAPABILITY)
+            .addRequirements(HTTP_EXTENSIBILITY_CAPABILITY, MP_CONFIG, WILDFLY_COLLECTOR.getCanonicalName())
             .build();
     static final ServiceName HTTP_CONTEXT_SERVICE = HTTP_CONTEXT_CAPABILITY.getCapabilityServiceName();
 
@@ -82,7 +75,7 @@ public class MicroProfileMetricsSubsystemDefinition extends PersistentResourceDe
                 MicroProfileMetricsExtension.getResourceDescriptionResolver(MicroProfileMetricsExtension.SUBSYSTEM_NAME))
                 .setAddHandler(MicroProfileMetricsSubsystemAdd.INSTANCE)
                 .setRemoveHandler(new ServiceRemoveStepHandler(MicroProfileMetricsSubsystemAdd.INSTANCE))
-                .setCapabilities(METRICS_COLLECTOR_RUNTIME_CAPABILITY, HTTP_CONTEXT_CAPABILITY));
+                .setCapabilities(HTTP_CONTEXT_CAPABILITY));
     }
 
     @Override

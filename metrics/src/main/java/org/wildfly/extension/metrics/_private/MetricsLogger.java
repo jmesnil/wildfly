@@ -24,8 +24,10 @@ package org.wildfly.extension.metrics._private;
 
 import static org.jboss.logging.Logger.Level.INFO;
 
+import org.jboss.as.controller.PathAddress;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
+import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
@@ -47,4 +49,11 @@ public interface MetricsLogger extends BasicLogger {
     @LogMessage(level = INFO)
     @Message(id = 1, value = "Activating Base Metrics Subsystem")
     void activatingSubsystem();
+
+    @Message(id = 3, value = "Unable to read attribute %s on %s: %s.")
+    IllegalStateException unableToReadAttribute(String attributeName, PathAddress address, String error);
+
+    @Message(id = 4, value = "Unable to convert attribute %s on %s to Double value.")
+    IllegalStateException unableToConvertAttribute(String attributeName, PathAddress address, @Cause Exception exception);
+
 }

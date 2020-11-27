@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.wildfly.extension.microprofile.metrics;
+package org.wildfly.extension.metrics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,7 @@ public class MetricRegistration {
         registrationTasks.add(task);
     }
 
-    public void addUnregistrationTask(org.wildfly.extension.microprofile.metrics.MetricID metricID) {
+    public void addUnregistrationTask(MetricID metricID) {
         unregistrationTasks.add(metricID);
     }
 }

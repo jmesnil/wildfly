@@ -31,13 +31,25 @@ import org.jboss.as.controller.ServiceRemoveStepHandler;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.StringListAttributeDefinition;
+import org.jboss.as.controller.capability.RuntimeCapability;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
+import org.jboss.msc.service.ServiceName;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2018 Red Hat inc.
  */
 public class MetricsSubsystemDefinition extends PersistentResourceDefinition {
+
+    static final String CLIENT_FACTORY_CAPABILITY ="org.wildfly.management.model-controller-client-factory";
+    static final String MANAGEMENT_EXECUTOR ="org.wildfly.management.executor";
+    static final String PROCESS_STATE_NOTIFIER = "org.wildfly.management.process-state-notifier";
+
+    private static final RuntimeCapability<Void> METRICS_COLLECTOR_RUNTIME_CAPABILITY = RuntimeCapability.Builder.of("org.wildfly.extension.metrics.wildfly-collector", MetricCollector.class)
+            .addRequirements(CLIENT_FACTORY_CAPABILITY, MANAGEMENT_EXECUTOR, PROCESS_STATE_NOTIFIER)
+            .build();
+
+    public static final ServiceName WILDFLY_COLLECTOR = METRICS_COLLECTOR_RUNTIME_CAPABILITY.getCapabilityServiceName();
 
     static final AttributeDefinition SECURITY_ENABLED = SimpleAttributeDefinitionBuilder.create("security-enabled", ModelType.BOOLEAN)
             .setDefaultValue(ModelNode.TRUE)
@@ -63,7 +75,8 @@ public class MetricsSubsystemDefinition extends PersistentResourceDefinition {
         super(new SimpleResourceDefinition.Parameters(MetricsExtension.SUBSYSTEM_PATH,
                 MetricsExtension.getResourceDescriptionResolver(MetricsExtension.SUBSYSTEM_NAME))
                 .setAddHandler(MetricsSubsystemAdd.INSTANCE)
-                .setRemoveHandler(new ServiceRemoveStepHandler(MetricsSubsystemAdd.INSTANCE)));
+                .setRemoveHandler(new ServiceRemoveStepHandler(MetricsSubsystemAdd.INSTANCE))
+                .addCapabilities(METRICS_COLLECTOR_RUNTIME_CAPABILITY));
     }
 
     @Override

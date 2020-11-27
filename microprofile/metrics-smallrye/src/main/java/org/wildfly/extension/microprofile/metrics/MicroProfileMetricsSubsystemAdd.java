@@ -47,6 +47,8 @@ import org.jboss.as.server.AbstractDeploymentChainStep;
 import org.jboss.as.server.DeploymentProcessorTarget;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
+import org.wildfly.extension.metrics.MetricCollector;
+import org.wildfly.extension.metrics.MetricRegistration;
 import org.wildfly.extension.microprofile.metrics._private.MicroProfileMetricsLogger;
 import org.wildfly.extension.microprofile.metrics.deployment.DependencyProcessor;
 import org.wildfly.extension.microprofile.metrics.deployment.DeploymentMetricProcessor;
@@ -81,7 +83,7 @@ class MicroProfileMetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
 
         MetricsContextService.install(context, securityEnabled);
-        MetricsCollectorService.install(context);
+
         // delay the registration of the metrics in the VERIFY stage so that all resources
         // created during the RUNTIME phase will have been registered in the MRR.
         context.addStep(new OperationStepHandler() {

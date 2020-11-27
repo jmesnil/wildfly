@@ -31,7 +31,7 @@ import org.jboss.as.server.deployment.DeploymentModelUtils;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
-import org.wildfly.extension.microprofile.metrics.MetricCollector;
+import org.wildfly.extension.metrics.MetricCollector;
 
 public class DeploymentMetricProcessor implements DeploymentUnitProcessor {
 

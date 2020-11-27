@@ -19,14 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.wildfly.extension.microprofile.metrics;
+package org.wildfly.extension.metrics;
 
 import static org.jboss.as.controller.PathAddress.EMPTY_ADDRESS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ATTRIBUTES;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DESCRIPTION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
-import static org.wildfly.extension.microprofile.metrics.WildFlyMetricMetadata.Type.COUNTER;
-import static org.wildfly.extension.microprofile.metrics.WildFlyMetricMetadata.Type.GAUGE;
+import static org.wildfly.extension.metrics.WildFlyMetricMetadata.Type.COUNTER;
+import static org.wildfly.extension.metrics.WildFlyMetricMetadata.Type.GAUGE;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

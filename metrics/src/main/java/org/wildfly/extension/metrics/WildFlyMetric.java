@@ -20,7 +20,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.wildfly.extension.microprofile.metrics;
+package org.wildfly.extension.metrics;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.FAILURE_DESCRIPTION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
@@ -28,7 +28,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_ATTRIBUTE_OPERATION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RESULT;
-import static org.wildfly.extension.microprofile.metrics._private.MicroProfileMetricsLogger.LOGGER;
+import static org.wildfly.extension.metrics._private.MetricsLogger.LOGGER;
 
 import java.util.OptionalDouble;
 
@@ -36,6 +36,7 @@ import org.jboss.as.controller.LocalModelControllerClient;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
+import org.wildfly.extension.metrics._private.MetricsLogger;
 
 public class WildFlyMetric {
 
@@ -55,7 +56,7 @@ public class WildFlyMetric {
             try {
                 return OptionalDouble.of(result.asDouble());
             } catch (Exception e) {
-                throw LOGGER.unableToConvertAttribute(attributeName, address, e);
+                throw MetricsLogger.LOGGER.unableToConvertAttribute(attributeName, address, e);
             }
         }
         return OptionalDouble.empty();

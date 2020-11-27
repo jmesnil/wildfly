@@ -19,11 +19,40 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.wildfly.extension.microprofile.metrics;
+package org.wildfly.extension.metrics;
 
-public interface MetricRegistry {
+import java.util.Arrays;
+import java.util.Objects;
 
-    void registerMetric(WildFlyMetric metric, WildFlyMetricMetadata metadata);
+public class MetricID {
+    private final String metricName;
+    private final WildFlyMetricMetadata.MetricTag[] tags;
 
-    void unregister(MetricID metricID);
+    public MetricID(String metricName, WildFlyMetricMetadata.MetricTag[] tags) {
+        this.metricName = metricName;
+        this.tags = tags;
+    }
+
+    public String getMetricName() {
+        return metricName;
+    }
+    public WildFlyMetricMetadata.MetricTag[] getTags() {
+        return tags;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MetricID metricID = (MetricID) o;
+        return Objects.equals(metricName, metricID.metricName) &&
+                Arrays.equals(tags, metricID.tags);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(metricName);
+        result = 31 * result + Arrays.hashCode(tags);
+        return result;
+    }
 }

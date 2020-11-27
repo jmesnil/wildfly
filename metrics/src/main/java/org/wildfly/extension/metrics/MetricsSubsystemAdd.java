@@ -51,6 +51,7 @@ class MetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
         boolean exposeAnySubsystem = exposedSubsystems.remove("*");
         String prefix = MetricsSubsystemDefinition.PREFIX.resolveModelAttribute(context, model).asStringOrNull();
 
+        MetricsCollectorService.install(context);
         LOGGER.activatingSubsystem();
     }
 

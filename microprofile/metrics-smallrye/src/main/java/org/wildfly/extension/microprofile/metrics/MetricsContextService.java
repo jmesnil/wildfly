@@ -92,5 +92,7 @@ public class MetricsContextService implements Service {
     @Override
     public void stop(StopContext context) {
         extensibleHttpManagement.get().removeContext(CONTEXT_NAME);
+
+        MicroProfileVendorMetricRegistry.removeAllMetrics();
     }
 }
