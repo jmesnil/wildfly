@@ -54,6 +54,9 @@ public class MetricsSubsystemDefinition extends PersistentResourceDefinition {
             .addRequirements(HTTP_EXTENSIBILITY_CAPABILITY)
             .build();
 
+    public static final RuntimeCapability<Void> METRICS_REGISTRY_RUNTIME_CAPABILITY = RuntimeCapability.Builder.of("org.wildfly.extension.metrics.registry", WildFlyMetricRegistry.class)
+            .build();
+
     public static final ServiceName WILDFLY_COLLECTOR = METRICS_COLLECTOR_RUNTIME_CAPABILITY.getCapabilityServiceName();
 
     static final AttributeDefinition SECURITY_ENABLED = SimpleAttributeDefinitionBuilder.create("security-enabled", ModelType.BOOLEAN)
@@ -81,7 +84,7 @@ public class MetricsSubsystemDefinition extends PersistentResourceDefinition {
                 MetricsExtension.getResourceDescriptionResolver(MetricsExtension.SUBSYSTEM_NAME))
                 .setAddHandler(MetricsSubsystemAdd.INSTANCE)
                 .setRemoveHandler(new ServiceRemoveStepHandler(MetricsSubsystemAdd.INSTANCE))
-                .addCapabilities(METRICS_COLLECTOR_RUNTIME_CAPABILITY, METRICS_HTTP_CONTEXT_CAPABILITY));
+                .addCapabilities(METRICS_COLLECTOR_RUNTIME_CAPABILITY, METRICS_HTTP_CONTEXT_CAPABILITY, METRICS_REGISTRY_RUNTIME_CAPABILITY));
     }
 
     @Override

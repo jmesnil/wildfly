@@ -22,14 +22,23 @@
 
 package org.wildfly.extension.metrics;
 
+import static org.jboss.as.controller.OperationContext.Stage.VERIFY;
+import static org.jboss.as.controller.PathAddress.EMPTY_ADDRESS;
+import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.METRICS_REGISTRY_RUNTIME_CAPABILITY;
+import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.WILDFLY_COLLECTOR;
 import static org.wildfly.extension.metrics._private.MetricsLogger.LOGGER;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.OperationStepHandler;
+import org.jboss.as.controller.registry.ImmutableManagementResourceRegistration;
+import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
+import org.jboss.msc.service.ServiceController;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2018 Red Hat inc.
@@ -52,8 +61,31 @@ class MetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
         String prefix = MetricsSubsystemDefinition.PREFIX.resolveModelAttribute(context, model).asStringOrNull();
         boolean securityEnabled = MetricsSubsystemDefinition.SECURITY_ENABLED.resolveModelAttribute(context, model).asBoolean();
 
+        WildFlyMetricRegistryService.install(context);
         MetricsCollectorService.install(context);
         MetricsContextService.install(context, securityEnabled);
+
+        // delay the registration of the metrics in the VERIFY stage so that all resources
+        // created during the RUNTIME phase will have been registered in the MRR.
+        context.addStep(new OperationStepHandler() {
+            @Override
+            public void execute(OperationContext operationContext, ModelNode modelNode) {
+                ServiceController<?> serviceController = context.getServiceRegistry(false).getService(WILDFLY_COLLECTOR);
+                MetricCollector metricCollector = MetricCollector.class.cast(serviceController.getValue());
+                ServiceController<?> wildflyRegistryController = context.getServiceRegistry(true).getService(METRICS_REGISTRY_RUNTIME_CAPABILITY.getCapabilityServiceName());
+                WildFlyMetricRegistry metricRegistry = WildFlyMetricRegistry.class.cast(wildflyRegistryController.getValue());
+
+                ImmutableManagementResourceRegistration rootResourceRegistration = context.getRootResourceRegistration();
+                Resource rootResource = context.readResourceFromRoot(EMPTY_ADDRESS);
+
+                MetricRegistration registration = new MetricRegistration(metricRegistry);
+
+                metricCollector.collectResourceMetrics(rootResource, rootResourceRegistration, Function.identity(),
+                        exposeAnySubsystem, exposedSubsystems, prefix,
+                        registration);
+            }
+        }, VERIFY);
+
         LOGGER.activatingSubsystem();
     }
 }

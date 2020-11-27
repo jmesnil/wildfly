@@ -24,6 +24,7 @@ package org.wildfly.extension.metrics;
 
 import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.HTTP_EXTENSIBILITY_CAPABILITY;
 import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.METRICS_HTTP_CONTEXT_CAPABILITY;
+import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.METRICS_REGISTRY_RUNTIME_CAPABILITY;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -46,23 +47,27 @@ public class MetricsContextService implements Service {
 
     private final Consumer<MetricsContextService> consumer;
     private final Supplier<ExtensibleHttpManagement> extensibleHttpManagement;
+    private Supplier<WildFlyMetricRegistry> wildflyMetricRegistry;
     private final boolean securityEnabled;
+    private final PrometheusExporter prometheusExporter = new PrometheusExporter();
     private HttpHandler overrideableMetricHandler;
 
     static void install(OperationContext context, boolean securityEnabled) {
         ServiceBuilder<?> serviceBuilder = context.getServiceTarget().addService(METRICS_HTTP_CONTEXT_CAPABILITY.getCapabilityServiceName());
 
         Supplier<ExtensibleHttpManagement> extensibleHttpManagement = serviceBuilder.requires(context.getCapabilityServiceName(HTTP_EXTENSIBILITY_CAPABILITY, ExtensibleHttpManagement.class));
+        Supplier<WildFlyMetricRegistry> wildflyMetricRegistry = serviceBuilder.requires(METRICS_REGISTRY_RUNTIME_CAPABILITY.getCapabilityServiceName());
         Consumer<MetricsContextService> metricsContext = serviceBuilder.provides(METRICS_HTTP_CONTEXT_CAPABILITY.getCapabilityServiceName());
 
-        Service metricsContextService = new MetricsContextService(metricsContext, extensibleHttpManagement, securityEnabled);
+        Service metricsContextService = new MetricsContextService(metricsContext, extensibleHttpManagement, wildflyMetricRegistry, securityEnabled);
 
         serviceBuilder.setInstance(metricsContextService)
                 .install();
     }
-    public MetricsContextService(Consumer<MetricsContextService> consumer, Supplier<ExtensibleHttpManagement> extensibleHttpManagement, boolean securityEnabled) {
+    public MetricsContextService(Consumer<MetricsContextService> consumer, Supplier<ExtensibleHttpManagement> extensibleHttpManagement, Supplier<WildFlyMetricRegistry> wildflyMetricRegistry, boolean securityEnabled) {
         this.consumer = consumer;
         this.extensibleHttpManagement = extensibleHttpManagement;
+        this.wildflyMetricRegistry = wildflyMetricRegistry;
         this.securityEnabled = securityEnabled;
     }
 
@@ -76,8 +81,8 @@ public class MetricsContextService implements Service {
                     return;
                 }
 
-                // for now the base /metrics context returns nothing.
-                exchange.getResponseSender().send("metrics coming soon to your feature packs!");
+                String wildFlyMetrics = prometheusExporter.export(wildflyMetricRegistry.get());
+                exchange.getResponseSender().send(wildFlyMetrics);
             }
         });
         consumer.accept(this);
