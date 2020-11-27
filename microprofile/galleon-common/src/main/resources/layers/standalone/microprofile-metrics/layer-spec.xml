@@ -24,7 +24,6 @@
 
 <layer-spec xmlns="urn:jboss:galleon:layer-spec:1.0" name="microprofile-metrics">
     <dependencies>
-        <layer name="management"/>
         <layer name="cdi"/>
         <layer name="metrics"/>
         <layer name="microprofile-config"/>
@@ -32,6 +31,5 @@
     <feature spec="subsystem.microprofile-metrics-smallrye">
         <param name="exposed-subsystems" value="[*]"/>
         <param name="prefix" value="${wildfly.metrics.prefix:wildfly}"/>
-        <param name="security-enabled" value="false"/>
     </feature>
 </layer-spec>

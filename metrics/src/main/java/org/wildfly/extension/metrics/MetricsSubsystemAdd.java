@@ -50,10 +50,10 @@ class MetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
         List<String> exposedSubsystems = MetricsSubsystemDefinition.EXPOSED_SUBSYSTEMS.unwrap(context, model);
         boolean exposeAnySubsystem = exposedSubsystems.remove("*");
         String prefix = MetricsSubsystemDefinition.PREFIX.resolveModelAttribute(context, model).asStringOrNull();
+        boolean securityEnabled = MetricsSubsystemDefinition.SECURITY_ENABLED.resolveModelAttribute(context, model).asBoolean();
 
         MetricsCollectorService.install(context);
+        MetricsContextService.install(context, securityEnabled);
         LOGGER.activatingSubsystem();
     }
-
-
 }

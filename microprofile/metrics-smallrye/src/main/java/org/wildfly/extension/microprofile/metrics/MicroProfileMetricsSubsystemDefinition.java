@@ -22,6 +22,8 @@
 
 package org.wildfly.extension.microprofile.metrics;
 
+import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsExtension.VERSION_2_1_0;
+
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -43,18 +45,22 @@ public class MicroProfileMetricsSubsystemDefinition extends PersistentResourceDe
 
     static final String MP_CONFIG = "org.wildfly.microprofile.config";
     public static final ServiceName WILDFLY_COLLECTOR = ServiceName.parse("org.wildfly.extension.metrics.wildfly-collector");
+    static final String METRICS_HTTP_CONTEXT_CAPABILITY = "org.wildfly.extension.metrics.http-context";
 
-    static final String HTTP_EXTENSIBILITY_CAPABILITY = "org.wildfly.management.http.extensible";
-    static final RuntimeCapability<Void> HTTP_CONTEXT_CAPABILITY = RuntimeCapability.Builder.of("org.wildfly.extension.microprofile.metrics.http-context", MetricsContextService.class)
-            .addRequirements(HTTP_EXTENSIBILITY_CAPABILITY, MP_CONFIG, WILDFLY_COLLECTOR.getCanonicalName())
+    static final RuntimeCapability<Void> MICROPROFILE_METRIC_HTTP_CONTEXT_CAPABILITY = RuntimeCapability.Builder.of("org.wildfly.extension.microprofile.metrics.http-context", MicroProfileMetricsContextService.class)
+            .addRequirements(METRICS_HTTP_CONTEXT_CAPABILITY, MP_CONFIG)
             .build();
-    static final ServiceName HTTP_CONTEXT_SERVICE = HTTP_CONTEXT_CAPABILITY.getCapabilityServiceName();
 
+    /**
+     * @deprecated Enabling the security is now controlled by the security-enabled attribute of the metrics subsystem.
+     */
+    @Deprecated
     static final AttributeDefinition SECURITY_ENABLED = SimpleAttributeDefinitionBuilder.create("security-enabled", ModelType.BOOLEAN)
             .setDefaultValue(ModelNode.TRUE)
             .setRequired(false)
             .setRestartAllServices()
             .setAllowExpression(true)
+            .setDeprecated(VERSION_2_1_0)
             .build();
 
     static final StringListAttributeDefinition EXPOSED_SUBSYSTEMS = new StringListAttributeDefinition.Builder("exposed-subsystems")
@@ -75,7 +81,7 @@ public class MicroProfileMetricsSubsystemDefinition extends PersistentResourceDe
                 MicroProfileMetricsExtension.getResourceDescriptionResolver(MicroProfileMetricsExtension.SUBSYSTEM_NAME))
                 .setAddHandler(MicroProfileMetricsSubsystemAdd.INSTANCE)
                 .setRemoveHandler(new ServiceRemoveStepHandler(MicroProfileMetricsSubsystemAdd.INSTANCE))
-                .setCapabilities(HTTP_CONTEXT_CAPABILITY));
+                .setCapabilities(MICROPROFILE_METRIC_HTTP_CONTEXT_CAPABILITY));
     }
 
     @Override

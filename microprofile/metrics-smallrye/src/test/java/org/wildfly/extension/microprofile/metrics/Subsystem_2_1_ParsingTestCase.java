@@ -29,21 +29,20 @@ import java.util.Properties;
 
 import org.jboss.as.subsystem.test.AbstractSubsystemBaseTest;
 import org.jboss.as.subsystem.test.AdditionalInitialization;
-import org.jboss.as.subsystem.test.KernelServices;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2018 Red Hat inc.
  */
-public class Subsystem_2_0_ParsingTestCase extends AbstractSubsystemBaseTest {
+public class Subsystem_2_1_ParsingTestCase extends AbstractSubsystemBaseTest {
 
-    public Subsystem_2_0_ParsingTestCase() {
+    public Subsystem_2_1_ParsingTestCase() {
         super(MicroProfileMetricsExtension.SUBSYSTEM_NAME, new MicroProfileMetricsExtension());
     }
 
 
     @Override
     protected String getSubsystemXml() throws IOException {
-        return readResource("subsystem_2_0.xml");
+        return readResource("subsystem_2_1.xml");
     }
 
     @Override
@@ -55,17 +54,13 @@ public class Subsystem_2_0_ParsingTestCase extends AbstractSubsystemBaseTest {
 
     @Override
     protected String getSubsystemXsdPath() throws IOException {
-        return "schema/wildfly-microprofile-metrics-smallrye_2_0.xsd";
+        return "schema/wildfly-microprofile-metrics-smallrye_2_1.xsd";
     }
 
     protected Properties getResolvedProperties() {
         return System.getProperties();
     }
 
-    @Override
-    protected KernelServices standardSubsystemTest(String configId, boolean compareXml) throws Exception {
-        return super.standardSubsystemTest(configId, false);
-    }
 
     @Override
     protected AdditionalInitialization createAdditionalInitialization() {

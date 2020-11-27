@@ -3,8 +3,7 @@
 <!--  See src/resources/configuration/ReadMe.txt for how the configuration assembly works -->
 <config>
     <extension-module>org.wildfly.extension.microprofile.metrics-smallrye</extension-module>
-    <subsystem xmlns="urn:wildfly:microprofile-metrics-smallrye:2.0"
-               security-enabled="false"
+    <subsystem xmlns="urn:wildfly:microprofile-metrics-smallrye:2.1"
                exposed-subsystems="*"
                prefix="${wildfly.metrics.prefix:wildfly}" />
 </config>

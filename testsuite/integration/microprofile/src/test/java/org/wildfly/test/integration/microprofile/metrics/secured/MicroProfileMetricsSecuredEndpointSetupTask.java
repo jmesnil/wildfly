@@ -32,7 +32,7 @@ public class MicroProfileMetricsSecuredEndpointSetupTask  implements ServerSetup
 
     @Override
     public void setup(ManagementClient managementClient, String containerId) throws Exception {
-        final ModelNode address = Operations.createAddress("subsystem", "microprofile-metrics-smallrye");
+        final ModelNode address = Operations.createAddress("subsystem", "metrics");
         final ModelNode op = Operations.createWriteAttributeOperation(address, "security-enabled", true );
         managementClient.getControllerClient().execute(op);
 
@@ -41,7 +41,7 @@ public class MicroProfileMetricsSecuredEndpointSetupTask  implements ServerSetup
 
     @Override
     public void tearDown(ManagementClient managementClient, String containerId) throws Exception {
-        final ModelNode address = Operations.createAddress("subsystem", "microprofile-metrics-smallrye");
+        final ModelNode address = Operations.createAddress("subsystem", "metrics");
         final ModelNode op = Operations.createWriteAttributeOperation(address, "security-enabled", false );
         managementClient.getControllerClient().execute(op);
 

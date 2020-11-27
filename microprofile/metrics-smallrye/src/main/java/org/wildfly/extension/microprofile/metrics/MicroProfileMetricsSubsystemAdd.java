@@ -82,7 +82,7 @@ class MicroProfileMetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
         }, RUNTIME);
 
 
-        MetricsContextService.install(context, securityEnabled);
+        MicroProfileMetricsContextService.install(context);
 
         // delay the registration of the metrics in the VERIFY stage so that all resources
         // created during the RUNTIME phase will have been registered in the MRR.

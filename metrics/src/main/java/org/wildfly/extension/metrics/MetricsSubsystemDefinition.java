@@ -44,9 +44,14 @@ public class MetricsSubsystemDefinition extends PersistentResourceDefinition {
     static final String CLIENT_FACTORY_CAPABILITY ="org.wildfly.management.model-controller-client-factory";
     static final String MANAGEMENT_EXECUTOR ="org.wildfly.management.executor";
     static final String PROCESS_STATE_NOTIFIER = "org.wildfly.management.process-state-notifier";
+    static final String HTTP_EXTENSIBILITY_CAPABILITY = "org.wildfly.management.http.extensible";
 
     private static final RuntimeCapability<Void> METRICS_COLLECTOR_RUNTIME_CAPABILITY = RuntimeCapability.Builder.of("org.wildfly.extension.metrics.wildfly-collector", MetricCollector.class)
             .addRequirements(CLIENT_FACTORY_CAPABILITY, MANAGEMENT_EXECUTOR, PROCESS_STATE_NOTIFIER)
+            .build();
+
+    static final RuntimeCapability<Void> METRICS_HTTP_CONTEXT_CAPABILITY = RuntimeCapability.Builder.of("org.wildfly.extension.metrics.http-context", MetricsContextService.class)
+            .addRequirements(HTTP_EXTENSIBILITY_CAPABILITY)
             .build();
 
     public static final ServiceName WILDFLY_COLLECTOR = METRICS_COLLECTOR_RUNTIME_CAPABILITY.getCapabilityServiceName();
@@ -76,7 +81,7 @@ public class MetricsSubsystemDefinition extends PersistentResourceDefinition {
                 MetricsExtension.getResourceDescriptionResolver(MetricsExtension.SUBSYSTEM_NAME))
                 .setAddHandler(MetricsSubsystemAdd.INSTANCE)
                 .setRemoveHandler(new ServiceRemoveStepHandler(MetricsSubsystemAdd.INSTANCE))
-                .addCapabilities(METRICS_COLLECTOR_RUNTIME_CAPABILITY));
+                .addCapabilities(METRICS_COLLECTOR_RUNTIME_CAPABILITY, METRICS_HTTP_CONTEXT_CAPABILITY));
     }
 
     @Override
