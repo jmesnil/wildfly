@@ -47,6 +47,7 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 
+import org.junit.Ignore;
 import org.wildfly.test.integration.microprofile.opentracing.application.SimpleJaxRs;
 import org.junit.After;
 import org.junit.Assert;
@@ -59,6 +60,7 @@ import org.junit.runner.RunWith;
  *
  * @author Jan Stourac <jstourac@redhat.com>
  */
+@Ignore
 @RunWith(Arquillian.class)
 @RunAsClient
 public class OnOffOpenTracingTestCase {
