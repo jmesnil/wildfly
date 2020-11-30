@@ -73,7 +73,7 @@ public class MetricsCollectorService implements Service<MetricCollector> {
 
     @Override
     public void start(StartContext context) {
-        modelControllerClient = modelControllerClientFactory.get().createClient(managementExecutor.get());
+        modelControllerClient = modelControllerClientFactory.get().createSuperUserClient(managementExecutor.get());
 
         metricCollector = new MetricCollector(modelControllerClient, processStateNotifier.get());
 

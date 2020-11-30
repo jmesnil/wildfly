@@ -83,9 +83,9 @@ class MetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
         context.addStep(new OperationStepHandler() {
             @Override
             public void execute(OperationContext operationContext, ModelNode modelNode) {
-                ServiceController<?> serviceController = context.getServiceRegistry(true).getService(WILDFLY_COLLECTOR);
+                ServiceController<?> serviceController = context.getServiceRegistry(false).getService(WILDFLY_COLLECTOR);
                 MetricCollector metricCollector = MetricCollector.class.cast(serviceController.getValue());
-                ServiceController<?> wildflyRegistryController = context.getServiceRegistry(true).getService(METRICS_REGISTRY_RUNTIME_CAPABILITY.getCapabilityServiceName());
+                ServiceController<?> wildflyRegistryController = context.getServiceRegistry(false).getService(METRICS_REGISTRY_RUNTIME_CAPABILITY.getCapabilityServiceName());
                 WildFlyMetricRegistry metricRegistry = WildFlyMetricRegistry.class.cast(wildflyRegistryController.getValue());
 
                 ImmutableManagementResourceRegistration rootResourceRegistration = context.getRootResourceRegistration();

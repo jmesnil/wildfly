@@ -89,7 +89,7 @@ class MicroProfileMetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
         context.addStep(new OperationStepHandler() {
             @Override
             public void execute(OperationContext operationContext, ModelNode modelNode) {
-                ServiceController<?> serviceController = context.getServiceRegistry(true).getService(WILDFLY_COLLECTOR);
+                ServiceController<?> serviceController = context.getServiceRegistry(false).getService(WILDFLY_COLLECTOR);
                 MetricCollector metricCollector = MetricCollector.class.cast(serviceController.getValue());
 
                 ImmutableManagementResourceRegistration rootResourceRegistration = context.getRootResourceRegistration();
