@@ -26,16 +26,13 @@ import java.util.List;
 
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.registry.Resource;
-import org.jboss.as.server.deployment.AttachmentKey;
 import org.jboss.as.server.deployment.DeploymentModelUtils;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
-import org.wildfly.extension.metrics.MetricCollector;
 
 public class DeploymentMetricProcessor implements DeploymentUnitProcessor {
 
-    static final AttachmentKey<MetricCollector> METRICS_COLLECTOR = AttachmentKey.create(MetricCollector.class);
     private final boolean exposeAnySubsystem;
     private final List<String> exposedSubsystems;
     private final String prefix;
@@ -44,7 +41,6 @@ public class DeploymentMetricProcessor implements DeploymentUnitProcessor {
     private ManagementResourceRegistration managementResourceRegistration;
 
     public DeploymentMetricProcessor(boolean exposeAnySubsystem, List<String> exposedSubsystems, String prefix) {
-
         this.exposeAnySubsystem = exposeAnySubsystem;
         this.exposedSubsystems = exposedSubsystems;
         this.prefix = prefix;
