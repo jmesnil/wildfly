@@ -43,10 +43,11 @@ public class MetricRegistration {
         registrationTasks.clear();
     }
 
-    public void unregister() {
+    public synchronized void unregister() {
         for (MetricID id : unregistrationTasks) {
             registry.unregister(id);
         }
+        unregistrationTasks.clear();
     }
 
     public void registerMetric(WildFlyMetric metric, WildFlyMetricMetadata metadata) {
