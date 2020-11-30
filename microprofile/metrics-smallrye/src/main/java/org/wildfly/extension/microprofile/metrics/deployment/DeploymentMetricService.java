@@ -6,13 +6,11 @@ import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsSubs
 
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Supplier;
 
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.registry.Resource;
-import org.jboss.as.server.ServerService;
 import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentCompleteServiceProcessor;
 import org.jboss.as.server.deployment.DeploymentUnit;
@@ -43,25 +41,23 @@ public class DeploymentMetricService implements Service {
 
         ServiceBuilder<?> sb = serviceTarget.addService(deploymentUnit.getServiceName().append("microprofile-metrics"));
         Supplier<MetricCollector> metricCollector = sb.requires(WILDFLY_COLLECTOR);
-        Supplier<Executor> managementExecutor = sb.requires(ServerService.EXECUTOR_CAPABILITY.getCapabilityServiceName());
 
         /*
          * The deployment metric service depends on the deployment complete service name to ensure that the metrics from
          * the deployment are collected and registered once the deployment services have all be properly installed.
          */
         sb.requires(DeploymentCompleteServiceProcessor.serviceName(deploymentUnit.getServiceName()));
-        sb.setInstance(new DeploymentMetricService(rootResource, managementResourceRegistration, deploymentAddress, metricCollector, managementExecutor,
+        sb.setInstance(new DeploymentMetricService(rootResource, managementResourceRegistration, deploymentAddress, metricCollector,
                 exposeAnySubsystem, exposedSubsystems, prefix))
                 .install();
     }
 
     private DeploymentMetricService(Resource rootResource, ManagementResourceRegistration managementResourceRegistration, PathAddress deploymentAddress, Supplier<MetricCollector> metricCollector,
-                                    Supplier<Executor> managementExecutor, boolean exposeAnySubsystem, List<String> exposedSubsystems, String prefix) {
+                                    boolean exposeAnySubsystem, List<String> exposedSubsystems, String prefix) {
         this.rootResource = rootResource;
         this.managementResourceRegistration = managementResourceRegistration;
         this.deploymentAddress = deploymentAddress;
         this.metricCollector = metricCollector;
-        this.managementExecutor = managementExecutor;
         this.exposeAnySubsystem = exposeAnySubsystem;
         this.exposedSubsystems = exposedSubsystems;
         this.prefix = prefix;
@@ -69,26 +65,14 @@ public class DeploymentMetricService implements Service {
 
     @Override
     public void start(StartContext startContext) {
-        Runnable task = new Runnable() {
-            @Override
-            public void run() {
-                registration = new MetricRegistration(new MicroProfileVendorMetricRegistry());
+        registration = new MetricRegistration(new MicroProfileVendorMetricRegistry());
 
-                metricCollector.get().collectResourceMetrics(rootResource,
-                        managementResourceRegistration,
-                        // prepend the deployment address to the subsystem resource address
-                        address -> deploymentAddress.append(address),
-                        exposeAnySubsystem, exposedSubsystems, prefix,
-                        registration);
-            }
-        };
-        try {
-            managementExecutor.get().execute(task);
-        } catch (RejectedExecutionException e) {
-            task.run();
-        } finally {
-            startContext.asynchronous();
-        }
+        metricCollector.get().collectResourceMetrics(rootResource,
+                managementResourceRegistration,
+                // prepend the deployment address to the subsystem resource address
+                address -> deploymentAddress.append(address),
+                exposeAnySubsystem, exposedSubsystems, prefix,
+                registration);
     }
 
     @Override

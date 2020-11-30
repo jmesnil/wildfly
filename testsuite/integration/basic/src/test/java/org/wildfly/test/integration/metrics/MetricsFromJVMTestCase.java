@@ -34,12 +34,14 @@ import org.jboss.as.arquillian.container.ManagementClient;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * Test JVM metrics with the base "metrics" subsystem.
  */
+@Ignore
 @RunWith(Arquillian.class)
 @RunAsClient
 public class MetricsFromJVMTestCase {

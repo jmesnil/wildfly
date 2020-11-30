@@ -7,7 +7,6 @@ import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.WILDFLY_C
 
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Supplier;
 
 import org.jboss.as.controller.PathAddress;
@@ -74,6 +73,7 @@ public class DeploymentMetricService implements Service {
 
     @Override
     public void start(StartContext startContext) {
+                /*
         Runnable task = new Runnable() {
             @Override
             public void run() {
@@ -94,11 +94,12 @@ public class DeploymentMetricService implements Service {
         } finally {
             startContext.asynchronous();
         }
+                 */
     }
 
     @Override
     public void stop(StopContext stopContext) {
-        registration.unregister();
+//        registration.unregister();
     }
 
     private static PathAddress createDeploymentAddressPrefix(DeploymentUnit deploymentUnit) {
