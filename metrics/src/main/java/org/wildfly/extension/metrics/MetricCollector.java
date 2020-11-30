@@ -59,7 +59,7 @@ public class MetricCollector {
     }
 
     // collect metrics from the resources
-    public void collectResourceMetrics(final Resource resource,
+    public synchronized void collectResourceMetrics(final Resource resource,
                                                      ImmutableManagementResourceRegistration managementResourceRegistration,
                                                      Function<PathAddress, PathAddress> resourceAddressResolver,
                                                      boolean exposeAnySubsystem,
