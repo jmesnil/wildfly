@@ -25,8 +25,8 @@ import static org.jboss.as.controller.PathAddress.EMPTY_ADDRESS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ATTRIBUTES;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DESCRIPTION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
-import static org.wildfly.extension.metrics.WildFlyMetricMetadata.Type.COUNTER;
-import static org.wildfly.extension.metrics.WildFlyMetricMetadata.Type.GAUGE;
+import static org.wildfly.extension.metrics.MetricMetadata.Type.COUNTER;
+import static org.wildfly.extension.metrics.MetricMetadata.Type.GAUGE;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

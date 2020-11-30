@@ -23,7 +23,7 @@ package org.wildfly.extension.microprofile.metrics;
 
 import static org.eclipse.microprofile.metrics.MetricRegistry.Type.BASE;
 import static org.eclipse.microprofile.metrics.MetricRegistry.Type.VENDOR;
-import static org.wildfly.extension.metrics.WildFlyMetricMetadata.Type.COUNTER;
+import static org.wildfly.extension.metrics.MetricMetadata.Type.COUNTER;
 
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -39,8 +39,8 @@ import org.eclipse.microprofile.metrics.MetricUnits;
 import org.eclipse.microprofile.metrics.Tag;
 import org.jboss.as.controller.client.helpers.MeasurementUnit;
 import org.wildfly.extension.metrics.MetricID;
+import org.wildfly.extension.metrics.MetricMetadata;
 import org.wildfly.extension.metrics.MetricRegistry;
-import org.wildfly.extension.metrics.WildFlyMetric;
 import org.wildfly.extension.metrics.WildFlyMetricMetadata;
 
 public class MicroProfileVendorMetricRegistry implements MetricRegistry {
@@ -48,7 +48,7 @@ public class MicroProfileVendorMetricRegistry implements MetricRegistry {
     final org.eclipse.microprofile.metrics.MetricRegistry vendorRegistry = MetricRegistries.get(VENDOR);
 
     @Override
-    public void registerMetric(WildFlyMetric metric, WildFlyMetricMetadata metadata) {
+    public void registerMetric(org.wildfly.extension.metrics.Metric metric, MetricMetadata metadata) {
         final Metric mpMetric;
         if (metadata.getType() == COUNTER) {
             mpMetric = new Counter() {

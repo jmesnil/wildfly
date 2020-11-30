@@ -23,7 +23,7 @@ package org.wildfly.extension.metrics;
 
 public interface MetricRegistry {
 
-    void registerMetric(WildFlyMetric metric, WildFlyMetricMetadata metadata);
+    void registerMetric(Metric metric, MetricMetadata metadata);
 
     void unregister(MetricID metricID);
 }

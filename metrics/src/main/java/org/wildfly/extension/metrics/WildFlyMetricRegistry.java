@@ -32,8 +32,8 @@ import java.util.TreeMap;
 class WildFlyMetricRegistry implements Closeable, MetricRegistry {
 
     /* Key is the metric name */
-    private Map<String, WildFlyMetricMetadata> metadataMap = new HashMap();
-    private Map<MetricID, WildFlyMetric> metricMap = new TreeMap<>();
+    private Map<String, MetricMetadata> metadataMap = new HashMap();
+    private Map<MetricID, Metric> metricMap = new TreeMap<>();
 
     @Override
     public void close() {
@@ -41,16 +41,16 @@ class WildFlyMetricRegistry implements Closeable, MetricRegistry {
         metadataMap.clear();
     }
 
-    Map<MetricID, WildFlyMetric> getMetrics() {
+    Map<MetricID, Metric> getMetrics() {
         return metricMap;
     }
 
-    Map<String, WildFlyMetricMetadata> getMetricMetadata() {
+    Map<String, MetricMetadata> getMetricMetadata() {
         return metadataMap;
     }
 
     @Override
-    public synchronized void registerMetric(WildFlyMetric metric, WildFlyMetricMetadata metadata) {
+    public synchronized void registerMetric(Metric metric, MetricMetadata metadata) {
         requireNonNull(metadata);
         requireNonNull(metric);
 

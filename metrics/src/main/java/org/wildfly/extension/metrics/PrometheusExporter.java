@@ -27,7 +27,7 @@ import java.util.OptionalDouble;
 import java.util.Set;
 
 import org.jboss.as.controller.client.helpers.MeasurementUnit;
-import org.wildfly.extension.metrics.WildFlyMetricMetadata.MetricTag;
+import org.wildfly.extension.metrics.MetricMetadata.MetricTag;
 
 public class PrometheusExporter {
 
@@ -38,10 +38,10 @@ public class PrometheusExporter {
 
         StringBuilder out = new StringBuilder();
 
-        for (Map.Entry<MetricID, WildFlyMetric> entry : registry.getMetrics().entrySet()) {
+        for (Map.Entry<MetricID, Metric> entry : registry.getMetrics().entrySet()) {
             MetricID metricID = entry.getKey();
             String metricName = metricID.getMetricName();
-            WildFlyMetricMetadata metadata = registry.getMetricMetadata().get(metricName);
+            MetricMetadata metadata = registry.getMetricMetadata().get(metricName);
             String prometheusMetricName = toPrometheusMetricName(metricID, metadata);
             OptionalDouble metricValue = entry.getValue().getValue();
             // if the metric does not return a value, we skip printing the HELP and TYPE
@@ -67,7 +67,7 @@ public class PrometheusExporter {
         return value * MeasurementUnit.calculateOffset(unit, unit.getBaseUnits());
     }
 
-    private static String toPrometheusMetricName(MetricID metricID, WildFlyMetricMetadata metadata) {
+    private static String toPrometheusMetricName(MetricID metricID, MetricMetadata metadata) {
         String prometheusName = metricID.getMetricName();
         // change the Prometheus name depending on type and measurement unit
         if (metadata.getType() == WildFlyMetricMetadata.Type.COUNTER) {

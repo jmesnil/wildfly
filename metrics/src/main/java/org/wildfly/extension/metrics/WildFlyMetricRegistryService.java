@@ -23,6 +23,7 @@ package org.wildfly.extension.metrics;
 
 import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.METRICS_REGISTRY_RUNTIME_CAPABILITY;
 
+import java.io.IOException;
 import java.util.function.Consumer;
 
 import org.jboss.as.controller.OperationContext;
@@ -30,6 +31,8 @@ import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StopContext;
+import org.wildfly.extension.metrics._private.MetricsLogger;
+import org.wildfly.extension.metrics.jmx.JmxMetricCollector;
 
 /**
  * Service to create a registry for WildFly (and JMX) metrics.
@@ -53,6 +56,14 @@ public class WildFlyMetricRegistryService implements Service<WildFlyMetricRegist
     @Override
     public void start(StartContext context) {
         registry = new WildFlyMetricRegistry();
+
+        // register metrics from JMX MBeans for base metrics
+        JmxMetricCollector jmxMetricCollector = new JmxMetricCollector(registry);
+        try {
+            jmxMetricCollector.init();
+        } catch (IOException e) {
+            throw MetricsLogger.LOGGER.failedInitializeJMXRegistrar(e);
+        }
         consumer.accept(registry);
     }
 
