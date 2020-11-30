@@ -53,7 +53,6 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.wildfly.test.integration.metrics.application.TestApplication;
@@ -127,7 +126,7 @@ public class MetricsFromWildFlyManagementModelTestCase {
         performCall(url);
         performCall(url);
 
-       // checkRequestCount(3, true);
+        checkRequestCount(3, true);
         // the request-count in the http-listener will have the same value
         checkRequestCount(3, false);
 

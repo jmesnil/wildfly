@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 
-class WildFlyMetricRegistry implements Closeable, MetricRegistry {
+public class WildFlyMetricRegistry implements Closeable, MetricRegistry {
 
     /* Key is the metric name */
     private Map<String, MetricMetadata> metadataMap = new HashMap();

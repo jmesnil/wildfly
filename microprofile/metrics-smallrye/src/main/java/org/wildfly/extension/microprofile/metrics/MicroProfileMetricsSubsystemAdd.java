@@ -28,7 +28,7 @@ import static org.jboss.as.controller.PathAddress.EMPTY_ADDRESS;
 import static org.jboss.as.server.deployment.Phase.DEPENDENCIES;
 import static org.jboss.as.server.deployment.Phase.DEPENDENCIES_MICROPROFILE_METRICS;
 import static org.jboss.as.server.deployment.Phase.INSTALL;
-import static org.jboss.as.server.deployment.Phase.POST_MODULE_MICROPROFILE_METRICS;
+import static org.jboss.as.server.deployment.Phase.INSTALL_DEPLOYMENT_COMPLETE_SERVICE;
 import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsSubsystemDefinition.WILDFLY_COLLECTOR;
 import static org.wildfly.extension.microprofile.metrics._private.MicroProfileMetricsLogger.LOGGER;
 
@@ -69,7 +69,6 @@ class MicroProfileMetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
     protected void performBoottime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
         super.performBoottime(context, operation, model);
 
-        final boolean securityEnabled = MicroProfileMetricsSubsystemDefinition.SECURITY_ENABLED.resolveModelAttribute(context, model).asBoolean();
         final List<String> exposedSubsystems = MicroProfileMetricsSubsystemDefinition.EXPOSED_SUBSYSTEMS.unwrap(context, model);
         final boolean exposeAnySubsystem = exposedSubsystems.remove("*");
         final String prefix = MicroProfileMetricsSubsystemDefinition.PREFIX.resolveModelAttribute(context, model).asStringOrNull();
@@ -77,7 +76,7 @@ class MicroProfileMetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
         context.addStep(new AbstractDeploymentChainStep() {
             public void execute(DeploymentProcessorTarget processorTarget) {
                 processorTarget.addDeploymentProcessor(MicroProfileMetricsExtension.SUBSYSTEM_NAME, DEPENDENCIES, DEPENDENCIES_MICROPROFILE_METRICS, new DependencyProcessor());
-                processorTarget.addDeploymentProcessor(MicroProfileMetricsExtension.SUBSYSTEM_NAME, INSTALL, POST_MODULE_MICROPROFILE_METRICS, new DeploymentMetricProcessor(exposeAnySubsystem, exposedSubsystems, prefix));
+                processorTarget.addDeploymentProcessor(MicroProfileMetricsExtension.SUBSYSTEM_NAME, INSTALL, INSTALL_DEPLOYMENT_COMPLETE_SERVICE + 1, new DeploymentMetricProcessor(exposeAnySubsystem, exposedSubsystems, prefix));
             }
         }, RUNTIME);
 
