@@ -187,7 +187,7 @@ public class MetricsFromWildFlyManagementModelTestCase {
                         assertTrue(labels.contains("deployment=\"MetricsFromWildFlyManagementModelTestCase.war\""));
                         assertTrue(labels.contains("subdeployment=\"MetricsFromWildFlyManagementModelTestCase.war\""));
                         assertTrue(labels.contains("servlet=\"" + TestApplication.class.getName() + "\""));
-                        assertEquals(Integer.valueOf(expectedCount).doubleValue(), value, 0);
+                        assertEquals(metrics, Integer.valueOf(expectedCount).doubleValue(), value, 0);
 
                         return;
                     }
@@ -196,7 +196,7 @@ public class MetricsFromWildFlyManagementModelTestCase {
                     if (labels.contains("http_listener=\"default\"")) {
                         Double value = Double.valueOf(split[1]);
                         assertTrue(labels.contains("server=\"default-server\""));
-                        assertEquals(Integer.valueOf(expectedCount).doubleValue(), value, 0);
+                        assertEquals(metrics, Integer.valueOf(expectedCount).doubleValue(), value, 0);
                         return;
 
                     }
