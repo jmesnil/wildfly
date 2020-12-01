@@ -34,20 +34,24 @@ public class MetricRegistration {
         this.registry = registry;
     }
 
-    public synchronized void register() { // synchronized to avoid registering same thing twice. Shouldn't really be possible; just being cautious
-        for (Runnable task : registrationTasks) {
-            task.run();
+    public void register() { // synchronized to avoid registering same thing twice. Shouldn't really be possible; just being cautious
+        synchronized (registry) {
+            for (Runnable task : registrationTasks) {
+                task.run();
+            }
+            // This object will last until undeploy or server stop,
+            // so clean up and save memory
+            registrationTasks.clear();
         }
-        // This object will last until undeploy or server stop,
-        // so clean up and save memory
-        registrationTasks.clear();
     }
 
-    public synchronized void unregister() {
-        for (MetricID id : unregistrationTasks) {
-            registry.unregister(id);
+    public void unregister() {
+        synchronized (registry) {
+            for (MetricID id : unregistrationTasks) {
+                registry.unregister(id);
+            }
+            unregistrationTasks.clear();
         }
-        unregistrationTasks.clear();
     }
 
     public void registerMetric(WildFlyMetric metric, WildFlyMetricMetadata metadata) {
