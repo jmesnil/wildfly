@@ -72,7 +72,7 @@ public class WildFlyMetric implements Metric {
         ModelNode response = modelControllerClient.execute(readAttributeOp);
         String error = getFailureDescription(response);
         if (error != null) {
-            throw LOGGER.unableToReadAttribute(attributeName, address, error);
+            LOGGER.unableToReadAttribute(attributeName, address, error);
         }
         return  response.get(RESULT);
     }
