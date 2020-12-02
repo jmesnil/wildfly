@@ -56,6 +56,10 @@ public class PrometheusExporter {
                 alreadyExportedMetrics.add(metricName);
             }
             double scaledValue = scaleToBaseUnit(metricValue.getAsDouble(), metadata.getMeasurementUnit());
+            // I'm pretty sure this is incorrect but that aligns with smallrye-metrics OpenMetricsExporter behaviour
+            if (metadata.getType() == MetricMetadata.Type.COUNTER && metadata.getMeasurementUnit() != MeasurementUnit.NONE) {
+                prometheusMetricName += "_" + metadata.getBaseMetricUnit();
+            }
             out.append(prometheusMetricName + getTagsAsAString(metricID) + " " + scaledValue);
             out.append(LF);
         }
