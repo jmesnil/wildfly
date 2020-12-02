@@ -36,7 +36,7 @@ import org.jboss.as.controller.LocalModelControllerClient;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
-import org.wildfly.extension.metrics._private.MetricsLogger;
+import org.jboss.dmr.ModelType;
 
 public class WildFlyMetric implements Metric {
 
@@ -57,7 +57,7 @@ public class WildFlyMetric implements Metric {
             try {
                 return OptionalDouble.of(result.asDouble());
             } catch (Exception e) {
-                throw MetricsLogger.LOGGER.unableToConvertAttribute(attributeName, address, e);
+                LOGGER.unableToConvertAttribute(attributeName, address, e);
             }
         }
         return OptionalDouble.empty();
@@ -72,7 +72,14 @@ public class WildFlyMetric implements Metric {
         ModelNode response = modelControllerClient.execute(readAttributeOp);
         String error = getFailureDescription(response);
         if (error != null) {
-            LOGGER.unableToReadAttribute(attributeName, address, error);
+            // [WFLY-11933] if the value can not be read if the management resource is not accessible due to RBAC,
+            // it is logged it at a lower level.
+            if (error.contains("WFLYCTL0216")) {
+                LOGGER.unableToReadAttributeDueToRBAC(attributeName, error);
+            } else{
+                LOGGER.unableToReadAttribute(attributeName, address, error);
+            }
+            return new ModelNode(ModelType.UNDEFINED);
         }
         return  response.get(RESULT);
     }

@@ -73,7 +73,8 @@ public class MetricsCollectorService implements Service<MetricCollector> {
 
     @Override
     public void start(StartContext context) {
-        modelControllerClient = modelControllerClientFactory.get().createSuperUserClient(managementExecutor.get());
+        // [WFLY-11933] if RBAC is enabled, the local client does not have enough priviledges to read metrics
+        modelControllerClient = modelControllerClientFactory.get().createClient(managementExecutor.get());
 
         metricCollector = new MetricCollector(modelControllerClient, processStateNotifier.get());
 
