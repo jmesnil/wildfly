@@ -62,11 +62,6 @@ class JmxMetricMetadata implements MetricMetadata {
     }
 
     @Override
-    public String getBaseMetricUnit() {
-        return null;
-    }
-
-    @Override
     public String getMetricName() {
         return name;
     }
