@@ -96,24 +96,16 @@ public class DeploymentMetricService implements Service {
 
     @Override
     public void start(StartContext startContext) {
-        System.out.println("DeploymentMetricService.start");
         final Runnable task = new Runnable() {
             @Override
             public void run() {
-                try {
-                    registration = new MetricRegistration(metricRegistry.get());
-                    System.out.println(">>> JFM DeploymentMetricService.start");
-                    metricCollector.get().collectResourceMetrics(rootResource,
-                            managementResourceRegistration,
-                            // prepend the deployment address to the subsystem resource address
-                            address -> deploymentAddress.append(address),
-                            exposeAnySubsystem, exposedSubsystems, prefix,
-                            registration);
-                } catch (Throwable t) {
-                    System.out.println(">>> JFM DeploymentMetricService.error");
-                    t.printStackTrace();
-                    throw t;
-                }
+                registration = new MetricRegistration(metricRegistry.get());
+                metricCollector.get().collectResourceMetrics(rootResource,
+                        managementResourceRegistration,
+                        // prepend the deployment address to the subsystem resource address
+                        address -> deploymentAddress.append(address),
+                        exposeAnySubsystem, exposedSubsystems, prefix,
+                        registration);
                 startContext.complete();
             }
         };
@@ -128,9 +120,7 @@ public class DeploymentMetricService implements Service {
 
     @Override
     public void stop(StopContext stopContext) {
-        System.out.println("JFM DeploymentMetricService.stop start ");
         registration.unregister();
-        System.out.println("JFM DeploymentMetricService.stop end");
     }
 
     private static PathAddress createDeploymentAddressPrefix(DeploymentUnit deploymentUnit) {
