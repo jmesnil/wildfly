@@ -26,7 +26,6 @@ import static org.jboss.logging.Logger.Level.INFO;
 
 import java.io.IOException;
 
-import org.jboss.as.controller.PathAddress;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;
@@ -58,14 +57,14 @@ public interface MicroProfileMetricsLogger extends BasicLogger {
     IllegalArgumentException failedInitializeJMXRegistrar(@Cause IOException e);
 
     // no longer used
-    @Message(id = 3, value = "Unable to read attribute %s on %s: %s.")
-    IllegalStateException unableToReadAttribute(String attributeName, PathAddress address, String error);
+    // @Message(id = 3, value = "Unable to read attribute %s on %s: %s.")
+    // IllegalStateException unableToReadAttribute(String attributeName, PathAddress address, String error);
 
     // no longer used
-    @Message(id = 4, value = "Unable to convert attribute %s on %s to Double value.")
-    IllegalStateException unableToConvertAttribute(String attributeName, PathAddress address, @Cause Exception exception);
+    // @Message(id = 4, value = "Unable to convert attribute %s on %s to Double value.")
+    // IllegalStateException unableToConvertAttribute(String attributeName, PathAddress address, @Cause Exception exception);
 
     // no longer used
-    @Message(id = 5, value = "Metric attribute %s on %s is undefined and will not be exposed.")
-    IllegalStateException undefinedMetric(String attributeName, PathAddress address);
+    // @Message(id = 5, value = "Metric attribute %s on %s is undefined and will not be exposed.")
+    // IllegalStateException undefinedMetric(String attributeName, PathAddress address);
 }
