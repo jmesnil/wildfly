@@ -75,7 +75,7 @@ public class WildFlyMetric implements Metric {
             // [WFLY-11933] if the value can not be read if the management resource is not accessible due to RBAC,
             // it is logged it at a lower level.
             if (error.contains("WFLYCTL0216")) {
-                LOGGER.unableToReadAttributeDueToRBAC(attributeName, error);
+                LOGGER.debugf("Unable to read attribute %s: %s.", attributeName, error);
             } else{
                 LOGGER.unableToReadAttribute(attributeName, address, error);
             }

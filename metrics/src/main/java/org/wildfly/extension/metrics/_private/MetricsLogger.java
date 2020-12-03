@@ -63,8 +63,4 @@ public interface MetricsLogger extends BasicLogger {
     @LogMessage(level = WARN)
     @Message(id = 4, value = "Unable to convert attribute %s on %s to Double value.")
     void unableToConvertAttribute(String attributeName, PathAddress address, @Cause Exception exception);
-
-    @LogMessage(level = INFO)
-    @Message(id = 5, value = "Unable to read attribute %s: %s.")
-    void unableToReadAttributeDueToRBAC(String attributeName, String error);
 }
