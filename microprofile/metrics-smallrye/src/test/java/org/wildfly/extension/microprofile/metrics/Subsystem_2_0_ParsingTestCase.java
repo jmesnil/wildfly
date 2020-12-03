@@ -29,7 +29,6 @@ import java.util.Properties;
 
 import org.jboss.as.subsystem.test.AbstractSubsystemBaseTest;
 import org.jboss.as.subsystem.test.AdditionalInitialization;
-import org.jboss.as.subsystem.test.KernelServices;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2018 Red Hat inc.
@@ -60,11 +59,6 @@ public class Subsystem_2_0_ParsingTestCase extends AbstractSubsystemBaseTest {
 
     protected Properties getResolvedProperties() {
         return System.getProperties();
-    }
-
-    @Override
-    protected KernelServices standardSubsystemTest(String configId, boolean compareXml) throws Exception {
-        return super.standardSubsystemTest(configId, false);
     }
 
     @Override

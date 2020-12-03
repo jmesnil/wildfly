@@ -29,6 +29,7 @@ import static org.jboss.as.server.deployment.Phase.DEPENDENCIES;
 import static org.jboss.as.server.deployment.Phase.DEPENDENCIES_MICROPROFILE_METRICS;
 import static org.jboss.as.server.deployment.Phase.INSTALL;
 import static org.jboss.as.server.deployment.Phase.INSTALL_DEPLOYMENT_COMPLETE_SERVICE;
+import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsExtension.SUBSYSTEM_NAME;
 import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsSubsystemDefinition.WILDFLY_COLLECTOR;
 import static org.wildfly.extension.microprofile.metrics._private.MicroProfileMetricsLogger.LOGGER;
 
@@ -72,15 +73,16 @@ class MicroProfileMetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
         final List<String> exposedSubsystems = MicroProfileMetricsSubsystemDefinition.EXPOSED_SUBSYSTEMS.unwrap(context, model);
         final boolean exposeAnySubsystem = exposedSubsystems.remove("*");
         final String prefix = MicroProfileMetricsSubsystemDefinition.PREFIX.resolveModelAttribute(context, model).asStringOrNull();
+        final boolean securityEnabled = MicroProfileMetricsSubsystemDefinition.SECURITY_ENABLED.resolveModelAttribute(context, model).asBoolean();
 
         context.addStep(new AbstractDeploymentChainStep() {
             public void execute(DeploymentProcessorTarget processorTarget) {
-                processorTarget.addDeploymentProcessor(MicroProfileMetricsExtension.SUBSYSTEM_NAME, DEPENDENCIES, DEPENDENCIES_MICROPROFILE_METRICS, new DependencyProcessor());
-                processorTarget.addDeploymentProcessor(MicroProfileMetricsExtension.SUBSYSTEM_NAME, INSTALL, INSTALL_DEPLOYMENT_COMPLETE_SERVICE + 1, new DeploymentMetricProcessor(exposeAnySubsystem, exposedSubsystems, prefix));
+                processorTarget.addDeploymentProcessor(SUBSYSTEM_NAME, DEPENDENCIES, DEPENDENCIES_MICROPROFILE_METRICS, new DependencyProcessor());
+                processorTarget.addDeploymentProcessor(SUBSYSTEM_NAME, INSTALL, INSTALL_DEPLOYMENT_COMPLETE_SERVICE + 1, new DeploymentMetricProcessor(exposeAnySubsystem, exposedSubsystems, prefix));
             }
         }, RUNTIME);
 
-
+        MetricsHTTTPSecurityService.install(context, securityEnabled);
         MicroProfileMetricsContextService.install(context);
 
         // delay the registration of the metrics in the VERIFY stage so that all resources

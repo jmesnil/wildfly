@@ -22,8 +22,6 @@
 
 package org.wildfly.extension.microprofile.metrics;
 
-import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsExtension.VERSION_2_1_0;
-
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -37,6 +35,7 @@ import org.jboss.as.controller.capability.RuntimeCapability;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 import org.jboss.msc.service.ServiceName;
+import org.wildfly.extension.metrics.MetricsSubsystemDefinition;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2018 Red Hat inc.
@@ -50,17 +49,14 @@ public class MicroProfileMetricsSubsystemDefinition extends PersistentResourceDe
     static final RuntimeCapability<Void> MICROPROFILE_METRIC_HTTP_CONTEXT_CAPABILITY = RuntimeCapability.Builder.of("org.wildfly.extension.microprofile.metrics.http-context", MicroProfileMetricsContextService.class)
             .addRequirements(METRICS_HTTP_CONTEXT_CAPABILITY, MP_CONFIG)
             .build();
+    static final RuntimeCapability<Void> MICROPROFILE_METRICS_HTTP_SECURITY_CAPABILITY = RuntimeCapability.Builder.of(MetricsSubsystemDefinition.METRICS_HTTP_SECURITY_CAPABILITY, Boolean.class)
+            .build();
 
-    /**
-     * @deprecated Enabling the security is now controlled by the security-enabled attribute of the metrics subsystem.
-     */
-    @Deprecated
     static final AttributeDefinition SECURITY_ENABLED = SimpleAttributeDefinitionBuilder.create("security-enabled", ModelType.BOOLEAN)
             .setDefaultValue(ModelNode.TRUE)
             .setRequired(false)
             .setRestartAllServices()
             .setAllowExpression(true)
-            .setDeprecated(VERSION_2_1_0)
             .build();
 
     static final StringListAttributeDefinition EXPOSED_SUBSYSTEMS = new StringListAttributeDefinition.Builder("exposed-subsystems")
@@ -81,7 +77,7 @@ public class MicroProfileMetricsSubsystemDefinition extends PersistentResourceDe
                 MicroProfileMetricsExtension.getResourceDescriptionResolver(MicroProfileMetricsExtension.SUBSYSTEM_NAME))
                 .setAddHandler(MicroProfileMetricsSubsystemAdd.INSTANCE)
                 .setRemoveHandler(new ServiceRemoveStepHandler(MicroProfileMetricsSubsystemAdd.INSTANCE))
-                .setCapabilities(MICROPROFILE_METRIC_HTTP_CONTEXT_CAPABILITY));
+                .setCapabilities(MICROPROFILE_METRIC_HTTP_CONTEXT_CAPABILITY, MICROPROFILE_METRICS_HTTP_SECURITY_CAPABILITY));
     }
 
     @Override

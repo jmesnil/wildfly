@@ -45,6 +45,7 @@ public class MetricsSubsystemDefinition extends PersistentResourceDefinition {
     static final String MANAGEMENT_EXECUTOR ="org.wildfly.management.executor";
     static final String PROCESS_STATE_NOTIFIER = "org.wildfly.management.process-state-notifier";
     static final String HTTP_EXTENSIBILITY_CAPABILITY = "org.wildfly.management.http.extensible";
+    public static final String METRICS_HTTP_SECURITY_CAPABILITY = "org.wildfly.extension.metrics.http-context.security-enabled";
 
     private static final RuntimeCapability<Void> METRICS_COLLECTOR_RUNTIME_CAPABILITY = RuntimeCapability.Builder.of("org.wildfly.extension.metrics.wildfly-collector", MetricCollector.class)
             .addRequirements(CLIENT_FACTORY_CAPABILITY, MANAGEMENT_EXECUTOR, PROCESS_STATE_NOTIFIER)

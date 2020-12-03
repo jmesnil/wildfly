@@ -24,6 +24,7 @@ package org.wildfly.extension.metrics;
 
 import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.HTTP_EXTENSIBILITY_CAPABILITY;
 import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.METRICS_HTTP_CONTEXT_CAPABILITY;
+import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.METRICS_HTTP_SECURITY_CAPABILITY;
 import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.METRICS_REGISTRY_RUNTIME_CAPABILITY;
 
 import java.util.function.Consumer;
@@ -35,6 +36,7 @@ import org.jboss.as.controller.OperationContext;
 import org.jboss.as.server.mgmt.domain.ExtensibleHttpManagement;
 import org.jboss.msc.Service;
 import org.jboss.msc.service.ServiceBuilder;
+import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StopContext;
 
@@ -48,7 +50,7 @@ public class MetricsContextService implements Service {
     private final Consumer<MetricsContextService> consumer;
     private final Supplier<ExtensibleHttpManagement> extensibleHttpManagement;
     private Supplier<WildFlyMetricRegistry> wildflyMetricRegistry;
-    private final boolean securityEnabled;
+    private final Supplier<Boolean> securityEnabledSupplier;
     private final PrometheusExporter prometheusExporter = new PrometheusExporter();
     private HttpHandler overrideableMetricHandler;
 
@@ -58,22 +60,32 @@ public class MetricsContextService implements Service {
         Supplier<ExtensibleHttpManagement> extensibleHttpManagement = serviceBuilder.requires(context.getCapabilityServiceName(HTTP_EXTENSIBILITY_CAPABILITY, ExtensibleHttpManagement.class));
         Supplier<WildFlyMetricRegistry> wildflyMetricRegistry = serviceBuilder.requires(METRICS_REGISTRY_RUNTIME_CAPABILITY.getCapabilityServiceName());
         Consumer<MetricsContextService> metricsContext = serviceBuilder.provides(METRICS_HTTP_CONTEXT_CAPABILITY.getCapabilityServiceName());
-
-        Service metricsContextService = new MetricsContextService(metricsContext, extensibleHttpManagement, wildflyMetricRegistry, securityEnabled);
+        final Supplier<Boolean> securityEnabledSupplier;
+        if (context.getCapabilityServiceSupport().hasCapability(METRICS_HTTP_SECURITY_CAPABILITY)) {
+            securityEnabledSupplier = serviceBuilder.requires(ServiceName.parse(METRICS_HTTP_SECURITY_CAPABILITY));
+        } else {
+            securityEnabledSupplier = new Supplier<Boolean>() {
+                @Override
+                public Boolean get() {
+                    return securityEnabled;
+                }
+            };
+        }
+        Service metricsContextService = new MetricsContextService(metricsContext, extensibleHttpManagement, wildflyMetricRegistry, securityEnabledSupplier);
 
         serviceBuilder.setInstance(metricsContextService)
                 .install();
     }
-    public MetricsContextService(Consumer<MetricsContextService> consumer, Supplier<ExtensibleHttpManagement> extensibleHttpManagement, Supplier<WildFlyMetricRegistry> wildflyMetricRegistry, boolean securityEnabled) {
+    public MetricsContextService(Consumer<MetricsContextService> consumer, Supplier<ExtensibleHttpManagement> extensibleHttpManagement, Supplier<WildFlyMetricRegistry> wildflyMetricRegistry, Supplier<Boolean> securityEnabledSupplier) {
         this.consumer = consumer;
         this.extensibleHttpManagement = extensibleHttpManagement;
         this.wildflyMetricRegistry = wildflyMetricRegistry;
-        this.securityEnabled = securityEnabled;
+        this.securityEnabledSupplier = securityEnabledSupplier;
     }
 
     @Override
     public void start(StartContext context) {
-        extensibleHttpManagement.get().addManagementHandler(CONTEXT_NAME, securityEnabled, new HttpHandler() {
+        extensibleHttpManagement.get().addManagementHandler(CONTEXT_NAME, securityEnabledSupplier.get(), new HttpHandler() {
             @Override
             public void handleRequest(HttpServerExchange exchange) throws Exception {
                 if (overrideableMetricHandler != null) {
