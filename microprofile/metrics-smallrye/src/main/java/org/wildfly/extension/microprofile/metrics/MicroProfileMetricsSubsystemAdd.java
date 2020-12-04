@@ -28,7 +28,7 @@ import static org.jboss.as.controller.PathAddress.EMPTY_ADDRESS;
 import static org.jboss.as.server.deployment.Phase.DEPENDENCIES;
 import static org.jboss.as.server.deployment.Phase.DEPENDENCIES_MICROPROFILE_METRICS;
 import static org.jboss.as.server.deployment.Phase.INSTALL;
-import static org.jboss.as.server.deployment.Phase.INSTALL_DEPLOYMENT_COMPLETE_SERVICE;
+import static org.jboss.as.server.deployment.Phase.POST_MODULE_MICROPROFILE_METRICS;
 import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsExtension.SUBSYSTEM_NAME;
 import static org.wildfly.extension.microprofile.metrics.MicroProfileMetricsSubsystemDefinition.WILDFLY_COLLECTOR;
 import static org.wildfly.extension.microprofile.metrics._private.MicroProfileMetricsLogger.LOGGER;
@@ -78,7 +78,7 @@ class MicroProfileMetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
         context.addStep(new AbstractDeploymentChainStep() {
             public void execute(DeploymentProcessorTarget processorTarget) {
                 processorTarget.addDeploymentProcessor(SUBSYSTEM_NAME, DEPENDENCIES, DEPENDENCIES_MICROPROFILE_METRICS, new DependencyProcessor());
-                processorTarget.addDeploymentProcessor(SUBSYSTEM_NAME, INSTALL, INSTALL_DEPLOYMENT_COMPLETE_SERVICE + 1, new DeploymentMetricProcessor(exposeAnySubsystem, exposedSubsystems, prefix));
+                processorTarget.addDeploymentProcessor(SUBSYSTEM_NAME, INSTALL, POST_MODULE_MICROPROFILE_METRICS, new DeploymentMetricProcessor(exposeAnySubsystem, exposedSubsystems, prefix));
             }
         }, RUNTIME);
 
