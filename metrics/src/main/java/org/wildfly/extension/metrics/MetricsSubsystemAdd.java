@@ -25,6 +25,7 @@ package org.wildfly.extension.metrics;
 import static org.jboss.as.controller.OperationContext.Stage.RUNTIME;
 import static org.jboss.as.controller.OperationContext.Stage.VERIFY;
 import static org.jboss.as.controller.PathAddress.EMPTY_ADDRESS;
+import static org.jboss.as.server.deployment.Phase.POST_MODULE_METRICS;
 import static org.jboss.as.server.deployment.Phase.INSTALL;
 import static org.wildfly.extension.metrics.MetricsExtension.SUBSYSTEM_NAME;
 import static org.wildfly.extension.metrics.MetricsSubsystemDefinition.METRICS_REGISTRY_RUNTIME_CAPABILITY;
@@ -69,8 +70,7 @@ class MetricsSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
         context.addStep(new AbstractDeploymentChainStep() {
             public void execute(DeploymentProcessorTarget processorTarget) {
-                // FIXME replace by POST_MODULE_METRICS after WFCORE-5122 is merged.
-                processorTarget.addDeploymentProcessor(SUBSYSTEM_NAME, INSTALL, 0x3755, new DeploymentMetricProcessor(exposeAnySubsystem, exposedSubsystems, prefix));
+                processorTarget.addDeploymentProcessor(SUBSYSTEM_NAME, INSTALL, POST_MODULE_METRICS, new DeploymentMetricProcessor(exposeAnySubsystem, exposedSubsystems, prefix));
             }
         }, RUNTIME);
 
