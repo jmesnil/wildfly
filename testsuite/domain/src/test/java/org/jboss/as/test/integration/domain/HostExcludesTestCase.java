@@ -167,12 +167,10 @@ public class HostExcludesTestCase extends BuildConfigurationTestBase {
                 "org.wildfly.extension.microprofile.openapi-smallrye"
         )),
         WILDFLY_20_0("WildFly20.0", WILDFLY_19_0),
-        /*
         WILDFLY_21_0("WildFly21.0", WILDFLY_20_0),
         WILDFLY_22_0("WildFly22.0", WILDFLY_21_0, Arrays.asList(
                 "org.wildfly.extension.metrics"
         )),
-        */
                 EAP62("EAP62", Arrays.asList(
                         "org.jboss.as.appclient",
                         "org.jboss.as.clustering.infinispan",
