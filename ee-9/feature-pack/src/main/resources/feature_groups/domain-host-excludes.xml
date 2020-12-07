@@ -58,8 +58,6 @@
         <param name="host-release" value="WildFly19.0"/>
         <param name="excluded-extensions" value="[&quot;org.wildfly.extension.metrics&quot;]"/>
     </feature>
-    <!-- WildFly20.0 & WildFly21.0 are missing in enumeration -->
-    <!--
     <feature spec="domain.host-exclude">
         <param name="host-exclude" value="WildFly20.0"/>
         <param name="host-release" value="WildFly20.0"/>
@@ -70,5 +68,4 @@
         <param name="host-release" value="WildFly21.0"/>
         <param name="excluded-extensions" value="[&quot;org.wildfly.extension.metrics&quot;]"/>
     </feature>
-    -->
 </feature-group-spec>
