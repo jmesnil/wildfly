@@ -24,8 +24,8 @@
         <subsystem>jsf.xml</subsystem>
         <subsystem>jsr77.xml</subsystem>
         <subsystem>mail.xml</subsystem>
-        <subsystem>metrics.xml</subsystem>
         <subsystem>messaging-activemq.xml</subsystem>
+        <subsystem>metrics.xml</subsystem>
         <subsystem>microprofile-config-smallrye.xml</subsystem>
         <subsystem>microprofile-health-smallrye.xml</subsystem>
         <subsystem>microprofile-opentracing-smallrye.xml</subsystem>
