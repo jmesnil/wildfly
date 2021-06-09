@@ -1,0 +1,14 @@
+# partial playbook just for this project to be able to compile documentation without pushing it to GitHub
+# usage: antora generate antora-playbook.yml
+site:
+  title: WildFly Documentation
+  start_page: wildfly::Index.adoc
+content:
+  sources:
+    - url: ..
+      start_path: docs
+      branches: HEAD
+ui:
+  bundle:
+    url: https://github.com/smallrye/smallrye-antora-ui/blob/main/build/ui-bundle.zip?raw=true
+    snapshot: true
