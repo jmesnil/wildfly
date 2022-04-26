@@ -474,6 +474,7 @@
                         <configuration>
                             <release-name>${preview.dist.product.release.name}</release-name>
                             <fork-embedded>${galleon.fork.embedded}</fork-embedded>
+                            <generate-channel>true</generate-channel>
                             <task-properties>
                                 <jakarta.transform.artifacts>true</jakarta.transform.artifacts>
                                 <jakarta.transform.modules>false</jakarta.transform.modules>

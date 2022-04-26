@@ -185,6 +185,7 @@
                             <task-properties>
                                 <product.release.version>${full.dist.product.release.version}</product.release.version>
                             </task-properties>
+                            <generate-channel>true</generate-channel>
                         </configuration>
                     </execution>
                 </executions>
