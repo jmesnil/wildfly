@@ -1,4 +1,5 @@
 = Use MicroProfile LRA in WildFly
+:summary: Learn how to use MicroProfile LRA With WildFly.
 :includedir: _includes
 include::{includedir}/_attributes.adoc[]
 

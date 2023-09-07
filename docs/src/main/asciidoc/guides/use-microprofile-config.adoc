@@ -1,4 +1,5 @@
 = Use Eclipse MicroProfile Config
+:summary: Learn how to use MicroProfile Config With WildFly.
 :includedir: _includes
 include::{includedir}/_attributes.adoc[]
 :prerequisites-time: 10

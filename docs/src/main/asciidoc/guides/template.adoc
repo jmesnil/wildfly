@@ -1,4 +1,5 @@
 = TITLE OF THE GUIDE
+:summary: ONELINE EXPLANATION OF THE GUIDE
 :includedir: _includes
 include::{includedir}/_attributes.adoc[]
 // you can override any attributes eg to lengthen the 
