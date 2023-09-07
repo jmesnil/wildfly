@@ -72,6 +72,7 @@
                         <toc>left</toc>
                     </attributes>
                     <backend>html5</backend>
+                    <preserveDirectories>true</preserveDirectories>
                     <resources>
                         <resource>
                             <directory>src/main/asciidoc/images</directory>
