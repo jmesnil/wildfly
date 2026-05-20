@@ -242,6 +242,7 @@
                             <generate-channel-manifest>true</generate-channel-manifest>
                             <deploy-channel-manifest>false</deploy-channel-manifest>
                             <generate-complete-model>true</generate-complete-model>
+                            <skip-doc>${feature.pack.doc.skip}</skip-doc>
                             <copyright>${wildfly.copyright.simple}</copyright>
                         </configuration>
                     </execution>
